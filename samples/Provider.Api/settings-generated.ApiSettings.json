@@ -1,0 +1,7 @@
+{
+  "Provider.Api.Settings.ApiSettings": {
+    "ConnectionString": "Data Source=MyDb.db",
+    "Duration": 10,
+    "ServiceTime1": "2025-01-17T00:07:09.3687412+01:00"
+  }
+}

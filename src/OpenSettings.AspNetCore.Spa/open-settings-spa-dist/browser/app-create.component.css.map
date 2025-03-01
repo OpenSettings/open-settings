@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/features/app/components/app-create/app-create.component.css"],
+  "sourcesContent": ["::ng-deep .mat-mdc-form-field-subscript-wrapper{\r\n    height:25px;\r\n}"],
+  "mappings": ";AAAA,UAAU,CAAC;AACP,UAAO;AACX;",
+  "names": []
+}

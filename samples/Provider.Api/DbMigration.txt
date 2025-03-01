@@ -1,0 +1,5 @@
+Migration
+dotnet ef migrations add InitialOpenSettingsDbMigration -c OpenSettingsDbContext -o Data/Migrations/OpenSettings/OpenSettingsDb
+
+Dropping
+dotnet ef database drop -c SettingsDbContext --force

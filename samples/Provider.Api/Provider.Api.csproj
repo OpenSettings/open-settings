@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+	</PropertyGroup>
+
+	<ItemGroup>
+
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.10" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.10" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.10">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.10" />
+		<PackageReference Include="Ogu.AspNetCore.Compressions" Version="1.0.1" />
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.7.3" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\src\OpenSettings.AspNetCore.Spa\OpenSettings.AspNetCore.Spa.csproj" />
+		<ProjectReference Include="..\..\src\OpenSettings.AspNetCore\OpenSettings.AspNetCore.csproj" />
+		<ProjectReference Include="..\..\src\OpenSettings\OpenSettings.csproj" />
+	</ItemGroup>
+
+</Project>

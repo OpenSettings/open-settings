@@ -1,0 +1,86 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFrameworks>netstandard2.0;netstandard2.1;netcoreapp3.1;net5.0;net6.0;net7.0;net8.0</TargetFrameworks>
+		<AssemblyName>OpenSettings.AspNetCore</AssemblyName>
+		<PackageId>OpenSettings.AspNetCore</PackageId>
+		<Product>OpenSettings.AspNetCore</Product>
+		<Authors>Oğulcan TURAN</Authors>
+		<Copyright>Copyright (c) OpenSettings 2024</Copyright>
+		<PackageProjectUrl>https://github.com/OpenSettings/open-settings</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/OpenSettings/open-settings</RepositoryUrl>
+		<PackageTags>opensettings;dotnet;csharp;configuration;settings;library</PackageTags>
+		<RepositoryType>git</RepositoryType>
+		<Description>OpenSettings.AspNetCore provides built-in controllers, middleware extensions, authentication handlers, and integration points for managing application settings in ASP.NET Core.</Description>
+		<PackageIcon>open-settings-logo.png</PackageIcon>
+		<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<NeutralLanguage>en</NeutralLanguage>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<NoWarn>$(NoWarn);1591</NoWarn>
+		<OpenApiGenerateDocuments>false</OpenApiGenerateDocuments>
+		<AssemblyOriginatorKeyFile>OpenSettings.AspNetCore.snk</AssemblyOriginatorKeyFile>
+		<SignAssembly>true</SignAssembly>
+	</PropertyGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0' Or '$(TargetFramework)' == 'netstandard2.1'">
+		<PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.3.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.3.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication" Version="2.3.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Cors" Version="2.3.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Routing" Version="2.3.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="2.3.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="2.3.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="2.3.0" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1' Or '$(TargetFramework)' == 'net5.0' Or '$(TargetFramework)' == 'net6.0' Or '$(TargetFramework)' == 'net7.0' Or '$(TargetFramework)' == 'net8.0'">
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
+		<PackageReference Include="Ogu.AspNetCore.Conventions" Version="1.0.1" />
+		<PackageReference Include="Ogu.AspNetCore.Response.Json" Version="2.0.9" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\OpenSettings.AspNetCore.Spa\OpenSettings.AspNetCore.Spa.csproj" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.8" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="8.0.8" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="7.0.20" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="6.0.32" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.17" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="5.0.17" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.32" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="3.1.32" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="..\..\logo\open-settings-logo.png" Pack="true" PackagePath="\" Visible="false" />
+		<None Include="README.md" Pack="true" PackagePath="\" Visible="false" />
+		<None Include="..\..\LICENSE.md" Pack="true" PackagePath="\" Visible="false" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="OpenSettings.AspNetCore.snk" Visible="false" />
+	</ItemGroup>
+
+</Project>

@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>%(DocumentTitle)</title>
+  <base href="./">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&amp;display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <script>
+    var controllerOptions;
+    var providerInfo;
+    var documentTitle;
+    var route;
+    var serviceType;
+    var dataAccessType;
+    var dbProviderName;
+    var packVersion;
+    var packVersionScore;
+    var version;
+    var clientName;
+    var clientId;
+    var license;
+
+    try {
+      controllerOptions = JSON.parse('%(ControllerOptions)');
+      providerInfo = JSON.parse('%(ProviderInfo)');
+      documentTitle = '%(DocumentTitle)';
+      serviceType = '%(ServiceType)';
+      dataAccessType = '%(DataAccessType)';
+      dbProviderName = '%(DbProviderName)';
+      packVersion = '%(PackVersion)';
+      packVersionScore = '%(PackVersionScore)';
+      version = '%(Version)';
+      clientName = '%(ClientName)';
+      clientId = '%(ClientId)';
+      license = JSON.parse('%(License)');
+    }
+    catch {
+      controllerOptions = {
+        route: 'http://localhost:5002/api/settings',
+        authorize: true
+      };
+      providerInfo = {
+        clientId: '00000000-0000-0000-0000-000000000000',
+        clientName: 'Provider.Api',
+        authorize: true,
+        version: '1.0.0',
+        packVersion: '1.0.1',
+        oAuth2: {
+          authority: 'http://localhost:5002',
+          isActive: true
+        }
+      };
+      documentTitle = 'OpenSettings Spa';
+      serviceType = 'Provider';
+      dataAccessType = 'Orm';
+      dbProviderName = 'SqlServer';
+      packVersion = '1.0.0';
+      packVersionScore = '281474976710656';
+      version = '1.0.0';
+      clientName = 'Provider.Api';
+      clientId = '00000000-0000-0000-0000-000000000000';
+      license = {
+        holder: 'OpenSettings',
+        referenceId: 'L-OS/OS-COMM-20250209-OS-1',
+        expiryDate: '2026-02-10T23:59:99.9999999Z',
+        edition: 100,
+        isExpired: false,
+        issuedAt: '2025-02-10T23:59:99.9999999Z'
+      }
+    }
+  </script>
+  <script src="./assets/theme-detector.js" defer=""></script>
+<link rel="stylesheet" href="styles.css"><link rel="modulepreload" href="chunk-AX4AMJNE.js"><link rel="modulepreload" href="chunk-4H4XXYOP.js"><link rel="modulepreload" href="chunk-JQUQ3G7S.js"><link rel="modulepreload" href="chunk-SUR7UARE.js"></head>
+<body class="mat-typography mat-app-background">
+  <app-root>
+    <div class="d-flex align-items-center justify-content-center vh-100">
+      <div class="text-align-center">
+        <div class="d-flex justify-content-center mb-2">
+          <div class="mat-bg-primary position-absolute rounded-circle app-icon-animation" style="margin-top:12px"><img class="app-icon bg-white"></div>
+          <div class="loading-spinner"></div>
+        </div>
+        <div class="text-muted">Preparing application...</div>
+      </div>
+    </div>
+  </app-root>
+
+  <script src="assets/vs/loader.js"></script>
+  <script>
+    require.config({ paths: { 'vs': 'assets/vs' } });
+    require(['vs/editor/editor.main'], function () { });
+  </script>
+<script src="polyfills.js" type="module"></script><script src="main.js" type="module"></script></body>
+
+</html>

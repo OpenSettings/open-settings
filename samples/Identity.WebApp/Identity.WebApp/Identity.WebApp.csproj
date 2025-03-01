@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Duende.IdentityServer" Version="7.1.0" />
+		<PackageReference Include="Duende.IdentityServer.EntityFramework" Version="7.1.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.2">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.2" />
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.7.2" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Data\Migrations\IdentityServer\ConfigurationDb\" />
+	  <Folder Include="Data\Migrations\IdentityServer\PersistedGrantDb\" />
+	  <Folder Include="keys\" />
+	</ItemGroup>
+</Project>

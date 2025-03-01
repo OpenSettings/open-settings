@@ -1,0 +1,10 @@
+{
+  "SomeSome.Can.KullaniciAyarlari": {
+    "BokbBok": true,
+    "VeritabaniBaglantiBilgisi": null
+  },
+  "Provider.Api.Settings.KullaniciAyarlari": {
+    "AktifOlmadigindaKullaniciyiAtEtkinMi": true,
+    "VeritabaniBaglantiBilgisi": null
+  }
+}

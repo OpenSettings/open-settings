@@ -1,0 +1,54 @@
+{
+  "SomeSome.Can.KullaniciAyarlari": {
+    "BokbBok": true,
+    "VeritabaniBaglantiBilgisi": null
+  },
+  "Provider.Api.Settings.ApiSettings": {
+    "ConnectionString": "Data Source=MyDb.db",
+    "Duration": 10,
+    "ServiceTime1": "2025-02-22T21:10:02.6881272+01:00"
+  },
+  "Provider.Api.Settings.KullaniciAyarlari": {
+    "AktifOlmadigindaKullaniciyiAtEtkinMi": true,
+    "VeritabaniBaglantiBilgisi": null
+  },
+  "Provider.Api.Settings.BasicSettings": {
+    "ConnectionStrings": ""
+  },
+  "Provider.Api.Settings.ClientSettings": {
+    "ClientName": "MyClient",
+    "ClientSecret": "4",
+    "ClientSecretSecret": "123"
+  },
+  "Provider.Api.Settings.MySettings": {
+    "Name": "Oğulcan",
+    "Can": "31",
+    "DeliCan": "Delican",
+    "OSettings": [
+      "1",
+      "2",
+      "3"
+    ],
+    "NullSettings": null,
+    "BokSettingsList": null,
+    "StringToIntDictionary": null,
+    "StringToSomeSetDictionary": null,
+    "StringToSomeSetListDictionary": null,
+    "BokSettings": {
+      "Dekan": "Ne",
+      "Varan": "Nasıl",
+      "Naran": "Kim"
+    },
+    "CokSettings": null,
+    "NoSettings": [
+      1,
+      2,
+      3
+    ]
+  },
+  "Provider.Api.Settings.SomeSet": {
+    "Dekan": "Ne",
+    "Varan": "Nasıl",
+    "Naran": "Kim"
+  }
+}
