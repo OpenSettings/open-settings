@@ -34,8 +34,9 @@ namespace OpenSettings
         public License CurrentLicense { get; internal set; }
 
         /// <summary>
-        /// Initializes the license provider unless it is already initialized by retrieving the current license // Todo check summary
-        /// either from the provider's database or the consumer's API, depending on the configuration.
+        /// Initializes the license provider if it has not already been initialized. 
+        /// Retrieves the current license from either the provider's database or rest api call, 
+        /// based on the configuration settings.
         /// </summary>
         /// <param name="openSettingsConfiguration">The configuration settings for OpenSettings.</param>
         /// <param name="cancellationToken">A token to cancel the operation if needed.</param>

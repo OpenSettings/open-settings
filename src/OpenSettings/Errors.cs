@@ -2,6 +2,10 @@
 
 namespace OpenSettings
 {
+    /// <summary>
+    /// Defines error codes and their descriptions used throughout OpenSettings.
+    /// Error codes are categorized into ranges for better organization.
+    /// </summary>
     public enum Errors
     {
         // Validation Errors (40000-40099)
