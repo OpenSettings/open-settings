@@ -15,18 +15,18 @@ namespace OpenSettings.AspNetCore
     internal class OpenSettingsRestServiceAuthHandler : DelegatingHandler
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IOpenSettingsTokenService _openSettingsTokenService;
         private readonly ProviderInfo _providerInfo;
         private readonly OpenSettingsMemoryCache _openSettingsMemoryCache;
         private readonly OpenSettingsConfiguration _openSettingsConfiguration;
-        private readonly OpenSettingsTokenService _openSettingsTokenService;
-
-        public OpenSettingsRestServiceAuthHandler(IHttpContextAccessor httpContextAccessor, ProviderInfo providerInfo, OpenSettingsMemoryCache openSettingsMemoryCache, OpenSettingsConfiguration openSettingsConfiguration, OpenSettingsTokenService openSettingsTokenService)
+        
+        public OpenSettingsRestServiceAuthHandler(IHttpContextAccessor httpContextAccessor, IOpenSettingsTokenService openSettingsTokenService, ProviderInfo providerInfo, OpenSettingsMemoryCache openSettingsMemoryCache, OpenSettingsConfiguration openSettingsConfiguration)
         {
             _httpContextAccessor = httpContextAccessor;
+            _openSettingsTokenService = openSettingsTokenService;
             _providerInfo = providerInfo;
             _openSettingsMemoryCache = openSettingsMemoryCache;
             _openSettingsConfiguration = openSettingsConfiguration;
-            _openSettingsTokenService = openSettingsTokenService;
         }
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)

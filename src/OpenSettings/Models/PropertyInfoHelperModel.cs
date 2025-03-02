@@ -37,7 +37,7 @@ namespace OpenSettings.Models
                 return null;
             }
 
-            var propertyInfo = new PropertyInfoHelperModel()
+            var propertyInfo = new PropertyInfoHelperModel
             {
                 Name = type.Name,
                 TypeIdentifier = type.GUID,
@@ -85,10 +85,11 @@ namespace OpenSettings.Models
             return propertyInfo;
         }
 
-        private static readonly HashSet<Type> BasicTypes = new HashSet<Type>()
+        private static readonly HashSet<Type> BasicTypes = new HashSet<Type>
         {
             typeof(string),
-            typeof(DateTime)
+            typeof(DateTime),
+            typeof(TimeSpan)
         };
 
         private static bool CheckIfCanBeNull(Type type)

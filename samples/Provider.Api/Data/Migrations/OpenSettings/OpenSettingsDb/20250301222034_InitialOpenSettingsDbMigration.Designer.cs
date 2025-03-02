@@ -12,7 +12,7 @@ using OpenSettings.Domains.Sql.DataContext;
 namespace Provider.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 {
     [DbContext(typeof(OpenSettingsDbContext))]
-    [Migration("20250222194039_InitialOpenSettingsDbMigration")]
+    [Migration("20250301222034_InitialOpenSettingsDbMigration")]
     partial class InitialOpenSettingsDbMigration
     {
         /// <inheritdoc />
@@ -128,9 +128,6 @@ namespace Provider.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("AppType")
-                        .HasColumnType("int");
-
                     b.Property<Guid>("ClientId")
                         .HasColumnType("uniqueidentifier");
 
@@ -175,6 +172,9 @@ namespace Provider.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("SortOrder")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Type")
                         .HasColumnType("int");
 
                     b.Property<Guid?>("UpdatedById")
@@ -254,6 +254,15 @@ namespace Provider.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 
                     b.Property<int>("IdentifierId")
                         .HasColumnType("int");
+
+                    b.Property<bool>("IgnoreIndividualIgnoreOnFileChange")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IgnoreIndividualRegistrationMode")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IgnoreIndividualStoreInSeparateFile")
+                        .HasColumnType("bit");
 
                     b.Property<bool>("IgnoreOnFileChange")
                         .HasColumnType("bit");
@@ -710,6 +719,9 @@ namespace Provider.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         .HasColumnType("int");
 
                     b.Property<bool?>("IgnoreOnFileChange")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDraft")
                         .HasColumnType("bit");
 
                     b.Property<int>("RegistrationMode")

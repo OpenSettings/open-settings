@@ -1,17 +1,17 @@
 using Consumer.Api.Settings;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Ogu.Compressions.Abstractions;
+using OpenSettings.AspNetCore;
 using OpenSettings.Configurations;
+using OpenSettings.Extensions;
 using OpenSettings.Models;
 using System;
 
 var builder = WebApplication.CreateBuilder(args);
 
-await builder.Host.UseOpenSettingsAsync(ConsumerConfiguration(), typeof(DenSettings));
+await builder.Host.UseOpenSettingsAsync(ConsumerConfiguration(), typeof(GeneralSettings)); // Registers OpenSettings
 
 builder.Services.AddSwaggerGen(c =>
 {
@@ -20,16 +20,15 @@ builder.Services.AddSwaggerGen(c =>
 
 builder.Services
     .AddControllers()
-    .AddOpenSettingsController(builder.Configuration, opts => opts.Authorize = true);
-// .AddJsonOptions(opts => opts.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault);
+    .AddOpenSettingsController(builder.Configuration, opts => opts.Authorize = true); // Enables OpenSettings Controllers
 
 builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 
 app.UseRouting();
-app.UseOpenSettings();
-app.UseOpenSettingsSpa();
+app.UseOpenSettings(); // Updates instance status when the application is starting or stopping.
+app.UseOpenSettingsSpa(); // Enables OpenSettings SPA page for viewing and editing settings.
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseSwagger();
@@ -64,6 +63,5 @@ static OpenSettingsConfiguration ConsumerConfiguration() => new OpenSettingsConf
     Operation = Operation.ReadOrInitialize,
     StoreInSeparateFile = true,
     IgnoreOnFileChange = false,
-    RegistrationMode = RegistrationMode.Configure,
-    LoggerFactory = LoggerFactory.Create(l => l.AddSimpleConsole())
+    RegistrationMode = RegistrationMode.Configure
 };
