@@ -2,11 +2,9 @@
 
 ## Community Edition License (Open Source)
 
-The **Community Edition** of OpenSettings is provided under the **MIT License**, a permissive open-source license. This version is free for personal and non-commercial use.
+The **Community Edition** of OpenSettings is provided under the **MIT License**, a permissive open-source license. This version is free for personal, educational purposes and non-commercial use. You may modify and distribute it as long as you include the original copyright and license notice.
 
 ---
-
-### MIT License
 
 MIT License
 
@@ -29,8 +27,6 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
-The Community Edition is **free** to use for non-commercial, personal, and educational purposes. You may modify and distribute it as long as you include the original copyright and license notice.
 
 ---
 
@@ -106,7 +102,7 @@ The **Paid Editions** of OpenSettings, such as **Personal**, **Pro** and **Enter
 
 By downloading, installing, or using OpenSettings, you agree to the terms outlined in this License. If you do not agree with these terms, you must not use the software.
 
-For any inquiries, please contact us at [contact@opensettings.net](mailto:contact@opensettings.net).
+For any inquiries related to license, please contact us at [license@opensettings.net](mailto:license@opensettings.net).
 
 ---
 
