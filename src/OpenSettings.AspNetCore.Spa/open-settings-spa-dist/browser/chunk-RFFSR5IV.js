@@ -265,7 +265,7 @@ function SponsorListComponent_ng_template_38_button_0_Template(rf, ctx) {
     \u0275\u0275listener("click", function SponsorListComponent_ng_template_38_button_0_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r10);
       const ctx_r3 = \u0275\u0275nextContext(2);
-      return \u0275\u0275resetView(ctx_r3.matMenuTrigger == null ? null : ctx_r3.matMenuTrigger.openMenu());
+      return \u0275\u0275resetView(ctx_r3.openBecomeSponsorMenu());
     });
     \u0275\u0275text(1);
     \u0275\u0275element(2, "mat-icon", 44);
@@ -458,6 +458,13 @@ var _SponsorListComponent = class _SponsorListComponent {
         this.iconRegistry.addSvgIconLiteral(link.iconName, this.sanitizer.bypassSecurityTrustHtml(link.svgIconDef));
       }
     });
+  }
+  openBecomeSponsorMenu() {
+    if (this.selectedRawResponseData.becomeSponsorLinks.length === 1) {
+      this.openLink(this.selectedRawResponseData.becomeSponsorLinks[0].url);
+    } else {
+      this.matMenuTrigger?.openMenu();
+    }
   }
   confirmationRequiredToOpenLink(url, event) {
     event.preventDefault();
@@ -687,4 +694,4 @@ var SponsorModule = _SponsorModule;
 export {
   SponsorModule
 };
-//# sourceMappingURL=chunk-S6YZ7MVT.js.map
+//# sourceMappingURL=chunk-RFFSR5IV.js.map

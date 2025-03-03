@@ -89,7 +89,7 @@ var nonAuthGuard = (route, state) => {
 // src/app/app/app-routing.module.ts
 var routes = [
   { path: "login", canActivateChild: [nonAuthGuard], loadChildren: () => import("./chunk-7CZV42H7.js").then((m) => m.LoginModule) },
-  { path: "", canActivateChild: [authGuard], loadChildren: () => import("./chunk-E6OEBVSA.js").then((m) => m.DefaultLayoutModule) },
+  { path: "", canActivateChild: [authGuard], loadChildren: () => import("./chunk-PAKFE4ZY.js").then((m) => m.DefaultLayoutModule) },
   { path: "**", redirectTo: "" }
 ];
 var _AppRoutingModule = class _AppRoutingModule {

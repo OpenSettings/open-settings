@@ -5,7 +5,7 @@
 		<AssemblyName>OpenSettings.AspNetCore.Spa</AssemblyName>
 		<PackageId>OpenSettings.AspNetCore.Spa</PackageId>
 		<Product>OpenSettings.AspNetCore.Spa</Product>
-		<Authors>Oğulcan TURAN</Authors>
+		<Authors>OpenSettings</Authors>
 		<Copyright>Copyright (c) OpenSettings 2024</Copyright>
 		<PackageProjectUrl>https://github.com/OpenSettings/open-settings</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/OpenSettings/open-settings</RepositoryUrl>

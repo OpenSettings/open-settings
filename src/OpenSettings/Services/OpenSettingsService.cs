@@ -16,11 +16,9 @@ namespace OpenSettings.Services
     public class OpenSettingsService : IOpenSettingsService
     {
         private const string Url = "https://raw.githubusercontent.com/OpenSettings/open-settings-configs/refs/heads/" +
-#if DEBUG
-                                   "debug"
-#else
+
                                    "master"
-#endif
+
                                    + "/configs.json";
 
         private const string CacheControlFormat = "public, max-age={0}";

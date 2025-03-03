@@ -1,7 +1,7 @@
 import {
   LicenseUpgradeComponent,
   LicensesService
-} from "./chunk-6EGXYXAX.js";
+} from "./chunk-Z7TV74EY.js";
 import {
   MatCell,
   MatCellDef,
@@ -486,4 +486,4 @@ var AboutModule = _AboutModule;
 export {
   AboutModule
 };
-//# sourceMappingURL=chunk-RVIVUZDJ.js.map
+//# sourceMappingURL=chunk-EZ3VPIGX.js.map

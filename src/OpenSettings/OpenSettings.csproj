@@ -5,7 +5,7 @@
 		<AssemblyName>OpenSettings</AssemblyName>
 		<PackageId>OpenSettings</PackageId>
 		<Product>OpenSettings</Product>
-		<Authors>Oğulcan TURAN</Authors>
+		<Authors>OpenSettings</Authors>
 		<Copyright>Copyright (c) OpenSettings 2024</Copyright>
 		<PackageProjectUrl>https://github.com/OpenSettings/open-settings</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/OpenSettings/open-settings</RepositoryUrl>

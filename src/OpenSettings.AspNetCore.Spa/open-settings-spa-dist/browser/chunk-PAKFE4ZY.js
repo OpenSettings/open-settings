@@ -21,7 +21,7 @@ import {
 import {
   LicenseUpgradeComponent,
   LicensesService
-} from "./chunk-6EGXYXAX.js";
+} from "./chunk-Z7TV74EY.js";
 import "./chunk-EB7MRBEE.js";
 import "./chunk-4H4XXYOP.js";
 import {
@@ -3041,12 +3041,12 @@ var routes = [
     component: DefaultLayoutComponent,
     canActivateChild: [authGuard],
     children: [
-      { path: DEFAULT_ROUTES.base, loadChildren: () => import("./chunk-DXQKGPI4.js").then((m) => m.AppModule) },
-      { path: DEFAULT_ROUTES.about, loadChildren: () => import("./chunk-RVIVUZDJ.js").then((m) => m.AboutModule) },
+      { path: DEFAULT_ROUTES.base, loadChildren: () => import("./chunk-3JJMQLFD.js").then((m) => m.AppModule) },
+      { path: DEFAULT_ROUTES.about, loadChildren: () => import("./chunk-EZ3VPIGX.js").then((m) => m.AboutModule) },
       { path: DEFAULT_ROUTES.groups, loadChildren: () => import("./chunk-U6WLI2RV.js").then((m) => m.GroupModule) },
       { path: DEFAULT_ROUTES.identifiers, loadChildren: () => import("./chunk-AINCA7M4.js").then((m) => m.IdentifierModule) },
       { path: DEFAULT_ROUTES.tags, loadChildren: () => import("./chunk-ETRWFHWU.js").then((m) => m.TagModule) },
-      { path: DEFAULT_ROUTES.sponsors, loadChildren: () => import("./chunk-S6YZ7MVT.js").then((m) => m.SponsorModule) },
+      { path: DEFAULT_ROUTES.sponsors, loadChildren: () => import("./chunk-RFFSR5IV.js").then((m) => m.SponsorModule) },
       { path: "**", redirectTo: DEFAULT_ROUTES.redirectTo }
     ]
   }
@@ -3160,4 +3160,4 @@ var DefaultLayoutModule = _DefaultLayoutModule;
 export {
   DefaultLayoutModule
 };
-//# sourceMappingURL=chunk-E6OEBVSA.js.map
+//# sourceMappingURL=chunk-PAKFE4ZY.js.map
