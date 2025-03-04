@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Ogu.Compressions;
 using OpenSettings.Configurations;
@@ -10,6 +11,7 @@ using System;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 
 namespace OpenSettings
 {
@@ -29,7 +31,9 @@ namespace OpenSettings
         private LicenseProvider() { }
 
         /// <summary>
-        /// Gets or internally sets the currently active license.
+        /// Gets the currently active license, which is assigned internally during a call to 
+        /// <see cref="Extensions.HostBuilderExtensions.UseOpenSettingsAsync(IHostBuilder, OpenSettingsConfiguration, Type[])"/> or
+        /// <see cref="Extensions.HostBuilderExtensions.UseOpenSettingsAsync(IHostBuilder, OpenSettingsConfiguration, Func{IConfiguration, Task}, Type[])"/>.
         /// </summary>
         public License CurrentLicense { get; internal set; }
 

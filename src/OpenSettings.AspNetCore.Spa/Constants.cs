@@ -1,6 +1,6 @@
 ﻿namespace OpenSettings.AspNetCore.Spa
 {
-    public static class Constants
+    internal static class Constants
     {
         internal const string TextHtmlContentType = "text/html;charset=utf-8";
         internal const string LocationHeaderName = "Location";

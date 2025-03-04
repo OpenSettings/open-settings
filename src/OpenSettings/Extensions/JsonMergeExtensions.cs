@@ -10,27 +10,45 @@ using System.Threading.Tasks;
 
 namespace OpenSettings.Extensions
 {
+    /// <summary>
+    /// Provides helper methods for JSON manipulation, including options for reading and writing JSON documents and merging JSON objects.
+    /// </summary>
     public static class JsonHelper
     {
+        /// <summary>
+        /// Gets the default options for parsing a JSON document, which allows trailing commas and skips comments.
+        /// </summary>
         public static JsonDocumentOptions DefaultJsonDocumentOptions { get; } = new JsonDocumentOptions
         {
             AllowTrailingCommas = true,
             CommentHandling = JsonCommentHandling.Skip
         };
 
+        /// <summary>
+        /// Gets the default options for writing a JSON document, which does not indent and uses relaxed escaping.
+        /// </summary>
         public static JsonWriterOptions DefaultJsonWriterOptions { get; } = new JsonWriterOptions
         {
             Indented = false,
             Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
         };
 
-        public static JsonSerializerOptions DefaultJsonSerializerOptions { get; } = new JsonSerializerOptions()
+        /// <summary>
+        /// Gets the default options for serializing JSON, which allows trailing commas, uses relaxed escaping, and skips comments.
+        /// </summary>
+        public static JsonSerializerOptions DefaultJsonSerializerOptions { get; } = new JsonSerializerOptions
         {
             AllowTrailingCommas = true,
             Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
             ReadCommentHandling = JsonCommentHandling.Skip
         };
 
+        /// <summary>
+        /// Reads a JSON file asynchronously and returns it as a dictionary.
+        /// </summary>
+        /// <param name="filePath">The file path of the JSON file to read.</param>
+        /// <param name="cancellationToken">A cancellation token to support cancellation of the operation.</param>
+        /// <returns>A <see cref="Task{Dictionary{string, object}}"/> containing the dictionary representation of the JSON data.</returns>
         public static async Task<Dictionary<string, object>> GetJsonFileAsync(string filePath, CancellationToken cancellationToken = default)
         {
             using (var jsonStream = File.OpenRead(filePath))
@@ -40,6 +58,13 @@ namespace OpenSettings.Extensions
             }
         }
 
+        /// <summary>
+        /// Merges two JSON files asynchronously by reading their contents from the specified file paths.
+        /// </summary>
+        /// <param name="baseFilePath">The file path of the base JSON file.</param>
+        /// <param name="patchFilePath">The file path of the patch JSON file to apply.</param>
+        /// <param name="cancellationToken">A cancellation token to support cancellation of the operation.</param>
+        /// <returns>A <see cref="Task{JsonMergeResult}"/> representing the asynchronous operation, with the result of the merge operation.</returns>
         public static async Task<JsonMergeResult> MergeFileAsync(string baseFilePath, string patchFilePath, CancellationToken cancellationToken = default)
         {
             var jsonMergeResult = new JsonMergeResult();
@@ -103,6 +128,12 @@ namespace OpenSettings.Extensions
             return jsonMergeResult;
         }
 
+        /// <summary>
+        /// Merges two JSON strings (baseJson and patchJson) into a single JSON object.
+        /// </summary>
+        /// <param name="baseJson">The base JSON string to be merged with the patch.</param>
+        /// <param name="patchJson">The JSON string containing the changes to be applied to the base JSON.</param>
+        /// <returns>A <see cref="JsonMergeResult"/> containing the result of the merge operation.</returns>
         public static JsonMergeResult Merge(string baseJson, string patchJson)
         {
             var jsonMergeResult = new JsonMergeResult();

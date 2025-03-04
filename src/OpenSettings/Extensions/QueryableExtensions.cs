@@ -8,7 +8,7 @@ using System.Reflection;
 
 namespace OpenSettings.Extensions
 {
-    public static class QueryableExtensions
+    internal static class QueryableExtensions
     {
         private const string InMemoryProviderName = "Microsoft.EntityFrameworkCore.InMemory";
 

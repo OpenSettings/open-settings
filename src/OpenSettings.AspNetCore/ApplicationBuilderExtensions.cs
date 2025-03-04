@@ -16,6 +16,10 @@ using System.Threading.Tasks;
 
 namespace OpenSettings.AspNetCore
 {
+    /// <summary>
+    /// Provides extension methods for configuring OpenSettings within an ASP.NET Core application pipeline.
+    /// This class contains methods to update instance status and ensure proper integration with OpenSettings.
+    /// </summary>
     public static class ApplicationBuilderExtensions
     {
         /// <summary>

@@ -7,11 +7,36 @@ using System.Text.Json;
 
 namespace OpenSettings
 {
+    /// <summary>
+    /// Provides constant values for authentication schemes and pack version metadata used in OpenSettings.
+    /// </summary>
     public static class Constants
     {
+        /// <summary>
+        /// The authentication scheme for Basic Authentication in OpenSettings.
+        /// </summary>
         public const string OpenSettingsBasicAuthScheme = "OpenSettingsBasicAuth";
+
+        /// <summary>
+        /// The authentication scheme for Cookie-based Authentication in OpenSettings.
+        /// </summary>
         public const string OpenSettingsCookieScheme = "OpenSettingsCookieScheme";
+
+        /// <summary>
+        /// The authentication scheme for OAuth2 Authentication in OpenSettings.
+        /// </summary>
         public const string OpenSettingsOAuth2Scheme = "OpenSettingsOAuth2";
+
+        /// <summary>
+        /// The name used to represent the pack version in OpenSettings.
+        /// </summary>
+        public const string PackVersionName = "PackVersion";
+
+        /// <summary>
+        /// The name used to represent the pack version score in OpenSettings.
+        /// </summary>
+        public const string PackVersionScoreName = "PackVersionScore";
+
         internal const string BasicSchemeName = "Basic";
 
         internal static JsonSerializerOptions UnsafeRelaxedJsonSerializerOptions = new JsonSerializerOptions { Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
@@ -39,8 +64,6 @@ namespace OpenSettings
         internal const string DefaultInstanceName = "Default";
         internal const string NotificationsConfigName = "notifications";
         internal const string ApplicationJson = "application/json";
-        public const string PackVersionName = "PackVersion";
-        public const string PackVersionScoreName = "PackVersionScore";
 
         internal const int SortOrderGap = 10;
         internal const int MinPageIndex = 1;

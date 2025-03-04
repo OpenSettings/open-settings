@@ -27,8 +27,22 @@ using System.Threading.Channels;
 
 namespace OpenSettings.Extensions
 {
+    /// <summary>
+    /// Provides extension methods to configure and add OpenSettings services to an <see cref="IServiceCollection"/>.
+    /// </summary>
     public static class ServiceCollectionExtensions
     {
+        /// <summary>
+        /// Configures OpenSettings for the application by iterating over the <see cref="Constants.FullNameToLocalSetting"/>
+        /// and registering each setting type in the <see cref="IServiceCollection"/> based on the configuration.
+        /// <para>
+        /// This method is typically called during the <see cref="HostBuilderExtensions.UseOpenSettingsAsync(IHostBuilder, OpenSettingsConfiguration, Type[])"/> extension to initialize
+        /// OpenSettings configuration.
+        /// </para>
+        /// </summary>
+        /// <param name="services">The <see cref="IServiceCollection"/> to which the OpenSettings services will be added.</param>
+        /// <param name="configuration">The <see cref="IConfiguration"/> instance used to configure the settings.</param>
+        /// <returns>The <see cref="IServiceCollection"/> with OpenSettings services configured.</returns>
         public static IServiceCollection ConfigureOpenSettings(this IServiceCollection services, IConfiguration configuration)
         {
             foreach (var kvp in Constants.FullNameToLocalSetting)
@@ -39,6 +53,15 @@ namespace OpenSettings.Extensions
             return services;
         }
 
+        /// <summary>
+        /// Adds OpenSettings services to the application's <see cref="IServiceCollection"/>. This registers services
+        /// necessary to run OpenSettings, based on the inherited <see cref="ISettings"/> types and the registration
+        /// type (Singleton & IOptions interfaces).
+        /// </summary>
+        /// <param name="services">The <see cref="IServiceCollection"/> to which OpenSettings services will be added.</param>
+        /// <param name="openSettingsConfiguration">The configuration that governs the behavior of OpenSettings (such as the service type: Provider or Consumer).</param>
+        /// <param name="providerInfo">Information about the provider being registered.</param>
+        /// <returns>The <see cref="IServiceCollection"/> with OpenSettings services registered.</returns>
         public static IServiceCollection AddOpenSettings(this IServiceCollection services, OpenSettingsConfiguration openSettingsConfiguration, ProviderInfo providerInfo)
         {
             if (openSettingsConfiguration == null)

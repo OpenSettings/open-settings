@@ -23,6 +23,10 @@ using OpenSettings.Extensions;
 
 namespace OpenSettings.Extensions
 {
+    /// <summary>
+    /// Provides extension methods for <see cref="IConfigurationBuilder"/> to retrieve settings from the configuration 
+    /// and build application settings asynchronously.
+    /// </summary>
     public static class ConfigurationBuilderExtensions
     {
         /// <summary>

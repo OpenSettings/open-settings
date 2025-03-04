@@ -22,6 +22,11 @@ using System.Threading.Tasks;
 
 namespace OpenSettings.AspNetCore
 {
+    /// <summary>
+    /// Provides extension methods for configuring MVC services in OpenSettings.
+    /// This class contains methods to register OpenSettings-related services, configure HTTP clients, 
+    /// and set up controllers with authorization mechanisms.
+    /// </summary>
     public static class MvcBuilderExtensions
     {
         /// <summary>

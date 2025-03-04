@@ -19,8 +19,48 @@ using System.Threading.Tasks;
 
 namespace OpenSettings
 {
+    /// <summary>
+    /// Provides utility methods for string manipulation and collection operations in OpenSettings.
+    /// </summary>
     public static class Helper
     {
+        /// <summary>
+        /// Extracts and returns the initials from a given name.
+        /// </summary>
+        /// <param name="name">The full name from which to extract initials.</param>
+        /// <returns>A string containing the uppercase initials of the name. Returns an empty string if the input is empty.</returns>
+        public static string GetInitials(string name)
+        {
+            var parts = name.Replace(Constants.Dot, Constants.Space).Split(Constants.SpaceSeparator, StringSplitOptions.RemoveEmptyEntries);
+
+            return parts.Length == 0 ? string.Empty : string.Join(string.Empty, parts.Select(p => p[0])).ToUpper();
+        }
+
+#if !NET6_0_OR_GREATER
+        /// <summary>
+        /// Returns distinct elements from a sequence based on a specified key selector.
+        /// </summary>
+        /// <typeparam name="TSource">The type of elements in the source sequence.</typeparam>
+        /// <typeparam name="TKey">The type of the key used for distinct comparisons.</typeparam>
+        /// <param name="source">The sequence to remove duplicates from.</param>
+        /// <param name="keySelector">A function that extracts the key for each element.</param>
+        /// <returns>
+        /// An <see cref="IEnumerable{T}"/> containing distinct elements from the source sequence.
+        /// </returns>
+        public static IEnumerable<TSource> DistinctBy<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector)
+        {
+            var seenKeys = new HashSet<TKey>();
+
+            foreach (var element in source)
+            {
+                if (seenKeys.Add(keySelector(element)))
+                {
+                    yield return element;
+                }
+            }
+        }
+#endif
+
         internal static void MarkAsModified<TEntity>(this DbContext context, TEntity entity, params Expression<Func<TEntity, object>>[] properties) where TEntity : class
         {
             var entry = context.Entry(entity);
@@ -75,17 +115,7 @@ namespace OpenSettings
             return version.ToString(version.Revision > 0 ? 4 : 3);
         }
 
-        /// <summary>
-        /// Extracts and returns the initials from a given name.
-        /// </summary>
-        /// <param name="name">The full name from which to extract initials.</param>
-        /// <returns>A string containing the uppercase initials of the name. Returns an empty string if the input is empty.</returns>
-        public static string GetInitials(string name)
-        {
-            var parts = name.Replace(Constants.Dot, Constants.Space).Split(Constants.SpaceSeparator, StringSplitOptions.RemoveEmptyEntries);
-
-            return parts.Length == 0 ? string.Empty : string.Join(string.Empty, parts.Select(p => p[0])).ToUpper();
-        }
+        
 
         internal static string CalculateVersion(DateTime currentTime, DateTime createdOn)
         {
@@ -633,20 +663,5 @@ namespace OpenSettings
             return string.Join(string.Empty,
                 Enumerable.Range(0, length).Select(i => Chars[randomBytes[i] % Chars.Length]));
         }
-
-#if !NET6_0_OR_GREATER
-        public static IEnumerable<TSource> DistinctBy<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector)
-        {
-            var seenKeys = new HashSet<TKey>();
-
-            foreach (var element in source)
-            {
-                if (seenKeys.Add(keySelector(element)))
-                {
-                    yield return element;
-                }
-            }
-        }
-#endif
     }
 }
