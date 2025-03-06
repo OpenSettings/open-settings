@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/core/guards/auth.guard.ts"],
-  "sourcesContent": ["import { inject } from '@angular/core';\r\nimport { Router, ActivatedRouteSnapshot, RouterStateSnapshot, CanActivateFn } from '@angular/router';\r\nimport { of, switchMap } from 'rxjs';\r\nimport { AuthService } from '../services/auth.service';\r\n\r\nexport const authGuard: CanActivateFn = (\r\n    route: ActivatedRouteSnapshot,\r\n    state: RouterStateSnapshot\r\n) => {\r\n    const authService = inject(AuthService);\r\n    const router = inject(Router);\r\n\r\n    if (authService.isAuthenticated || !authService.isAuthorizationRequired) {\r\n        return true;\r\n    }\r\n\r\n    return authService.checkAuthorization().pipe(\r\n        switchMap((isAuthenticated: boolean) => {\r\n\r\n            if (!isAuthenticated) {\r\n                router.navigate(['/login'], { queryParams: { returnUrl: state.url } });\r\n            }\r\n\r\n            return of(isAuthenticated)\r\n        }));\r\n};"],
-  "mappings": ";;;;;;;;;AAKO,IAAM,YAA2B,CACpC,OACA,UACA;AACA,QAAM,cAAc,OAAO,WAAW;AACtC,QAAM,SAAS,OAAO,MAAM;AAE5B,MAAI,YAAY,mBAAmB,CAAC,YAAY,yBAAyB;AACrE,WAAO;EACX;AAEA,SAAO,YAAY,mBAAkB,EAAG,KACpC,UAAU,CAAC,oBAA4B;AAEnC,QAAI,CAAC,iBAAiB;AAClB,aAAO,SAAS,CAAC,QAAQ,GAAG,EAAE,aAAa,EAAE,WAAW,MAAM,IAAG,EAAE,CAAE;IACzE;AAEA,WAAO,GAAG,eAAe;EAC7B,CAAC,CAAC;AACV;",
-  "names": []
-}

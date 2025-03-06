@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/features/app/components/app-view/app-view.component.css"],
-  "sourcesContent": ["::ng-deep .mat-mdc-tab-header {\r\n  box-shadow: 0px 1px 0px 0px rgba(0, 0, 0, 0.1);\r\n}\r\n\r\n::ng-deep .mat-mdc-card-title {\r\n  padding: 8px 8px 0;\r\n}"],
-  "mappings": ";AAAA,UAAU,CAAC;AACT,cAAY,IAAI,IAAI,IAAI,IAAI,KAAK,CAAC,EAAE,CAAC,EAAE,CAAC,EAAE;AAC5C;AAEA,UAAU,CAAC;AACT,WAAS,IAAI,IAAI;AACnB;",
-  "names": []
-}

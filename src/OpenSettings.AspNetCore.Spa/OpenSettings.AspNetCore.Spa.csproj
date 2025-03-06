@@ -11,7 +11,7 @@
 		<RepositoryUrl>https://github.com/OpenSettings/open-settings</RepositoryUrl>
 		<PackageTags>opensettings;dotnet;csharp;configuration;settings;library</PackageTags>
 		<RepositoryType>git</RepositoryType>
-		<Description>OpenSettings.AspNetCore.Spa extends OpenSettings for Single Page Applications (SPA), offering a UI-based settings management solution.</Description>
+		<Description>OpenSettings.AspNetCore.Spa extends OpenSettings for Single Page Applications (Spa), offering a UI-based settings management solution.</Description>
 		<PackageIcon>open-settings-logo.png</PackageIcon>
 		<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
@@ -47,7 +47,7 @@
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
 	</ItemGroup>
 
-	<Target Name="BuildSpa" BeforeTargets="DispatchToInnerBuilds">
+	<Target Name="BuildSpa" BeforeTargets="DispatchToInnerBuilds" Condition="'$(Configuration)' == 'Debug">
 		<Exec Command="npm --version" ContinueOnError="true">
 			<Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
 		</Exec>

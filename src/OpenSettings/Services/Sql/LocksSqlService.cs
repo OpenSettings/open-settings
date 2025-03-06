@@ -20,86 +20,51 @@ namespace OpenSettings.Services.Sql
 
         public async Task<bool> AcquireLockAsync(AcquireLockInput input, CancellationToken cancellationToken = default)
         {
-            using (var transaction = await _context.Database.BeginTransactionAsync(cancellationToken))
+            var entity = await _context.Locks.FindAsync(new object[] { input.Key }, cancellationToken);
+
+            if (entity == null)
             {
-                try
-                {
-                    var entity = await _context.Locks.FindAsync(new object[] { input.Key }, cancellationToken);
-
-                    if (entity == null)
-                    {
-                        HandleAcquireNewLock(input);
-                    }
-                    else if (!HandleAcquireExistingLock(entity, input))
-                    {
-                        return false;
-                    }
-
-                    await _context.SaveChangesAsync(cancellationToken);
-                    await transaction.CommitAsync(cancellationToken);
-
-                    return true;
-                }
-                catch
-                {
-                    await transaction.RollbackAsync(cancellationToken);
-                    throw;
-                }
+                HandleAcquireNewLock(input);
             }
+            else if (!HandleAcquireExistingLock(entity, input))
+            {
+                return false;
+            }
+
+            await _context.SaveChangesAsync(cancellationToken);
+
+            return true;
         }
 
         public async Task SetLockExpiryTimeAsync(SetLockExpiryTimeInput input, CancellationToken cancellationToken)
         {
-            using (var transaction = await _context.Database.BeginTransactionAsync(cancellationToken))
+            var entity = await _context.Locks.FindAsync(new object[] { input.Key }, cancellationToken);
+
+            if (entity == null || entity.Owner != input.Owner)
             {
-                try
-                {
-                    var entity = await _context.Locks.FindAsync(new object[] { input.Key }, cancellationToken);
-
-                    if (entity == null || entity.Owner != input.Owner)
-                    {
-                        return;
-                    }
-
-                    entity.ExpiryTime = input.ExpiryTime;
-
-                    await _context.SaveChangesAsync(cancellationToken);
-                    await transaction.CommitAsync(cancellationToken);
-                }
-                catch
-                {
-                    await transaction.RollbackAsync(cancellationToken);
-                    throw;
-                }
+                return;
             }
+
+            entity.ExpiryTime = input.ExpiryTime;
+
+            await _context.SaveChangesAsync(cancellationToken);
         }
 
         public async Task<bool> ReleaseLockAsync(ReleaseLockInput input, CancellationToken cancellationToken = default)
         {
-            using (var transaction = await _context.Database.BeginTransactionAsync(cancellationToken))
+            var entity = await _context.Locks.FirstOrDefaultAsync(l => l.Key == input.Key && l.Owner == input.Owner,
+                cancellationToken);
+
+            if (entity == null)
             {
-                try
-                {
-                    var entity = await _context.Locks.FirstOrDefaultAsync(l => l.Key == input.Key && l.Owner == input.Owner,
-                        cancellationToken);
-
-                    if (entity == null)
-                    {
-                        return false;
-                    }
-
-                    _context.Locks.Remove(entity);
-                    await _context.SaveChangesAsync(cancellationToken);
-                    await transaction.CommitAsync(cancellationToken);
-
-                    return true;
-                }
-                catch
-                {
-                    await transaction.RollbackAsync(cancellationToken);
-                    throw;
-                }
+                return false;
             }
+
+            _context.Locks.Remove(entity);
+
+            await _context.SaveChangesAsync(cancellationToken);
+
+            return true;
         }
 
         private void HandleAcquireNewLock(AcquireLockInput input)

@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/features/instance/components/instance-list/instance-list.component.css"],
-  "sourcesContent": [".info-item {\r\n    display: flex;\r\n    align-items: center;\r\n    margin-bottom: 10px;\r\n    font-size: 15px;\r\n}\r\n\r\n.info-label {\r\n    font-weight: 500;\r\n    margin-right: 15px;\r\n    width: 150px;\r\n    font-size: 16px;\r\n}\r\n\r\n.info-value>p {\r\n    padding-left: 16px;\r\n}"],
-  "mappings": ";AAAA,CAAC;AACG,WAAS;AACT,eAAa;AACb,iBAAe;AACf,aAAW;AACf;AAEA,CAAC;AACG,eAAa;AACb,gBAAc;AACd,SAAO;AACP,aAAW;AACf;AAEA,CAAC,WAAU,EAAC;AACR,gBAAc;AAClB;",
-  "names": []
-}

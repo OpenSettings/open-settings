@@ -10,7 +10,7 @@ namespace OpenSettings.Configurations
 {
     /// <summary>
     /// Represents the configuration for the open settings. 
-    /// This class is responsible for handling different configurations s
+    /// This class is responsible for handling different configurations
     /// based on the selected service type and the selection status.
     /// </summary>
     public class OpenSettingsConfiguration
@@ -69,7 +69,7 @@ namespace OpenSettings.Configurations
             }
         }
 
-        internal string InstanceNameLowercase { get; private set; }
+        internal string InstanceNameLowercase { get; private set; } = Constants.DefaultLowercase;
 
         private string _identifierName = Constants.DefaultIdentifierName;
 
@@ -98,7 +98,7 @@ namespace OpenSettings.Configurations
             }
         }
 
-        internal string IdentifierNameLowercase { get; set; }
+        internal string IdentifierNameLowercase { get; private set; } = Constants.DefaultLowercase;
 
         /// <summary>
         /// Gets or sets the client information, including the client's id, name, and secret.
@@ -230,12 +230,12 @@ namespace OpenSettings.Configurations
 
         /// <summary>
         /// Gets or sets the registration mode to use during the setup.
-        /// The default is <see cref="RegistrationMode.Configure"/>.
+        /// The default is <see cref="RegistrationMode.Singleton"/> & <see cref="RegistrationMode.Configure" />.
         /// </summary>
         /// <value>
         /// The <see cref="RegistrationMode"/> value that determines the registration behavior.
         /// </value>
-        public RegistrationMode RegistrationMode { get; set; } = RegistrationMode.Configure;
+        public RegistrationMode RegistrationMode { get; set; } = RegistrationMode.Both;
 
         /// <summary>
         /// Gets a value indicating whether the consumer service is currently selected.

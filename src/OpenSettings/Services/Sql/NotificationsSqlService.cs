@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Ogu.Extensions.Hosting.HostedServices;
-using Ogu.Response.Abstractions;
 using Ogu.Response.Json;
 using OpenSettings.Domains.Sql.DataContext;
 using OpenSettings.Domains.Sql.Entities;
@@ -522,24 +521,24 @@ namespace OpenSettings.Services.Sql
             return HttpStatusCode.OK.ToSuccessJsonResponse();
         }
 
+        private const string LockKey = nameof(SyncOpenSettingsNotificationsAsync);
+
         public async Task SyncOpenSettingsNotificationsAsync(CancellationToken cancellationToken)
         {
-            var lockKey = nameof(SyncOpenSettingsNotificationsAsync);
             var owner = Environment.MachineName;
             var acquireLockInput = new AcquireLockInput
             {
-                Key = lockKey,
+                Key = LockKey,
                 Owner = owner,
                 Timeout = TimeSpan.FromMinutes(5)
             };
             var setLockExpiryTimeInput = new SetLockExpiryTimeInput
             {
-                Key = lockKey,
+                Key = LockKey,
                 Owner = owner
             };
 
-            var lockAcquired =
-                await _locksService.AcquireLockAsync(acquireLockInput, cancellationToken);
+            var lockAcquired = await _locksService.AcquireLockAsync(acquireLockInput, cancellationToken);
 
             if (!lockAcquired)
             {
@@ -652,7 +651,7 @@ namespace OpenSettings.Services.Sql
             {
                 await _locksService.ReleaseLockAsync(new ReleaseLockInput
                 {
-                    Key = lockKey,
+                    Key = LockKey,
                     Owner = owner
                 }, CancellationToken.None);
             }

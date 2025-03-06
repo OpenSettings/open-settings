@@ -1,7 +1,0 @@
-{
-  "Provider.Api.Settings.ClientSettings": {
-    "ClientName": "MyClient",
-    "ClientSecret": "4",
-    "ClientSecretSecret": "123"
-  }
-}

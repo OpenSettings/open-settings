@@ -60,6 +60,7 @@ namespace OpenSettings
 
         internal const string DefaultVersion = "1.0.0";
         internal const string RedisSubscriberName = "OpenSettings";
+        internal const string DefaultLowercase = "default";
         internal const string DefaultIdentifierName = "Default";
         internal const string DefaultInstanceName = "Default";
         internal const string NotificationsConfigName = "notifications";
