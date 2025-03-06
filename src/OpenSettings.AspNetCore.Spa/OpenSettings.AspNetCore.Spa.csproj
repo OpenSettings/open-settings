@@ -47,7 +47,7 @@
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
 	</ItemGroup>
 
-	<Target Name="BuildSpa" BeforeTargets="DispatchToInnerBuilds" Condition="'$(Configuration)' == 'Debug">
+	<Target Name="BuildSpa" BeforeTargets="DispatchToInnerBuilds" Condition="'$(Configuration)' == 'Debug'>
 		<Exec Command="npm --version" ContinueOnError="true">
 			<Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
 		</Exec>
