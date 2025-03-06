@@ -29,19 +29,6 @@ OpenSettings is licensed under the [OpenSettings License](https://opensettings.n
 
 ---
 
-## 🤝 Contributing  
-
-Contributions are welcome! 🚀  
-To get started:  
-
-1. **Fork the repo** and create a new branch.
-2. **Make changes** and ensure tests pass.
-3. **Submit a pull request** with a clear description.
-
-For more details, check our **[Contributing Guide](https://docs.opensettings.net/contributing)**.  
-
----
-
 ## ❤️ Support & Sponsorship  
 
 Help us keep OpenSettings growing!  
