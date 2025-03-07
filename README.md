@@ -22,6 +22,10 @@
 
 OpenSettings is licensed under the [OpenSettings License](https://opensettings.net/license).
 
+## 🤝 Contributing
+
+By contributing this repository, you agree to the [Contribution Terms](https://opensettings.net/contribution-terms).
+
 ## ❤️ Support & Sponsorship  
 
 Help us keep OpenSettings growing!  
@@ -35,10 +39,6 @@ Help us keep OpenSettings growing!
 
 - **[Terms & Conditions](https://opensettings.net/terms-and-conditions)**  
 - **[Privacy Policy](https://opensettings.net/privacy-policy)**  
-
-## 🤝 Contributing
-
-By contributing this repository, you agree to the [Contribution Terms](https://opensettings.net/contribution-terms).
 
 <br>
 
