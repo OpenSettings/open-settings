@@ -18,6 +18,10 @@
 
 📖 Please check our documentation at **[docs.opensettings.net](https://docs.opensettings.net)**  
 
+## 🤝 Contributing
+
+By contributing this repository, you agree to the [Contribution Terms](https://opensettings.net/contribution-terms).
+
 ## 💡 License  
 
 OpenSettings is licensed under the [OpenSettings License](https://opensettings.net/license).
