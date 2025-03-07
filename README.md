@@ -14,19 +14,13 @@
 ✅ **Built-in SPA** – Comes with a **UI dashboard** for managing settings easily.  
 ✅ **Easy Integration** – Works seamlessly with **.NET**.  
 
----
-
 ## 📦 Getting Started
 
 📖 Please check our documentation at **[docs.opensettings.net](https://docs.opensettings.net)**  
 
----
-
 ## 💡 License  
 
 OpenSettings is licensed under the [OpenSettings License](https://opensettings.net/license).
-
----
 
 ## ❤️ Support & Sponsorship  
 
@@ -37,13 +31,11 @@ Help us keep OpenSettings growing!
 
 📧 **Contact**: [support@opensettings.net](mailto:support@opensettings.net)  
 
----
-
 ## 📜 Terms & Privacy  
 
 - **[Terms & Conditions](https://opensettings.net/terms-and-conditions)**  
 - **[Privacy Policy](https://opensettings.net/privacy-policy)**  
 
----
+<br>
 
 ✨ *OpenSettings makes configuration management simple, powerful, and flexible!* 🚀
