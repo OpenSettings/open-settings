@@ -1,4 +1,4 @@
-# <img src="../../logo/open-settings-logo.png" alt="Header" width="24"/> OpenSettings.AspNetCore.Spa
+# OpenSettings.AspNetCore.Spa
 
 This library serves the **Settings Page UI** for [OpenSettings](https://github.com/OpenSettings/open-settings), allowing easy management of configurations.
 
