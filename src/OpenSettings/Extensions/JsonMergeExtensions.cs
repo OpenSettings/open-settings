@@ -48,7 +48,7 @@ namespace OpenSettings.Extensions
         /// </summary>
         /// <param name="filePath">The file path of the JSON file to read.</param>
         /// <param name="cancellationToken">A cancellation token to support cancellation of the operation.</param>
-        /// <returns>A <see cref="Task{Dictionary{string, object}}"/> containing the dictionary representation of the JSON data.</returns>
+        /// <returns>A <see cref="Task"/> containing a <b>Dictionary&lt;string, object&gt;</b> with the JSON data.</returns>
         public static async Task<Dictionary<string, object>> GetJsonFileAsync(string filePath, CancellationToken cancellationToken = default)
         {
             using (var jsonStream = File.OpenRead(filePath))
@@ -64,7 +64,7 @@ namespace OpenSettings.Extensions
         /// <param name="baseFilePath">The file path of the base JSON file.</param>
         /// <param name="patchFilePath">The file path of the patch JSON file to apply.</param>
         /// <param name="cancellationToken">A cancellation token to support cancellation of the operation.</param>
-        /// <returns>A <see cref="Task{JsonMergeResult}"/> representing the asynchronous operation, with the result of the merge operation.</returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation, with the result as a <see cref="JsonMergeResult"/>.</returns>
         public static async Task<JsonMergeResult> MergeFileAsync(string baseFilePath, string patchFilePath, CancellationToken cancellationToken = default)
         {
             var jsonMergeResult = new JsonMergeResult();

@@ -233,7 +233,7 @@ namespace OpenSettings.Configurations
         /// The default is <see cref="RegistrationMode.Singleton"/> & <see cref="RegistrationMode.Configure" />.
         /// </summary>
         /// <value>
-        /// The <see cref="RegistrationMode"/> value that determines the registration behavior.
+        /// The <see cref="Models.RegistrationMode"/> value that determines the registration behavior.
         /// </value>
         public RegistrationMode RegistrationMode { get; set; } = RegistrationMode.Both;
 
