@@ -6,25 +6,28 @@
 
 **OpenSettings** is a powerful, flexible, and centralized **configuration management solution** for .NET applications. It simplifies settings storage, retrieval, and synchronization.  
 
+![Demo](https://raw.githubusercontent.com/OpenSettings/open-settings-docs/master/docs/v1/assets/demo.gif)
+
+
 ## 🚀 Features  
 
 ✅ **Centralized Configuration Management** – Manage settings across multiple services.  
 ✅ **Provider-Consumer Model** – Define settings on a provider and sync them with consumers.  
-✅ **Database-Backed Storage** – Choose your storage and customize it on your own. For instance, SQL Server, PostgreSQL, InMemory etc.  
-✅ **Built-in SPA** – Comes with a **UI dashboard** for managing settings easily.  
+✅ **Database-Backed Storage** – Choose your storage and customize it on your own (e.g. SQL Server, PostgreSQL, InMemory etc.)    
+✅ **Built-in Spa** – Comes with a **UI dashboard** for managing settings easily.  
 ✅ **Easy Integration** – Works seamlessly with **.NET**.  
 
 ## 📦 Getting Started
 
 📖 Please check our documentation at **[docs.opensettings.net](https://docs.opensettings.net)**  
 
-## 🤝 Contributing
-
-By contributing this repository, you agree to the [Contribution Terms](https://opensettings.net/contribution-terms).
-
 ## 💡 License  
 
 OpenSettings is licensed under the [OpenSettings License](https://opensettings.net/license).
+
+## 🤝 Contributing
+
+By contributing this repository, you agree to the [Contribution Terms](https://opensettings.net/contribution-terms).
 
 ## ❤️ Support & Sponsorship  
 
