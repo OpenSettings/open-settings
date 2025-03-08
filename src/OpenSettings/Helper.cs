@@ -81,7 +81,13 @@ namespace OpenSettings
             }
         }
 
-        internal static string GetEnvironmentName()
+        /// <summary>
+        /// Retrieves the current environment name from environment variables. 
+        /// It checks the following variables in order: ASPNETCORE_ENVIRONMENT, DOTNET_ENVIRONMENT, and ENVIRONMENT. 
+        /// If none are set, it defaults to "Production".
+        /// </summary>
+        /// <returns>The detected environment name or "Production" if none are found.</returns>
+        public static string GetEnvironmentName()
         {
             var value = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 
@@ -114,8 +120,6 @@ namespace OpenSettings
         {
             return version.ToString(version.Revision > 0 ? 4 : 3);
         }
-
-        
 
         internal static string CalculateVersion(DateTime currentTime, DateTime createdOn)
         {
