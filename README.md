@@ -14,7 +14,7 @@
 ✅ **Centralized Configuration Management** – Manage settings across multiple services.  
 ✅ **Provider-Consumer Model** – Define settings on a provider and sync them with consumers.  
 ✅ **Database-Backed Storage** – Choose your storage and customize it on your own (e.g. SQL Server, PostgreSQL, InMemory etc.)    
-✅ **Built-in SPA** – Comes with a **UI dashboard** for managing settings easily.  
+✅ **Built-in Spa** – Comes with a **UI dashboard** for managing settings easily.  
 ✅ **Easy Integration** – Works seamlessly with **.NET**.  
 
 ## 📦 Getting Started
