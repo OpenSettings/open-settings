@@ -49,3 +49,14 @@ jobs:
 
       - name: Push NuGet package
         run: dotnet nuget push nupkgs/OpenSettings.${{ github.event.inputs.version_number }}.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }}
+
+      - name: Set up GitHub Actions bot user details
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+
+      - name: Create and push tag
+        run: |
+          TAG_NAME="v${{ github.event.inputs.version_number }}"
+          git tag $TAG_NAME
+          git push origin $TAG_NAME
