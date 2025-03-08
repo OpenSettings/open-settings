@@ -54,4 +54,8 @@ We appreciate your feedback and will do our best to address your concerns as soo
 ## 📦 Related Packages
 
 🔹 [OpenSettings](https://nuget.org/packages/OpenSettings): The core library of OpenSettings, responsible for handling the business logic and essential functionality of the system.  
-🔹 [OpenSettings.AspNetCore](https://nuget.org/packages/OpenSettings.AspNetCore): Exposing controllers and authentication handlers to manage and interact with OpenSettings.
+🔹 [OpenSettings.AspNetCore](https://nuget.org/packages/OpenSettings.AspNetCore): Exposing controllers and authentication handlers to manage and interact with OpenSettings.  
+
+<br>
+
+✨ *OpenSettings makes configuration management simple, powerful, and flexible!* 🚀
