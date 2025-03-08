@@ -9,7 +9,7 @@
 ![Demo](https://raw.githubusercontent.com/OpenSettings/open-settings-docs/master/docs/v1/assets/demo.gif)
 
 
-## 🚀 Features  
+## ⚙️ Features  
 
 ✅ **Centralized Configuration Management** – Manage settings across multiple services.  
 ✅ **Provider-Consumer Model** – Define settings on a provider and sync them with consumers.  
@@ -17,7 +17,7 @@
 ✅ **Built-in Spa** – Comes with a **UI dashboard** for managing settings easily.  
 ✅ **Easy Integration** – Works seamlessly with **.NET**.  
 
-## 📦 Getting Started
+## 🚀 Getting Started
 
 📖 Please check our documentation at **[docs.opensettings.net](https://docs.opensettings.net)**  
 
