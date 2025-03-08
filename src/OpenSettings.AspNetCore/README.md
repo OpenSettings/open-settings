@@ -55,3 +55,7 @@ We appreciate your feedback and will do our best to address your concerns as soo
 
 🔹 [OpenSettings](https://nuget.org/packages/OpenSettings): The core library of OpenSettings, responsible for handling the business logic and essential functionality of the system.  
 🔹 [OpenSettings.AspNetCore.Spa](https://nuget.org/packages/OpenSettings.AspNetCore.Spa): Serves the **Settings Page UI**, allowing easy management of configurations.  
+
+<br>
+
+✨ *OpenSettings makes configuration management simple, powerful, and flexible!* 🚀
