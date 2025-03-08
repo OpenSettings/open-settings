@@ -1,4 +1,4 @@
-# <img src="../../logo/open-settings-logo.png" alt="Header" width="24"/> OpenSettings
+# OpenSettings
 
 This is the core library of [OpenSettings](https://github.com/OpenSettings/open-settings), responsible for handling the business logic and essential functionality of the system.
 
