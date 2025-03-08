@@ -45,10 +45,10 @@
 		<PackageReference Include="Microsoft.Extensions.Http" Version="8.0.1" />
 		<PackageReference Include="Microsoft.Extensions.Identity.Core" Version="8.0.10" />
 		<PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="7.1.2" />
-		<PackageReference Include="Ogu.Compressions" Version="1.0.2" />
+		<PackageReference Include="Ogu.Compressions" Version="1.0.3" />
 		<PackageReference Include="Ogu.Extensions.Hosting.HostedServices" Version="2.0.3" />
 		<PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.1" />
-		<PackageReference Include="Ogu.Response.Json" Version="2.0.9" />
+		<PackageReference Include="Ogu.Response.Json" Version="2.0.10" />
 		<PackageReference Include="StackExchange.Redis" Version="2.8.24" />
 		<PackageReference Include="System.Net.Http.Json" Version="8.0.1" />
 		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
