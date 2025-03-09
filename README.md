@@ -62,4 +62,4 @@ We appreciate your feedback and will address your concerns as soon as possible!
 
 <br>
 
-✨ *OpenSettings makes configuration management simple, powerful, and flexible!* 🚀
+✨ *OpenSettings makes settings management simple, powerful, and flexible!* 🚀
