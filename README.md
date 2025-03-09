@@ -60,6 +60,10 @@ For security-related issues, **do not** use GitHub Issues. Contact us directly a
 
 We appreciate your feedback and will address your concerns as soon as possible!
 
+## 🔧 Debugging
+
+Need help with debugging? Check out the full [Debugging Guide](https://docs.opensettings.net/docs/debugging) to set up your environment and troubleshoot common issues.
+
 <br>
 
 ✨ *OpenSettings makes settings management simple, powerful, and flexible!* 🚀
