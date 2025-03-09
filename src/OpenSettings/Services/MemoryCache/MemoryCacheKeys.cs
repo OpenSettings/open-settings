@@ -15,8 +15,8 @@ namespace OpenSettings.Services.MemoryCache
         public static CacheModel GetAvailableNotificationIds = new CacheModel("nss:gania", TimeSpan.FromMinutes(5));
 
         /// <summary>
-        /// The cache key for the OpenSettings Spa Middleware Html content.
+        /// The cache key for the Settings Spa Middleware Html content.
         /// </summary>
-        public static CacheModel OpenSettingsSpaMiddlewareHtml = new CacheModel("ossm:html");
+        public static CacheModel SettingsSpaMiddlewareHtml = new CacheModel("ossm:html");
     }
 }

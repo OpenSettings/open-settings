@@ -121,7 +121,7 @@ namespace OpenSettings.AspNetCore.Spa
 
                 case "GET" when Regex.IsMatch(path, _routePrefixWithIndexHtmlPattern, RegexOptions.IgnoreCase):
 
-                    var text = await MemoryCacheKeys.OpenSettingsSpaMiddlewareHtml.GetOrCreateAsync(_openSettingsMemoryCache, c =>
+                    var text = await MemoryCacheKeys.SettingsSpaMiddlewareHtml.GetOrCreateAsync(_openSettingsMemoryCache, c =>
                     {
                         _indexArguments["%(License)"] = JsonSerializer.Serialize(LicenseProvider.Instance.CurrentLicense, _jsonSerializerOptions);
 

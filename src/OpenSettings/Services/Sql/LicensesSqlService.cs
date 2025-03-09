@@ -87,7 +87,7 @@ namespace OpenSettings.Services.Sql
 
             if (previousLicenseReferenceId != LicenseProvider.Instance.CurrentLicense.ReferenceId)
             {
-                MemoryCacheKeys.OpenSettingsSpaMiddlewareHtml.Delete(_openSettingsMemoryCache);
+                MemoryCacheKeys.SettingsSpaMiddlewareHtml.Delete(_openSettingsMemoryCache);
             }
 
             return response;
@@ -124,7 +124,7 @@ namespace OpenSettings.Services.Sql
 
             LicenseProvider.Instance.CurrentLicense = await InitializeAsync(CancellationToken.None) ?? License.Community;
 
-            MemoryCacheKeys.OpenSettingsSpaMiddlewareHtml.Delete(_openSettingsMemoryCache);
+            MemoryCacheKeys.SettingsSpaMiddlewareHtml.Delete(_openSettingsMemoryCache);
 
             return HttpStatusCode.OK.ToSuccessJsonResponse();
         }
