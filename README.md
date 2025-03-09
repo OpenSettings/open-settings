@@ -4,14 +4,14 @@
 [![Docs](https://img.shields.io/badge/docs-online-blue)](https://docs.opensettings.net)
 [![Sponsor](https://img.shields.io/badge/sponsor-GitHub%20Sponsors-brightgreen)](https://github.com/sponsors/ogulcanturan)
 
-**OpenSettings** is a powerful, flexible, and centralized **configuration management solution** for .NET applications. It simplifies settings storage, retrieval, and synchronization.  
+**OpenSettings** is a powerful, flexible, and centralized **settings management solution** for .NET applications. It simplifies settings storage, retrieval, and synchronization.  
 
 ![Demo](https://raw.githubusercontent.com/OpenSettings/open-settings-docs/master/docs/v1/assets/demo.gif)
 
 
 ## ⚙️ Features  
 
-✅ **Centralized Configuration Management** – Manage settings across multiple services.  
+✅ **Centralized Settings Management** – Manage settings across multiple services.  
 ✅ **Provider-Consumer Model** – Define settings on a provider and sync them with consumers.  
 ✅ **Database-Backed Storage** – Choose your storage and customize it on your own (e.g. SQL Server, PostgreSQL, InMemory etc.)    
 ✅ **Built-in Spa** – Comes with a **UI dashboard** for managing settings easily.  
@@ -60,6 +60,10 @@ For security-related issues, **do not** use GitHub Issues. Contact us directly a
 
 We appreciate your feedback and will address your concerns as soon as possible!
 
+## 🔧 Debugging
+
+Need help with debugging? Check out the full [Debugging Guide](https://docs.opensettings.net/docs/debugging) to set up your environment and troubleshoot common issues.
+
 <br>
 
-✨ *OpenSettings makes configuration management simple, powerful, and flexible!* 🚀
+✨ *OpenSettings makes settings management simple, powerful, and flexible!* 🚀
