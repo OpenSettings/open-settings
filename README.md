@@ -4,7 +4,7 @@
 [![Docs](https://img.shields.io/badge/docs-online-blue)](https://docs.opensettings.net)
 [![Sponsor](https://img.shields.io/badge/sponsor-GitHub%20Sponsors-brightgreen)](https://github.com/sponsors/ogulcanturan)
 
-**OpenSettings** is a powerful, flexible, and centralized **setting management solution** for .NET applications. It simplifies settings storage, retrieval, and synchronization.  
+**OpenSettings** is a powerful, flexible, and centralized **settings management solution** for .NET applications. It simplifies settings storage, retrieval, and synchronization.  
 
 ![Demo](https://raw.githubusercontent.com/OpenSettings/open-settings-docs/master/docs/v1/assets/demo.gif)
 
