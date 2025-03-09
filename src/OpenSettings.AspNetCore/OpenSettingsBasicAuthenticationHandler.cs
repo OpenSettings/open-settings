@@ -81,10 +81,6 @@ namespace OpenSettings.AspNetCore
                             roleType = RoleType.Admin;
                         }
                     }
-                    else if (_openSettingsConfiguration.AllowAnonymousAccess && registeredApp.IsClientIdUnique)
-                    {
-                        roleType = RoleType.Anonymous;
-                    }
                 }
 
                 if (roleType == RoleType.Unauthorized)

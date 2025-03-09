@@ -505,7 +505,6 @@ namespace OpenSettings.Services
                 UserId = null,
                 Configuration = new SyncAppDataInputConfiguration
                 {
-                    AllowAnonymousAccess = _openSettingsConfiguration.AllowAnonymousAccess,
                     StoreInSeparateFile = _openSettingsConfiguration.StoreInSeparateFile,
                     IgnoreOnFileChange = _openSettingsConfiguration.IgnoreOnFileChange,
                     RegistrationMode = _openSettingsConfiguration.RegistrationMode,

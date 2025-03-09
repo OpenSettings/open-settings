@@ -346,7 +346,6 @@ namespace OpenSettings.Services.Sql
             {
                 app.Configurations.Add(new ConfigurationSqlModel
                 {
-                    AllowAnonymousAccess = false,
                     StoreInSeparateFile = false,
                     IgnoreOnFileChange = false,
                     RegistrationMode = RegistrationMode.Configure,

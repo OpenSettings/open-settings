@@ -894,7 +894,6 @@ namespace OpenSettings.Services.Sql
                     Configurations = a.Configurations.Select(c => new
                     {
                         Id = $"{c.Id}",
-                        c.AllowAnonymousAccess,
                         c.StoreInSeparateFile,
                         c.IgnoreOnFileChange,
                         c.RegistrationMode,
@@ -958,7 +957,6 @@ namespace OpenSettings.Services.Sql
             var identifierToConfiguration = entity.Configurations.ToDictionary(c => c.IdentifierId, c => new GetGroupedAppDataResponseConfiguration
             {
                 Id = c.Id,
-                AllowAnonymousAccess = c.AllowAnonymousAccess,
                 StoreInSeparateFile = c.StoreInSeparateFile,
                 IgnoreOnFileChange = c.IgnoreOnFileChange,
                 RegistrationMode = c.RegistrationMode,
@@ -1106,7 +1104,6 @@ namespace OpenSettings.Services.Sql
                     Configuration = a.Configurations.Where(c => c.IdentifierId == identifierId).Select(c => new
                     {
                         Id = $"{c.Id}",
-                        c.AllowAnonymousAccess,
                         c.StoreInSeparateFile,
                         c.IgnoreOnFileChange,
                         c.RegistrationMode,
@@ -1171,7 +1168,6 @@ namespace OpenSettings.Services.Sql
                 Configuration = new GetGroupedAppDataByIdentifierIdResponseConfiguration
                 {
                     Id = entity.Configuration.Id,
-                    AllowAnonymousAccess = entity.Configuration.AllowAnonymousAccess,
                     StoreInSeparateFile = entity.Configuration.StoreInSeparateFile,
                     IgnoreOnFileChange = entity.Configuration.IgnoreOnFileChange,
                     RegistrationMode = entity.Configuration.RegistrationMode,
@@ -1281,7 +1277,6 @@ namespace OpenSettings.Services.Sql
 
             var configuration = new ConfigurationSqlModel
             {
-                AllowAnonymousAccess = input.Configuration.AllowAnonymousAccess,
                 StoreInSeparateFile = input.Configuration.StoreInSeparateFile,
                 IgnoreOnFileChange = input.Configuration.IgnoreOnFileChange,
                 RegistrationMode = input.Configuration.RegistrationMode,
@@ -1350,7 +1345,6 @@ namespace OpenSettings.Services.Sql
                     Settings = settings,
                     Configuration = new SyncAppDataResponseConfiguration
                     {
-                        AllowAnonymousAccess = configuration.AllowAnonymousAccess,
                         StoreInSeparateFile = configuration.StoreInSeparateFile,
                         IgnoreOnFileChange = configuration.IgnoreOnFileChange,
                         RegistrationMode = configuration.RegistrationMode,
@@ -1521,7 +1515,6 @@ namespace OpenSettings.Services.Sql
                 .Where(c => c.AppId == appId && c.IdentifierId == identifierId)
                 .Select(c => new ConfigurationSqlModel
                 {
-                    AllowAnonymousAccess = c.AllowAnonymousAccess,
                     StoreInSeparateFile = c.StoreInSeparateFile,
                     IgnoreOnFileChange = c.IgnoreOnFileChange,
                     RegistrationMode = c.RegistrationMode,
@@ -1533,7 +1526,6 @@ namespace OpenSettings.Services.Sql
             {
                 configuration = new ConfigurationSqlModel
                 {
-                    AllowAnonymousAccess = input.Configuration.AllowAnonymousAccess,
                     StoreInSeparateFile = input.Configuration.StoreInSeparateFile,
                     IgnoreOnFileChange = input.Configuration.IgnoreOnFileChange,
                     RegistrationMode = input.Configuration.RegistrationMode,
@@ -1588,7 +1580,6 @@ namespace OpenSettings.Services.Sql
                     ProviderInfo = _providerInfo,
                     Configuration = new SyncAppDataResponseConfiguration
                     {
-                        AllowAnonymousAccess = configuration.AllowAnonymousAccess,
                         StoreInSeparateFile = configuration.StoreInSeparateFile,
                         IgnoreOnFileChange = configuration.IgnoreOnFileChange,
                         RegistrationMode = configuration.RegistrationMode,

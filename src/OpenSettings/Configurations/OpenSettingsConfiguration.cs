@@ -181,18 +181,6 @@ namespace OpenSettings.Configurations
         public int SyncAppDataRetryDelayMilliseconds { get; set; } = 1000;
 
         /// <summary>
-        /// Gets or sets a flag indicating whether anonymous access is allowed.
-        /// <para>
-        /// When set to false, its typically forces to pre-registration of the app or user
-        /// </para>
-        /// </summary>
-        /// <value>
-        /// A boolean value that determines whether anonymous access is permitted. 
-        /// The default is <c>false</c>.
-        /// </value>
-        public bool AllowAnonymousAccess { get; set; }
-
-        /// <summary>
         /// Gets or sets the operation to perform during the setup process.
         /// The default is <see cref="Models.Operation.ReadOrInitialize"/>.
         /// </summary>

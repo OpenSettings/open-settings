@@ -41,7 +41,6 @@ namespace OpenSettings.Services.Rest
                 },
                 Configuration = new
                 {
-                    input.Configuration.AllowAnonymousAccess,
                     input.Configuration.StoreInSeparateFile,
                     input.Configuration.IgnoreOnFileChange,
                     input.Configuration.RegistrationMode,

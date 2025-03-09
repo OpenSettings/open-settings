@@ -10,7 +10,6 @@ namespace OpenSettings.Models
             if (syncAppDataResponse != null)
             {
                 ProviderInfo = syncAppDataResponse.ProviderInfo;
-                openSettingsConfiguration.AllowAnonymousAccess = syncAppDataResponse.Configuration.AllowAnonymousAccess;
                 openSettingsConfiguration.StoreInSeparateFile = syncAppDataResponse.Configuration.StoreInSeparateFile;
                 openSettingsConfiguration.IgnoreOnFileChange = syncAppDataResponse.Configuration.IgnoreOnFileChange;
                 openSettingsConfiguration.RegistrationMode = syncAppDataResponse.Configuration.RegistrationMode;
@@ -35,15 +34,12 @@ namespace OpenSettings.Models
                 IsSynced = true;
             }
 
-            AllowAnonymousAccess = openSettingsConfiguration.AllowAnonymousAccess;
             StoreInSeparateFile = openSettingsConfiguration.StoreInSeparateFile;
             IgnoreOnFileChange = openSettingsConfiguration.IgnoreOnFileChange;
             RegistrationMode = openSettingsConfiguration.RegistrationMode;
         }
 
         public ProviderInfo ProviderInfo { get; }
-
-        public bool AllowAnonymousAccess { get; }
 
         public bool StoreInSeparateFile { get; }
 

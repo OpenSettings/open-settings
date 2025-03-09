@@ -11,11 +11,6 @@ namespace OpenSettings.Domains.Sql.Entities
     public class ConfigurationSqlModel : EntityBase<int>
     {
         /// <summary>
-        /// Indicates whether anonymous access is allowed.
-        /// </summary>
-        public bool AllowAnonymousAccess { get; set; }
-
-        /// <summary>
         /// Determines whether the configuration should be stored in a separate file.
         /// </summary>
         public bool StoreInSeparateFile { get; set; }

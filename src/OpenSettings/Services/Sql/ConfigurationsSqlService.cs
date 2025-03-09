@@ -51,7 +51,6 @@ namespace OpenSettings.Services.Sql
                 .Select(c => new GetConfigurationByAppAndIdentifierResponse
                 {
                     Id = $"{c.Id}",
-                    AllowAnonymousAccess = c.AllowAnonymousAccess,
                     StoreInSeparateFile = c.StoreInSeparateFile,
                     IgnoreOnFileChange = c.IgnoreOnFileChange,
                     RegistrationMode = c.RegistrationMode,
@@ -104,19 +103,6 @@ namespace OpenSettings.Services.Sql
             _context.Attach(entity);
 
             var updatedFieldNameToValue = new Dictionary<string, object>();
-
-            if (input.Body.UpdatedFieldNameToValue.TryGetValue("allowanonymousaccess", out var allowAnonymousAccessObject))
-            {
-                if (!bool.TryParse(allowAnonymousAccessObject?.ToString(), out var allowAnonymousAccess))
-                {
-                    return HttpStatusCode.BadRequest.ToFailureJsonResponse(
-                        JsonValidationFailures.InvalidBooleanFormat("AllowAnonymousAccess", allowAnonymousAccessObject));
-                }
-
-                entity.AllowAnonymousAccess = allowAnonymousAccess;
-                updatedFieldNameToValue["AllowAnonymousAccess"] = allowAnonymousAccess;
-                _context.MarkAsModified(entity, e => e.AllowAnonymousAccess);
-            }
 
             if (input.Body.UpdatedFieldNameToValue.TryGetValue("storeinseparatefile", out var storeInSeparateFileObject))
             {
