@@ -40,6 +40,7 @@
         /// (In future releases, this may integrate with AppConfigurations or InstanceConfigurations  
         /// to determine access based on priority or configuration rank).
         /// </para>
+        /// <para>The default value is '<c>false</c>'.</para>
         /// </summary>
         public bool Authorize { get; set; }
 
