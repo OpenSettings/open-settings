@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 
 namespace OpenSettings.Models
 {
@@ -26,7 +27,17 @@ namespace OpenSettings.Models
             Name = string.IsNullOrWhiteSpace(name) ? GetClientName(assemblyName) : name;
             Id = id == Guid.Empty ? Guid.NewGuid() : id ?? Guid.NewGuid();
             Secret = secret == Guid.Empty ? Guid.NewGuid() : secret ?? Guid.NewGuid();
-            Version = version ?? GetVersion(assemblyName);
+
+            if (string.IsNullOrWhiteSpace(version))
+            {
+                Version = GetVersion(assemblyName);
+            }
+            else
+            {
+                version = Regex.Replace(version, "[^0-9.]", "").Trim('.');
+
+                Version = version == string.Empty ? GetVersion(assemblyName) : version;
+            }
         }
 
         /// <summary>
