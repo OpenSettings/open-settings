@@ -378,7 +378,7 @@ namespace OpenSettings.Services.Sql
 
         private static string GetLicenseKeyFromFile()
         {
-            var filePath = Path.Combine(Directory.GetCurrentDirectory(), LicenseFileName);
+            var filePath = Path.Combine(AppContext.BaseDirectory, LicenseFileName);
             return File.Exists(filePath) ? File.ReadAllText(filePath).Trim() : null;
         }
 
