@@ -54,14 +54,14 @@ namespace OpenSettings.Extensions
         }
 
         /// <summary>
-        /// Adds OpenSettings services to the application's <see cref="IServiceCollection"/>. This registers services
-        /// necessary to run OpenSettings, based on the inherited <see cref="ISettings"/> types and the registration
-        /// type (Singleton & IOptions interfaces).
+        /// Adds OpenSettings services to the application's <see cref="Microsoft.Extensions.DependencyInjection.IServiceCollection"/>. This registers services
+        /// necessary to run OpenSettings, based on the inherited <see cref="OpenSettings.Services.Interfaces.ISettings"/> types and the registration type.
         /// </summary>
         /// <param name="services">The <see cref="IServiceCollection"/> to which OpenSettings services will be added.</param>
         /// <param name="openSettingsConfiguration">The configuration that governs the behavior of OpenSettings (such as the service type: Provider or Consumer).</param>
         /// <param name="providerInfo">Information about the provider being registered.</param>
         /// <returns>The <see cref="IServiceCollection"/> with OpenSettings services registered.</returns>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="openSettingsConfiguration"/> is null.</exception>
         public static IServiceCollection AddOpenSettings(this IServiceCollection services, OpenSettingsConfiguration openSettingsConfiguration, ProviderInfo providerInfo)
         {
             if (openSettingsConfiguration == null)
