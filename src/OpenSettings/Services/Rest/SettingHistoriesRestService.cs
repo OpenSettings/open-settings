@@ -1,6 +1,5 @@
 ﻿using Ogu.Response.Json;
 using OpenSettings.Configurations;
-using OpenSettings.Extensions;
 using OpenSettings.Models;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Models.Responses;

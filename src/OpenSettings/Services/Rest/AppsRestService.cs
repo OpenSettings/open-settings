@@ -1,6 +1,5 @@
 ﻿using Ogu.Response.Json;
 using OpenSettings.Configurations;
-using OpenSettings.Extensions;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Models.Responses;
 using OpenSettings.Services.Rest.Interfaces;
@@ -8,7 +7,6 @@ using System;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Json;
 using System.Security.Authentication;
 using System.Text;
 using System.Text.Json;
@@ -99,7 +97,7 @@ namespace OpenSettings.Services.Rest
                     input.Instance.ServiceType,
                     input.Instance.DataAccessType,
                     input.Instance.Version,
-                    input.Instance.IsDisabled
+                    input.Instance.IsActive
                 }
             };
 
@@ -116,7 +114,7 @@ namespace OpenSettings.Services.Rest
                     {
                         case HttpStatusCode.Unauthorized:
                             throw new AuthenticationException(
-                                "Authentication has failed! Main service disallows anonymous access.");
+                                "Authentication has failed!.");
                         default:
 
                             var content =

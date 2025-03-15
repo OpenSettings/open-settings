@@ -52,6 +52,12 @@ namespace OpenSettings
         [Description("License edition could not be recognized.")]
         UnrecognizedLicenseEdition = 40013,
 
+        [Description("Client name does not match the expected value.")]
+        MismatchedClientName = 40014,
+
+        [Description("Client id does not match the expected value.")]
+        MismatchedClientId = 40015,
+
         // NotAuthorized Errors (40100-40199)
 
         [Description("The provided credentials are invalid.")]
@@ -123,6 +129,9 @@ namespace OpenSettings
         [Description("License not found.")]
         LicenseNotFound = 40420,
 
+        [Description("App - Identifier mapping not found.")]
+        AppIdentifierMappingNotFound = 40421,
+
         // NotSupported Errors (40500-40599)
 
         [Description("Config source not supported.")]
@@ -166,7 +175,7 @@ namespace OpenSettings
         [Description("Setting with the same computed identifier already exists in the target identifier.")]
         DuplicateTargetSetting = 40908,
 
-        [Description("Computed identifier value must be unique within the same app and setting identifier")]
+        [Description("Computed identifier value must be unique within the same app and setting identifier.")]
         DuplicateComputedIdentifier = 40909,
 
         [Description("This history has already been restored.")]
@@ -177,6 +186,9 @@ namespace OpenSettings
 
         [Description("License already exists.")]
         LicenseAlreadyExists = 40912,
+
+        [Description("Instance already exists.")]
+        InstanceAlreadyExists = 40913,
 
         // Internal Server Errors (50000-59999)
 

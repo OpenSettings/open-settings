@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OpenSettings.Configurations;
+using OpenSettings.Helpers;
 using OpenSettings.Models;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Models.Responses;
@@ -40,7 +41,7 @@ namespace OpenSettings.AspNetCore
             {
                 if (!Request.Headers.TryGetValue("Authorization", out var headerValue))
                 {
-                    return AuthenticateResult.Fail("Missing Authorization Header");
+                    return AuthenticateResult.NoResult();
                 }
 
                 var authHeader = AuthenticationHeaderValue.Parse(headerValue);
@@ -95,7 +96,7 @@ namespace OpenSettings.AspNetCore
                     new Claim(ClaimTypes.NameIdentifier, clientIdAsString),
                     new Claim(ClaimTypes.Name, registeredApp.ClientName),
                     new Claim(ClaimTypes.Role, roleType.ToString()),
-                    new Claim(Constants.DbUserIdClaim, roleType == RoleType.Anonymous ? string.Empty : clientIdAsString),
+                    new Claim(Constants.DbUserIdClaim, clientIdAsString),
                     new Claim(Constants.DbUserDisplayNameClaim, registeredApp.ClientName),
                     new Claim(Constants.DbUserInitialsClaim, Helper.GetInitials(registeredApp.ClientName))
                 };

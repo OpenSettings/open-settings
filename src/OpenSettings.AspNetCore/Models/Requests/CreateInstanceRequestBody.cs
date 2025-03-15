@@ -1,24 +1,16 @@
-﻿using System;
+﻿using OpenSettings.Models;
+using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
 
-namespace OpenSettings.Models.Inputs
+namespace OpenSettings.AspNetCore.Models.Requests
 {
-    public class SyncAppDataInputInstance
+    public class CreateInstanceRequestBody
     {
-        private string _instanceName = Constants.DefaultInstanceName;
+        public Guid ClientSecret { get; set; }
 
-        public string InstanceName
-        {
-            get => _instanceName;
-            set
-            {
-                if (!string.IsNullOrWhiteSpace(value))
-                {
-                    _instanceName = value;
-                }
-            }
-        }
+        public string InstanceName { get; set; }
+
+        public string IdentifierName { get; set; }
 
         public string DynamicId { get; set; }
 
@@ -28,7 +20,6 @@ namespace OpenSettings.Models.Inputs
 
         public bool IsActive { get; set; }
 
-        [JsonIgnore]
         public string IpAddress { get; set; }
 
         public string MachineName { get; set; }

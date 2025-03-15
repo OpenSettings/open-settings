@@ -1,5 +1,4 @@
 ﻿using Ogu.Response.Json;
-using OpenSettings.Extensions;
 using OpenSettings.Models;
 using OpenSettings.Services.Rest.Interfaces;
 using System.Net.Http;

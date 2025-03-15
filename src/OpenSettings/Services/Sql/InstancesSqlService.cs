@@ -5,6 +5,7 @@ using Ogu.Response.Json;
 using OpenSettings.Domains.Sql.DataContext;
 using OpenSettings.Domains.Sql.Entities;
 using OpenSettings.Extensions;
+using OpenSettings.Helpers;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Models.Responses;
 using OpenSettings.Services.Sql.Interfaces;
@@ -28,9 +29,84 @@ namespace OpenSettings.Services.Sql
             _passwordHasher = passwordHasher;
         }
 
+        public async Task<IJsonResponse> CreateInstanceAsync(CreateInstanceInput input, CancellationToken cancellationToken)
+        {
+            var trimmedInstanceName = input.InstanceName.Trim();
+            var trimmedInstanceNameLowercase = trimmedInstanceName.ToLowerInvariant();
+            var identifierNameLowercase = input.IdentifierName.Trim().ToLowerInvariant();
+
+            var entity = await _context.Apps
+                .AsNoTracking()
+#if !NETSTANDARD2_0
+                .AsSplitQuery()
+#endif
+                .Include(a => a.Instances).ThenInclude(i => i.Identifier)
+                .Include(a => a.AppIdentifierMappings).ThenInclude(m => m.Identifier)
+                .Where(a => a.ClientId == input.ClientId)
+                .OrderBy(a => a.Id)
+                .Select(a => new
+                {
+                    a.HashedClientSecret,
+                    AppId = a.Id,
+                    IdentifierMapping = a.AppIdentifierMappings
+                        .Where(m => m.Identifier.NameLowercase == trimmedInstanceNameLowercase)
+                        .Select(m => new
+                        {
+                            IdentifierId = m.Id
+                        }).FirstOrDefault(),
+                    IsInstanceExists = a.Instances.Any(i => i.NameLowercase == trimmedInstanceNameLowercase && i.Identifier.NameLowercase == identifierNameLowercase)
+                }).FirstOrDefaultAsync(cancellationToken);
+
+            if (entity == null)
+            {
+                return HttpStatusCode.NotFound.ToFailureJsonResponse(Errors.AppNotFound);
+            }
+
+            var passwordVerificationResult = _passwordHasher.VerifyHashedPassword(null, entity.HashedClientSecret, $"{input.ClientSecret}");
+
+            if (passwordVerificationResult == PasswordVerificationResult.Failed)
+            {
+                HttpStatusCode.Unauthorized.ToFailureJsonResponse(Errors.InvalidCredentials);
+            }
+
+            if (entity.IsInstanceExists)
+            {
+                return HttpStatusCode.NotFound.ToFailureJsonResponse(Errors.InstanceAlreadyExists);
+            }
+
+            if (entity.IdentifierMapping == null)
+            {
+                return HttpStatusCode.NotFound.ToFailureJsonResponse(Errors.AppIdentifierMappingNotFound);
+            }
+
+            _context.Instances.Add(new InstanceSqlModel
+            {
+                Name = trimmedInstanceName,
+                NameLowercase = trimmedInstanceNameLowercase,
+                Slug = trimmedInstanceName.ToSlug(),
+                DynamicId = input.DynamicId,
+                Urls = input.Urls,
+                Version = input.Version,
+                IsActive = input.IsActive,
+                IpAddress = input.IpAddress,
+                MachineName = input.MachineName,
+                Environment = input.Environment,
+                ReloadStrategies = input.ReloadStrategies,
+                ServiceType = input.ServiceType,
+                DataAccessType = input.DataAccessType,
+                AppId = entity.AppId,
+                IdentifierId = entity.IdentifierMapping.IdentifierId,
+                CreatedOn = DateTime.UtcNow
+            });
+
+            await _context.SaveChangesAsync(cancellationToken);
+
+            return HttpStatusCode.OK.ToSuccessJsonResponse();
+        }
+
         public async Task<IJsonResponse> UpdateInstanceAsync(UpdateInstanceInput input, CancellationToken cancellationToken)
         {
-            var instanceNameLowercase = input.InstanceName.Trim().ToLowerInvariant();
+            var trimmedInstanceNameLowercase = input.InstanceName.Trim().ToLowerInvariant();
             var identifierNameLowercase = input.IdentifierName.Trim().ToLowerInvariant();
 
             var entity = await _context.Apps
@@ -44,20 +120,16 @@ namespace OpenSettings.Services.Sql
                 .Select(a => new
                 {
                     a.HashedClientSecret,
-                    Instance = a.Instances.Where(i => i.NameLowercase == instanceNameLowercase && i.Identifier.NameLowercase == identifierNameLowercase).Select(i => new InstanceSqlModel
-                    {
-                        Id = i.Id
-                    }).FirstOrDefault()
+                    Instance = a.Instances.Where(i => i.NameLowercase == trimmedInstanceNameLowercase && i.Identifier.NameLowercase == identifierNameLowercase)
+                        .Select(i => new InstanceSqlModel
+                        {
+                            Id = i.Id
+                        }).FirstOrDefault()
                 }).FirstOrDefaultAsync(cancellationToken);
-            
+
             if (entity == null)
             {
                 return HttpStatusCode.NotFound.ToFailureJsonResponse(Errors.AppNotFound);
-            }
-
-            if (entity.Instance == null)
-            {
-                return HttpStatusCode.NotFound.ToFailureJsonResponse(Errors.InstanceNotFound);
             }
 
             var passwordVerificationResult = _passwordHasher.VerifyHashedPassword(null, entity.HashedClientSecret, $"{input.ClientSecret}");
@@ -65,6 +137,11 @@ namespace OpenSettings.Services.Sql
             if (passwordVerificationResult == PasswordVerificationResult.Failed)
             {
                 HttpStatusCode.Unauthorized.ToFailureJsonResponse(Errors.InvalidCredentials);
+            }
+
+            if (entity.Instance == null)
+            {
+                return HttpStatusCode.NotFound.ToFailureJsonResponse(Errors.InstanceNotFound);
             }
 
             _context.Instances.Attach(entity.Instance);
@@ -157,7 +234,7 @@ namespace OpenSettings.Services.Sql
 
             return isIdentifierExists
                 ? await GetInstancesByAppAndIdentifierAsync(a => a.Id == appId, identifierId, cancellationToken)
-                : HttpStatusCode.NotFound.ToFailureJsonResponse(Errors.IdentifierNotFound) ;
+                : HttpStatusCode.NotFound.ToFailureJsonResponse(Errors.IdentifierNotFound);
         }
 
         public async Task<IJsonResponse> GetInstancesByAppSlugAndIdentifierSlugAsync(GetInstancesInput input, CancellationToken cancellationToken = default)
@@ -236,18 +313,18 @@ namespace OpenSettings.Services.Sql
 
                 }).FirstOrDefaultAsync(cancellationToken);
 
-            return entity == null 
-                ? HttpStatusCode.NotFound.ToFailureJsonResponse(Errors.AppNotFound) 
+            return entity == null
+                ? HttpStatusCode.NotFound.ToFailureJsonResponse(Errors.AppNotFound)
                 : HttpStatusCode.OK.ToSuccessJsonResponse(entity.Instances);
         }
 
-        private static GetInstancesResponseInstance MapToGetInstancesResponseInstance(InstanceSqlModel instance, string IdentifierId)
+        private static GetInstancesResponseInstance MapToGetInstancesResponseInstance(InstanceSqlModel instance, string identifierId)
         {
             return new GetInstancesResponseInstance
             {
                 Id = $"{instance.Id}",
                 DynamicId = instance.DynamicId,
-                IdentifierId = IdentifierId,
+                IdentifierId = identifierId,
                 Name = instance.Name,
                 Urls = instance.Urls,
                 IsActive = instance.IsActive,

@@ -62,13 +62,13 @@ namespace OpenSettings.Extensions
             IHostBuilder hostBuilder,
             OpenSettingsConfiguration openSettingsConfiguration,
             Func<IConfiguration, Task> configureFunc,
-            params Type[] appSettingsTypes)
+            params Type[] settingsTypes)
         {
             openSettingsConfiguration.Client = openSettingsConfiguration.Client ?? new ClientInfo();
 
             await LicenseProvider.Instance.InitializeAsync(openSettingsConfiguration, CancellationToken.None);
 
-            var configurationBuilder = await new ConfigurationBuilder().BuildSettingsAsync(openSettingsConfiguration, settingsTypes: appSettingsTypes);
+            var configurationBuilder = await new ConfigurationBuilder().BuildSettingsAsync(openSettingsConfiguration, settingsTypes: settingsTypes);
 
             var configuration = configurationBuilder.Build();
 

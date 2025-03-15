@@ -8,7 +8,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace OpenSettings.Extensions
+namespace OpenSettings.Helpers
 {
     /// <summary>
     /// Provides helper methods for JSON manipulation, including options for reading and writing JSON documents and merging JSON objects.

@@ -134,6 +134,11 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return ModelState.ToJsonAction();
             }
 
+            if (request.Body.Instance != null)
+            {
+                request.Body.Instance.IpAddress = Request.GetIpAddress();
+            }
+
             var result = await _appsService.SyncAppDataAsync(new SyncAppDataInput
             {
                 Client = new SyncAppDataInputClient
@@ -149,7 +154,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 UserId = User.GetUserDisplayName() == string.Empty ? null : User.GetUserId()
             }, cancellationToken);
 
-            return Ok(result);
+            return result.ToAction();
         }
 
         [HttpGet("{AppIdOrSlug}")]
@@ -297,6 +302,36 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             return result.ToAction();
         }
 
+        [HttpPost("{ClientId:guid}/instances")]
+        public async Task<IActionResult> CreateInstance(CreateInstanceRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return ModelState.ToJsonAction();
+            }
+
+            var result = await _instancesService.CreateInstanceAsync(new CreateInstanceInput
+            {
+                ClientId = request.ClientId,
+                ClientSecret = request.Body.ClientSecret,
+                InstanceName = request.Body.InstanceName,
+                IdentifierName = request.Body.IdentifierName,
+                DynamicId = request.Body.DynamicId,
+                Urls = request.Body.Urls,
+                Version = request.Body.Version,
+                IsActive = request.Body.IsActive,
+                IpAddress = Request.GetIpAddress(),
+                MachineName = request.Body.MachineName,
+                Environment = request.Body.Environment,
+                ReloadStrategies = request.Body.ReloadStrategies,
+                ServiceType = request.Body.ServiceType,
+                DataAccessType = request.Body.DataAccessType,
+                CreatedById = User.GetUserId()
+            }, CancellationToken.None);
+
+            return result.ToAction();
+        }
+
         [HttpPut("{ClientId:guid}/instances")]
         public async Task<IActionResult> UpdateInstance(UpdateInstanceRequest request)
         {
@@ -308,6 +343,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             var result = await _instancesService.UpdateInstanceAsync(new UpdateInstanceInput
             {
                 ClientId = request.ClientId,
+                ClientSecret = request.Body.ClientSecret,
                 InstanceName = request.Body.InstanceName,
                 IdentifierName = request.Body.IdentifierName,
                 Urls = request.Body.Urls,
@@ -338,7 +374,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return NotFound();
             }
 
-            return Ok(result);
+            return result.ToAction();
         }
 
         [HttpGet("{AppIdOrSlug}/identifiers")]

@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using OpenSettings.Configurations;
 using OpenSettings.Extensions;
+using OpenSettings.Helpers;
 using OpenSettings.Models;
 using OpenSettings.Services.Interfaces;
 using StackExchange.Redis;
@@ -102,6 +103,5 @@ namespace OpenSettings.Services.Redis
 
             public static readonly Action<ILogger, string, Exception> RedisSubscriptionFailed = LoggerMessage.Define<string>(LogLevel.Error, EventIds.RedisSubscriptionFailedEventId, "Redis subscription to channel: '{channel}' failed!.");
         }
-
     }
 }

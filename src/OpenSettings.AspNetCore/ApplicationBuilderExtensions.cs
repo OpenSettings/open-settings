@@ -33,9 +33,9 @@ namespace OpenSettings.AspNetCore
         public static IApplicationBuilder UseOpenSettings(this IApplicationBuilder app)
         {
             var hostApplicationLifetime = app.ApplicationServices.GetRequiredService<IHostApplicationLifetime>();
-            var settingsServiceConfiguration = app.ApplicationServices.GetService<OpenSettingsConfiguration>();
+            var openSettingsConfiguration = app.ApplicationServices.GetService<OpenSettingsConfiguration>();
 
-            if (settingsServiceConfiguration == null)
+            if (openSettingsConfiguration == null)
             {
                 throw new Exception("'AddOpenSettings()' registration required!");
             }
@@ -46,32 +46,60 @@ namespace OpenSettings.AspNetCore
 
             var updateInstanceRequest = new UpdateInstanceInput
             {
-                ClientId = settingsServiceConfiguration.Client.Id,
-                ClientSecret = settingsServiceConfiguration.Client.Secret,
-                InstanceName = settingsServiceConfiguration.InstanceName,
-                IdentifierName = settingsServiceConfiguration.IdentifierName
+                ClientId = openSettingsConfiguration.Client.Id,
+                ClientSecret = openSettingsConfiguration.Client.Secret,
+                InstanceName = openSettingsConfiguration.InstanceName,
+                IdentifierName = openSettingsConfiguration.IdentifierName
             };
+
+            string[] urls = null; 
 
             hostApplicationLifetime.ApplicationStarted.Register(() =>
             {
                 var serverAddressesFeature = app.ServerFeatures.Get<IServerAddressesFeature>();
-                var urls = serverAddressesFeature?.Addresses?.ToArray() ?? Array.Empty<string>();
+                urls = serverAddressesFeature?.Addresses?.ToArray() ?? Array.Empty<string>();
 
                 updateInstanceRequest.IsActive = true;
                 updateInstanceRequest.Urls = urls;
 
-                _ = instancesService.UpdateInstanceAsync(updateInstanceRequest, CancellationToken.None);
+                _ = instancesService.UpdateInstanceAsync(updateInstanceRequest, CancellationToken.None).ContinueWith( 
+                    (c) =>
+                    {
+                        if (c.IsFaulted)
+                        {
+                            return;
+                        }
+
+                        var result = c.Result;
+
+                        if (result.Errors.Any(e => e.Code == $"{(int)Errors.InstanceNotFound}"))
+                        {
+                            _ = instancesService.CreateInstanceAsync(new CreateInstanceInput(openSettingsConfiguration, isActive: true, urls), CancellationToken.None);
+                        }
+                    });
             });
 
             hostApplicationLifetime.ApplicationStopping.Register(() =>
             {
                 updateInstanceRequest.IsActive = false;
 
-                _ = instancesService.UpdateInstanceAsync(updateInstanceRequest, CancellationToken.None).ContinueWith((c) =>
+                _ = instancesService.UpdateInstanceAsync(updateInstanceRequest, CancellationToken.None).ContinueWith(c =>
                 {
-                    scope.Dispose();
+                    if (c.IsFaulted)
+                    {
+                        scope.Dispose();
 
-                    return Task.CompletedTask;
+                        return;
+                    }
+
+                    var result = c.Result;
+
+                    if (result.Errors.Any(e => e.Code == $"{(int)Errors.InstanceNotFound}"))
+                    {
+                        _ = instancesService.CreateInstanceAsync(new CreateInstanceInput(openSettingsConfiguration, isActive: false, urls), CancellationToken.None);
+                    }
+
+                    scope.Dispose();
                 });
             });
 

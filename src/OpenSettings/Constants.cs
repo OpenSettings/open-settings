@@ -2,6 +2,7 @@
 using OpenSettings.Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 
@@ -57,6 +58,8 @@ namespace OpenSettings
 
         internal const string GeneratedSettingsFileNameWithoutExtension = "settings-generated";
         internal const string GeneratedSettingsFileNameWithExtension = "settings-generated.json";
+
+        internal static string GeneratedOpenSettingsFilePath = Path.Combine(AppContext.BaseDirectory, "settings-generated.open-settings.json");
 
         internal const string DefaultVersion = "1.0.0";
         internal const string RedisSubscriberName = "OpenSettings";

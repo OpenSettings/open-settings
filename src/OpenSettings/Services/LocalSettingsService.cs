@@ -3,7 +3,9 @@ using Microsoft.Extensions.Options;
 using Ogu.Response.Json;
 using OpenSettings.Attributes;
 using OpenSettings.Configurations;
+using OpenSettings.Exceptions;
 using OpenSettings.Extensions;
+using OpenSettings.Helpers;
 using OpenSettings.Models;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Models.Responses;
@@ -267,9 +269,9 @@ namespace OpenSettings.Services
             }
 
 #if NETSTANDARD2_0
-            WriteSettingsToFile(settingData.GeneratedFilePath, fullNameToInstance);
+            FileHelper.WriteSettingsToFile(settingData.GeneratedFilePath, fullNameToInstance);
 #else
-            await WriteSettingsToFileAsync(settingData.GeneratedFilePath, fullNameToInstance, cancellationToken);
+            await FileHelper.WriteSettingsToFileAsync(settingData.GeneratedFilePath, fullNameToInstance, cancellationToken);
 #endif
         }
 
@@ -428,9 +430,9 @@ namespace OpenSettings.Services
             var fullPathToInstanceFullNameToObjectInstance = UpdateLocalData(computedIdentifierToSyncAppDataResponse);
 
 #if NETSTANDARD2_0
-            WriteToDisk(fullPathToInstanceFullNameToObjectInstance);
+            FileHelper.WriteToDisk(fullPathToInstanceFullNameToObjectInstance);
 #else
-            await WriteToDiskAsync(fullPathToInstanceFullNameToObjectInstance, cancellationToken);
+            await FileHelper.WriteToDiskAsync(fullPathToInstanceFullNameToObjectInstance, cancellationToken);
 #endif
             return true;
         }
@@ -475,13 +477,7 @@ namespace OpenSettings.Services
                     return HttpStatusCode.BadRequest.ToFailureJsonResponse(Errors.RegistrationModeSingletonNotSupported);
 
                 case ConfigSource.Options:
-
-                    return HttpStatusCode.BadRequest.ToFailureJsonResponse(Errors.RegistrationModeConfigureNotSupported);
-
                 case ConfigSource.OptionsSnapshot:
-
-                    return HttpStatusCode.BadRequest.ToFailureJsonResponse(Errors.RegistrationModeConfigureNotSupported);
-
                 case ConfigSource.OptionsMonitor:
 
                     return HttpStatusCode.BadRequest.ToFailureJsonResponse(Errors.RegistrationModeConfigureNotSupported);
@@ -492,7 +488,7 @@ namespace OpenSettings.Services
             }
         }
 
-        internal async Task<LocalSyncDataResponse> SyncAppDataAsync(CancellationToken cancellationToken = default)
+        internal async Task SyncAppDataAsync(CancellationToken cancellationToken = default)
         {
             var appSqlModel = new SyncAppDataInput
             {
@@ -532,13 +528,13 @@ namespace OpenSettings.Services
                     InstanceName = _openSettingsConfiguration.InstanceName,
                     DynamicId = _openSettingsConfiguration.InstanceDynamicId,
                     Urls = Array.Empty<string>(),
+                    Version = _openSettingsConfiguration.Client.Version,
+                    IsActive = true,
                     MachineName = Environment.MachineName,
                     Environment = Helper.GetEnvironmentName(),
                     ReloadStrategies = _openSettingsConfiguration.GetReloadStrategies(),
                     ServiceType = _openSettingsConfiguration.Selection,
-                    DataAccessType = _openSettingsConfiguration.IsConsumerSelected ? (DataAccessType?)null : _openSettingsConfiguration.Provider.Selection,
-                    Version = _openSettingsConfiguration.Client.Version,
-                    IsDisabled = false
+                    DataAccessType = _openSettingsConfiguration.IsConsumerSelected ? (DataAccessType?)null : _openSettingsConfiguration.Provider.Selection
                 },
                 AppType = AppType.Dotnet,
                 IdentifierName = _openSettingsConfiguration.IdentifierName
@@ -583,13 +579,13 @@ namespace OpenSettings.Services
 
                 if (syncAppDataResponse == null)
                 {
-                    var doNotRetry = Constants.ComputedIdentifierToLocalSetting.Count == 0 || (_openSettingsConfiguration.SyncAppDataMaxRetryCount != -1 && attempt >= _openSettingsConfiguration.SyncAppDataMaxRetryCount);
+                    var isMaxRetryExceeded = _openSettingsConfiguration.SyncAppDataMaxRetryCount != -1 && attempt >= _openSettingsConfiguration.SyncAppDataMaxRetryCount;
 
-                    Logs.InitializationFailed(_logger, attempt, !doNotRetry, exception);
+                    Logs.InitializationFailed(_logger, attempt, !isMaxRetryExceeded, exception);
 
-                    if (doNotRetry)
+                    if (isMaxRetryExceeded)
                     {
-                        break;
+                        throw new SyncAppDataMaxRetryExceededException(_openSettingsConfiguration.SyncAppDataMaxRetryCount, attempt);
                     }
 
                     await Task.Delay(_openSettingsConfiguration.SyncAppDataRetryDelayMilliseconds, cancellationToken);
@@ -603,40 +599,25 @@ namespace OpenSettings.Services
 
             } while (syncAppDataResponse == null);
 
-            var fullPathToInstanceFullNameToObjectInstance = syncAppDataResponse == null
-                ? UpdateLocalData()
-                : UpdateLocalData(syncAppDataResponse.Settings.ToDictionary(d => d.ComputedIdentifier, d => d));
+            await syncAppDataResponse.WriteToFileAsync(cancellationToken);
 
-            DeleteFiles();
+            var fullPathToInstanceFullNameToObjectInstance = UpdateLocalData(syncAppDataResponse.Settings.ToDictionary(d => d.ComputedIdentifier, d => d));
+
+            FileHelper.DeleteSettingsFiles();
 
 #if NETSTANDARD2_0
-            WriteToDisk(fullPathToInstanceFullNameToObjectInstance);
+            FileHelper.WriteToDisk(fullPathToInstanceFullNameToObjectInstance);
 #else
-            await WriteToDiskAsync(fullPathToInstanceFullNameToObjectInstance, cancellationToken);
+            await FileHelper.WriteToDiskAsync(fullPathToInstanceFullNameToObjectInstance, cancellationToken);
 #endif
-
-            return new LocalSyncDataResponse(syncAppDataResponse, _openSettingsConfiguration);
-        }
-
-#if NETSTANDARD2_0
-        internal void WriteToDisk(
-            Dictionary<string, Dictionary<string, object>> fullPathToInstanceFullNameToObjectInstance)
-#else
-        internal async Task WriteToDiskAsync(
-            Dictionary<string, Dictionary<string, object>> fullPathToInstanceFullNameToObjectInstance,
-            CancellationToken cancellationToken)
-#endif
-        {
-#if NETSTANDARD2_0
-            foreach (var kvp in fullPathToInstanceFullNameToObjectInstance)
+            if (_openSettingsConfiguration.IsConsumerSelected && ConsumerConfiguration.IsGeneratorModeEnabled)
             {
-                WriteSettingsToFile(kvp.Key, kvp.Value);
+                Logs.SettingsGeneratedAndShuttingDown(_logger, null);
+                Console.WriteLine(Logs.SettingsGeneratedAndShuttingDownFormatString);
+                Environment.Exit(0);
             }
-#else
-            var writeSettingsToFileTasks = fullPathToInstanceFullNameToObjectInstance.Select(kvp => WriteSettingsToFileAsync(kvp.Key, kvp.Value, cancellationToken));
 
-            await Task.WhenAll(writeSettingsToFileTasks);
-#endif
+            _openSettingsConfiguration.Update(syncAppDataResponse.Configuration);
         }
 
         internal Dictionary<string, Dictionary<string, object>> UpdateLocalData()
@@ -668,8 +649,8 @@ namespace OpenSettings.Services
         {
             var fullPathToInstanceFullNameToObjectInstance = new Dictionary<string, Dictionary<string, object>>();
 
-            var singleSettingFilePath = Path.Combine(Environment.CurrentDirectory, Constants.SettingsFileNameWithExtension);
-            var singleGeneratedSettingFilePath = Path.Combine(Environment.CurrentDirectory, Constants.GeneratedSettingsFileNameWithExtension);
+            var singleSettingFilePath = Path.Combine(AppContext.BaseDirectory, Constants.SettingsFileNameWithExtension);
+            var singleGeneratedSettingFilePath = Path.Combine(AppContext.BaseDirectory, Constants.GeneratedSettingsFileNameWithExtension);
 
             var stringBuilder = new StringBuilder();
 
@@ -738,37 +719,6 @@ namespace OpenSettings.Services
             return fullPathToInstanceFullNameToObjectInstance;
         }
 
-#if NETSTANDARD2_0
-        internal void WriteSettingsToFile(string filePath, IDictionary<string, object> data)
-#else
-        internal async Task WriteSettingsToFileAsync(string filePath, IDictionary<string, object> data, CancellationToken cancellationToken = default)
-#endif
-        {
-            if (filePath == null)
-            {
-                return;
-            }
-
-            var json = JsonSerializer.Serialize(data, Constants.UnsafeRelaxedJsonAndWriteIndentedSerializerOptions);
-
-            try
-            {
-#if NETSTANDARD2_0
-                _semaphore.Wait();
-
-                File.WriteAllText(filePath, json);
-#else
-                await _semaphore.WaitAsync(cancellationToken);
-
-                await File.WriteAllTextAsync(filePath, json, cancellationToken);
-#endif
-            }
-            finally
-            {
-                _semaphore.Release();
-            }
-        }
-
         private static SyncAppDataInputSetting[] GenerateSettings(IEnumerable<LocalSetting> settingsData, OpenSettingsConfiguration openSettingsConfiguration)
         {
             return settingsData.Select(settingData =>
@@ -818,35 +768,6 @@ namespace OpenSettings.Services
             }).ToArray();
         }
 
-        private static async Task<Dictionary<string, Dictionary<string, object>>> GetFilesAsDictionaryAsync(string pattern, CancellationToken cancellationToken = default)
-        {
-            var filePaths = Directory.GetFiles(Environment.CurrentDirectory, pattern);
-
-            var tasks = filePaths.Select(async filePath =>
-            {
-#if NETCOREAPP
-                await
-#endif
-                using (var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 4096, useAsync: true))
-                {
-                    var deserializedData = await JsonSerializer.DeserializeAsync<Dictionary<string, object>>(fileStream, cancellationToken: cancellationToken);
-
-                    return (filePath, deserializedData);
-                }
-            });
-
-            var results = await Task.WhenAll(tasks);
-
-            var dictionary = new Dictionary<string, Dictionary<string, object>>();
-
-            foreach (var (filePath, deserializedData) in results)
-            {
-                dictionary[filePath] = deserializedData;
-            }
-
-            return dictionary;
-        }
-
         private static object GetOptionsService(IServiceProvider serviceProvider, Type baseType, Type configType)
         {
             var closedType = baseType.MakeGenericType(configType);
@@ -854,16 +775,10 @@ namespace OpenSettings.Services
             return GetServiceMethodInfo.Invoke(serviceProvider, new object[] { closedType });
         }
 
-        internal static void DeleteFiles()
-        {
-            foreach (var settingData in Constants.ComputedIdentifierToLocalSetting.Values)
-            {
-                File.Delete(settingData.GeneratedFilePath);
-            }
-        }
-
         private static class Logs
         {
+            public const string SettingsGeneratedAndShuttingDownFormatString = "Settings generated successfully. Shutting down the application...";
+
             public static readonly Action<ILogger, string, Exception> InitializationSucceed =
                 LoggerMessage.Define<string>(
                     LogLevel.Information,
@@ -881,6 +796,12 @@ namespace OpenSettings.Services
                     LogLevel.Error,
                     new EventId(3, "UpdateLocalDataAndWriteToDiskAsync"),
                     "Error occurred when deserializing settings data: {data} - type: {typeName}");
+
+            public static readonly Action<ILogger, Exception> SettingsGeneratedAndShuttingDown =
+                LoggerMessage.Define(
+                    LogLevel.Information, 
+                    new EventId(4, nameof(SyncAppDataAsync)),
+                    SettingsGeneratedAndShuttingDownFormatString);
         }
     }
 }

@@ -1,7 +1,9 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using OpenSettings.Exceptions;
 using OpenSettings.Models;
+using OpenSettings.Models.Responses;
 using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
@@ -169,6 +171,9 @@ namespace OpenSettings.Configurations
         /// By default, the value is <c>-1</c>, which means infinite retries. Negative values other than <c>-1</c> are interpreted as "no retries" (equivalent to <c>0</c> retries), while <c>-1</c> signifies infinite retries. 
         /// If set to a positive value, the system will attempt the operation that many times before giving up.
         /// </para>
+        /// <remarks>
+        /// If the maximum retry count is reached, a <see cref="SyncAppDataMaxRetryExceededException"/> will be thrown.
+        /// </remarks>
         /// </summary>
         public int SyncAppDataMaxRetryCount { get; set; } = -1;
 
@@ -315,6 +320,30 @@ namespace OpenSettings.Configurations
                     IsConsumerSelected = true;
 
                     break;
+            }
+        }
+
+        internal void Update(SyncAppDataResponseConfiguration configuration)
+        {
+            StoreInSeparateFile = configuration.StoreInSeparateFile;
+            IgnoreOnFileChange = configuration.IgnoreOnFileChange;
+            RegistrationMode = configuration.RegistrationMode;
+
+            if (IsConsumerSelected)
+            {
+                Consumer.RequestEncodings = configuration.Consumer.RequestEncodings;
+                Consumer.IsRedisActive = configuration.Consumer.IsRedisActive;
+                Consumer.PollingSettingsWorker.IsActive = configuration.Consumer.PollingSettingsWorker.IsActive;
+                Consumer.PollingSettingsWorker.StartsIn = configuration.Consumer.PollingSettingsWorker.StartsIn;
+                Consumer.PollingSettingsWorker.Period = configuration.Consumer.PollingSettingsWorker.Period;
+            }
+            else
+            {
+                Provider.CompressionLevel = configuration.Provider.CompressionLevel;
+                Provider.CompressionType = configuration.Provider.CompressionType;
+                Provider.Redis.IsActive = configuration.Provider.Redis.IsActive;
+                Provider.Redis.Configuration = configuration.Provider.Redis.Configuration;
+                Provider.Redis.Channel = configuration.Provider.Redis.Channel;
             }
         }
     }

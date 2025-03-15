@@ -10,6 +10,7 @@ using OpenSettings.AspNetCore.Controllers.v1;
 using OpenSettings.Configurations;
 using OpenSettings.Models;
 using OpenSettings.Models.Inputs;
+using OpenSettings.Models.Responses;
 using OpenSettings.Services.Interfaces;
 using OpenSettings.Services.Rest;
 using OpenSettings.Services.Rest.Interfaces;
@@ -49,7 +50,9 @@ namespace OpenSettings.AspNetCore
 
             authenticationBuilder.AddOpenSettingsBasicAuthenticationScheme();
 
-            var providerInfo = configuration.GetSection(nameof(ProviderInfo)).Get<ProviderInfo>();
+            var syncAppDataResponse = SyncAppDataResponse.Get(configuration);
+
+            var providerInfo = syncAppDataResponse.ProviderInfo;
 
             var isProvider = providerInfo == null;
 

@@ -4,6 +4,7 @@ using OpenSettings.Models;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Text.Json.Serialization;
 
 namespace OpenSettings.Configurations
 {
@@ -15,13 +16,14 @@ namespace OpenSettings.Configurations
         private string _providerUrl;
 
         /// <summary>
-        /// Gets or sets the URL of the provider for fetching and syncing data.
-        /// This URL is required by the consumer to connect to the provider and retrieve data.
+        /// Gets or sets the Url of the provider for fetching and syncing data.
+        /// This Url is required by the consumer to connect to the provider and retrieve data.
         /// </summary>
         /// <value>
-        /// A <see cref="string"/> representing the URL of the settings provider service. 
+        /// A <see cref="string"/> representing the Url of the settings provider service. 
         /// Any trailing slashes will be trimmed automatically when setting the value.
         /// </value>
+        /// <remarks>This Url should point to the endpoint for the api. e.g. 'https://.../api/settings'</remarks>
         public string ProviderUrl
         {
             get => _providerUrl;
@@ -72,7 +74,7 @@ namespace OpenSettings.Configurations
         /// Gets or sets the configuration for the polling settings worker.
         /// </summary>
         /// <value>
-        /// A <see cref="Configurations.PollingSettingsWorkerConfiguration"/> object that defines the polling settings for the worker.
+        /// A <see cref="PollingSettingsWorkerConfiguration"/> object that defines the polling settings for the worker.
         /// </value>
         public PollingSettingsWorkerConfiguration PollingSettingsWorker { get; set; } = new PollingSettingsWorkerConfiguration();
 
@@ -97,5 +99,17 @@ namespace OpenSettings.Configurations
 
             RequestEncodings.AddToRequestHeaders(httpClient.DefaultRequestHeaders);
         }
+
+        [JsonIgnore]
+        internal static bool IsGeneratorModeEnabled
+        {
+            get
+            {
+                var openSettingsGeneratorMode = Environment.GetEnvironmentVariable("OPENSETTINGS_GENERATOR_MODE");
+
+                return string.Equals(openSettingsGeneratorMode, "1", StringComparison.OrdinalIgnoreCase) ||
+                       string.Equals(openSettingsGeneratorMode, "TRUE", StringComparison.OrdinalIgnoreCase);
+            }
+        } 
     }
 }

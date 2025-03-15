@@ -8,6 +8,7 @@ using OpenSettings.Configurations;
 using OpenSettings.Domains.Sql.DataContext;
 using OpenSettings.Domains.Sql.Entities;
 using OpenSettings.Extensions;
+using OpenSettings.Helpers;
 using OpenSettings.Models;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Models.Responses;
@@ -68,7 +69,6 @@ namespace OpenSettings.Services.Sql
 
                 var identifier = await _identifiersSqlService.GetOrCreateAsync(input.IdentifierName, SetSortOrderPosition.Bottom, input.UserId, cancellationToken);
 
-
                 if (!identifier.Success)
                 {
                     return identifier.Status.ToFailureJsonResponse<SyncAppDataResponse>(identifier.Errors);
@@ -81,26 +81,43 @@ namespace OpenSettings.Services.Sql
                     classNameToCount[setting.SettingClass.Name] = Constants.ClassNameToCount.GetValueOrDefault(setting.SettingClass.Name, 0) + 1;
                 }
 
+                var clientNameLowercase = input.Client.Name.Trim().ToLowerInvariant();
+
                 var partialApp = await _context.Apps
                     .AsNoTracking()
 #if !NETSTANDARD2_0
                     .AsSplitQuery()
 #endif
                     .Include(a => a.AppIdentifierMappings)
-                    .Where(a => a.ClientId == input.Client.Id && a.ClientName == input.Client.Name)
+                    .Where(a => a.ClientId == input.Client.Id || a.ClientNameLowercase == clientNameLowercase)
                     .OrderBy(a => a.Id)
                     .Select(a => new
                     {
                         a.Id,
+                        a.ClientId,
+                        a.ClientNameLowercase,
                         a.HashedClientSecret,
                         a.RowVersion,
                         MappedAppIdentifierIds = new HashSet<int>(a.AppIdentifierMappings.Select(i => i.IdentifierId))
                     })
-                    .FirstOrDefaultAsync(cancellationToken); ;
+                    .FirstOrDefaultAsync(cancellationToken);
 
-                return partialApp == null
-                    ? await HandleNewAppAsync(input, classNameToCount, identifier.Data.Id, cancellationToken)
-                    : await HandleExistingAppAsync(input, classNameToCount, identifier.Data.Id, partialApp.Id, partialApp.HashedClientSecret, partialApp.MappedAppIdentifierIds, cancellationToken);
+                if (partialApp == null)
+                {
+                    return await HandleNewAppAsync(input, classNameToCount, identifier.Data.Id, cancellationToken);
+                }
+
+                if (partialApp.ClientNameLowercase != clientNameLowercase)
+                {
+                    return HttpStatusCode.BadRequest.ToFailureJsonResponse<SyncAppDataResponse, Errors>(Errors.MismatchedClientName);
+                }
+
+                if (partialApp.ClientId != input.Client.Id)
+                {
+                    return HttpStatusCode.BadRequest.ToFailureJsonResponse<SyncAppDataResponse, Errors>(Errors.MismatchedClientId);
+                }
+
+                return await HandleExistingAppAsync(input, classNameToCount, identifier.Data.Id, partialApp.Id, partialApp.HashedClientSecret, partialApp.MappedAppIdentifierIds, cancellationToken);
             }
             catch (Exception ex)
             {
@@ -1257,10 +1274,6 @@ namespace OpenSettings.Services.Sql
                 };
             }).ToArray();
 
-            var trimmedInstanceName = input.Instance.InstanceName.Trim();
-            var trimmedInstanceNameLowercase = trimmedInstanceName.ToLowerInvariant();
-            var instanceSlug = trimmedInstanceName.ToSlug();
-
             var appIdentifier = new IdentifierSqlModel
             {
                 Id = identifierId
@@ -1277,15 +1290,45 @@ namespace OpenSettings.Services.Sql
 
             var configuration = new ConfigurationSqlModel
             {
-                StoreInSeparateFile = input.Configuration.StoreInSeparateFile,
-                IgnoreOnFileChange = input.Configuration.IgnoreOnFileChange,
-                RegistrationMode = input.Configuration.RegistrationMode,
-                Consumer = input.Configuration.Consumer,
-                Provider = input.Configuration.Provider,
+                
                 IdentifierId = identifierId,
                 CreatedOn = currentTime,
                 CreatedById = input.UserId
             };
+
+            if (input.Configuration != null)
+            {
+                configuration.StoreInSeparateFile = input.Configuration.StoreInSeparateFile;
+                configuration.IgnoreOnFileChange = input.Configuration.IgnoreOnFileChange;
+                configuration.RegistrationMode = input.Configuration.RegistrationMode;
+                configuration.Consumer = input.Configuration.Consumer;
+                configuration.Provider = input.Configuration.Provider;
+            }
+
+            var instances = new List<InstanceSqlModel>(1);
+
+            if (input.Instance != null)
+            {
+                var trimmedInstanceName = input.Instance.InstanceName.Trim();
+                var trimmedInstanceNameLowercase = trimmedInstanceName.ToLowerInvariant();
+                var instanceSlug = trimmedInstanceName.ToSlug();
+
+                instances.Add(new InstanceSqlModel
+                {
+                    Name = trimmedInstanceName,
+                    NameLowercase = trimmedInstanceNameLowercase,
+                    Slug = instanceSlug,
+                    IdentifierId = identifierId,
+                    DynamicId = input.Instance.DynamicId,
+                    Urls = input.Instance.Urls,
+                    MachineName = input.Instance.MachineName,
+                    Environment = input.Instance.Environment,
+                    ReloadStrategies = input.Instance.ReloadStrategies,
+                    ServiceType = input.Instance.ServiceType,
+                    Version = input.Instance.Version,
+                    CreatedOn = currentTime,
+                });
+            }
 
             var app = new AppSqlModel
             {
@@ -1299,24 +1342,7 @@ namespace OpenSettings.Services.Sql
                     configuration
                 },
                 Settings = settingsTask.Result,
-                Instances = new[]
-                {
-                    new InstanceSqlModel
-                    {
-                        Name = trimmedInstanceName,
-                        NameLowercase = trimmedInstanceNameLowercase,
-                        Slug = instanceSlug,
-                        IdentifierId = identifierId,
-                        DynamicId = input.Instance.DynamicId,
-                        Urls = input.Instance.Urls,
-                        MachineName = input.Instance.MachineName,
-                        Environment = input.Instance.Environment,
-                        ReloadStrategies = input.Instance.ReloadStrategies,
-                        ServiceType = input.Instance.ServiceType,
-                        Version = input.Instance.Version,
-                        CreatedOn = currentTime,
-                    }
-                },
+                Instances = instances,
                 AppIdentifierMappings = new AppIdentifierMappingSqlModel[]
                 {
                     new AppIdentifierMappingSqlModel
@@ -1450,64 +1476,67 @@ namespace OpenSettings.Services.Sql
                 });
             }
 
-            var instanceName = input.Instance.InstanceName.Trim();
-            var instanceNameLowercase = instanceName.ToLowerInvariant();
-            var instanceSlug = instanceName.ToSlug();
-
-            var instance = await _context.Instances
-                .AsNoTracking()
-                .Where(a => a.NameLowercase == instanceNameLowercase && a.IdentifierId == identifierId && a.AppId == appId)
-                .OrderBy(a => a.Id)
-                .Select(a => new InstanceSqlModel
-                {
-                    Id = a.Id
-                })
-                .FirstOrDefaultAsync(cancellationToken);
-
-            if (instance == null)
+            if (input.Instance != null)
             {
-                app.Instances.Add(new InstanceSqlModel
+                var instanceName = input.Instance.InstanceName.Trim();
+                var instanceNameLowercase = instanceName.ToLowerInvariant();
+                var instanceSlug = instanceName.ToSlug();
+
+                var instance = await _context.Instances
+                    .AsNoTracking()
+                    .Where(a => a.NameLowercase == instanceNameLowercase && a.IdentifierId == identifierId && a.AppId == appId)
+                    .OrderBy(a => a.Id)
+                    .Select(a => new InstanceSqlModel
+                    {
+                        Id = a.Id
+                    })
+                    .FirstOrDefaultAsync(cancellationToken);
+
+                if (instance == null)
                 {
-                    Name = instanceName,
-                    NameLowercase = instanceNameLowercase,
-                    Slug = instanceSlug,
-                    IdentifierId = identifierId,
-                    DynamicId = input.Instance.DynamicId,
-                    Urls = Array.Empty<string>(),
-                    MachineName = input.Instance.MachineName,
-                    Environment = input.Instance.Environment,
-                    ReloadStrategies = input.Instance.ReloadStrategies,
-                    ServiceType = input.Instance.ServiceType,
-                    Version = input.Instance.Version,
-                    CreatedOn = currentTime
-                });
-            }
-            else
-            {
-                _context.Instances.Attach(instance);
+                    app.Instances.Add(new InstanceSqlModel
+                    {
+                        Name = instanceName,
+                        NameLowercase = instanceNameLowercase,
+                        Slug = instanceSlug,
+                        IdentifierId = identifierId,
+                        DynamicId = input.Instance.DynamicId,
+                        Urls = Array.Empty<string>(),
+                        MachineName = input.Instance.MachineName,
+                        Environment = input.Instance.Environment,
+                        ReloadStrategies = input.Instance.ReloadStrategies,
+                        ServiceType = input.Instance.ServiceType,
+                        Version = input.Instance.Version,
+                        CreatedOn = currentTime
+                    });
+                }
+                else
+                {
+                    _context.Instances.Attach(instance);
 
-                instance.Name = instanceName;
-                instance.NameLowercase = instanceNameLowercase;
-                instance.Slug = instanceSlug;
-                instance.DynamicId = input.Instance.DynamicId;
-                instance.MachineName = input.Instance.MachineName;
-                instance.Environment = input.Instance.Environment;
-                instance.ReloadStrategies = input.Instance.ReloadStrategies;
-                instance.ServiceType = input.Instance.ServiceType;
-                instance.Version = input.Instance.Version;
-                instance.UpdatedOn = currentTime;
+                    instance.Name = instanceName;
+                    instance.NameLowercase = instanceNameLowercase;
+                    instance.Slug = instanceSlug;
+                    instance.DynamicId = input.Instance.DynamicId;
+                    instance.MachineName = input.Instance.MachineName;
+                    instance.Environment = input.Instance.Environment;
+                    instance.ReloadStrategies = input.Instance.ReloadStrategies;
+                    instance.ServiceType = input.Instance.ServiceType;
+                    instance.Version = input.Instance.Version;
+                    instance.UpdatedOn = currentTime;
 
-                _context.MarkAsModified(instance,
-                    i => i.Name,
-                    i => i.NameLowercase,
-                    i => i.Slug,
-                    i => i.DynamicId,
-                    i => i.MachineName,
-                    i => i.Environment,
-                    i => i.ReloadStrategies,
-                    i => i.ServiceType,
-                    i => i.Version,
-                    i => i.UpdatedOn);
+                    _context.MarkAsModified(instance,
+                        i => i.Name,
+                        i => i.NameLowercase,
+                        i => i.Slug,
+                        i => i.DynamicId,
+                        i => i.MachineName,
+                        i => i.Environment,
+                        i => i.ReloadStrategies,
+                        i => i.ServiceType,
+                        i => i.Version,
+                        i => i.UpdatedOn);
+                }
             }
 
             var configuration = await _context.Configurations
@@ -1526,15 +1555,19 @@ namespace OpenSettings.Services.Sql
             {
                 configuration = new ConfigurationSqlModel
                 {
-                    StoreInSeparateFile = input.Configuration.StoreInSeparateFile,
-                    IgnoreOnFileChange = input.Configuration.IgnoreOnFileChange,
-                    RegistrationMode = input.Configuration.RegistrationMode,
-                    Consumer = input.Configuration.Consumer,
-                    Provider = input.Configuration.Provider,
                     IdentifierId = identifierId,
                     CreatedOn = currentTime,
                     CreatedById = input.UserId
                 };
+
+                if (input.Configuration != null)
+                {
+                    configuration.StoreInSeparateFile = input.Configuration.StoreInSeparateFile;
+                    configuration.IgnoreOnFileChange = input.Configuration.IgnoreOnFileChange;
+                    configuration.RegistrationMode = input.Configuration.RegistrationMode;
+                    configuration.Consumer = input.Configuration.Consumer;
+                    configuration.Provider = input.Configuration.Provider;
+                }
 
                 app.Configurations.Add(configuration);
             }

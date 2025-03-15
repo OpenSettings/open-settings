@@ -7,6 +7,8 @@ namespace OpenSettings.Services.Interfaces
 {
     public interface IInstancesService
     {
+        Task<IJsonResponse> CreateInstanceAsync(CreateInstanceInput input, CancellationToken cancellationToken = default);
+
         Task<IJsonResponse> UpdateInstanceAsync(UpdateInstanceInput input, CancellationToken cancellationToken = default);
 
         Task<IJsonResponse> DeleteInstanceAsync(DeleteInstanceInput input, CancellationToken cancellationToken = default);

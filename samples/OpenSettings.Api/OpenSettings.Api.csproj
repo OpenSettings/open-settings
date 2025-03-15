@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+  	<PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.10" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\OpenSettings.AspNetCore.Spa\OpenSettings.AspNetCore.Spa.csproj" />
+    <ProjectReference Include="..\..\src\OpenSettings.AspNetCore\OpenSettings.AspNetCore.csproj" />
+    <ProjectReference Include="..\..\src\OpenSettings\OpenSettings.csproj" />
+  </ItemGroup>
+
+</Project>

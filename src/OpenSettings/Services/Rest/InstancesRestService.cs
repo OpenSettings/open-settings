@@ -19,12 +19,44 @@ namespace OpenSettings.Services.Rest
             _httpClient = httpClient;
         }
 
+        public async Task<IJsonResponse> CreateInstanceAsync(CreateInstanceInput input, CancellationToken cancellationToken = default)
+        {
+            var relativeUri = $"v1/apps/{input.ClientId}/instances";
+
+            var body = new
+            {
+                input.ClientId,
+                input.ClientSecret,
+                input.InstanceName,
+                input.IdentifierName,
+                input.DynamicId,
+                input.Urls,
+                input.Version,
+                input.IsActive,
+                input.MachineName,
+                input.Environment,
+                input.ReloadStrategies,
+                input.ServiceType,
+                input.DataAccessType
+            };
+
+            using (var stringContent = new StringContent(JsonSerializer.Serialize(body), Encoding.UTF8, Constants.ApplicationJson))
+            {
+                using (var response = await _httpClient.PostAsync(relativeUri, stringContent, cancellationToken))
+                {
+                    return await response.Content.ToJsonResponseAsync(cancellationToken: cancellationToken);
+                }
+            }
+        }
+
         public async Task<IJsonResponse> UpdateInstanceAsync(UpdateInstanceInput input, CancellationToken cancellationToken)
         {
             var relativeUri = $"v1/apps/{input.ClientId}/instances";
 
             var body = new
             {
+                input.ClientId,
+                input.ClientSecret,
                 input.InstanceName,
                 input.IdentifierName,
                 input.Urls,

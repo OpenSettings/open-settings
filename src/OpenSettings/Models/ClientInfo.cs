@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OpenSettings.Helpers;
+using System;
 using System.IO;
 using System.Reflection;
 using System.Text.Json.Serialization;
@@ -34,7 +35,7 @@ namespace OpenSettings.Models
         public string Name { get; }
 
         /// <summary>
-        /// Gets or sets the unique identifier for the client.
+        /// Gets or sets the id for the client.
         /// </summary>
         public Guid Id { get; }
 

@@ -6,6 +6,7 @@ using OpenSettings.Domains.Sql.Entities;
 using OpenSettings.Extensions;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Models.Responses;
+using OpenSettings.Services.Interfaces;
 using OpenSettings.Services.MemoryCache;
 using OpenSettings.Services.Sql.Interfaces;
 using System;
@@ -14,7 +15,6 @@ using System.Linq.Expressions;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using OpenSettings.Services.Interfaces;
 
 namespace OpenSettings.Services.Sql
 {

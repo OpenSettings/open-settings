@@ -6,7 +6,10 @@ using Ogu.Compressions.Abstractions;
 using OpenSettings.Configurations;
 using OpenSettings.Domains.Sql.DataContext;
 using OpenSettings.Domains.Sql.Entities;
+using OpenSettings.Exceptions;
+using OpenSettings.Helpers;
 using OpenSettings.Models;
+using OpenSettings.Models.Responses;
 using OpenSettings.Services;
 using OpenSettings.Services.Interfaces;
 using OpenSettings.Services.Rest;
@@ -105,8 +108,9 @@ namespace OpenSettings.Extensions
             }
 
             return openSettingsConfiguration.IsConsumerSelected &&
-                   openSettingsConfiguration.Consumer.SkipInitialSyncAppData
-                ? await GenerateConfigurationWithoutInitialSyncAsync(configurationBuilder,
+                   openSettingsConfiguration.Consumer.SkipInitialSyncAppData && 
+                   !ConsumerConfiguration.IsGeneratorModeEnabled
+                ? await GenerateConfigurationSkippingInitialSyncAsync(configurationBuilder,
                     openSettingsConfiguration, settingsTypes, cancellationToken)
                 : await GenerateConfigurationWithSyncAsync(configurationBuilder, environmentName,
                     openSettingsConfiguration, settingsTypes, cancellationToken);
@@ -120,28 +124,35 @@ namespace OpenSettings.Extensions
 
             await ExecuteWithLocalSettingsServiceAsync(async localSettingsService =>
             {
-                var localSyncDataResponse = await localSettingsService.SyncAppDataAsync(cancellationToken);
+                await localSettingsService.SyncAppDataAsync(cancellationToken);
 
                 foreach (var settingData in localSettings.DistinctBy(s => s.GeneratedFilePath))
                 {
                     configurationBuilder.AddJsonFile(settingData.GeneratedFilePath, optional: true,
                         reloadOnChange: settingData.StoreInSeparateFile
                             ? !settingData.IgnoreOnFileChange ?? true
-                            : !localSyncDataResponse.IgnoreOnFileChange);
+                            : !openSettingsConfiguration.IgnoreOnFileChange);
                 }
 
-                if (localSyncDataResponse.ProviderInfo != null)
-                {
-                    configurationBuilder.AddInMemoryCollection(localSyncDataResponse.ProviderInfo.GetAsKeyValuePairs());
-                }
+                configurationBuilder.AddJsonFile(Constants.GeneratedOpenSettingsFilePath, false, reloadOnChange: false);
 
             }, openSettingsConfiguration, cancellationToken);
 
             return configurationBuilder;
         }
 
-        private static async Task<ConfigurationBuilder> GenerateConfigurationWithoutInitialSyncAsync(ConfigurationBuilder configurationBuilder, OpenSettingsConfiguration openSettingsConfiguration, Type[] settingsTypes, CancellationToken cancellationToken)
+        private static async Task<ConfigurationBuilder> GenerateConfigurationSkippingInitialSyncAsync(ConfigurationBuilder configurationBuilder, OpenSettingsConfiguration openSettingsConfiguration, Type[] settingsTypes, CancellationToken cancellationToken)
         {
+            var syncAppDataResponse = await SyncAppDataResponse.GetAsync(cancellationToken);
+
+            if (syncAppDataResponse?.ProviderInfo == null || 
+                syncAppDataResponse.Configuration == null)
+            {
+                throw new MissingConfigurationWhenSkipInitialSyncAppDataException();
+            }
+
+            openSettingsConfiguration.Update(syncAppDataResponse.Configuration);
+
             var localSettings = await Helper.CreateLocalSettingsFromGeneratedFilesAsync(
                 openSettingsConfiguration.RegistrationMode, openSettingsConfiguration.Operation,
                 cancellationToken, settingsTypes);
@@ -150,31 +161,35 @@ namespace OpenSettings.Extensions
 
             var logger = openSettingsConfiguration.LoggerFactory.CreateLogger("OpenSettings");
 
-            var missingSettings = string.Join(", ", localSettings.Where(s => !s.IsPreDataExists).Select(s => s.Type.FullName));
+            var missingSettings = string.Join(",", localSettings.Where(s => !s.IsPreDataExists).Select(s => s.Type.FullName));
 
             if (!string.IsNullOrWhiteSpace(missingSettings))
             {
-                logger.LogWarning("Skip initial sync flag is set to true, which triggered the injection of pre-generated setting files. However, the following settings were not found: {missingSettings}.", missingSettings);
+                logger.LogWarning("SkipInitialSyncAppData property is set to true, which triggered the injection of pre-generated setting files. However, the following settings were not found: {missingSettings}.", missingSettings);
             }
 
-            await ExecuteWithLocalSettingsServiceAsync(async localSettingsService =>
+            await ExecuteWithLocalSettingsServiceAsync(
+                localSettingsService =>
             {
                 var fullPathToInstanceFullNameToObjectInstance = localSettingsService.UpdateLocalData();
 
-                LocalSettingsService.DeleteFiles();
+                FileHelper.DeleteSettingsFiles();
 
 #if NETSTANDARD2_0
-                localSettingsService.WriteToDisk(fullPathToInstanceFullNameToObjectInstance);
+                FileHelper.WriteToDisk(fullPathToInstanceFullNameToObjectInstance);
+
+                return Task.CompletedTask;
 #else
-                await localSettingsService.WriteToDiskAsync(fullPathToInstanceFullNameToObjectInstance, cancellationToken);
+                return FileHelper.WriteToDiskAsync(fullPathToInstanceFullNameToObjectInstance, cancellationToken);
 #endif
             }, openSettingsConfiguration, cancellationToken);
-
 
             foreach (var settingData in localSettings.DistinctBy(s => s.GeneratedFilePath))
             {
                 configurationBuilder.AddJsonFile(settingData.GeneratedFilePath, optional: true, reloadOnChange: settingData.StoreInSeparateFile ? !settingData.IgnoreOnFileChange ?? true : !openSettingsConfiguration.IgnoreOnFileChange);
             }
+
+            configurationBuilder.AddJsonFile(Constants.GeneratedOpenSettingsFilePath, false, reloadOnChange: false);
 
             return configurationBuilder;
         }
