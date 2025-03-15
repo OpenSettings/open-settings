@@ -6,7 +6,7 @@
 
 **OpenSettings** is a powerful, flexible, and centralized **settings management solution** for .NET applications. It simplifies settings storage, retrieval, and synchronization.  
 
-![Demo](https://raw.githubusercontent.com/OpenSettings/open-settings-docs/master/docs/v1/assets/demo.gif)
+![Demo](https://raw.githubusercontent.com/OpenSettings/open-settings-docs/master/docs/v1/assets/gifs/demo.gif)
 
 
 ## ⚙️ Features  
