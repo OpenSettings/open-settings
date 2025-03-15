@@ -277,7 +277,7 @@ namespace OpenSettings.Configurations
         /// A <see cref="string"/> representing the reload strategy for the settings. 
         /// The returned value may indicate how the settings are reloaded, such as the method or frequency of reload.
         /// </returns>
-        public List<ReloadStrategy> GetReloadStrategies()
+        internal List<ReloadStrategy> GetReloadStrategies()
         {
             var reloadStrategies = new List<ReloadStrategy>();
 
