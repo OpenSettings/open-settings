@@ -73,7 +73,7 @@ namespace OpenSettings.Extensions
 
             services.AddSingleton<OpenSettingsConfiguration>(sp =>
             {
-                var loggerFactory = sp.GetRequiredService<ILoggerFactory>();
+                var loggerFactory = sp.GetService<ILoggerFactory>();
 
                 openSettingsConfiguration.LoggerFactory = loggerFactory;
 
