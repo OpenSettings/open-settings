@@ -165,7 +165,7 @@ namespace OpenSettings.Extensions
 
             if (!string.IsNullOrWhiteSpace(missingSettings))
             {
-                logger.LogWarning("SkipInitialSyncAppData property is set to true, which triggered the injection of pre-generated setting files. However, the following settings were not found: {missingSettings}.", missingSettings);
+                logger.LogWarning("SkipInitialSyncAppData property is set to true, which triggered the injection of generated settings files. However, the following settings were not found: {missingSettings}.", missingSettings);
             }
 
             await ExecuteWithLocalSettingsServiceAsync(
