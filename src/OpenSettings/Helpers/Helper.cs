@@ -522,7 +522,7 @@ namespace OpenSettings.Helpers
         {
             ISettings instance = null;
 
-            if (preSettingsData.TryGetValue(type.Name, out var jsonSettings))
+            if (preSettingsData.TryGetValue(type.FullName, out var jsonSettings))
             {
                 instance = JsonSerializer.Deserialize($"{jsonSettings}", type) as ISettings;
             }

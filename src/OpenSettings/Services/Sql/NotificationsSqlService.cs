@@ -129,8 +129,10 @@ namespace OpenSettings.Services.Sql
             });
         }
 
-        public async Task<IJsonResponse> UpdateNotificationAsync(UpdateNotificationInput input, CancellationToken cancellationToken = default)
+        public Task<IJsonResponse> UpdateNotificationAsync(UpdateNotificationInput input, CancellationToken cancellationToken = default)
         {
+            throw new NotImplementedException();
+
             //var notification = await _context.Notifications
             //    .AsNoTracking()
             //    .Where(n => n.Id == input.NotificationId)

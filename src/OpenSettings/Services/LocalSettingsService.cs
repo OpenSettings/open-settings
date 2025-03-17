@@ -583,6 +583,10 @@ namespace OpenSettings.Services
 
                     Logs.InitializationFailed(_logger, attempt, !isMaxRetryExceeded, exception);
 
+#if MIGRATION
+                    break;
+#endif
+
                     if (isMaxRetryExceeded)
                     {
                         throw new SyncAppDataMaxRetryExceededException(_openSettingsConfiguration.SyncAppDataMaxRetryCount, attempt);
@@ -599,9 +603,29 @@ namespace OpenSettings.Services
 
             } while (syncAppDataResponse == null);
 
-            await syncAppDataResponse.WriteToFileAsync(cancellationToken);
-
+#if MIGRATION
+    
+            syncAppDataResponse = new SyncAppDataResponse
+            {
+                ProviderInfo = new ProviderInfo(),
+                Configuration = new SyncAppDataResponseConfiguration
+                {
+                    Provider = new ConfigurationProvider
+                    {
+                        Redis = new RedisConfiguration()
+                    },
+                    Consumer = new ConfigurationConsumer
+                    {
+                        PollingSettingsWorker = new ConfigurationConsumerPollingSettingsWorker()
+                    }
+                }
+            };        
+            
+            var fullPathToInstanceFullNameToObjectInstance = UpdateLocalData();
+#else
             var fullPathToInstanceFullNameToObjectInstance = UpdateLocalData(syncAppDataResponse.Settings.ToDictionary(d => d.ComputedIdentifier, d => d));
+#endif
+            await syncAppDataResponse.WriteToFileAsync(cancellationToken);
 
             FileHelper.DeleteSettingsFiles();
 
