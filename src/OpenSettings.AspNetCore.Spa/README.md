@@ -1,6 +1,6 @@
 # OpenSettings.AspNetCore.Spa
 
-This library serves the **Settings Page UI** for [OpenSettings](https://github.com/OpenSettings/open-settings), allowing easy management of configurations.
+This library serves the **Settings Page UI** for [OpenSettings](https://github.com/OpenSettings/open-settings), allowing easy management of app settings.
 
 ## 🚀 Getting Started
 
