@@ -50,6 +50,4 @@ We appreciate your feedback and will address your concerns as soon as possible!
 🔹 [OpenSettings.AspNetCore](https://nuget.org/packages/OpenSettings.AspNetCore): Exposing controllers and authentication handlers to manage and interact with OpenSettings.  
 🔹 [OpenSettings.AspNetCore.Spa](https://nuget.org/packages/OpenSettings.AspNetCore.Spa): Serves the **Settings Page UI**, allowing easy management of configurations.  
 
-<br>
-
 ✨ *OpenSettings makes settings management simple, powerful, and flexible!* 🚀
