@@ -8,7 +8,6 @@
 
 ![Demo](https://raw.githubusercontent.com/OpenSettings/open-settings-docs/master/docs/v1/assets/gifs/demo.gif)
 
-
 ## ⚙️ Features  
 
 ✅ **Centralized Settings Management** – Manage settings across multiple services.  
