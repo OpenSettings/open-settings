@@ -1,6 +1,6 @@
 # OpenSettings.AspNetCore
 
-This library exposes controllers and authentication handlers to manage and interact with [OpenSettings](https://github.com/OpenSettings/open-settings) configurations within ASP.NET Core applications.
+This library exposes controllers and authentication handlers to manage and interact with [OpenSettings](https://github.com/OpenSettings/open-settings) within ASP.NET Core applications.
 
 ## 🚀 Getting Started
 
