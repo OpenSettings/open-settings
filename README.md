@@ -1,4 +1,5 @@
 # <img src="logo/open-settings-logo.png" alt="Header" width="24"/> OpenSettings
+
 [![.NET Core Desktop](https://github.com/OpenSettings/open-settings/actions/workflows/dotnet.yml/badge.svg?branch=master)](https://github.com/OpenSettings/open-settings/actions/workflows/dotnet.yml)
 [![NuGet](https://img.shields.io/nuget/v/OpenSettings.svg?color=1ecf18)](https://nuget.org/packages/OpenSettings)
 [![Docs](https://img.shields.io/badge/docs-online-blue)](https://docs.opensettings.net)
