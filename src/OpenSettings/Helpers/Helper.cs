@@ -81,6 +81,12 @@ namespace OpenSettings.Helpers
         }
 
         /// <summary>
+        /// Indicates whether the application is running in "Migration" mode.
+        /// Used to determine if Entity Framework Core migration should be generated.
+        /// </summary>
+        public static bool IsMigrationEnabled => Environment.GetCommandLineArgs().FirstOrDefault()?.Contains("ef.dll") ?? false;
+
+        /// <summary>
         /// Retrieves the current environment name from environment variables. 
         /// It checks the following variables in order: ASPNETCORE_ENVIRONMENT, DOTNET_ENVIRONMENT, and ENVIRONMENT. 
         /// If none are set, it defaults to "Production".

@@ -1,4 +1,5 @@
 ﻿using Ogu.Compressions.Abstractions;
+using OpenSettings.Models;
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.IO.Compression;
@@ -11,10 +12,27 @@ namespace OpenSettings.Domains.Sql.Entities
     [Table("SettingHistories")]
     public class SettingHistorySqlModel : EntityBase<int>
     {
+        /// <summary>
+        /// The binary data associated with the setting history.
+        /// </summary>
         public byte[] Data { get; set; } = Array.Empty<byte>();
 
+        /// <summary>
+        /// Defines the serialization type used for data serialization and deserialization.
+        /// Currently, only <see cref="SerializerType.Json"/> is supported.
+        /// Future support for other formats may be added.
+        /// </summary>
+        public SerializerType SerializerType { get; set; }
+
+        /// <summary>
+        /// Specifies the type of compression applied to the data.  
+        /// Determines which decoding method should be used.
+        /// </summary>
         public CompressionType CompressionType { get; set; }
 
+        /// <summary>
+        /// Defines the level of compression used.
+        /// </summary>
         public CompressionLevel CompressionLevel { get; set; }
 
         /// <summary>
@@ -28,6 +46,9 @@ namespace OpenSettings.Domains.Sql.Entities
         /// </summary>
         public string Slug { get; set; }
 
+        /// <summary>
+        /// The setting id associated with this setting history.
+        /// </summary>
         public int SettingId { get; set; }
 
         /// <summary>

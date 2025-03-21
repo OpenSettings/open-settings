@@ -544,6 +544,8 @@ namespace OpenSettings.Services
             var attempt = 1;
             Exception exception = null;
 
+            var isMigrationEnabled = Helper.IsMigrationEnabled;
+
             do
             {
                 try
@@ -583,9 +585,10 @@ namespace OpenSettings.Services
 
                     Logs.InitializationFailed(_logger, attempt, !isMaxRetryExceeded, exception);
 
-#if MIGRATION
-                    break;
-#endif
+                    if (isMigrationEnabled)
+                    {
+                        break;
+                    }
 
                     if (isMaxRetryExceeded)
                     {
@@ -603,28 +606,33 @@ namespace OpenSettings.Services
 
             } while (syncAppDataResponse == null);
 
-#if MIGRATION
-    
-            syncAppDataResponse = new SyncAppDataResponse
+            Dictionary<string, Dictionary<string, object>> fullPathToInstanceFullNameToObjectInstance;
+
+            if (isMigrationEnabled)
             {
-                ProviderInfo = new ProviderInfo(),
-                Configuration = new SyncAppDataResponseConfiguration
+                syncAppDataResponse = new SyncAppDataResponse
                 {
-                    Provider = new ConfigurationProvider
+                    ProviderInfo = new ProviderInfo(),
+                    Configuration = new SyncAppDataResponseConfiguration
                     {
-                        Redis = new RedisConfiguration()
-                    },
-                    Consumer = new ConfigurationConsumer
-                    {
-                        PollingSettingsWorker = new ConfigurationConsumerPollingSettingsWorker()
+                        Provider = new ConfigurationProvider
+                        {
+                            Redis = new RedisConfiguration()
+                        },
+                        Consumer = new ConfigurationConsumer
+                        {
+                            PollingSettingsWorker = new ConfigurationConsumerPollingSettingsWorker()
+                        }
                     }
-                }
-            };        
-            
-            var fullPathToInstanceFullNameToObjectInstance = UpdateLocalData();
-#else
-            var fullPathToInstanceFullNameToObjectInstance = UpdateLocalData(syncAppDataResponse.Settings.ToDictionary(d => d.ComputedIdentifier, d => d));
-#endif
+                };
+
+                fullPathToInstanceFullNameToObjectInstance = UpdateLocalData();
+            }
+            else
+            {
+                fullPathToInstanceFullNameToObjectInstance = UpdateLocalData(syncAppDataResponse.Settings.ToDictionary(d => d.ComputedIdentifier, d => d));
+            }
+
             await syncAppDataResponse.WriteToFileAsync(cancellationToken);
 
             FileHelper.DeleteSettingsFiles();
