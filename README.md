@@ -1,8 +1,9 @@
 # <img src="logo/open-settings-logo.png" alt="Header" width="24"/> OpenSettings
+
 [![.NET Core Desktop](https://github.com/OpenSettings/open-settings/actions/workflows/dotnet.yml/badge.svg?branch=master)](https://github.com/OpenSettings/open-settings/actions/workflows/dotnet.yml)
 [![NuGet](https://img.shields.io/nuget/v/OpenSettings.svg?color=1ecf18)](https://nuget.org/packages/OpenSettings)
 [![Docs](https://img.shields.io/badge/docs-online-blue)](https://docs.opensettings.net)
-[![Sponsor](https://img.shields.io/badge/sponsor-GitHub%20Sponsors-brightgreen)](https://opensettings.net/become-a-sponsor)
+[![GitHub](https://img.shields.io/badge/•-open--settings--spa-blue?logo=github)](https://github.com/OpenSettings/open-settings-spa)
 
 **OpenSettings** is a powerful, flexible, and centralized **settings management solution** for .NET applications. It simplifies settings storage, retrieval, and synchronization.  
 
