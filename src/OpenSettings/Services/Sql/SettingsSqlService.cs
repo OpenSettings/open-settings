@@ -349,7 +349,7 @@ namespace OpenSettings.Services.Sql
                 {
                     StoreInSeparateFile = false,
                     IgnoreOnFileChange = false,
-                    RegistrationMode = RegistrationMode.Configure,
+                    RegistrationMode = RegistrationMode.Both,
                     Consumer = new ConfigurationConsumer(),
                     Provider = new ConfigurationProvider(),
                     IdentifierId = identifierId,
@@ -367,7 +367,10 @@ namespace OpenSettings.Services.Sql
                 ComputedIdentifier = sourceSetting.ComputedIdentifier,
                 Version = "0",
                 DataValidationDisabled = sourceSetting.DataValidationDisabled,
+                IsCopied = true,
+                CopiedOn = currentTime,
                 IdentifierId = identifierId,
+                CopiedFromId = settingId,
                 SettingClass = new SettingClassSqlModel
                 {
                     Namespace = sourceSetting.Namespace,

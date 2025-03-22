@@ -121,7 +121,7 @@ namespace OpenSettings.Services.Sql
                 {
                     StoreInSeparateFile = false,
                     IgnoreOnFileChange = false,
-                    RegistrationMode = RegistrationMode.Configure,
+                    RegistrationMode = RegistrationMode.Both,
                     Consumer = new ConfigurationConsumer(),
                     Provider = new ConfigurationProvider(),
                     IdentifierId = identifierId,

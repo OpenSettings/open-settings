@@ -78,6 +78,24 @@ namespace OpenSettings.Domains.Sql.Entities
         public bool IsDraft { get; set; } // Todo: Later feature
 
         /// <summary>
+        /// A value indicating whether this setting was copied or cloned from another setting.
+        /// </summary>
+        /// <remarks>
+        /// This property is used to track whether the setting is a duplicate of another setting,
+        /// either by being copied or cloned.
+        /// </remarks>
+        public bool IsCopied { get; set; }
+
+        /// <summary>
+        /// The date and time when the setting was copied or cloned.
+        /// </summary>
+        /// <remarks>
+        /// If the setting was copied or cloned, this value will contain the date and time of the operation.
+        /// If the setting was not copied or cloned, this property will be null.
+        /// </remarks>
+        public DateTime? CopiedOn { get; set; }
+
+        /// <summary>
         /// The identifier associated with this setting.
         /// </summary>
         public int IdentifierId { get; set; }
@@ -86,6 +104,11 @@ namespace OpenSettings.Domains.Sql.Entities
         /// The app id associated with this setting.
         /// </summary>
         public int AppId { get; set; }
+
+        /// <summary>
+        /// The id of the setting from which this setting was copied or cloned.
+        /// </summary>
+        public int? CopiedFromId { get; set; }
 
         /// <summary>
         /// The id of the user who created this setting.
@@ -124,6 +147,12 @@ namespace OpenSettings.Domains.Sql.Entities
         /// </summary>
         [ForeignKey(nameof(AppId))]
         public virtual AppSqlModel App { get; set; }
+
+        /// <summary>
+        /// The setting from which this setting was copied or cloned.
+        /// </summary>
+        [ForeignKey(nameof(CopiedFromId))]
+        public SettingSqlModel CopiedFrom { get; set; }
 
         /// <summary>
         /// The user who created this setting.
