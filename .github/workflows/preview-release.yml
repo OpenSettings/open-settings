@@ -55,7 +55,7 @@ jobs:
       - name: Pack NuGet package
         run: dotnet pack --configuration Release --output nupkgs /p:PackageVersion=${{ env.VERSION_WITH_RUN }} /p:Version=${{ env.VERSION_WITH_RUN }}
 
-      -- name: Push NuGet packages
+      - name: Push NuGet packages
         run: |
           for package in OpenSettings.AspNetCore OpenSettings.AspNetCore.Spa OpenSettings; do
             dotnet nuget push nupkgs/${package}.${{ env.VERSION_WITH_RUN }}.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }}
