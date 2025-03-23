@@ -63,8 +63,9 @@ namespace OpenSettings.AspNetCore
                 providerInfo = new ProviderInfo
                 {
                     Authorize = options.Authorize,
-                    PackVersion = openSettingsAssemblyInfo.Version,
-                    PackVersionScore = openSettingsAssemblyInfo.VersionScore,
+                    PackVersion = openSettingsAssemblyInfo.PackVersion,
+                    PackVersionScore = openSettingsAssemblyInfo.PackVersionScore,
+                    IsPreviewVersion = openSettingsAssemblyInfo.IsPreviewVersion,
                     OAuth2 = new OAuth2Info
                     {
                         Authority = options.OAuth2Options.Authority,

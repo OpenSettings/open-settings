@@ -37,9 +37,14 @@
         /// A higher score indicates a more recent version.
         /// </summary>
         /// <remarks>
-        /// e.g. "281474976710656"
+        /// e.g. "1000000500000"
         /// </remarks>
         public long PackVersionScore { get; set; }
+
+        /// <summary>
+        /// Specifies whether the OpenSettings version is a preview version.
+        /// </summary>
+        public bool IsPreviewVersion { get; set; }
 
         /// <summary>
         /// Gets or sets the OAuth2 configuration for the provider.

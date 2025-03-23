@@ -94,8 +94,8 @@ namespace OpenSettings.Configurations
 
             httpClient.DefaultRequestHeaders.Authorization = clientInfo.CreateBasicAuthenticationHeaderValue();
 
-            httpClient.DefaultRequestHeaders.TryAddWithoutValidation(Constants.PackVersionName, OpenSettingsAssemblyInfo.Instance.Version);
-            httpClient.DefaultRequestHeaders.TryAddWithoutValidation(Constants.PackVersionScoreName, $"{OpenSettingsAssemblyInfo.Instance.VersionScore}");
+            httpClient.DefaultRequestHeaders.TryAddWithoutValidation(Constants.PackVersionName, OpenSettingsAssemblyInfo.Instance.PackVersion);
+            httpClient.DefaultRequestHeaders.TryAddWithoutValidation(Constants.PackVersionScoreName, $"{OpenSettingsAssemblyInfo.Instance.PackVersionScore}");
 
             RequestEncodings.AddToRequestHeaders(httpClient.DefaultRequestHeaders);
         }

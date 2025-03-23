@@ -13,6 +13,7 @@ using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -111,14 +112,6 @@ namespace OpenSettings.Helpers
             value = Environment.GetEnvironmentVariable("ENVIRONMENT");
 
             return string.IsNullOrWhiteSpace(value) ? "Production" : value;
-        }
-
-        internal static long ToVersionScore(this Version version)
-        {
-            return Math.Min(65535, Math.Max(1, (long)version.Major)) << 48 |
-                   Math.Min(65535, (long)version.Minor) << 32 |
-                   Math.Min(65535, (long)version.Build) << 16 |
-                   Math.Min(65535, (long)Math.Min(0, version.Revision));
         }
 
         internal static string ToVersion(this Version version)
