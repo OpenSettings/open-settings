@@ -77,6 +77,6 @@ jobs:
           git push origin $TAG_NAME
 
       - name: Create GitHub Release
-        run: gh release create v${{ env.VERSION_WITH_RUN }} --title "Preview Release v${{ env.VERSION_WITH_RUN }}" --notes "This is a preview release of version v${{ env.VERSION_WITH_RUN }}." --draft
+        run: gh release create v${{ env.VERSION_WITH_RUN }} --title "Preview Release v${{ env.VERSION_WITH_RUN }}" --notes "This is a preview release of version v${{ env.VERSION }}." --draft
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
