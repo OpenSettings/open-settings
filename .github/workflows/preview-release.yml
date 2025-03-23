@@ -36,10 +36,10 @@ jobs:
       - name: Calculate full version with run and attempt
         id: calculate_full_version
         run: |
-          VERSION_WITH_RUN="${{ env.VERSION }}-preview.${env.PREVIEW_NUMBER}.${{ github.run_number }}.${{ github.run_attempt }}"
+         VERSION_WITH_RUN="${{ env.VERSION }}-preview.${{ env.PREVIEW_NUMBER }}.${{ github.run_number }}.${{ github.run_attempt }}"
 
-	  # Export version with run to the environment
-          echo "VERSION_WITH_RUN=$VERSION_WITH_RUN" >> $GITHUB_ENV
+         # Export version with run to the environment
+         echo "VERSION_WITH_RUN=$VERSION_WITH_RUN" >> $GITHUB_ENV
 
       - name: Checkout repository
         uses: actions/checkout@v2
