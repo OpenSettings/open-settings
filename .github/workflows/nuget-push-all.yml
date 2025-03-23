@@ -28,7 +28,9 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v1
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
 
       - name: Build Project
         run: dotnet build --configuration Release /p:Version=${{ github.event.inputs.version_number }}

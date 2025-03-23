@@ -77,10 +77,7 @@
 		<None Include="..\..\logo\open-settings-logo.png" Pack="true" PackagePath="\" Visible="false" />
 		<None Include="README.md" Pack="true" PackagePath="\" Visible="false" />
 		<None Include="..\..\LICENSE.md" Pack="true" PackagePath="\" Visible="false" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<None Include="OpenSettings.AspNetCore.snk" Visible="false" />
+                <None Include="OpenSettings.AspNetCore.snk" Visible="false" />
 	</ItemGroup>
 
 </Project>
