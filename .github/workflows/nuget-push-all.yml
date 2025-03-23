@@ -33,7 +33,7 @@ jobs:
           dotnet-version: 8.0.x
 
       - name: Build Project
-        run: dotnet build --configuration Release /p:Version=${{ github.event.inputs.version_number }}
+        run: dotnet build --configuration Release /p:Version=${{ github.event.inputs.version_number }} /p:AssemblyVersion=${{ github.event.inputs.version_number }} /p:FileVersion=${{ github.event.inputs.version_number }}
 
       - name: Create Release
         run: gh release create ${{ github.ref_name }} --title "Release ${{ github.ref_name }}" --notes "" --draft
@@ -41,7 +41,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Pack NuGet package
-        run: dotnet pack --configuration Release --output nupkgs /p:PackageVersion=${{ github.event.inputs.version_number }}
+        run: dotnet pack --configuration Release --output nupkgs /p:PackageVersion=${{ github.event.inputs.version_number }} /p:Version=${{ github.event.inputs.version_number }} /p:AssemblyVersion=${{ github.event.inputs.version_number }} /p:FileVersion=${{ github.event.inputs.version_number }}
 
       - name: Push NuGet package
         run: dotnet nuget push nupkgs/OpenSettings.AspNetCore.${{ github.event.inputs.version_number }}.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }}
