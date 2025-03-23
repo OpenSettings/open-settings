@@ -1,0 +1,63 @@
+name: Release
+run-name: Release - ${{ github.ref_name }}
+
+on:
+  workflow_dispatch:
+        
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Extract version from branch name
+        id: extract_version
+        run: |
+          BRANCH_NAME="${{ github.ref_name }}"
+          VERSION=$(echo "$BRANCH_NAME" | sed -E 's/release\/([0-9]+\.[0-9]+\.[0-9]+)-([0-9]+)-.*/\1/')
+          
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Invalid version format. Version should be in the format 'x.x.x'."
+            exit 1
+          fi
+
+          # Export version to the environment
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Build Project
+        run: dotnet build --configuration Release /p:Version=${{ env.VERSION }}
+
+      - name: Pack NuGet package
+        run: dotnet pack --configuration Release --output nupkgs /p:PackageVersion=${{ env.VERSION }} /p:Version=${{ env.VERSION }}
+
+      -- name: Push NuGet packages
+        run: |
+          for package in OpenSettings.AspNetCore OpenSettings.AspNetCore.Spa OpenSettings; do
+            dotnet nuget push nupkgs/${package}.${{ env.VERSION }}.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }}
+          done
+
+      - name: Set up GitHub Actions bot user details
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+
+      - name: Create and push tag
+        run: |
+          TAG_NAME="v${{ env.VERSION }}"
+          git tag $TAG_NAME
+          git push origin $TAG_NAME
+
+      - name: Create GitHub Release
+        run: gh release create v${{ env.VERSION }} --title "Release v${{ env.VERSION }}" --notes "This is a release of version v${{ env.VERSION }}." --draft
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
