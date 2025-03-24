@@ -641,7 +641,7 @@ namespace OpenSettings.Services.Sql
                     {
                         setLockExpiryTimeInput.ExpiryTime =
                             DateTime.ParseExact(openSettingsConfigResponse.Expires, "R",
-                                CultureInfo.InvariantCulture);
+                                CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
 
                         if (setLockExpiryTimeInput.ExpiryTime > currentTime)
                         {
