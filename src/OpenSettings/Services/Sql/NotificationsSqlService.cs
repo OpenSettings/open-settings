@@ -744,7 +744,7 @@ namespace OpenSettings.Services.Sql
 
         private async Task<GetAvailableNotificationsResponse> GetAvailableNotificationsAsync(string inputPackVersion, CancellationToken cancellationToken)
         {
-            if (MemoryCacheKeys.GetAvailableNotificationIds.TryGetValue(_memoryCache, out GetAvailableNotificationsResponse response))
+            if (MemoryCacheKeys.GetAvailableNotificationIds(inputPackVersion).TryGetValue(_memoryCache, out GetAvailableNotificationsResponse response))
             {
                 await IncludeLicenseExpiryNotificationIfAnyAsync(response, cancellationToken);
                 await IncludeVersionMismatchNotificationIfAnyAsync(response, inputPackVersion, cancellationToken);
@@ -823,7 +823,7 @@ namespace OpenSettings.Services.Sql
 
             await _context.SaveChangesAsync(cancellationToken);
 
-            MemoryCacheKeys.GetAvailableNotificationIds.Set(_memoryCache, response);
+            MemoryCacheKeys.GetAvailableNotificationIds(inputPackVersion).Set(_memoryCache, response);
 
             await IncludeLicenseExpiryNotificationIfAnyAsync(response, cancellationToken);
             await IncludeVersionMismatchNotificationIfAnyAsync(response, inputPackVersion, cancellationToken);
@@ -974,6 +974,7 @@ namespace OpenSettings.Services.Sql
                 CreatorName = versionMismatchNotification.Notification.CreatorName
             });
         }
+
         private async Task<InternalNotificationResponse> GetVersionMismatchNotificationAsync(string inputPackVersion, CancellationToken cancellationToken)
         {
             var openSettingsAssemblyInfo = OpenSettingsAssemblyInfo.Instance;

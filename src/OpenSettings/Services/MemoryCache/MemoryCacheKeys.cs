@@ -1,5 +1,6 @@
 ﻿using OpenSettings.Models;
 using System;
+using OpenSettings.Models.Inputs;
 
 namespace OpenSettings.Services.MemoryCache
 {
@@ -12,7 +13,10 @@ namespace OpenSettings.Services.MemoryCache
         /// <summary>
         /// The cache key for available notification ids, with a 5-minute expiration time.
         /// </summary>
-        public static CacheModel GetAvailableNotificationIds = new CacheModel("nss:gania", TimeSpan.FromMinutes(5));
+        public static CacheModel GetAvailableNotificationIds(string packVersion)
+        {
+            return new CacheModel(new object[] { "nss:gania", packVersion }, TimeSpan.FromMinutes(5));
+        }
 
         /// <summary>
         /// The cache key for the Settings Spa Middleware Html content.
