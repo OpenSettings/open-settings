@@ -73,7 +73,7 @@ namespace OpenSettings.Configurations
 
         internal string InstanceNameLowercase { get; private set; } = Constants.DefaultLowercase;
 
-        private string _identifierName = Constants.DefaultIdentifierName;
+        private string _identifierName = Helpers.Helper.GetEnvironmentName();
 
         /// <summary>
         /// Gets or sets the case-insensitive name of the identifier.
@@ -82,7 +82,7 @@ namespace OpenSettings.Configurations
         /// <value>
         /// The identifier name. This value can be set to any non-empty string.
         /// If the provided value is null, empty, or whitespace, the setting identifier name will remain unchanged.
-        /// The default value is <c>"Default"</c>.
+        /// The default value is automatically calculates using <see cref="Helpers.Helper.GetEnvironmentName"/>.
         /// The identifier helps to differentiate settings for different application environments, like Production, Development, etc.
         /// </value>
         public string IdentifierName

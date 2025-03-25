@@ -9,7 +9,7 @@ namespace OpenSettings.Models.Inputs
 
         public AppType AppType { get; set; }
 
-        private string _identifierName = Constants.DefaultIdentifierName;
+        private string _identifierName = string.Empty;
 
         public string IdentifierName
         {
