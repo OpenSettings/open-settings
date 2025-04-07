@@ -520,6 +520,27 @@ namespace OpenSettings.Services
                         Redis = _openSettingsConfiguration.Provider.Redis,
                         CompressionType = _openSettingsConfiguration.Provider.CompressionType,
                         CompressionLevel = _openSettingsConfiguration.Provider.CompressionLevel
+                    },
+                    Controller = new ConfigurationController
+                    {
+                        Route = _openSettingsConfiguration.Controller.Route,
+                        AllowFromExploring = _openSettingsConfiguration.Controller.AllowFromExploring,
+                        Authorize = _openSettingsConfiguration.Controller.Authorize,
+                        OAuth2 = new OAuth2Configuration
+                        {
+                            Authority = _openSettingsConfiguration.Controller.OAuth2.Authority,
+                            ClientId = _openSettingsConfiguration.Controller.OAuth2.ClientId,
+                            ClientSecret = _openSettingsConfiguration.Controller.OAuth2.ClientSecret,
+                            SignedOutRedirectUri = _openSettingsConfiguration.Controller.OAuth2.SignedOutRedirectUri,
+                            AllowOfflineAccess = _openSettingsConfiguration.Controller.OAuth2.AllowOfflineAccess,
+                            IsActive = _openSettingsConfiguration.Controller.OAuth2.IsActive,
+                        }
+                    },
+                    Spa = new ConfigurationSpa
+                    {
+                        RoutePrefix = _openSettingsConfiguration.Spa.RoutePrefix,
+                        DocumentTitle = _openSettingsConfiguration.Spa.DocumentTitle,
+                        IsActive = _openSettingsConfiguration.Spa.IsActive
                     }
                 },
                 Settings = GenerateSettings(Constants.ComputedIdentifierToLocalSetting.Values, _openSettingsConfiguration),
@@ -622,6 +643,14 @@ namespace OpenSettings.Services
                         Consumer = new ConfigurationConsumer
                         {
                             PollingSettingsWorker = new ConfigurationConsumerPollingSettingsWorker()
+                        },
+                        Controller = new ConfigurationController
+                        {
+                            OAuth2 = new OAuth2Configuration()
+                        },
+                        Spa = new ConfigurationSpa
+                        {
+                            RoutePrefix = string.Empty
                         }
                     }
                 };

@@ -132,7 +132,7 @@ namespace OpenSettings.Configurations
         /// Gets or sets the configuration for the consumer service.
         /// </summary>
         /// <value>
-        /// A <see cref="ConsumerConfiguration"/> object that holds the settings for the consumer service.
+        /// A <see cref="ConsumerConfiguration"/> object that holds the configuration for the consumer service.
         /// </value>
         public ConsumerConfiguration Consumer { get; set; } = new ConsumerConfiguration();
 
@@ -140,19 +140,25 @@ namespace OpenSettings.Configurations
         /// Gets or sets the configuration for the provider service.
         /// </summary>
         /// <value>
-        /// A <see cref="ProviderConfiguration"/> object that holds the settings for the provider service.
+        /// A <see cref="ProviderConfiguration"/> object that holds the configuration for the provider service.
         /// </value>
         public ProviderConfiguration Provider { get; set; } = new ProviderConfiguration();
 
-        ///// <summary>
-        /////     Gets or sets a flag indicating whether to continue processing when a sync data operation fails, 
-        /////     but only if the generated settings files already exist.
-        ///// </summary>
-        ///// <value>
-        /////     A boolean value that determines whether to proceed when a sync data operation fails, 
-        /////     and the generated settings files already exist. The default is <c>false</c>.
-        ///// </value>
-        //public bool ContinueOnSyncDataFailureIfGeneratedFilesExist { get; set; }
+        /// <summary>
+        /// Gets or sets the configuration for the OpenSettings controller.
+        /// </summary>
+        /// <value>
+        /// A <see cref="ControllerConfiguration"/> object that holds the configuration for the OpenSettings Controller.
+        /// </value>
+        public ControllerConfiguration Controller { get; set; } = new ControllerConfiguration();
+
+        /// <summary>
+        /// Gets or sets the configuration for the OpenSettings Spa.
+        /// </summary>
+        /// <value>
+        /// A <see cref="SpaConfiguration"/> object that holds the configuration for the OpenSettings Spa.
+        /// </value>
+        public SpaConfiguration Spa { get; set; } = new SpaConfiguration();
 
         /// <summary>
         /// Gets or sets the maximum number of retries for initial syncing data. The retry behavior is determined as follows:
@@ -345,6 +351,20 @@ namespace OpenSettings.Configurations
                 Provider.Redis.Configuration = configuration.Provider.Redis.Configuration;
                 Provider.Redis.Channel = configuration.Provider.Redis.Channel;
             }
+
+            Controller.Route = configuration.Controller.Route;
+            Controller.AllowFromExploring = configuration.Controller.AllowFromExploring;
+            Controller.Authorize = configuration.Controller.Authorize;
+            Controller.OAuth2.Authority = configuration.Controller.OAuth2.Authority;
+            Controller.OAuth2.ClientId = configuration.Controller.OAuth2.ClientId;
+            Controller.OAuth2.ClientSecret = configuration.Controller.OAuth2.ClientSecret;
+            Controller.OAuth2.SignedOutRedirectUri = configuration.Controller.OAuth2.SignedOutRedirectUri;
+            Controller.OAuth2.AllowOfflineAccess = configuration.Controller.OAuth2.AllowOfflineAccess;
+            Controller.OAuth2.IsActive = configuration.Controller.OAuth2.IsActive;
+
+            Spa.RoutePrefix = configuration.Spa.RoutePrefix;
+            Spa.DocumentTitle = configuration.Spa.DocumentTitle;
+            Spa.IsActive = configuration.Spa.IsActive;
         }
     }
 }

@@ -56,6 +56,16 @@ namespace OpenSettings.Domains.Sql.Entities
         public ConfigurationProvider Provider { get; set; }
 
         /// <summary>
+        /// Represents the controller running options associated with the configuration.
+        /// </summary>
+        public ConfigurationController Controller { get; set; }
+
+        /// <summary>
+        /// Represents the spa running options associated with the configuration.
+        /// </summary>
+        public ConfigurationSpa Spa { get; set; }
+
+        /// <summary>
         /// The identifier associated with this configuration.
         /// </summary>
         public int IdentifierId { get; set; }

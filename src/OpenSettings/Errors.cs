@@ -58,6 +58,9 @@ namespace OpenSettings
         [Description("Client id does not match the expected value.")]
         MismatchedClientId = 40015,
 
+        [Description("RoutePrefix can not be null or whitespace.")]
+        InvalidRoutePrefix = 40016,
+
         // NotAuthorized Errors (40100-40199)
 
         [Description("The provided credentials are invalid.")]

@@ -173,6 +173,53 @@ namespace OpenSettings.Services.Sql
                 }
             }
 
+            if (input.Body.UpdatedFieldNameToValue.TryGetValue("controller", out var controllerObject) && controllerObject != null)
+            {
+                try
+                {
+                    entity.Controller = JsonSerializer.Deserialize<ConfigurationController>($"{controllerObject}", Constants.JsonCaseInsensitiveOptions);
+
+                    if (!string.IsNullOrWhiteSpace(entity.Controller.Route))
+                    {
+                        entity.Controller.Route = entity.Controller.Route.TrimStart('/').TrimEnd('/');
+                    }
+
+                    updatedFieldNameToValue["Controller"] = entity.Controller;
+
+                    _context.MarkAsModified(entity, e => e.Controller);
+                }
+                catch(Exception ex)
+                {
+                    return ex.ToJsonResponse();
+                }
+            }
+
+            if (input.Body.UpdatedFieldNameToValue.TryGetValue("spa", out var spaObject) && spaObject != null)
+            {
+                try
+                {
+                    entity.Spa = JsonSerializer.Deserialize<ConfigurationSpa>($"{spaObject}", Constants.JsonCaseInsensitiveOptions);
+
+                    if (entity.Spa.RoutePrefix == null || entity.Spa.RoutePrefix == " ")
+                    {
+                        return HttpStatusCode.BadRequest.ToFailureJsonResponse(Errors.InvalidRoutePrefix);
+                    }
+                    
+                    if (entity.Spa.RoutePrefix != string.Empty)
+                    {
+                        entity.Spa.RoutePrefix = entity.Spa.RoutePrefix.TrimStart('/').TrimEnd('/');
+                    }
+
+                    updatedFieldNameToValue["Spa"] = entity.Spa;
+
+                    _context.MarkAsModified(entity, e => e.Spa);
+                }
+                catch (Exception ex)
+                {
+                    return ex.ToJsonResponse();
+                }
+            }
+
             if (!_context.ChangeTracker.HasChanges())
             {
                 return HttpStatusCode.OK.ToSuccessJsonResponse(new PatchConfigurationResponse

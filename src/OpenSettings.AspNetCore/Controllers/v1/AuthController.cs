@@ -28,14 +28,13 @@ namespace OpenSettings.AspNetCore.Controllers.v1
 
         public AuthController(
             OpenSettingsMemoryCache openSettingsMemoryCache,
-            ControllerOptions controllerOptions,
             OpenSettingsConfiguration openSettingsConfiguration,
             ProviderInfo providerInfo,
             IOpenSettingsTokenService tokenService,
             IHttpClientFactory httpClientFactory)
         {
             _openSettingsMemoryCache = openSettingsMemoryCache;
-            _route = controllerOptions.Route;
+            _route = openSettingsConfiguration.Controller.Route;
             _openSettingsConfiguration = openSettingsConfiguration;
             _providerInfo = providerInfo;
             _tokenService = tokenService;

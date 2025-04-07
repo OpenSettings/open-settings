@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
 using OpenSettings.AspNetCore.Spa;
 using OpenSettings.Configurations;
 using OpenSettings.Models.Inputs;
@@ -103,6 +102,11 @@ namespace OpenSettings.AspNetCore
                 });
             });
 
+            if (openSettingsConfiguration.Spa.IsActive)
+            {
+                app.UseOpenSettingsSpa();
+            }
+
             return app;
         }
 
@@ -112,13 +116,10 @@ namespace OpenSettings.AspNetCore
         /// otherwise, a <see cref="NullReferenceException"/> will be thrown.
         /// </summary>
         /// <param name="app">The <see cref="IApplicationBuilder"/> used to configure the request pipeline.</param>
-        /// <param name="configure">An optional delegate to configure <see cref="SettingsSpaOptions"/>.</param>
         /// <returns>Returns the <see cref="IApplicationBuilder"/> to allow further configuration in the middleware pipeline.</returns>
         /// <exception cref="NullReferenceException">Thrown if <c>AddOpenSettingsController</c> was not called before this method.</exception>
-        public static IApplicationBuilder UseOpenSettingsSpa(this IApplicationBuilder app, Action<SettingsSpaOptions> configure = null)
+        private static IApplicationBuilder UseOpenSettingsSpa(this IApplicationBuilder app)
         {
-            _ = app.ApplicationServices.GetService<ControllerOptions>() ?? throw new NullReferenceException("OpenSettingsController isn't configured. To configure it, append 'AddOpenSettingsController' to the MvcBuilder.");
-
 #if DEBUG
             string[] GetLocalIPv4Address()
             {
@@ -139,21 +140,7 @@ namespace OpenSettings.AspNetCore
                 "http://0.0.0.0:4200"
             }).ToArray()).AllowAnyMethod().AllowAnyHeader());
 #endif
-
-            SettingsSpaOptions options;
-            using (var scope = app.ApplicationServices.CreateScope())
-            {
-                options = scope.ServiceProvider.GetRequiredService<IOptionsSnapshot<SettingsSpaOptions>>().Value;
-                configure?.Invoke(options);
-            }
-
-            //app.UseStaticFiles(new StaticFileOptions // Todo: Check if needed
-            //{
-            //    FileProvider = new EmbeddedFileProvider(typeof(SettingsSpaMiddleware).Assembly, OpenSettings.AspNetCore.Spa.Constants.EmbeddedAssetsDirectoryNamespace),
-            //    RequestPath = string.IsNullOrWhiteSpace(options.RoutePrefix) ? "/assets" : $"/{options.RoutePrefix}/assets"
-            //});
-
-            return app.UseMiddleware<SettingsSpaMiddleware>(options);
+            return app.UseMiddleware<OpenSettingsSpaMiddleware>();
         }
     }
 }

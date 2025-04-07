@@ -13,6 +13,7 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using OpenSettings.Configurations;
 
 namespace OpenSettings.AspNetCore
 {
@@ -20,14 +21,14 @@ namespace OpenSettings.AspNetCore
     {
         private readonly JwtSecurityTokenHandler _jwtHandler;
         private readonly OpenSettingsMemoryCache _openSettingsMemoryCache;
-        private readonly ControllerOptions _controllerOptions;
+        private readonly ControllerConfiguration _controllerConfiguration;
         private readonly HttpClient _httpClient;
 
-        public OpenSettingsTokenService(OpenSettingsMemoryCache openSettingsMemoryCache, ProviderInfo providerInfo, ControllerOptions controllerOptions, IHttpClientFactory httpClientFactory)
+        public OpenSettingsTokenService(OpenSettingsMemoryCache openSettingsMemoryCache, ProviderInfo providerInfo, OpenSettingsConfiguration openSettingsConfiguration, IHttpClientFactory httpClientFactory)
         {
             _jwtHandler = new JwtSecurityTokenHandler();
             _openSettingsMemoryCache = openSettingsMemoryCache;
-            _controllerOptions = controllerOptions;
+            _controllerConfiguration = openSettingsConfiguration.Controller;
 
             if (string.IsNullOrWhiteSpace(providerInfo.OAuth2.Authority))
             {
@@ -82,8 +83,8 @@ namespace OpenSettings.AspNetCore
                 {
                     new KeyValuePair<string, string>("grant_type", "refresh_token"),
                     new KeyValuePair<string, string>("refresh_token", cachedRefreshToken),
-                    new KeyValuePair<string, string>("client_id", _controllerOptions.OAuth2Options.ClientId),
-                    new KeyValuePair<string, string>("client_secret", _controllerOptions.OAuth2Options.ClientSecret)
+                    new KeyValuePair<string, string>("client_id", _controllerConfiguration.OAuth2.ClientId),
+                    new KeyValuePair<string, string>("client_secret", _controllerConfiguration.OAuth2.ClientSecret)
                 });
 
                 using (var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseContentRead, cancellationToken))

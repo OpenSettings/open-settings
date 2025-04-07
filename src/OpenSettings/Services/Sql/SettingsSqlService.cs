@@ -352,6 +352,8 @@ namespace OpenSettings.Services.Sql
                     RegistrationMode = RegistrationMode.Both,
                     Consumer = new ConfigurationConsumer(),
                     Provider = new ConfigurationProvider(),
+                    Controller = new ConfigurationController(),
+                    Spa = new ConfigurationSpa(),
                     IdentifierId = identifierId,
                     CreatedOn = currentTime,
                     CreatedById = input.UserId

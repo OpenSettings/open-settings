@@ -63,6 +63,27 @@ namespace OpenSettings.Services.Rest
                         },
                         input.Configuration.Provider.CompressionType,
                         input.Configuration.Provider.CompressionLevel,
+                    },
+                    Controller = new
+                    {
+                        input.Configuration.Controller.Route,
+                        input.Configuration.Controller.AllowFromExploring,
+                        input.Configuration.Controller.Authorize,
+                        OAuth2 = new
+                        {
+                            input.Configuration.Controller.OAuth2.Authority,
+                            input.Configuration.Controller.OAuth2.ClientId,
+                            input.Configuration.Controller.OAuth2.ClientSecret,
+                            input.Configuration.Controller.OAuth2.SignedOutRedirectUri,
+                            input.Configuration.Controller.OAuth2.AllowOfflineAccess,
+                            input.Configuration.Controller.OAuth2.IsActive,
+                        }
+                    },
+                    Spa = new
+                    {
+                        input.Configuration.Spa.RoutePrefix,
+                        input.Configuration.Spa.DocumentTitle,
+                        input.Configuration.Spa.IsActive
                     }
                 },
                 Settings = input.Settings.Select(setting => new

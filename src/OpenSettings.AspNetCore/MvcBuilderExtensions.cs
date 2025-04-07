@@ -37,22 +37,17 @@ namespace OpenSettings.AspNetCore
         /// </summary>
         /// <param name="mvcBuilder">The <see cref="IMvcBuilder"/> used to configure MVC services.</param>
         /// <param name="configuration">The <see cref="IConfiguration"/> used to retrieve app settings and configuration values.</param>
-        /// <param name="opts">An optional delegate to configure <see cref="ControllerOptions"/>.</param>
         /// <returns>Returns the <see cref="IMvcBuilder"/> to allow further configuration of MVC services.</returns>
-        public static IMvcBuilder AddOpenSettingsController(this IMvcBuilder mvcBuilder, IConfiguration configuration, Action<ControllerOptions> opts = null)
+        public static IMvcBuilder AddOpenSettingsController(this IMvcBuilder mvcBuilder, IConfiguration configuration)
         {
-            var options = new ControllerOptions();
-            opts?.Invoke(options);
-
-            mvcBuilder.Services.AddSingleton(options);
-
             var authenticationBuilder = mvcBuilder.Services.AddAuthentication();
 
             authenticationBuilder.AddOpenSettingsBasicAuthenticationScheme();
 
             var syncAppDataResponse = SyncAppDataResponse.Get(configuration);
-
+            
             var providerInfo = syncAppDataResponse.ProviderInfo;
+            var controllerConfiguration = syncAppDataResponse.Configuration.Controller;
 
             var isProvider = providerInfo == null;
 
@@ -62,35 +57,35 @@ namespace OpenSettings.AspNetCore
 
                 providerInfo = new ProviderInfo
                 {
-                    Authorize = options.Authorize,
+                    Authorize = controllerConfiguration.Authorize,
                     PackVersion = openSettingsAssemblyInfo.PackVersion,
                     PackVersionScore = openSettingsAssemblyInfo.PackVersionScore,
                     IsPreviewVersion = openSettingsAssemblyInfo.IsPreviewVersion,
                     OAuth2 = new OAuth2Info
                     {
-                        Authority = options.OAuth2Options.Authority,
-                        AllowOfflineAccess = options.OAuth2Options.AllowOfflineAccess,
-                        IsActive = options.OAuth2Options.IsActive
+                        Authority = controllerConfiguration.OAuth2.Authority,
+                        AllowOfflineAccess = controllerConfiguration.OAuth2.AllowOfflineAccess,
+                        IsActive = controllerConfiguration.OAuth2.IsActive
                     }
                 };
 
                 if (providerInfo.OAuth2.IsActive)
                 {
-                    var apiLoginRoute = $"/{options.Route}/v1/auth/login";
+                    var apiLoginRoute = $"/{controllerConfiguration.Route}/v1/auth/login";
 
                     authenticationBuilder.AddCookie(OpenSettings.Constants.OpenSettingsCookieScheme).AddOpenIdConnect(OpenSettings.Constants.OpenSettingsOAuth2Scheme, openIdOpts =>
                     {
-                        openIdOpts.Authority = options.OAuth2Options.Authority;
+                        openIdOpts.Authority = controllerConfiguration.OAuth2.Authority;
                         openIdOpts.SignInScheme = OpenSettings.Constants.OpenSettingsCookieScheme;
-                        openIdOpts.SignedOutRedirectUri = options.OAuth2Options.SignedOutRedirectUri;
-                        openIdOpts.ClientId = options.OAuth2Options.ClientId;
-                        openIdOpts.ClientSecret = options.OAuth2Options.ClientSecret;
+                        openIdOpts.SignedOutRedirectUri = controllerConfiguration.OAuth2.SignedOutRedirectUri;
+                        openIdOpts.ClientId = controllerConfiguration.OAuth2.ClientId;
+                        openIdOpts.ClientSecret = controllerConfiguration.OAuth2.ClientSecret;
                         openIdOpts.ResponseType = "code";
                         openIdOpts.Scope.Clear();
                         openIdOpts.Scope.Add("openid");
                         openIdOpts.Scope.Add("profile");
 
-                        if (options.OAuth2Options.AllowOfflineAccess)
+                        if (controllerConfiguration.OAuth2.AllowOfflineAccess)
                         {
                             openIdOpts.Scope.Add("offline_access");
                         }
@@ -98,7 +93,7 @@ namespace OpenSettings.AspNetCore
                         openIdOpts.SaveTokens = true;
                         openIdOpts.GetClaimsFromUserInfoEndpoint = true;
 
-                        var route = $"/{options.Route}";
+                        var route = $"/{controllerConfiguration.Route}";
 
                         openIdOpts.Events = new OpenIdConnectEvents
                         {
@@ -198,7 +193,7 @@ namespace OpenSettings.AspNetCore
 
             mvcBuilder.Services.AddHttpClient();
 
-            var authorize = providerInfo.Authorize || options.Authorize;
+            var authorize = providerInfo.Authorize || controllerConfiguration.Authorize;
 
             if (authorize && providerInfo.OAuth2.IsActive)
             {
@@ -236,9 +231,9 @@ namespace OpenSettings.AspNetCore
 
             return mvcBuilder.AddApplicationPart(typeof(Constants).Assembly).AddMvcOptions(mvcOpts =>
             {
-                mvcOpts.Conventions.AddControllerRoutePrefixConvention(controllerTypes, options.Route);
+                mvcOpts.Conventions.AddControllerRoutePrefixConvention(controllerTypes, controllerConfiguration.Route);
 
-                if (!options.AllowFromExploring)
+                if (!controllerConfiguration.AllowFromExploring)
                 {
                     mvcOpts.Conventions.AddControllerHideFromExploringConvention(controllerTypes);
                 }

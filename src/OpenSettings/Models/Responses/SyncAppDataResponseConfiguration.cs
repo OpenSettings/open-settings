@@ -11,5 +11,9 @@
         public ConfigurationConsumer Consumer { get; set; }
 
         public ConfigurationProvider Provider { get; set; }
+
+        public ConfigurationController Controller { get; set; }
+
+        public ConfigurationSpa Spa { get; set; }
     }
 }

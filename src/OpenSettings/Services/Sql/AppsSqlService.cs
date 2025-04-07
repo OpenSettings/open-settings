@@ -916,6 +916,8 @@ namespace OpenSettings.Services.Sql
                         c.RegistrationMode,
                         c.Consumer,
                         c.Provider,
+                        c.Controller,
+                        c.Spa,
                         c.IdentifierId,
                         c.RowVersion
                     }).ToArray(),
@@ -979,6 +981,8 @@ namespace OpenSettings.Services.Sql
                 RegistrationMode = c.RegistrationMode,
                 Consumer = c.Consumer,
                 Provider = c.Provider,
+                Controller = c.Controller,
+                Spa = c.Spa,
                 RowVersion = c.RowVersion
             });
 
@@ -1303,6 +1307,8 @@ namespace OpenSettings.Services.Sql
                 configuration.RegistrationMode = input.Configuration.RegistrationMode;
                 configuration.Consumer = input.Configuration.Consumer;
                 configuration.Provider = input.Configuration.Provider;
+                configuration.Controller = input.Configuration.Controller;
+                configuration.Spa = input.Configuration.Spa;
             }
 
             var instances = new List<InstanceSqlModel>(1);
@@ -1375,7 +1381,9 @@ namespace OpenSettings.Services.Sql
                         IgnoreOnFileChange = configuration.IgnoreOnFileChange,
                         RegistrationMode = configuration.RegistrationMode,
                         Consumer = configuration.Consumer,
-                        Provider = configuration.Provider
+                        Provider = configuration.Provider,
+                        Controller = configuration.Controller,
+                        Spa = configuration.Spa
                     },
                     ProviderInfo = _providerInfo
                 });
@@ -1548,7 +1556,9 @@ namespace OpenSettings.Services.Sql
                     IgnoreOnFileChange = c.IgnoreOnFileChange,
                     RegistrationMode = c.RegistrationMode,
                     Consumer = c.Consumer,
-                    Provider = c.Provider
+                    Provider = c.Provider,
+                    Controller = c.Controller,
+                    Spa = c.Spa
                 }).FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
             if (configuration == null)
@@ -1567,6 +1577,8 @@ namespace OpenSettings.Services.Sql
                     configuration.RegistrationMode = input.Configuration.RegistrationMode;
                     configuration.Consumer = input.Configuration.Consumer;
                     configuration.Provider = input.Configuration.Provider;
+                    configuration.Controller = input.Configuration.Controller;
+                    configuration.Spa = input.Configuration.Spa;
                 }
 
                 app.Configurations.Add(configuration);
@@ -1617,7 +1629,9 @@ namespace OpenSettings.Services.Sql
                         IgnoreOnFileChange = configuration.IgnoreOnFileChange,
                         RegistrationMode = configuration.RegistrationMode,
                         Consumer = configuration.Consumer,
-                        Provider = configuration.Provider
+                        Provider = configuration.Provider,
+                        Controller = configuration.Controller,
+                        Spa = configuration.Spa
                     }
                 });
             }

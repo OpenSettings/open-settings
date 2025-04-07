@@ -38,11 +38,20 @@ namespace OpenSettings
         /// </summary>
         public const string PackVersionScoreName = "PackVersionScore";
 
+        /// <summary>
+        /// The current embedded index html file namespace for the OpenSettings Spa.
+        /// </summary>
+        public const string EmbeddedIndexHtmlFileNamespace = "OpenSettings.AspNetCore.Spa.open_settings_spa_dist.browser.index.html";
+
         internal const string BasicSchemeName = "Basic";
 
         internal static JsonSerializerOptions UnsafeRelaxedJsonSerializerOptions = new JsonSerializerOptions { Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
         internal static JsonSerializerOptions UnsafeRelaxedJsonAndWriteIndentedSerializerOptions = new JsonSerializerOptions { WriteIndented = true, Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
 
+        internal const string OpenSettingsApiRoute = "api/settings";
+        internal const string DefaultSpaRoutePrefix = "settings";
+        internal const string DefaultDocumentTitle = "OpenSettings Spa";
+        
         internal const string SettingsFileNameWithoutExtension = "settings";
         internal const string SettingsFileNameTag = "*settings*";
         internal const string SettingsFileExtension = "json";

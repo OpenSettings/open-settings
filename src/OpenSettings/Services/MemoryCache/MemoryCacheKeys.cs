@@ -21,6 +21,6 @@ namespace OpenSettings.Services.MemoryCache
         /// <summary>
         /// The cache key for the Settings Spa Middleware Html content.
         /// </summary>
-        public static CacheModel SettingsSpaMiddlewareHtml = new CacheModel("ossm:html");
+        public static CacheModel OpenSettingsSpaMiddlewareHtml = new CacheModel("ossm:html");
     }
 }

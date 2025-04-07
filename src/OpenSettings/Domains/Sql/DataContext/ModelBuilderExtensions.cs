@@ -191,6 +191,14 @@ namespace OpenSettings.Domains.Sql.DataContext
                     v => JsonSerializer.Serialize(v, (JsonSerializerOptions)null),
                     v => JsonSerializer.Deserialize<ConfigurationProvider>(v, (JsonSerializerOptions)null) ?? new ConfigurationProvider()
                 );
+
+                entity.Property(e => e.Controller).HasConversion(
+                    v => JsonSerializer.Serialize(v, (JsonSerializerOptions)null),
+                    v => JsonSerializer.Deserialize<ConfigurationController>(v, (JsonSerializerOptions)null) ?? new ConfigurationController());
+
+                entity.Property(e => e.Spa).HasConversion(
+                    v => JsonSerializer.Serialize(v, (JsonSerializerOptions)null),
+                    v => JsonSerializer.Deserialize<ConfigurationSpa>(v, (JsonSerializerOptions)null) ?? new ConfigurationSpa());
             });
 
             modelBuilder.Entity<LockSqlModel>(entity =>
