@@ -4,6 +4,7 @@
 [![NuGet](https://img.shields.io/nuget/v/OpenSettings.svg?color=1ecf18)](https://nuget.org/packages/OpenSettings)
 [![Docs](https://img.shields.io/badge/docs-online-blue)](https://docs.opensettings.net)
 [![GitHub](https://img.shields.io/badge/•-open--settings--spa-blue?logo=github)](https://github.com/OpenSettings/open-settings-spa)
+[![GitHub](https://img.shields.io/badge/•-open--settings--docker-blue?logo=github)](https://github.com/OpenSettings/open-settings-docker)
 
 **OpenSettings** is a powerful, flexible, and centralized **settings management solution** for .NET applications. It simplifies settings storage, retrieval, and synchronization.  
 
