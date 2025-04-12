@@ -1,20 +1,27 @@
 ---
 name: Feature request
-about: Suggest an idea for this project
+about: Suggest a new feature or improvement for OpenSettings
 title: 'Enhancement  | '
 labels: enhancement
 assignees: ''
 
 ---
 
-**Is your feature request related to a problem? Please describe.**
-A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+We appreciate ideas that help make OpenSettings better for everyone.
 
-**Describe the solution you'd like**
-A clear and concise description of what you want to happen.
+## 💡 Describe the feature
 
-**Describe alternatives you've considered**
-A clear and concise description of any alternative solutions or features you've considered.
+What would you like to see added or improved in OpenSettings?
 
-**Additional context**
-Add any other context or screenshots about the feature request here.
+Be as specific as possible about what the feature should do.
+
+
+## 🤔 Why is this feature needed?
+
+Explain the use case or the problem this would solve.  
+Why would this be valuable to you or other users?
+
+
+## 📎 Any examples or references?
+
+(Optional) If you’ve seen this feature elsewhere or have a rough idea/mockup, feel free to share links, screenshots, or descriptions.
