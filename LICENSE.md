@@ -1,4 +1,4 @@
-# License
+# 💡 License
 
 By using this repository, you agree to the following license terms:
 
