@@ -1,35 +1,36 @@
 ---
 name: Bug report
-about: Create a report to help us improve
-title: 'BUG | '
+about: Create a report to help us improve the OpenSettings
+title: 'BUG |  '
 labels: bug
 assignees: ''
 
 ---
 
-**Describe the bug**
-A clear and concise description of what the bug is.
+Please fill out the details below so we can help resolve it quickly.
 
-**To Reproduce**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+## 🧩 What happened?
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
+Describe the bug or unexpected behavior you encountered.  
+What did you expect to happen instead?
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
 
-**OpenSettings Version (please complete the following information):**
-- Version [e.g. 1.0.0]
+## 🔁 Steps to reproduce
 
-**Desktop (please complete the following information):**
- - OS: [e.g. iOS]
- - Browser [e.g. chrome, safari]
- - Version [e.g. 22]
+Provide step-by-step instructions so we can reproduce the issue:
 
-**Additional context**
-Add any other context about the problem here.
+1. ...
+2. ...
+3. ...
+
+
+## 💻 Environment
+
+- **OpenSettings version:** (e.g. v1.1.0)  
+- **.NET version:** (e.g. .NET 8)  
+- **Operating System:** (e.g. Windows, macOS, Linux)  
+
+
+## 📎 Relevant code or logs
+
+(Optional) Include code snippets, error messages, logs, or screenshots if helpful.
