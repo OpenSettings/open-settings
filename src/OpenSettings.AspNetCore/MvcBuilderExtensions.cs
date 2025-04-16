@@ -231,7 +231,11 @@ namespace OpenSettings.AspNetCore
 
             return mvcBuilder.AddApplicationPart(typeof(Constants).Assembly).AddMvcOptions(mvcOpts =>
             {
-                mvcOpts.Conventions.AddControllerRoutePrefixConvention(controllerTypes, controllerConfiguration.Route);
+                mvcOpts.Conventions.AddControllerRoutePrefixConvention(controllerTypes, controllerConfiguration.Route,
+                    opts =>
+                    {
+                        opts.ConventionStrategy = RoutePrefixConventionStrategy.Combine;
+                    });
 
                 if (!controllerConfiguration.AllowFromExploring)
                 {

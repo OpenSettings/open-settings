@@ -28,6 +28,7 @@ namespace OpenSettings.AspNetCore.Spa
     /// </summary>
     public class OpenSettingsSpaMiddleware
     {
+        private readonly Assembly _currentAssembly = typeof(OpenSettingsSpaMiddleware).GetTypeInfo().Assembly;
         private readonly OpenSettingsMemoryCache _openSettingsMemoryCache;
         private readonly OpenSettingsConfiguration _openSettingsConfiguration;
         private readonly StaticFileMiddleware _staticFileMiddleware;
@@ -59,7 +60,7 @@ namespace OpenSettings.AspNetCore.Spa
 
             if (openSettingsConfiguration.Spa.IndexStream == null)
             {
-                openSettingsConfiguration.Spa.IndexStream = () => typeof(OpenSettingsSpaMiddleware).GetTypeInfo().Assembly.GetManifestResourceStream(OpenSettings.Constants.EmbeddedIndexHtmlFileNamespace);
+                openSettingsConfiguration.Spa.IndexStream = () => _currentAssembly.GetManifestResourceStream(OpenSettings.Constants.EmbeddedIndexHtmlFileNamespace);
             }
 
             _openSettingsMemoryCache = openSettingsMemoryCache;
