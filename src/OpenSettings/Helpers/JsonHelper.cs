@@ -1,5 +1,7 @@
 ﻿using OpenSettings.Models;
+#if !NETSTANDARD2_0
 using System.Buffers;
+#endif
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -65,84 +67,51 @@ namespace OpenSettings.Helpers
         /// <param name="patchFilePath">The file path of the patch JSON file to apply.</param>
         /// <param name="cancellationToken">A cancellation token to support cancellation of the operation.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation, with the result as a <see cref="JsonMergeResult"/>.</returns>
-        public static async Task<JsonMergeResult> MergeFileAsync(string baseFilePath, string patchFilePath, CancellationToken cancellationToken = default)
+        public static async Task<JsonMergeResult> MergeFileAsync(string baseFilePath, string patchFilePath,
+            CancellationToken cancellationToken = default)
         {
-            var jsonMergeResult = new JsonMergeResult();
-
-#if !NETSTANDARD2_0
-            var output = new ArrayBufferWriter<byte>();
-#endif
             using (var firstStream = File.OpenRead(baseFilePath))
             using (var secondStream = File.OpenRead(patchFilePath))
-            using (var firstDoc = JsonDocument.ParseAsync(firstStream, DefaultJsonDocumentOptions, cancellationToken))
-            using (var secondDoc = JsonDocument.ParseAsync(secondStream, DefaultJsonDocumentOptions, cancellationToken))
-#if NETSTANDARD2_0
-            using (var output = new MemoryStream())
-            using (var jsonWriter = new Utf8JsonWriter(output, DefaultJsonWriterOptions))
-#else
-            await using (var jsonWriter = new Utf8JsonWriter(output, DefaultJsonWriterOptions))
-#endif
+            using (var baseDoc = JsonDocument.ParseAsync(firstStream, DefaultJsonDocumentOptions, cancellationToken))
+            using (var patchDoc = JsonDocument.ParseAsync(secondStream, DefaultJsonDocumentOptions, cancellationToken))
             {
-                await Task.WhenAll(firstDoc, secondDoc);
+                await Task.WhenAll(baseDoc, patchDoc);
 
-                var firstRoot = firstDoc.Result.RootElement;
-                var secondRoot = secondDoc.Result.RootElement;
-
-                if (firstRoot.ValueKind != JsonValueKind.Array && firstRoot.ValueKind != JsonValueKind.Object)
-                {
-                    jsonMergeResult.IsFaulted = true;
-                    jsonMergeResult.FailureReason = $"Warning: the base file path content is neither an Array nor an Object, but a {firstRoot.ValueKind}. Merging will proceed with the patch file, but the result may not be as expected!.";
-                    jsonMergeResult.Data = secondRoot.Deserialize<Dictionary<string, object>>(DefaultJsonSerializerOptions);
-
-                    return jsonMergeResult;
-                }
-
-                if (firstRoot.ValueKind != secondRoot.ValueKind)
-                {
-                    jsonMergeResult.IsFaulted = true;
-                    jsonMergeResult.FailureReason = $"ValueKind mismatch: the base file has a {firstRoot.ValueKind} and the patch file has a {secondRoot.ValueKind}. Merging will proceed with the patch file, but the result may not be as expected!.";
-                    jsonMergeResult.Data = secondRoot.Deserialize<Dictionary<string, object>>(DefaultJsonSerializerOptions);
-
-                    return jsonMergeResult;
-                }
-
-                if (firstRoot.ValueKind == JsonValueKind.Array)
-                {
-                    MergeArrays(jsonWriter, secondRoot);
-                }
-                else
-                {
-                    MergeObjects(jsonWriter, firstRoot, secondRoot);
-                }
-
-#if NETSTANDARD2_0
-
-                await jsonWriter.FlushAsync(cancellationToken);
-
-                jsonMergeResult.Data = JsonSerializer.Deserialize<Dictionary<string, object>>(output.ToArray());
+                return Merge(baseDoc.Result, patchDoc.Result);
             }
-#else
-            }
-            jsonMergeResult.Data = JsonSerializer.Deserialize<Dictionary<string, object>>(output.WrittenSpan);
-#endif
-            return jsonMergeResult;
         }
 
         /// <summary>
         /// Merges two JSON strings (baseJson and patchJson) into a single JSON object.
         /// </summary>
         /// <param name="baseJson">The base JSON string to be merged with the patch.</param>
-        /// <param name="patchJson">The JSON string containing the changes to be applied to the base JSON.</param>
+        /// <param name="patchJson">The patch JSON string containing the changes to be applied to the base JSON.</param>
         /// <returns>A <see cref="JsonMergeResult"/> containing the result of the merge operation.</returns>
         public static JsonMergeResult Merge(string baseJson, string patchJson)
+        {
+            using (var baseDoc = JsonDocument.Parse(baseJson, DefaultJsonDocumentOptions))
+            using (var patchDoc = JsonDocument.Parse(patchJson, DefaultJsonDocumentOptions))
+            {
+                return Merge(baseDoc, patchDoc);
+            }
+        }
+
+        /// <summary>
+        /// Merges two JSON strings (baseDoc and patchDoc) into a single JSON object.
+        /// </summary>
+        /// <param name="baseDoc">The base JsonDocument to be merged with the patch.</param>
+        /// <param name="patchDoc">The patch JsonDocument containing the changes to be applied to the base JSON.</param>
+        /// <returns>A <see cref="JsonMergeResult"/> containing the result of the merge operation.</returns>
+        /// <remarks>
+        /// Both <paramref name="baseDoc"/> and <paramref name="patchDoc"/> should be disposed after the merge operation is complete.
+        /// </remarks>
+        public static JsonMergeResult Merge(JsonDocument baseDoc, JsonDocument patchDoc)
         {
             var jsonMergeResult = new JsonMergeResult();
 
 #if !NETSTANDARD2_0
             var output = new ArrayBufferWriter<byte>();
 #endif
-            using (var firstDoc = JsonDocument.Parse(baseJson, DefaultJsonDocumentOptions))
-            using (var secondDoc = JsonDocument.Parse(patchJson, DefaultJsonDocumentOptions))
 #if NETSTANDARD2_0
             using (var output = new MemoryStream())
             using (var jsonWriter = new Utf8JsonWriter(output, DefaultJsonWriterOptions))
@@ -150,14 +119,14 @@ namespace OpenSettings.Helpers
             using (var jsonWriter = new Utf8JsonWriter(output, DefaultJsonWriterOptions))
 #endif
             {
-                var firstRoot = firstDoc.RootElement;
-                var secondRoot = secondDoc.RootElement;
+                var firstRoot = baseDoc.RootElement;
+                var secondRoot = patchDoc.RootElement;
 
                 if (firstRoot.ValueKind != JsonValueKind.Array && firstRoot.ValueKind != JsonValueKind.Object)
                 {
                     jsonMergeResult.IsFaulted = true;
                     jsonMergeResult.FailureReason = $"Warning: the base file path content is neither an Array nor an Object, but a {firstRoot.ValueKind}. Merging will proceed with the patch file, but the result may not be as expected!.";
-                    jsonMergeResult.Data = JsonSerializer.Deserialize<Dictionary<string, object>>(patchJson);
+                    jsonMergeResult.Data = patchDoc.Deserialize<Dictionary<string, object>>();
 
                     return jsonMergeResult;
                 }
@@ -166,7 +135,7 @@ namespace OpenSettings.Helpers
                 {
                     jsonMergeResult.IsFaulted = true;
                     jsonMergeResult.FailureReason = $"ValueKind mismatch: the base file has a {firstRoot.ValueKind} and the patch file has a {secondRoot.ValueKind}. Merging will proceed with the patch file, but the result may not be as expected!.";
-                    jsonMergeResult.Data = JsonSerializer.Deserialize<Dictionary<string, object>>(patchJson);
+                    jsonMergeResult.Data = patchDoc.Deserialize<Dictionary<string, object>>();
 
                     return jsonMergeResult;
                 }
@@ -191,7 +160,6 @@ namespace OpenSettings.Helpers
 
             jsonMergeResult.Data = JsonSerializer.Deserialize<Dictionary<string, object>>(output.WrittenSpan);
 #endif
-
             return jsonMergeResult;
         }
 
