@@ -53,10 +53,9 @@ namespace OpenSettings.Helpers
         /// <returns>A <see cref="Task"/> containing a <b>Dictionary&lt;string, object&gt;</b> with the JSON data.</returns>
         public static async Task<Dictionary<string, object>> GetJsonFileAsync(string filePath, CancellationToken cancellationToken = default)
         {
-            using (var jsonStream = File.OpenRead(filePath))
+            using (var fileStream = File.OpenRead(filePath))
             {
-                return await JsonSerializer.DeserializeAsync<Dictionary<string, object>>(jsonStream,
-                    DefaultJsonSerializerOptions, cancellationToken);
+                return await JsonSerializer.DeserializeAsync<Dictionary<string, object>>(fileStream, DefaultJsonSerializerOptions, cancellationToken);
             }
         }
 
