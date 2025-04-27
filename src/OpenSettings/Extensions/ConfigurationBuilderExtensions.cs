@@ -208,11 +208,19 @@ namespace OpenSettings.Extensions
         private static async Task ExecuteWithLocalSettingsServiceAsync(Func<LocalSettingsService, Task> func,
          OpenSettingsConfiguration openSettingsConfiguration, CancellationToken cancellationToken)
         {
-            var compressionFactory = new CompressionFactory(new CompressionOptions { Level = openSettingsConfiguration.Provider.CompressionLevel });
+            var compressionProvider = new CompressionProvider(new ICompression[]
+            {
+                new BrotliCompression(new BrotliCompressionOptions(openSettingsConfiguration.Provider.CompressionLevel)),
+                new DeflateCompression(new DeflateCompressionOptions(openSettingsConfiguration.Provider.CompressionLevel)),
+                new GzipCompression(new GzipCompressionOptions(openSettingsConfiguration.Provider.CompressionLevel)),
+                new SnappyCompression(new SnappyCompressionOptions(openSettingsConfiguration.Provider.CompressionLevel)),
+                new ZstdCompression(new ZstdCompressionOptions(openSettingsConfiguration.Provider.CompressionLevel)),
+                new NoneCompression(new NoneCompressionOptions(openSettingsConfiguration.Provider.CompressionLevel))
+            });
 
             if (openSettingsConfiguration.IsConsumerSelected)
             {
-                var handler = new DecompressionHandler(compressionFactory)
+                var handler = new DecompressionHandler(compressionProvider)
                 {
                     InnerHandler = new HttpClientHandler()
                 };
@@ -245,9 +253,9 @@ namespace OpenSettings.Extensions
                 var passwordHasher = new PasswordHasher<AppSqlModel>();
                 var appsService = new AppsSqlService(
                     openSettingsConfiguration.LoggerFactory.CreateLogger<AppsSqlService>(), identifiersSqlService,
-                    appGroupsSqlService, tagsSqlService, compressionFactory, passwordHasher, context,
+                    appGroupsSqlService, tagsSqlService, compressionProvider, passwordHasher, context,
                     openSettingsConfiguration, null);
-                var settingsService = new SettingsSqlService(dataChangeService: null, identifiersSqlService, compressionFactory, context, new DataValidationService(), openSettingsConfiguration);
+                var settingsService = new SettingsSqlService(dataChangeService: null, identifiersSqlService, compressionProvider, context, new DataValidationService(), openSettingsConfiguration);
 
                 var localSettingsService = new LocalSettingsService(openSettingsConfiguration, appsService, settingsService);
 

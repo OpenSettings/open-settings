@@ -19,26 +19,6 @@ namespace OpenSettings.Extensions
 {
     internal static class InternalExtensions
     {
-#if NETSTANDARD2_0
-        /// <summary>
-        /// Tries to get the value associated with the specified key in the dictionary.
-        /// </summary>
-        /// <typeparam name="TKey"></typeparam>
-        /// <typeparam name="TValue"></typeparam>
-        /// <param name="dictionary">A dictionary with keys of type TKey and values of type TValue.</param>
-        /// <param name="key">The key of the value to get.</param>
-        /// <param name="defaultValue"></param>
-        /// <returns>
-        /// A TValue instance. When the method is successful, the returned object is the
-        /// value associated with the specified key. When the method fails, it returns the
-        /// default value for TValue.
-        /// </returns>
-        /// <exception cref="ArgumentNullException">dictionary is null.</exception>
-        public static TValue GetValueOrDefault<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> dictionary, TKey key, TValue defaultValue)
-        {
-            return dictionary.TryGetValue(key, out var value) ? value : defaultValue;
-        }
-#endif
         internal static Task<T[]> ToPaginatedArrayAsync<T>(this IQueryable<T> entities, int pageIndex, int pageSize,
             CancellationToken cancellationToken)
         {
@@ -50,9 +30,9 @@ namespace OpenSettings.Extensions
             return new AuthenticationHeaderValue(Constants.BasicSchemeName, Convert.ToBase64String(Encoding.UTF8.GetBytes($"{clientInfo.Id}:{clientInfo.Secret}")));
         }
 
-        internal static async Task<string> DecompressToUtf8StringAsync(this ICompressionFactory compressionFactory, byte[] data, CompressionType compressionType, CancellationToken cancellationToken = default)
+        internal static async Task<string> DecompressToUtf8StringAsync(this ICompressionProvider compressionProvider, byte[] data, CompressionType compressionType, CancellationToken cancellationToken = default)
         {
-            return Encoding.UTF8.GetString(await compressionFactory.DecompressAsync(compressionType, data, cancellationToken));
+            return Encoding.UTF8.GetString(await compressionProvider.DecompressAsync(compressionType, data, cancellationToken));
         }
 
         internal static RedisMessage ToRedisMessage(this RedisValue redisValue)

@@ -20,6 +20,7 @@ using System.Net.Http;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+using Ogu.Compressions.Abstractions;
 
 namespace OpenSettings.AspNetCore
 {
@@ -158,7 +159,7 @@ namespace OpenSettings.AspNetCore
             else
             {
                 mvcBuilder.Services.AddTransient<OpenSettingsRestServiceAuthHandler>();
-                mvcBuilder.Services.AddTransient<DecompressionHandler>();
+                mvcBuilder.Services.AddSingleton<DecompressionHandler>();
 
                 Action<IServiceProvider, HttpClient> configureHttpClient = (sp, httpClient) =>
                 {

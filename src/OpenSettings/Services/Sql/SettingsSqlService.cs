@@ -26,7 +26,7 @@ namespace OpenSettings.Services.Sql
     {
         private readonly IDataChangeService _dataChangeService;
         private readonly IIdentifiersService _identifiersService;
-        private readonly ICompressionFactory _compressionFactory;
+        private readonly ICompressionProvider _compressionProvider;
         private readonly OpenSettingsDbContext _context;
         private readonly DataValidationService _settingsDataValidationService;
         private readonly OpenSettingsConfiguration _openSettingsConfiguration;
@@ -34,14 +34,14 @@ namespace OpenSettings.Services.Sql
         public SettingsSqlService(
             IDataChangeService dataChangeService,
             IIdentifiersService identifiersService,
-            ICompressionFactory compressionFactory,
+            ICompressionProvider compressionProvider,
             OpenSettingsDbContext context,
             DataValidationService settingsDataValidationService,
             OpenSettingsConfiguration openSettingsConfiguration)
         {
             _dataChangeService = dataChangeService;
             _identifiersService = identifiersService;
-            _compressionFactory = compressionFactory;
+            _compressionProvider = compressionProvider;
             _context = context;
             _settingsDataValidationService = settingsDataValidationService;
             _openSettingsConfiguration = openSettingsConfiguration;
@@ -144,7 +144,7 @@ namespace OpenSettings.Services.Sql
 
             var tasks = entities.Select(async s =>
             {
-                var data = await _compressionFactory.DecompressToUtf8StringAsync(s.Data, s.CompressionType, cancellationToken);
+                var data = await _compressionProvider.DecompressToUtf8StringAsync(s.Data, s.CompressionType, cancellationToken);
 
                 return new GetSettingsDataResponseSetting
                 {
@@ -482,7 +482,7 @@ namespace OpenSettings.Services.Sql
                 ? HttpStatusCode.NotFound.ToFailureJsonResponse(Errors.SettingNotFound)
                 : HttpStatusCode.OK.ToSuccessJsonResponse(new GetSettingDataResponse
                 {
-                    Data = await _compressionFactory.DecompressToUtf8StringAsync(entity.Data, entity.CompressionType, cancellationToken)
+                    Data = await _compressionProvider.DecompressToUtf8StringAsync(entity.Data, entity.CompressionType, cancellationToken)
                 });
         }
 
@@ -606,7 +606,7 @@ namespace OpenSettings.Services.Sql
                 ? HttpStatusCode.NotFound.ToFailureJsonResponse(Errors.SettingNotFound)
                 : HttpStatusCode.OK.ToSuccessJsonResponse(new GetSettingByIdResponse
                 {
-                    Data = entity.Data == null ? null : await _compressionFactory.DecompressToUtf8StringAsync(entity.Data, entity.CompressionType, cancellationToken),
+                    Data = entity.Data == null ? null : await _compressionProvider.DecompressToUtf8StringAsync(entity.Data, entity.CompressionType, cancellationToken),
                     DataRestored = entity.DataRestored,
                     IdentifierId = $"{entity.IdentifierId}",
                     RegistrationMode = entity.RegistrationMode,
@@ -906,7 +906,7 @@ namespace OpenSettings.Services.Sql
             {
                 CompressionType = _openSettingsConfiguration.Provider.CompressionType,
                 CompressionLevel = _openSettingsConfiguration.Provider.CompressionLevel,
-                Data = await _compressionFactory.CompressAsync(_openSettingsConfiguration.Provider.CompressionType, input.Data, _openSettingsConfiguration.Provider.CompressionLevel, cancellationToken),
+                Data = await _compressionProvider.CompressAsync(_openSettingsConfiguration.Provider.CompressionType, input.Data, _openSettingsConfiguration.Provider.CompressionLevel, cancellationToken),
                 ComputedIdentifier = input.ComputedIdentifier,
                 IdentifierId = identifierId,
                 Version = "0",
@@ -996,7 +996,7 @@ namespace OpenSettings.Services.Sql
                 return FailureResponses.Conflict<UpdateSettingDataResponse>($"{entity.Id}", entity.RowVersion, input.RowVersion, false);
             }
 
-            var decompressedEntityData = await _compressionFactory.DecompressToUtf8StringAsync(entity.Data, entity.CompressionType, cancellationToken);
+            var decompressedEntityData = await _compressionProvider.DecompressToUtf8StringAsync(entity.Data, entity.CompressionType, cancellationToken);
 
             if (input.Data == decompressedEntityData)
             {
@@ -1032,7 +1032,7 @@ namespace OpenSettings.Services.Sql
 
             entity.CompressionType = _openSettingsConfiguration.Provider.CompressionType;
             entity.CompressionLevel = _openSettingsConfiguration.Provider.CompressionLevel;
-            entity.Data = await _compressionFactory.CompressAsync(_openSettingsConfiguration.Provider.CompressionType, input.Data, _openSettingsConfiguration.Provider.CompressionLevel, cancellationToken);
+            entity.Data = await _compressionProvider.CompressAsync(_openSettingsConfiguration.Provider.CompressionType, input.Data, _openSettingsConfiguration.Provider.CompressionLevel, cancellationToken);
             entity.Version = Helper.CalculateVersion(currentTime, entity.CreatedOn);
             entity.UpdatedOn = currentTime;
             entity.UpdatedById = input.UpdatedById;

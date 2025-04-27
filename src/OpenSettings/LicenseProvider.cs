@@ -12,6 +12,7 @@ using System;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Ogu.Compressions.Abstractions;
 
 namespace OpenSettings
 {
@@ -56,9 +57,17 @@ namespace OpenSettings
 
             if (openSettingsConfiguration.IsConsumerSelected)
             {
-                var compressionFactory = new CompressionFactory();
+                var compressionProvider = new CompressionProvider(new ICompression[]
+                {
+                    new BrotliCompression(new BrotliCompressionOptions()),
+                    new DeflateCompression(new DeflateCompressionOptions()),
+                    new GzipCompression(new GzipCompressionOptions()),
+                    new SnappyCompression(new SnappyCompressionOptions()),
+                    new ZstdCompression(new ZstdCompressionOptions()),
+                    new NoneCompression(new NoneCompressionOptions())
+                });
 
-                var handler = new DecompressionHandler(compressionFactory)
+                var handler = new DecompressionHandler(compressionProvider)
                 {
                     InnerHandler = new HttpClientHandler()
                 };

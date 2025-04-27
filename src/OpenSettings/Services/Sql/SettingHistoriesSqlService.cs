@@ -7,7 +7,6 @@ using OpenSettings.Extensions;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Models.Responses;
 using OpenSettings.Services.Interfaces;
-using OpenSettings.Services.MemoryCache;
 using OpenSettings.Services.Sql.Interfaces;
 using System;
 using System.Linq;
@@ -21,20 +20,17 @@ namespace OpenSettings.Services.Sql
     internal sealed class SettingHistoriesSqlService : ISettingHistoriesSqlService
     {
         private readonly IDataChangeService _dataChangeService;
-        private readonly ICompressionFactory _compressionFactory;
+        private readonly ICompressionProvider _compressionProvider;
         private readonly OpenSettingsDbContext _context;
-        private readonly OpenSettingsMemoryCache _openSettingsMemoryCache;
 
         public SettingHistoriesSqlService(
             IDataChangeService dataChangeService,
-            ICompressionFactory compressionFactory,
-            OpenSettingsDbContext context,
-            OpenSettingsMemoryCache openSettingsMemoryCache)
+            ICompressionProvider compressionProvider,
+            OpenSettingsDbContext context)
         {
             _dataChangeService = dataChangeService;
-            _compressionFactory = compressionFactory;
+            _compressionProvider = compressionProvider;
             _context = context;
-            _openSettingsMemoryCache = openSettingsMemoryCache;
         }
 
         public async Task<IJsonResponse> GetSettingHistoryDataAsync(GetSettingHistoryDataInput input, CancellationToken cancellationToken = default)
@@ -63,7 +59,7 @@ namespace OpenSettings.Services.Sql
                 ? HttpStatusCode.NotFound.ToFailureJsonResponse(Errors.HistoryNotFound)
                 : HttpStatusCode.OK.ToSuccessJsonResponse(new GetSettingHistoryDataResponse
                 {
-                    Data = await _compressionFactory.DecompressToUtf8StringAsync(entity.Data, entity.CompressionType, cancellationToken),
+                    Data = await _compressionProvider.DecompressToUtf8StringAsync(entity.Data, entity.CompressionType, cancellationToken),
                     RowVersion = entity.RowVersion
                 });
         }
@@ -131,7 +127,7 @@ namespace OpenSettings.Services.Sql
                 Id = $"{e.Id}",
                 Data = e.Data == null
                     ? null
-                    : await _compressionFactory.DecompressToUtf8StringAsync(e.Data, e.CompressionType, cancellationToken),
+                    : await _compressionProvider.DecompressToUtf8StringAsync(e.Data, e.CompressionType, cancellationToken),
                 Version = e.Version,
                 Slug = e.Slug,
                 CreatedById = e.CreatedById,
@@ -315,7 +311,7 @@ namespace OpenSettings.Services.Sql
                 ? HttpStatusCode.NotFound.ToFailureJsonResponse(Errors.HistoryNotFound)
                 : HttpStatusCode.OK.ToSuccessJsonResponse(new GetSettingHistoryResponse
                 {
-                    Data = await _compressionFactory.DecompressToUtf8StringAsync(entity.Data, entity.CompressionType, cancellationToken),
+                    Data = await _compressionProvider.DecompressToUtf8StringAsync(entity.Data, entity.CompressionType, cancellationToken),
                     Version = entity.Version,
                     Slug = entity.Slug,
                     SettingId = entity.SettingId,

@@ -33,7 +33,7 @@ namespace OpenSettings.Services.Sql
         private readonly IIdentifiersSqlService _identifiersSqlService;
         private readonly IAppGroupsSqlService _appGroupsSqlService;
         private readonly ITagsSqlService _tagsSqlService;
-        private readonly ICompressionFactory _compressionFactory;
+        private readonly ICompressionProvider _compressionProvider;
         private readonly IPasswordHasher<AppSqlModel> _passwordHasher;
         private readonly OpenSettingsDbContext _context;
         private readonly OpenSettingsConfiguration _openSettingsConfiguration;
@@ -44,7 +44,7 @@ namespace OpenSettings.Services.Sql
             IIdentifiersSqlService identifiersSqlService,
             IAppGroupsSqlService appGroupsSqlService,
             ITagsSqlService tagsSqlService,
-            ICompressionFactory compressionFactory,
+            ICompressionProvider compressionProvider,
             IPasswordHasher<AppSqlModel> passwordHasher,
             OpenSettingsDbContext context,
             OpenSettingsConfiguration openSettingsConfiguration,
@@ -54,7 +54,7 @@ namespace OpenSettings.Services.Sql
             _identifiersSqlService = identifiersSqlService;
             _appGroupsSqlService = appGroupsSqlService;
             _tagsSqlService = tagsSqlService;
-            _compressionFactory = compressionFactory;
+            _compressionProvider = compressionProvider;
             _passwordHasher = passwordHasher;
             _context = context;
             _openSettingsConfiguration = openSettingsConfiguration;
@@ -472,7 +472,7 @@ namespace OpenSettings.Services.Sql
                 return new
                 {
                     entity.ComputedIdentifier,
-                    DataTask = _compressionFactory.DecompressToUtf8StringAsync(entity.Data, entity.CompressionType, cancellationToken),
+                    DataTask = _compressionProvider.DecompressToUtf8StringAsync(entity.Data, entity.CompressionType, cancellationToken),
                     UpdatedOn = entity.UpdatedOn.GetValueOrDefault(),
                     entity.StoreInSeparateFile,
                     entity.IgnoreOnFileChange,
@@ -1255,7 +1255,7 @@ namespace OpenSettings.Services.Sql
                 {
                     CompressionType = _openSettingsConfiguration.Provider.CompressionType,
                     CompressionLevel = _openSettingsConfiguration.Provider.CompressionLevel,
-                    Data = await _compressionFactory.CompressAsync(_openSettingsConfiguration.Provider.CompressionType, setting.Data, _openSettingsConfiguration.Provider.CompressionLevel, cancellationToken),
+                    Data = await _compressionProvider.CompressAsync(_openSettingsConfiguration.Provider.CompressionType, setting.Data, _openSettingsConfiguration.Provider.CompressionLevel, cancellationToken),
                     ComputedIdentifier = setting.ComputedIdentifier,
                     IdentifierId = identifierId,
                     Version = InitialSettingVersion,
@@ -1666,7 +1666,7 @@ namespace OpenSettings.Services.Sql
         {
             internalContext.Settings.Attach(existingSetting);
 
-            var decompressedData = await _compressionFactory.DecompressToUtf8StringAsync(existingSetting.Data, existingSetting.CompressionType, cancellationToken);
+            var decompressedData = await _compressionProvider.DecompressToUtf8StringAsync(existingSetting.Data, existingSetting.CompressionType, cancellationToken);
 
             var jsonMergeResult = JsonHelper.Merge(inputSetting.Data, decompressedData);
 
@@ -1694,7 +1694,7 @@ namespace OpenSettings.Services.Sql
 
                     existingSetting.CompressionType = _openSettingsConfiguration.Provider.CompressionType;
                     existingSetting.CompressionLevel = _openSettingsConfiguration.Provider.CompressionLevel;
-                    existingSetting.Data = await _compressionFactory.CompressAsync(_openSettingsConfiguration.Provider.CompressionType, data, _openSettingsConfiguration.Provider.CompressionLevel, cancellationToken);
+                    existingSetting.Data = await _compressionProvider.CompressAsync(_openSettingsConfiguration.Provider.CompressionType, data, _openSettingsConfiguration.Provider.CompressionLevel, cancellationToken);
                     existingSetting.Version = Helper.CalculateVersion(currentTime, existingSetting.CreatedOn);
                     existingSetting.DataRestored = false;
                     existingSetting.UpdatedOn = currentTime;
@@ -1737,7 +1737,7 @@ namespace OpenSettings.Services.Sql
             {
                 CompressionType = _openSettingsConfiguration.Provider.CompressionType,
                 CompressionLevel = _openSettingsConfiguration.Provider.CompressionLevel,
-                Data = await _compressionFactory.CompressAsync(_openSettingsConfiguration.Provider.CompressionType, inputSetting.Data, _openSettingsConfiguration.Provider.CompressionLevel, cancellationToken),
+                Data = await _compressionProvider.CompressAsync(_openSettingsConfiguration.Provider.CompressionType, inputSetting.Data, _openSettingsConfiguration.Provider.CompressionLevel, cancellationToken),
                 ComputedIdentifier = inputSetting.ComputedIdentifier,
                 Version = InitialSettingVersion,
                 DataRestored = false,
