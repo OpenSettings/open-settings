@@ -80,7 +80,7 @@ namespace OpenSettings.Extensions
                 return openSettingsConfiguration;
             });
 
-            services.AddCompressions(opts => opts.Level = openSettingsConfiguration.Provider.CompressionLevel);
+            services.AddCompressions(opts => opts.CompressionOptions = compressionOpts => compressionOpts.Level = openSettingsConfiguration.Provider.CompressionLevel);
 
             if (openSettingsConfiguration.IsConsumerSelected)
             {
