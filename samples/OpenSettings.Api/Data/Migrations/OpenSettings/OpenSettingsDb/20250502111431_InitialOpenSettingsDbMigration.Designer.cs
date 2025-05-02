@@ -9,18 +9,18 @@ using OpenSettings.Domains.Sql.DataContext;
 
 #nullable disable
 
-namespace OpenSettings.Api.Migrations
+namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 {
     [DbContext(typeof(OpenSettingsDbContext))]
-    [Migration("20250407220329_OpenSettingsDbMigration_v1.1")]
-    partial class OpenSettingsDbMigration_v11
+    [Migration("20250502111431_InitialOpenSettingsDbMigration")]
+    partial class InitialOpenSettingsDbMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.3")
+                .HasAnnotation("ProductVersion", "9.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -397,7 +397,7 @@ namespace OpenSettings.Api.Migrations
                     b.Property<string>("NameLowercase")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("ReloadStrategies")
+                    b.PrimitiveCollection<string>("ReloadStrategies")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("ServiceType")
@@ -448,7 +448,7 @@ namespace OpenSettings.Api.Migrations
                     b.Property<DateTime?>("ExpiryDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Features")
+                    b.PrimitiveCollection<string>("Features")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Holder")

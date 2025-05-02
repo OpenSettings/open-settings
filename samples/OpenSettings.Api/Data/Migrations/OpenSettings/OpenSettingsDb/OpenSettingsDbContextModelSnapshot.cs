@@ -8,7 +8,7 @@ using OpenSettings.Domains.Sql.DataContext;
 
 #nullable disable
 
-namespace OpenSettings.Api.Migrations
+namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 {
     [DbContext(typeof(OpenSettingsDbContext))]
     partial class OpenSettingsDbContextModelSnapshot : ModelSnapshot
@@ -17,7 +17,7 @@ namespace OpenSettings.Api.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.3")
+                .HasAnnotation("ProductVersion", "9.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -394,7 +394,7 @@ namespace OpenSettings.Api.Migrations
                     b.Property<string>("NameLowercase")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("ReloadStrategies")
+                    b.PrimitiveCollection<string>("ReloadStrategies")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("ServiceType")
@@ -445,7 +445,7 @@ namespace OpenSettings.Api.Migrations
                     b.Property<DateTime?>("ExpiryDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Features")
+                    b.PrimitiveCollection<string>("Features")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Holder")

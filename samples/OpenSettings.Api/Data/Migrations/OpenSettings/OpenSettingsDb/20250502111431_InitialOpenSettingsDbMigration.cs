@@ -3,10 +3,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace OpenSettings.Api.Migrations
+namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 {
     /// <inheritdoc />
-    public partial class OpenSettingsDbMigration_v11 : Migration
+    public partial class InitialOpenSettingsDbMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
