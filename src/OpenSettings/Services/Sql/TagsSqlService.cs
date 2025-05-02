@@ -49,7 +49,7 @@ namespace OpenSettings.Services.Sql
 
                 var filteredQuery = _context.Tags
                     .AsNoTracking()
-                    .SearchBy(a => a.NameLowercase, $"%{searchLowercase}%", _context);
+                    .SearchBy(a => a.NameLowercase, searchLowercase, _context);
 
                 var filteredTotalItemsCount = await filteredQuery.CountAsync(cancellationToken);
 
@@ -703,7 +703,7 @@ namespace OpenSettings.Services.Sql
 
             var query = _context.Tags.AsNoTracking();
 
-            var data = await query.SearchBy(a => a.NameLowercase, $"%{searchLowercase}%", _context)
+            var data = await query.SearchBy(a => a.NameLowercase, searchLowercase, _context)
                 .OrderBy(a => a.NameLowercase.IndexOf(searchLowercase))
                 .ThenBy(a => a.SortOrder)
                 .Select(a => new GetTagsResponseTag

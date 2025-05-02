@@ -16,8 +16,6 @@ namespace OpenSettings.Extensions
 
         private static readonly MethodInfo StringContainsMethod = typeof(string).GetMethod(nameof(string.Contains), new[] { typeof(string) });
 
-        private static readonly MethodInfo LikeMethod = typeof(DbFunctionsExtensions).GetMethod(nameof(DbFunctionsExtensions.Like), new[] { typeof(DbFunctions), typeof(string), typeof(string) });
-
         private static readonly MemberExpression EfFunctionsProperty = Expression.Property(null, typeof(EF).GetProperty(nameof(EF.Functions)));
 
         public static bool IsInMemory(this DatabaseFacade database)
@@ -54,13 +52,9 @@ namespace OpenSettings.Extensions
 
             Expression<Func<TEntity, bool>> combinedExpression = null;
 
-            var isInMemory = context.Database.IsInMemory();
-
             foreach (var fieldSelector in fieldSelectors)
             {
-                var searchExpression = isInMemory 
-                    ? BuildContainsExpression(fieldSelector, searchTerm.Trim(Constants.PercentageChar)) 
-                    : BuildLikeExpression(fieldSelector, searchTerm);
+                var searchExpression = BuildContainsExpression(fieldSelector, searchTerm);
 
                 combinedExpression = combinedExpression == null
                     ? searchExpression
@@ -70,7 +64,6 @@ namespace OpenSettings.Extensions
             return combinedExpression == null ? query : query.Where(combinedExpression);
         }
 
-
         internal static IQueryable<TEntity> SearchBy<TEntity>(
             this IQueryable<TEntity> query,
             Expression<Func<TEntity, string>> fieldSelector,
@@ -78,9 +71,7 @@ namespace OpenSettings.Extensions
             DbContext context)
             where TEntity : class
         {
-            return query.Where(context.Database.IsInMemory() 
-                ? BuildContainsExpression(fieldSelector, searchTerm.Trim(Constants.PercentageChar)) 
-                : BuildLikeExpression(fieldSelector, searchTerm));
+            return query.Where(BuildContainsExpression(fieldSelector, searchTerm));
         }
 
         private static Expression<Func<TEntity, bool>> BuildContainsExpression<TEntity>(
@@ -97,23 +88,6 @@ namespace OpenSettings.Extensions
                 Expression.Constant(searchTerm));
 
             return Expression.Lambda<Func<TEntity, bool>>(searchExpression, parameter);
-        }
-
-        private static Expression<Func<TEntity, bool>> BuildLikeExpression<TEntity>(
-            Expression<Func<TEntity, string>> fieldSelector,
-            string searchTerm)
-            where TEntity : class
-        {
-            var parameter = fieldSelector.Parameters[0];
-            var property = fieldSelector.Body; 
-
-            var likeExpression = Expression.Call(
-                LikeMethod,
-                EfFunctionsProperty,
-                property,
-                Expression.Constant(searchTerm));
-
-            return Expression.Lambda<Func<TEntity, bool>>(likeExpression, parameter);
         }
 
         public static Expression<Func<T, bool>> Or<T>(

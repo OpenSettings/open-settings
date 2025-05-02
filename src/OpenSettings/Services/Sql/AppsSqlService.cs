@@ -156,7 +156,7 @@ namespace OpenSettings.Services.Sql
                 };
 
                 query = query
-                    .SearchBy(fields, $"%{searchTermLowercase}%", _context)
+                    .SearchBy(fields, searchTermLowercase, _context)
                     .OrderBy(a => a.ClientNameLowercase.IndexOf(searchTermLowercase)).ThenBy(a => a.Group.SortOrder);
             }
             else
@@ -527,7 +527,7 @@ namespace OpenSettings.Services.Sql
 
             var filteredEntities = await _context.Apps
                 .AsNoTracking()
-                .SearchBy(fields, $"%{searchTermLowercase}%", _context)
+                .SearchBy(fields, searchTermLowercase, _context)
                 .OrderBy(a => a.ClientNameLowercase.IndexOf(searchTermLowercase))
                 .Select(a => new GetAppsResponseApp
                 {
