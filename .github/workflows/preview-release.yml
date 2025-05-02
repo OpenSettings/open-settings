@@ -51,18 +51,24 @@ jobs:
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8.0.x
+          dotnet-version: 9.0.x
+
+      - name: Restore Dependencies
+        run: dotnet restore
 
       - name: Build Project
-        run: dotnet build --configuration Release /p:Version=${{ env.VERSION_WITH_RUN }}
+        run: dotnet build --no-restore --configuration Release /p:Version=${{ env.VERSION_WITH_RUN }}
 
-      - name: Pack NuGet package
-        run: dotnet pack --configuration Release --output nupkgs /p:PackageVersion=${{ env.VERSION_WITH_RUN }} /p:Version=${{ env.VERSION_WITH_RUN }}
+      - name: Test Project
+        run: dotnet test --configuration Release --no-build
 
-      - name: Push NuGet packages
+      - name: Create NuGet Packages
+        run: dotnet pack --configuration Release --output nupkgs /p:PackageVersion=${{ env.VERSION_WITH_RUN }} /p:Version=${{ env.VERSION_WITH_RUN }} --no-build
+
+      - name: Push NuGet Packages
         run: |
           for package in OpenSettings.AspNetCore OpenSettings.AspNetCore.Spa OpenSettings; do
-            dotnet nuget push nupkgs/${package}.${{ env.VERSION_WITH_RUN }}.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }}
+            dotnet nuget push nupkgs/${package}.${{ env.VERSION_WITH_RUN }}.nupkg --skip-duplicate --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }}
           done
 
       - name: Set up GitHub Actions bot user details
