@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.IdentityModel.Tokens;
 using OpenSettings.AspNetCore.Models.Responses;
+using OpenSettings.Configurations;
 using OpenSettings.Models;
 using OpenSettings.Services.MemoryCache;
 using System;
@@ -13,7 +14,6 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using OpenSettings.Configurations;
 
 namespace OpenSettings.AspNetCore
 {
@@ -94,7 +94,7 @@ namespace OpenSettings.AspNetCore
                         return null;
                     }
 
-                    var refreshTokenResponse = await response.Content.ReadFromJsonAsync<RefreshTokenResponse>(cancellationToken);
+                    var refreshTokenResponse = await response.Content.ReadFromJsonAsync<RefreshTokenResponse>(cancellationToken: cancellationToken);
 
                     var refreshedJwtSecurityToken = ReadJwtToken(refreshTokenResponse.AccessToken);
 

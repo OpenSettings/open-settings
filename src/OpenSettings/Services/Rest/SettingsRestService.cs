@@ -110,7 +110,7 @@ namespace OpenSettings.Services.Rest
                         await _dataChangeService.NotifyChangeAsync(responseContent.Data.ClientId, responseContent.Data.Identifier.Name, responseContent.Data.Setting.ComputedIdentifier, CancellationToken.None);
                     }
 
-                    return await response.Content.ReadFromJsonAsync<JsonResponse>(cancellationToken);
+                    return await response.Content.ReadFromJsonAsync<JsonResponse>(cancellationToken: cancellationToken);
                 }
             }
         }

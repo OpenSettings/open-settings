@@ -63,7 +63,7 @@ namespace OpenSettings.Services
 
                 var constructedChannelName = Helper.ConstructChannelName(_openSettingsConfiguration.Provider.Redis.Channel, clientId, identifierNameLowercase);
 
-                await PublishAsync(constructedChannelName, redisMessage);
+                await PublishAsync(constructedChannelName, redisMessage); // Todo test this with RedisMessage
             }
 
             if (_openSettingsConfiguration.Client.Id == clientId)

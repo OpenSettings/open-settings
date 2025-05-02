@@ -83,7 +83,7 @@ namespace OpenSettings.Services.Sql
             var entities = await _context.AppGroups
                 .AsNoTracking()
 #if !NETSTANDARD2_0
-                    .AsSplitQuery()
+                .AsSplitQuery()
 #endif
                 .Include(a => a.Apps)
                 .Where(a => !a.Apps.Any())

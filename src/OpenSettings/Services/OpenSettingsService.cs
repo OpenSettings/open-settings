@@ -142,7 +142,7 @@ namespace OpenSettings.Services
                             return null;
                         }
 
-                        var content = await response.Content.ReadFromJsonAsync<OpenSettingsConfigModel>(cancellationToken);
+                        var content = await response.Content.ReadFromJsonAsync<OpenSettingsConfigModel>(cancellationToken: cancellationToken);
 
                         if (content == null)
                         {

@@ -18,9 +18,9 @@ namespace OpenSettings.Models
 
         public string InstanceDynamicId { get; }
 
-        public static implicit operator RedisValue(RedisMessage message)
+        public static implicit operator RedisValue(RedisMessage message) // Todo: JsonSerializerOptions.Default removed
         {
-            return new RedisValue(JsonSerializer.Serialize(message, JsonSerializerOptions.Default));
+            return new RedisValue(JsonSerializer.Serialize(message));
         }
     }
 }
