@@ -17,6 +17,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSettings.AspNetCore.Tes
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSettings.Tests", "tests\OpenSettings.Tests\OpenSettings.Tests.csproj", "{5734B415-A098-4662-B45B-E3FD236A734E}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{67B912A5-C3B3-4DA8-A77F-EC0852896B44}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenSettings.Api", "samples\OpenSettings.Api\OpenSettings.Api.csproj", "{693D03CC-1EEC-4C0C-A49A-AE379BAA16AA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -43,6 +47,10 @@ Global
 		{5734B415-A098-4662-B45B-E3FD236A734E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5734B415-A098-4662-B45B-E3FD236A734E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5734B415-A098-4662-B45B-E3FD236A734E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{693D03CC-1EEC-4C0C-A49A-AE379BAA16AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{693D03CC-1EEC-4C0C-A49A-AE379BAA16AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{693D03CC-1EEC-4C0C-A49A-AE379BAA16AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{693D03CC-1EEC-4C0C-A49A-AE379BAA16AA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -53,6 +61,7 @@ Global
 		{A62A9D51-3CE5-484B-B7D0-6C5AEFF92913} = {96DBA006-56AC-40F2-B5F2-F51C73668CC9}
 		{1B2E994E-05D4-49CB-8640-C101A973085A} = {1ADE26D7-2472-4858-A652-4850F969C070}
 		{5734B415-A098-4662-B45B-E3FD236A734E} = {1ADE26D7-2472-4858-A652-4850F969C070}
+		{693D03CC-1EEC-4C0C-A49A-AE379BAA16AA} = {67B912A5-C3B3-4DA8-A77F-EC0852896B44}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7B51BF2F-3496-4A26-AEAD-935485B4D05C}

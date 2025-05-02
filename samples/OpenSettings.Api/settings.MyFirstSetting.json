@@ -1,0 +1,6 @@
+{
+  "OpenSettings.Api.MyFirstSetting": {
+    "Name": "OpenSettings",
+    "Description": "A centralized settings management system for .NET applications."
+  }
+}
