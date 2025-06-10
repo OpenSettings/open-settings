@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Ogu.AspNetCore.Response.Json;
+using Ogu.Response;
 using OpenSettings.AspNetCore.Models.Requests;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Services.Interfaces;
@@ -23,7 +23,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _identifiersService.GetIdentifiersAsync(new GetIdentifiersInput
@@ -41,7 +41,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _identifiersService.CreateIdentifierAsync(new CreateIdentifierInput
@@ -60,7 +60,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _identifiersService.GetPaginatedIdentifiersAsync(new GetPaginatedInput(request.SearchTerm, request.SearchBy, request.PageIndex, request.PageSize, request.SortBy, request.SortDirection), cancellationToken);
@@ -73,7 +73,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _identifiersService.DeleteUnmappedIdentifiersAsync(cancellationToken);
@@ -86,7 +86,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _identifiersService.GetIdentifierByIdAsync(new GetIdentifierInput { IdentifierIdOrSlug = request.IdentifierIdOrSlug }, cancellationToken);
@@ -99,7 +99,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _identifiersService.GetIdentifierBySlugAsync(new GetIdentifierInput { IdentifierIdOrSlug = request.IdentifierIdOrSlug }, cancellationToken);
@@ -112,7 +112,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _identifiersService.UpdateIdentifierAsync(new UpdateIdentifierInput
@@ -133,7 +133,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _identifiersService.DeleteIdentifierAsync(new DeleteIdentifierInput { IdentifierId = request.IdentifierId, RowVersion = request.RowVersion }, cancellationToken);
@@ -146,7 +146,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _identifiersService.UpdateIdentifierSortOrderAsync(new UpdateIdentifierSortOrderInput
@@ -165,7 +165,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _identifiersService.DragIdentifierAsync(new DragItemSortOrderInput

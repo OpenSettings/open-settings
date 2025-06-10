@@ -1,4 +1,5 @@
-﻿using Ogu.Response.Json;
+﻿using Ogu.Response.Abstractions;
+using OpenSettings.Extensions;
 using OpenSettings.Models;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Models.Responses;
@@ -21,7 +22,7 @@ namespace OpenSettings.Services.Rest
             _httpClient = httpClient;
         }
 
-        public async Task<IJsonResponse> GetTagsAsync(GetTagsInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetTagsAsync(GetTagsInput input, CancellationToken cancellationToken = default)
         {
             const string relativeUri = "v1/tags";
 
@@ -36,11 +37,11 @@ namespace OpenSettings.Services.Rest
 
             using (var response = await _httpClient.GetAsync(queryBuilder.ToString(relativeUri), cancellationToken))
             {
-                return await response.Content.ToJsonResponseAsync(cancellationToken: cancellationToken);
+                return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
         }
 
-        public async Task<IJsonResponse> CreateTagAsync(CreateTagInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> CreateTagAsync(CreateTagInput input, CancellationToken cancellationToken = default)
         {
             throw new NotSupportedException(nameof(CreateTagAsync));
 
@@ -57,12 +58,12 @@ namespace OpenSettings.Services.Rest
             {
                 using (var response = await _httpClient.PostAsync(relativeUri, stringContent, cancellationToken))
                 {
-                    return await response.Content.ToJsonResponseAsync(cancellationToken: cancellationToken);
+                    return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
                 }
             }
         }
 
-        public async Task<IJsonResponse> GetPaginatedTagsAsync(GetPaginatedInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetPaginatedTagsAsync(GetPaginatedInput input, CancellationToken cancellationToken = default)
         {
             throw new NotSupportedException(nameof(GetPaginatedTagsAsync));
 
@@ -91,11 +92,11 @@ namespace OpenSettings.Services.Rest
 
             using (var response = await _httpClient.GetAsync(queryBuilder.ToString(relativeUri), cancellationToken))
             {
-                return await response.Content.ToJsonResponseAsync(cancellationToken: cancellationToken);
+                return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
         }
 
-        public async Task<IJsonResponse> DeleteUnmappedTagsAsync(CancellationToken cancellationToken = default)
+        public async Task<IResponse> DeleteUnmappedTagsAsync(CancellationToken cancellationToken = default)
         {
             throw new NotSupportedException(nameof(DeleteUnmappedTagsAsync));
 
@@ -103,31 +104,31 @@ namespace OpenSettings.Services.Rest
 
             using (var response = await _httpClient.DeleteAsync(relativeUri, cancellationToken))
             {
-                return await response.Content.ToJsonResponseAsync(cancellationToken: cancellationToken);
+                return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
         }
 
-        public async Task<IJsonResponse> GetTagByIdAsync(GetTagInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetTagByIdAsync(GetTagInput input, CancellationToken cancellationToken = default)
         {
             var relativeUri = $"v1/tags/{input.TagIdOrSlug}";
 
             using (var response = await _httpClient.GetAsync(relativeUri, cancellationToken))
             {
-                return await response.Content.ToJsonResponseAsync(cancellationToken: cancellationToken);
+                return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
         }
 
-        public async Task<IJsonResponse> GetTagBySlugAsync(GetTagInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetTagBySlugAsync(GetTagInput input, CancellationToken cancellationToken = default)
         {
             var relativeUri = $"v1/tags/slug/{input.TagIdOrSlug}";
 
             using (var response = await _httpClient.GetAsync(relativeUri, cancellationToken))
             {
-                return await response.Content.ToJsonResponseAsync(cancellationToken: cancellationToken);
+                return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
         }
 
-        public async Task<IJsonResponse> UpdateTagAsync(UpdateTagInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> UpdateTagAsync(UpdateTagInput input, CancellationToken cancellationToken = default)
         {
             var relativeUri = $"v1/tags/{input.TagId}";
 
@@ -143,13 +144,13 @@ namespace OpenSettings.Services.Rest
             {
                 using (var response = await _httpClient.PutAsync(relativeUri, stringContent, cancellationToken))
                 {
-                    return await response.Content.ToJsonResponseAsync(cancellationToken: cancellationToken);
+                    return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
 
                 }
             }
         }
 
-        public async Task<IJsonResponse> DeleteTagAsync(DeleteTagInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> DeleteTagAsync(DeleteTagInput input, CancellationToken cancellationToken = default)
         {
             throw new NotSupportedException(nameof(DeleteTagAsync));
 
@@ -157,11 +158,11 @@ namespace OpenSettings.Services.Rest
 
             using (var response = await _httpClient.DeleteAsync(relativeUri, cancellationToken))
             {
-                return await response.Content.ToJsonResponseAsync(cancellationToken: cancellationToken);
+                return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
         }
 
-        public async Task<IJsonResponse> UpdateTagSortOrderAsync(UpdateTagSortOrderInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> UpdateTagSortOrderAsync(UpdateTagSortOrderInput input, CancellationToken cancellationToken = default)
         {
             var relativeUri = $"v1/tags/{input.TagId}/sort-order";
 
@@ -176,11 +177,11 @@ namespace OpenSettings.Services.Rest
 
             using (var response = await _httpClient.PostAsync(queryBuilder.ToString(relativeUri), null, cancellationToken))
             {
-                return await response.Content.ToJsonResponseAsync(cancellationToken: cancellationToken);
+                return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
         }
 
-        public async Task<IJsonResponse> DragTagAsync(DragItemSortOrderInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> DragTagAsync(DragItemSortOrderInput input, CancellationToken cancellationToken = default)
         {
             throw new NotSupportedException(nameof(DragTagAsync));
 
@@ -188,22 +189,22 @@ namespace OpenSettings.Services.Rest
 
             using (var response = await _httpClient.PostAsync(relativeUri, null, cancellationToken))
             {
-                return await response.Content.ToJsonResponseAsync(cancellationToken: cancellationToken);
+                return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
         }
 
-        public Task<IJsonResponse<GetOrCreateResponse>> GetOrCreateAsync(string name, SetSortOrderPosition setSortOrderPosition, Guid? createdById, CancellationToken cancellationToken = default)
+        public Task<IResponse<GetOrCreateResponse>> GetOrCreateAsync(string name, SetSortOrderPosition setSortOrderPosition, Guid? createdById, CancellationToken cancellationToken = default)
         {
             throw new NotSupportedException(nameof(GetOrCreateAsync));
         }
 
-        public async Task<IJsonResponse> ReorderAsync()
+        public async Task<IResponse> ReorderAsync()
         {
             const string relativeUri = "v1/tags/reorder";
 
             using (var response = await _httpClient.PostAsync(relativeUri, null))
             {
-                return await response.Content.ToJsonResponseAsync();
+                return await response.Content.ToResponseAsync();
 
             }
         }

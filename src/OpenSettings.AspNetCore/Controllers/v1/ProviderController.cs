@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Ogu.AspNetCore.Response.Json;
+using Ogu.Response;
 using OpenSettings.Services.Interfaces;
 using System.Threading;
 using System.Threading.Tasks;

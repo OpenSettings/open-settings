@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Ogu.AspNetCore.Response.Json;
+using Ogu.Response;
 using OpenSettings.AspNetCore.Models.Requests;
 using OpenSettings.Services.Interfaces;
 using System.Threading;
@@ -21,7 +21,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _localSettingsService.GetLocalSettingAsync(HttpContext.RequestServices, request.ComputedIdentifier, request.ConfigSource, cancellationToken);

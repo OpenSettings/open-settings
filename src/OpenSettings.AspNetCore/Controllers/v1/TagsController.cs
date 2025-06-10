@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Ogu.AspNetCore.Response.Json;
+using Ogu.Response;
 using OpenSettings.AspNetCore.Models.Requests;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Services.Interfaces;
@@ -23,7 +23,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _tagsService.GetTagsAsync(new GetTagsInput { SearchTerm = request.SearchTerm, HasMappings = request.HasMappings}, cancellationToken);
@@ -36,7 +36,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _tagsService.CreateTagAsync(new CreateTagInput
@@ -55,7 +55,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _tagsService.GetPaginatedTagsAsync(new GetPaginatedInput(request.SearchTerm, request.SearchBy, request.PageIndex, request.PageSize, request.SortBy, request.SortDirection), cancellationToken);
@@ -68,7 +68,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _tagsService.DeleteUnmappedTagsAsync(cancellationToken);
@@ -81,7 +81,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _tagsService.GetTagByIdAsync(new GetTagInput { TagIdOrSlug = request.TagIdOrSlug }, cancellationToken);
@@ -94,7 +94,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _tagsService.GetTagBySlugAsync(new GetTagInput { TagIdOrSlug = request.TagIdOrSlug }, cancellationToken);
@@ -107,7 +107,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _tagsService.UpdateTagAsync(new UpdateTagInput
@@ -128,7 +128,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _tagsService.DeleteTagAsync(new DeleteTagInput
@@ -145,7 +145,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _tagsService.UpdateTagSortOrderAsync(new UpdateTagSortOrderInput
@@ -164,7 +164,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _tagsService.DragTagAsync(new DragItemSortOrderInput

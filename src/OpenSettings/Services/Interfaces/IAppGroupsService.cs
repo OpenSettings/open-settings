@@ -1,4 +1,4 @@
-﻿using Ogu.Response.Json;
+﻿using Ogu.Response.Abstractions;
 using OpenSettings.Models;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Models.Responses;
@@ -10,28 +10,28 @@ namespace OpenSettings.Services.Interfaces
 {
     public interface IAppGroupsService
     {
-        Task<IJsonResponse> GetPaginatedGroupsAsync(GetPaginatedInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> GetPaginatedGroupsAsync(GetPaginatedInput input, CancellationToken cancellationToken = default);
 
-        Task<IJsonResponse> DeleteUnmappedGroupsAsync(CancellationToken cancellationToken = default);
+        Task<IResponse> DeleteUnmappedGroupsAsync(CancellationToken cancellationToken = default);
 
-        Task<IJsonResponse> GetGroupsAsync(GetGroupsInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> GetGroupsAsync(GetGroupsInput input, CancellationToken cancellationToken = default);
 
-        Task<IJsonResponse> CreateGroupAsync(CreateGroupInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> CreateGroupAsync(CreateGroupInput input, CancellationToken cancellationToken = default);
 
-        Task<IJsonResponse> GetGroupByIdAsync(GetGroupInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> GetGroupByIdAsync(GetGroupInput input, CancellationToken cancellationToken = default);
 
-        Task<IJsonResponse> GetGroupBySlugAsync(GetGroupInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> GetGroupBySlugAsync(GetGroupInput input, CancellationToken cancellationToken = default);
 
-        Task<IJsonResponse> UpdateGroupAsync(UpdateGroupInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> UpdateGroupAsync(UpdateGroupInput input, CancellationToken cancellationToken = default);
 
-        Task<IJsonResponse> DeleteGroupAsync(DeleteGroupInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> DeleteGroupAsync(DeleteGroupInput input, CancellationToken cancellationToken = default);
 
-        Task<IJsonResponse> UpdateGroupSortOrderAsync(UpdateGroupSortOrderInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> UpdateGroupSortOrderAsync(UpdateGroupSortOrderInput input, CancellationToken cancellationToken = default);
 
-        Task<IJsonResponse> DragGroupAsync(DragItemSortOrderInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> DragGroupAsync(DragItemSortOrderInput input, CancellationToken cancellationToken = default);
 
-        Task<IJsonResponse> ReorderAsync();
+        Task<IResponse> ReorderAsync();
 
-        Task<IJsonResponse<GetOrCreateResponse>> GetOrCreateAsync(string name, SetSortOrderPosition setSortOrderPosition, Guid? createdById, CancellationToken cancellationToken = default);
+        Task<IResponse<GetOrCreateResponse>> GetOrCreateAsync(string name, SetSortOrderPosition setSortOrderPosition, Guid? createdById, CancellationToken cancellationToken = default);
     }
 }

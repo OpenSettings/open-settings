@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Ogu.AspNetCore.Response.Json;
+using Ogu.Response;
 using OpenSettings.AspNetCore.Models.Requests;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Services.Interfaces;
@@ -23,7 +23,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _appGroupsService.GetGroupsAsync(new GetGroupsInput
@@ -40,7 +40,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _appGroupsService.CreateGroupAsync(new CreateGroupInput
@@ -59,7 +59,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _appGroupsService.GetPaginatedGroupsAsync(new GetPaginatedInput(request.SearchTerm, request.SearchBy, request.PageIndex, request.PageSize, request.SortBy, request.SortDirection), cancellationToken);
@@ -80,7 +80,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
             
             var result = await _appGroupsService.GetGroupByIdAsync(new GetGroupInput { GroupIdOrSlug = request.GroupIdOrSlug }, cancellationToken);
@@ -93,7 +93,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _appGroupsService.GetGroupBySlugAsync(new GetGroupInput { GroupIdOrSlug = request.GroupIdOrSlug }, cancellationToken);
@@ -106,7 +106,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _appGroupsService.UpdateGroupAsync(new UpdateGroupInput
@@ -127,7 +127,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _appGroupsService.DeleteGroupAsync(new DeleteGroupInput { GroupId = request.GroupId, RowVersion = request.RowVersion }, cancellationToken);
@@ -140,7 +140,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _appGroupsService.UpdateGroupSortOrderAsync(new UpdateGroupSortOrderInput
@@ -159,7 +159,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _appGroupsService.DragGroupAsync(new DragItemSortOrderInput

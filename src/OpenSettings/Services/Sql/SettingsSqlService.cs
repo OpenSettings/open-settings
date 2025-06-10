@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Ogu.Compressions.Abstractions;
+using Ogu.Response;
 using Ogu.Response.Abstractions;
-using Ogu.Response.Json;
 using OpenSettings.Configurations;
 using OpenSettings.Domains.Sql.DataContext;
 using OpenSettings.Domains.Sql.Entities;
@@ -47,16 +47,16 @@ namespace OpenSettings.Services.Sql
             _openSettingsConfiguration = openSettingsConfiguration;
         }
 
-        public async Task<IJsonResponse> GetSettingsByAppIdAndIdentifierIdAsync(GetSettingsByAppAndIdentifierInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetSettingsByAppIdAndIdentifierIdAsync(GetSettingsByAppAndIdentifierInput input, CancellationToken cancellationToken = default)
         {
-            var appIdValidationRule = JsonValidationRules.GreaterThanRule("AppId", input.AppIdOrSlug, 0);
-            var IdentifierIdValidationRule = JsonValidationRules.GreaterThanRule("IdentifierId", input.IdentifierIdOrSlug, 0);
+            var appIdValidationRule = ValidationRules.GreaterThanRule("AppId", input.AppIdOrSlug, 0);
+            var IdentifierIdValidationRule = ValidationRules.GreaterThanRule("IdentifierId", input.IdentifierIdOrSlug, 0);
 
             var failure = new ValidationRule[] { appIdValidationRule, IdentifierIdValidationRule }.ValidateFirstOrDefault();
 
             if (failure != null)
             {
-                return failure.ToJsonResponse();
+                return failure.ToResponse();
             }
 
             var appId = appIdValidationRule.GetStoredValue<int>();
@@ -65,7 +65,7 @@ namespace OpenSettings.Services.Sql
             return await GetSettingsByAppAndIdentifierAsync(a => a.Id == appId, IdentifierId, cancellationToken);
         }
 
-        public async Task<IJsonResponse> GetSettingsByAppSlugAndIdentifierSlugAsync(GetSettingsByAppAndIdentifierInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetSettingsByAppSlugAndIdentifierSlugAsync(GetSettingsByAppAndIdentifierInput input, CancellationToken cancellationToken = default)
         {
             var identifierSlug = input.IdentifierIdOrSlug?.ToSlug();
             var appSlug = input.AppIdOrSlug?.ToSlug();
@@ -79,23 +79,23 @@ namespace OpenSettings.Services.Sql
 
             if (identifier == null)
             {
-                return HttpStatusCode.NotFound.ToFailureJsonResponse(Errors.IdentifierNotFound);
+                return HttpStatusCode.NotFound.ToFailureResponse(Errors.IdentifierNotFound);
             }
 
             return await GetSettingsByAppAndIdentifierAsync(a => a.Slug == appSlug, identifier.Id, cancellationToken);
         }
 
-        public async Task<IJsonResponse> GetSettingsDataAsync(GetSettingsDataInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetSettingsDataAsync(GetSettingsDataInput input, CancellationToken cancellationToken = default)
         {
             var query = _context.Settings.AsNoTracking();
 
             if (!string.IsNullOrWhiteSpace(input.AppId))
             {
-                var appIdRule = JsonValidationRules.GreaterThanRule(nameof(input.AppId), input.AppId, 0);
+                var appIdRule = ValidationRules.GreaterThanRule(nameof(input.AppId), input.AppId, 0);
 
                 if (appIdRule.IsFailed())
                 {
-                    return appIdRule.Failure.ToJsonResponse();
+                    return appIdRule.Failure.ToResponse();
                 }
 
                 var appId = appIdRule.GetStoredValue<int>();
@@ -105,12 +105,12 @@ namespace OpenSettings.Services.Sql
 
             if (!string.IsNullOrWhiteSpace(input.IdentifierId))
             {
-                var IdentifierIdRule = JsonValidationRules.GreaterThanRule(nameof(input.IdentifierId),
+                var IdentifierIdRule = ValidationRules.GreaterThanRule(nameof(input.IdentifierId),
                     input.IdentifierId, 0);
 
                 if (IdentifierIdRule.IsFailed())
                 {
-                    return IdentifierIdRule.Failure.ToJsonResponse();
+                    return IdentifierIdRule.Failure.ToResponse();
                 }
 
                 var IdentifierId = IdentifierIdRule.GetStoredValue<int>();
@@ -153,23 +153,23 @@ namespace OpenSettings.Services.Sql
                 };
             });
 
-            return HttpStatusCode.OK.ToSuccessJsonResponse(new GetSettingsDataResponse
+            return HttpStatusCode.OK.ToSuccessResponse(new GetSettingsDataResponse
             {
                 Settings = await Task.WhenAll(tasks)
             });
         }
 
-        public async Task<IJsonResponse> CopySettingToAsync(CopySettingToInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> CopySettingToAsync(CopySettingToInput input, CancellationToken cancellationToken = default)
         {
-            var settingIdRule = JsonValidationRules.GreaterThanRule(nameof(input.SettingId), input.SettingId, 0);
-            var targetAppIdRule = JsonValidationRules.GreaterThanRule(nameof(input.TargetAppId), input.TargetAppId, 0);
-            var identifierIdRule = JsonValidationRules.GreaterThanRule(nameof(input.IdentifierId), input.IdentifierId, -1);
+            var settingIdRule = ValidationRules.GreaterThanRule(nameof(input.SettingId), input.SettingId, 0);
+            var targetAppIdRule = ValidationRules.GreaterThanRule(nameof(input.TargetAppId), input.TargetAppId, 0);
+            var identifierIdRule = ValidationRules.GreaterThanRule(nameof(input.IdentifierId), input.IdentifierId, -1);
 
             var validationFailure = new[] { settingIdRule, targetAppIdRule, identifierIdRule }.ValidateFirstOrDefault();
 
             if (validationFailure != null)
             {
-                return HttpStatusCode.BadRequest.ToFailureJsonResponse(validationFailure);
+                return HttpStatusCode.BadRequest.ToFailureResponse(validationFailure);
             }
 
             var settingId = settingIdRule.GetStoredValue<int>();
@@ -206,7 +206,7 @@ namespace OpenSettings.Services.Sql
 
             if (sourceSetting == null)
             {
-                return HttpStatusCode.NotFound.ToFailureJsonResponse(Errors.SettingNotFound);
+                return HttpStatusCode.NotFound.ToFailureResponse(Errors.SettingNotFound);
             }
 
             Guid clientId;
@@ -232,7 +232,7 @@ namespace OpenSettings.Services.Sql
 
                 if (targetApp == null)
                 {
-                    return HttpStatusCode.NotFound.ToFailureJsonResponse(Errors.TargetAppNotFound);
+                    return HttpStatusCode.NotFound.ToFailureResponse(Errors.TargetAppNotFound);
                 }
 
                 clientId = targetApp.ClientId;
@@ -241,7 +241,7 @@ namespace OpenSettings.Services.Sql
             }
             else if (sourceSetting.IdentifierId == identifierId)
             {
-                return HttpStatusCode.BadRequest.ToFailureJsonResponse(Errors.DuplicateSetting);
+                return HttpStatusCode.BadRequest.ToFailureResponse(Errors.DuplicateSetting);
             }
             else
             {
@@ -264,7 +264,7 @@ namespace OpenSettings.Services.Sql
 
                 if (identifierEntity == null)
                 {
-                    return HttpStatusCode.NotFound.ToFailureJsonResponse(Errors.IdentifierNotFound);
+                    return HttpStatusCode.NotFound.ToFailureResponse(Errors.IdentifierNotFound);
                 }
 
                 identifierSortOrder = identifierEntity.SortOrder;
@@ -273,7 +273,7 @@ namespace OpenSettings.Services.Sql
 
                 if (hasSomeSetting)
                 {
-                    return HttpStatusCode.BadRequest.ToFailureJsonResponse(Errors.DuplicateTargetSetting);
+                    return HttpStatusCode.BadRequest.ToFailureResponse(Errors.DuplicateTargetSetting);
                 }
             }
             else if (identifierId == 0 && !string.IsNullOrWhiteSpace(input.IdentifierName))
@@ -282,7 +282,7 @@ namespace OpenSettings.Services.Sql
 
                 if (!identifierGetOrCreateResponse.Success)
                 {
-                    return identifierGetOrCreateResponse.ToJsonResponse();
+                    return identifierGetOrCreateResponse.ToResponse();
                 }
 
                 identifierId = identifierGetOrCreateResponse.Data.Id;
@@ -295,13 +295,13 @@ namespace OpenSettings.Services.Sql
 
                     if (hasSomeSetting)
                     {
-                        return HttpStatusCode.BadRequest.ToFailureJsonResponse(Errors.DuplicateTargetSetting);
+                        return HttpStatusCode.BadRequest.ToFailureResponse(Errors.DuplicateTargetSetting);
                     }
                 }
             }
             else
             {
-                return HttpStatusCode.BadRequest.ToFailureJsonResponse(Errors.IdentifierMustNotEmpty);
+                return HttpStatusCode.BadRequest.ToFailureResponse(Errors.IdentifierMustNotEmpty);
             }
 
             var currentTime = DateTime.UtcNow;
@@ -389,7 +389,7 @@ namespace OpenSettings.Services.Sql
 
             await _context.SaveChangesAsync(cancellationToken);
 
-            return HttpStatusCode.OK.ToSuccessJsonResponse(new CopySettingToResponse
+            return HttpStatusCode.OK.ToSuccessResponse(new CopySettingToResponse
             {
                 ClientId = clientId,
                 AppSlug = appSlug,
@@ -409,13 +409,13 @@ namespace OpenSettings.Services.Sql
             });
         }
 
-        public async Task<IJsonResponse> GetSettingAsync(GetSettingInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetSettingAsync(GetSettingInput input, CancellationToken cancellationToken = default)
         {
-            var settingIdValidationRule = JsonValidationRules.GreaterThanRule(nameof(input.Id), input.Id, 0);
+            var settingIdValidationRule = ValidationRules.GreaterThanRule(nameof(input.Id), input.Id, 0);
 
             if (settingIdValidationRule.IsFailed())
             {
-                return HttpStatusCode.BadRequest.ToFailureJsonResponse(settingIdValidationRule.Failure);
+                return HttpStatusCode.BadRequest.ToFailureResponse(settingIdValidationRule.Failure);
             }
 
             var settingId = settingIdValidationRule.GetStoredValue<int>();
@@ -450,19 +450,19 @@ namespace OpenSettings.Services.Sql
 
             if (entity == null)
             {
-                HttpStatusCode.BadRequest.ToFailureJsonResponse(Errors.SettingNotFound);
+                HttpStatusCode.BadRequest.ToFailureResponse(Errors.SettingNotFound);
             }
 
-            return HttpStatusCode.OK.ToSuccessJsonResponse(entity);
+            return HttpStatusCode.OK.ToSuccessResponse(entity);
         }
 
-        public async Task<IJsonResponse> GetSettingDataAsync(GetSettingDataInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetSettingDataAsync(GetSettingDataInput input, CancellationToken cancellationToken = default)
         {
-            var settingIdValidationRule = JsonValidationRules.GreaterThanRule(nameof(input.SettingId), input.SettingId, 0);
+            var settingIdValidationRule = ValidationRules.GreaterThanRule(nameof(input.SettingId), input.SettingId, 0);
 
             if (settingIdValidationRule.IsFailed())
             {
-                return HttpStatusCode.BadRequest.ToFailureJsonResponse(settingIdValidationRule.Failure);
+                return HttpStatusCode.BadRequest.ToFailureResponse(settingIdValidationRule.Failure);
             }
 
             var settingId = settingIdValidationRule.GetStoredValue<int>();
@@ -479,20 +479,20 @@ namespace OpenSettings.Services.Sql
                 .FirstOrDefaultAsync(cancellationToken);
 
             return entity == null
-                ? HttpStatusCode.NotFound.ToFailureJsonResponse(Errors.SettingNotFound)
-                : HttpStatusCode.OK.ToSuccessJsonResponse(new GetSettingDataResponse
+                ? HttpStatusCode.NotFound.ToFailureResponse(Errors.SettingNotFound)
+                : HttpStatusCode.OK.ToSuccessResponse(new GetSettingDataResponse
                 {
                     Data = await _compressionProvider.DecompressToUtf8StringAsync(entity.Data, entity.CompressionType, cancellationToken)
                 });
         }
 
-        public async Task<IJsonResponse> DeleteSettingAsync(DeleteSettingInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> DeleteSettingAsync(DeleteSettingInput input, CancellationToken cancellationToken = default)
         {
-            var settingIdValidationRule = JsonValidationRules.GreaterThanRule(nameof(input.SettingId), input.SettingId, 0);
+            var settingIdValidationRule = ValidationRules.GreaterThanRule(nameof(input.SettingId), input.SettingId, 0);
 
             if (settingIdValidationRule.IsFailed())
             {
-                return HttpStatusCode.BadRequest.ToFailureJsonResponse(settingIdValidationRule.Failure);
+                return HttpStatusCode.BadRequest.ToFailureResponse(settingIdValidationRule.Failure);
             }
 
             var settingId = settingIdValidationRule.GetStoredValue<int>();
@@ -510,7 +510,7 @@ namespace OpenSettings.Services.Sql
 
             if (entity == null)
             {
-                return HttpStatusCode.NotFound.ToFailureJsonResponse(Errors.SettingNotFound);
+                return HttpStatusCode.NotFound.ToFailureResponse(Errors.SettingNotFound);
             }
 
             if (!input.RowVersion.SequenceEqual(entity.RowVersion))
@@ -522,10 +522,10 @@ namespace OpenSettings.Services.Sql
 
             await _context.SaveChangesAsync(cancellationToken);
 
-            return HttpStatusCode.OK.ToSuccessJsonResponse();
+            return HttpStatusCode.OK.ToSuccessResponse();
         }
 
-        public async Task<IJsonResponse<GetSettingsLastUpdatedComputedIdentifiersResponse>> GetSettingsLastUpdatedComputedIdentifiersAsync(GetSettingsLastUpdatedComputedIdentifiersInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse<GetSettingsLastUpdatedComputedIdentifiersResponse>> GetSettingsLastUpdatedComputedIdentifiersAsync(GetSettingsLastUpdatedComputedIdentifiersInput input, CancellationToken cancellationToken = default)
         {
             input.IdentifierName = input.IdentifierName.ToLowerInvariant();
 
@@ -548,24 +548,24 @@ namespace OpenSettings.Services.Sql
 
             if (entity == null)
             {
-                return HttpStatusCode.NotFound.ToFailureJsonResponse<GetSettingsLastUpdatedComputedIdentifiersResponse, Errors>(Errors.AppNotFound);
+                return HttpStatusCode.NotFound.ToFailureResponse<GetSettingsLastUpdatedComputedIdentifiersResponse, Errors>(Errors.AppNotFound);
             }
 
             var computedIdentifierToUpdatedOn = entity.Settings.ToDictionary(s => s.ComputedIdentifier, s => s.UpdatedOn.GetValueOrDefault());
 
-            return HttpStatusCode.OK.ToSuccessJsonResponseOf(new GetSettingsLastUpdatedComputedIdentifiersResponse
+            return HttpStatusCode.OK.ToSuccessResponseOf(new GetSettingsLastUpdatedComputedIdentifiersResponse
             {
                 ComputedIdentifierToUpdatedOn = computedIdentifierToUpdatedOn
             });
         }
 
-        public async Task<IJsonResponse> GetSettingByIdAsync(GetSettingByIdInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetSettingByIdAsync(GetSettingByIdInput input, CancellationToken cancellationToken = default)
         {
-            var settingIdRule = JsonValidationRules.GreaterThanRule(nameof(input.SettingId), input.SettingId, 0);
+            var settingIdRule = ValidationRules.GreaterThanRule(nameof(input.SettingId), input.SettingId, 0);
 
             if (settingIdRule.IsFailed())
             {
-                return settingIdRule.Failure.ToJsonResponse();
+                return settingIdRule.Failure.ToResponse();
             }
 
             var settingId = settingIdRule.GetStoredValue<int>();
@@ -603,8 +603,8 @@ namespace OpenSettings.Services.Sql
                 .FirstOrDefaultAsync(cancellationToken);
 
             return entity == null
-                ? HttpStatusCode.NotFound.ToFailureJsonResponse(Errors.SettingNotFound)
-                : HttpStatusCode.OK.ToSuccessJsonResponse(new GetSettingByIdResponse
+                ? HttpStatusCode.NotFound.ToFailureResponse(Errors.SettingNotFound)
+                : HttpStatusCode.OK.ToSuccessResponse(new GetSettingByIdResponse
                 {
                     Data = entity.Data == null ? null : await _compressionProvider.DecompressToUtf8StringAsync(entity.Data, entity.CompressionType, cancellationToken),
                     DataRestored = entity.DataRestored,
@@ -627,13 +627,13 @@ namespace OpenSettings.Services.Sql
                 });
         }
 
-        public async Task<IJsonResponse> UpdateSettingAsync(UpdateSettingInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> UpdateSettingAsync(UpdateSettingInput input, CancellationToken cancellationToken = default)
         {
-            var settingIdValidationRule = JsonValidationRules.GreaterThanRule(nameof(input.SettingId), input.SettingId, 0);
+            var settingIdValidationRule = ValidationRules.GreaterThanRule(nameof(input.SettingId), input.SettingId, 0);
 
             if (settingIdValidationRule.IsFailed())
             {
-                return HttpStatusCode.BadRequest.ToFailureJsonResponse(settingIdValidationRule.Failure);
+                return HttpStatusCode.BadRequest.ToFailureResponse(settingIdValidationRule.Failure);
             }
 
             var settingId = settingIdValidationRule.GetStoredValue<int>();
@@ -659,7 +659,7 @@ namespace OpenSettings.Services.Sql
 
             if (entity == null)
             {
-                return HttpStatusCode.NotFound.ToFailureJsonResponse(Errors.SettingNotFound);
+                return HttpStatusCode.NotFound.ToFailureResponse(Errors.SettingNotFound);
             }
 
             var conflicts = new List<ConflictModel>();
@@ -699,7 +699,7 @@ namespace OpenSettings.Services.Sql
 
                 if (hasDuplicateComputedIdentifier)
                 {
-                    return HttpStatusCode.BadRequest.ToFailureJsonResponse(Errors.DuplicateComputedIdentifier);
+                    return HttpStatusCode.BadRequest.ToFailureResponse(Errors.DuplicateComputedIdentifier);
                 }
             }
 
@@ -735,7 +735,7 @@ namespace OpenSettings.Services.Sql
 
                     if (input.IgnoreOnFileChange == true)
                     {
-                        return HttpStatusCode.BadRequest.ToFailureJsonResponse(Errors.IgnoreOnFileChangeNotSupported);
+                        return HttpStatusCode.BadRequest.ToFailureResponse(Errors.IgnoreOnFileChangeNotSupported);
                     }
 
                     _context.Attach(entitySetting);
@@ -802,21 +802,21 @@ namespace OpenSettings.Services.Sql
 
             await _context.SaveChangesAsync(cancellationToken);
 
-            return HttpStatusCode.OK.ToSuccessJsonResponse(new UpdateSettingResponse { RowVersion = rowVersion });
+            return HttpStatusCode.OK.ToSuccessResponse(new UpdateSettingResponse { RowVersion = rowVersion });
         }
 
-        public async Task<IJsonResponse> CreateSettingAsync(CreateSettingInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> CreateSettingAsync(CreateSettingInput input, CancellationToken cancellationToken = default)
         {
-            var appIdRule = JsonValidationRules.GreaterThanRule(nameof(input.AppId), input.AppId, 0);
-            var computedIdentifierRule = JsonValidationRules.NotEmptyRule(nameof(input.ComputedIdentifier), input.ComputedIdentifier);
-            var identifierIdRule = JsonValidationRules.GreaterThanRule(nameof(input.IdentifierId), input.IdentifierId, 0);
-            var validJsonRule = JsonValidationRules.ValidJsonRule(nameof(input.Data), input.Data);
+            var appIdRule = ValidationRules.GreaterThanRule(nameof(input.AppId), input.AppId, 0);
+            var computedIdentifierRule = ValidationRules.NotEmptyRule(nameof(input.ComputedIdentifier), input.ComputedIdentifier);
+            var identifierIdRule = ValidationRules.GreaterThanRule(nameof(input.IdentifierId), input.IdentifierId, 0);
+            var validJsonRule = InternalExtensions.ValidJsonRule(nameof(input.Data), input.Data);
 
             var failure = new[] { appIdRule, computedIdentifierRule, identifierIdRule, validJsonRule }.ValidateFirstOrDefault();
 
             if (failure != null)
             {
-                return failure.ToJsonResponse();
+                return failure.ToResponse();
             }
 
             var appId = appIdRule.GetStoredValue<int>();
@@ -845,7 +845,7 @@ namespace OpenSettings.Services.Sql
 
             if (entity == null)
             {
-                return HttpStatusCode.NotFound.ToFailureJsonResponse(Errors.AppNotFound);
+                return HttpStatusCode.NotFound.ToFailureResponse(Errors.AppNotFound);
             }
 
             if (entity.Settings.Count > 0)
@@ -857,7 +857,7 @@ namespace OpenSettings.Services.Sql
                     if (entitySetting.IdentifierId == identifierId &&
                         entitySetting.ComputedIdentifier == input.ComputedIdentifier)
                     {
-                        return HttpStatusCode.BadRequest.ToFailureJsonResponse(Errors.DuplicateSetting);
+                        return HttpStatusCode.BadRequest.ToFailureResponse(Errors.DuplicateSetting);
                     }
 
                     if (entitySetting.SettingClass.Name != input.ClassName ||
@@ -868,7 +868,7 @@ namespace OpenSettings.Services.Sql
 
                     if (input.IgnoreOnFileChange == true)
                     {
-                        return HttpStatusCode.BadRequest.ToFailureJsonResponse(Errors.IgnoreOnFileChangeNotSupported);
+                        return HttpStatusCode.BadRequest.ToFailureResponse(Errors.IgnoreOnFileChangeNotSupported);
                     }
 
                     _context.Attach(entitySetting);
@@ -929,23 +929,23 @@ namespace OpenSettings.Services.Sql
 
             await _context.SaveChangesAsync(cancellationToken);
 
-            return HttpStatusCode.OK.ToSuccessJsonResponse(new CreateSettingResponse
+            return HttpStatusCode.OK.ToSuccessResponse(new CreateSettingResponse
             {
                 SettingId = $"{setting.Id}",
                 ClassId = $"{setting.SettingClass.Id}"
             });
         }
 
-        public async Task<IJsonResponse<UpdateSettingDataResponse>> UpdateSettingDataAsync(UpdateSettingDataInput input, CancellationToken cancellationToken)
+        public async Task<IResponse<UpdateSettingDataResponse>> UpdateSettingDataAsync(UpdateSettingDataInput input, CancellationToken cancellationToken)
         {
-            var settingIdValidationRule = JsonValidationRules.GreaterThanRule(nameof(input.SettingId), input.SettingId, 0);
-            var validJsonRule = JsonValidationRules.ValidJsonRule(nameof(input.Data), input.Data);
+            var settingIdValidationRule = ValidationRules.GreaterThanRule(nameof(input.SettingId), input.SettingId, 0);
+            var validJsonRule = InternalExtensions.ValidJsonRule(nameof(input.Data), input.Data);
 
             var failure = new ValidationRule[] { settingIdValidationRule, validJsonRule }.ValidateFirstOrDefault();
 
             if (failure != null)
             {
-                return failure.ToJsonResponse<UpdateSettingDataResponse>();
+                return failure.ToResponse<UpdateSettingDataResponse>();
             }
 
             var settingId = settingIdValidationRule.GetStoredValue<int>();
@@ -988,7 +988,7 @@ namespace OpenSettings.Services.Sql
 
             if (entity == null)
             {
-                return HttpStatusCode.NotFound.ToFailureJsonResponse<UpdateSettingDataResponse, Errors>(Errors.SettingNotFound);
+                return HttpStatusCode.NotFound.ToFailureResponse<UpdateSettingDataResponse, Errors>(Errors.SettingNotFound);
             }
 
             if (!input.RowVersion.SequenceEqual(entity.RowVersion))
@@ -1000,12 +1000,12 @@ namespace OpenSettings.Services.Sql
 
             if (input.Data == decompressedEntityData)
             {
-                return HttpStatusCode.BadRequest.ToFailureJsonResponse<UpdateSettingDataResponse, Errors>(Errors.NoChanges);
+                return HttpStatusCode.BadRequest.ToFailureResponse<UpdateSettingDataResponse, Errors>(Errors.NoChanges);
             }
 
             if (!entity.DataValidationDisabled && !_settingsDataValidationService.IsDataMappingValid(input.Data, entity.SettingClass.Properties))
             {
-                return HttpStatusCode.BadRequest.ToFailureJsonResponse<UpdateSettingDataResponse, Errors>(Errors.InvalidSettingData);
+                return HttpStatusCode.BadRequest.ToFailureResponse<UpdateSettingDataResponse, Errors>(Errors.InvalidSettingData);
             }
 
             var currentTime = DateTime.UtcNow;
@@ -1046,7 +1046,7 @@ namespace OpenSettings.Services.Sql
                 await _dataChangeService.NotifyChangeAsync(entity.App.ClientId, entity.Identifier.Name, entity.ComputedIdentifier, cancellationToken);
             }
 
-            return HttpStatusCode.OK.ToSuccessJsonResponseOf(new UpdateSettingDataResponse
+            return HttpStatusCode.OK.ToSuccessResponseOf(new UpdateSettingDataResponse
             {
                 ClientId = entity.App.ClientId,
                 Setting = new UpdateSettingDataResponseSetting
@@ -1062,7 +1062,7 @@ namespace OpenSettings.Services.Sql
             });
         }
 
-        private async Task<IJsonResponse> GetSettingsByAppAndIdentifierAsync(Expression<Func<AppSqlModel, bool>> predicate, int identifierId, CancellationToken cancellationToken = default)
+        private async Task<IResponse> GetSettingsByAppAndIdentifierAsync(Expression<Func<AppSqlModel, bool>> predicate, int identifierId, CancellationToken cancellationToken = default)
         {
             var entity = await _context.Apps
                 .AsNoTracking()
@@ -1093,10 +1093,10 @@ namespace OpenSettings.Services.Sql
 
             if (entity == null)
             {
-                return HttpStatusCode.NotFound.ToFailureJsonResponse(Errors.AppNotFound);
+                return HttpStatusCode.NotFound.ToFailureResponse(Errors.AppNotFound);
             }
 
-            return HttpStatusCode.OK.ToSuccessJsonResponse(entity.Settings);
+            return HttpStatusCode.OK.ToSuccessResponse(entity.Settings);
         }
 
         private async Task<bool> HasSomeSettingAsync(int appId, int IdentifierId, Guid computedIdentifier, CancellationToken cancellationToken)

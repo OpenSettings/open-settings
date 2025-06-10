@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Ogu.AspNetCore.Response.Json;
-using Ogu.Response.Json;
+using Ogu.Response;
 using OpenSettings.AspNetCore.Models.Requests;
 using OpenSettings.Models;
 using OpenSettings.Models.Inputs;
@@ -26,7 +25,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _notificationsService.GetNotificationsAsync(new GetNotificationsInput
@@ -45,14 +44,14 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var userId = User.GetUserId();
 
             if (userId != request.UserId)
             {
-                HttpStatusCode.BadRequest.ToFailureJsonResponse(Errors.UserNotMatched);
+                HttpStatusCode.BadRequest.ToFailureResponse(Errors.UserNotMatched);
             }
 
             var result = await _notificationsService.GetUserNotificationsAsync(new GetUserNotificationsInput
@@ -76,7 +75,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _notificationsService.CreateNotificationAsync(new CreateNotificationInput
@@ -97,14 +96,14 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var userId = User.GetUserId();
 
             if (userId != request.UserId)
             {
-                HttpStatusCode.BadRequest.ToFailureJsonResponse(Errors.UserNotMatched);
+                HttpStatusCode.BadRequest.ToFailureResponse(Errors.UserNotMatched);
             }
 
             var result = await _notificationsService.MarkNotificationsAsOpenedAsync(new MarkNotificationsAsOpenedInput
@@ -120,14 +119,14 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var userId = User.GetUserId();
 
             if (userId != request.UserId)
             {
-                HttpStatusCode.BadRequest.ToFailureJsonResponse(Errors.UserNotMatched);
+                HttpStatusCode.BadRequest.ToFailureResponse(Errors.UserNotMatched);
             }
 
             var result = await _notificationsService.MarkNotificationAsViewedAsync(new MarkNotificationAsInput
@@ -144,14 +143,14 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var userId = User.GetUserId();
 
             if (userId != request.UserId)
             {
-                HttpStatusCode.BadRequest.ToFailureJsonResponse(Errors.UserNotMatched);
+                HttpStatusCode.BadRequest.ToFailureResponse(Errors.UserNotMatched);
             }
 
             var result = await _notificationsService.MarkNotificationAsDismissedAsync(new MarkNotificationAsInput
@@ -168,7 +167,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _notificationsService.DispatchNotificationsToUsersAsync(new DispatchNotificationsToUsersInput

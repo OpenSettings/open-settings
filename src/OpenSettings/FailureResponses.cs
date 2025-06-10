@@ -1,4 +1,5 @@
-﻿using Ogu.Response.Json;
+﻿using Ogu.Response;
+using Ogu.Response.Abstractions;
 using OpenSettings.Models;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,9 +9,9 @@ namespace OpenSettings
 {
     internal static class FailureResponses
     {
-        internal static IJsonResponse<T> Conflict<T>(string id, byte[] currentRowVersion, byte[] proposedRowVersion, bool isDeleted)
+        internal static IResponse<T> Conflict<T>(string id, byte[] currentRowVersion, byte[] proposedRowVersion, bool isDeleted)
         {
-            var jsonResponse = HttpStatusCode.Conflict.ToFailureJsonResponse<T>("Concurrency Conflict", "The data has been modified by someone else.");
+            var jsonResponse = HttpStatusCode.Conflict.ToFailureResponse<T>("Concurrency Conflict", "The data has been modified by someone else.");
 
             jsonResponse.Extras["Conflicts"] = new ConcurrencyConflict
             {
@@ -29,9 +30,9 @@ namespace OpenSettings
             return jsonResponse;
         }
 
-        internal static IJsonResponse Conflict(string id, byte[] currentRowVersion, byte[] proposedRowVersion, bool isDeleted)
+        internal static IResponse Conflict(string id, byte[] currentRowVersion, byte[] proposedRowVersion, bool isDeleted)
         {
-            var jsonResponse = HttpStatusCode.Conflict.ToFailureJsonResponse("Concurrency Conflict", "The data has been modified by someone else.");
+            var jsonResponse = HttpStatusCode.Conflict.ToFailureResponse("Concurrency Conflict", "The data has been modified by someone else.");
 
             jsonResponse.Extras["Conflicts"] = new ConcurrencyConflict
             {
@@ -50,9 +51,9 @@ namespace OpenSettings
             return jsonResponse;
         }
 
-        internal static IJsonResponse<T> Conflict<T>(params ConflictModel[] conflicts)
+        internal static IResponse<T> Conflict<T>(params ConflictModel[] conflicts)
         {
-            var jsonResponse = HttpStatusCode.Conflict.ToFailureJsonResponse<T>("Concurrency Conflict", "The data has been modified by someone else.");
+            var jsonResponse = HttpStatusCode.Conflict.ToFailureResponse<T>("Concurrency Conflict", "The data has been modified by someone else.");
 
             var concurrencyConflict = conflicts.ToDictionary(c => c.Id, c => new ConcurrencyConflictInfo
             {
@@ -68,9 +69,9 @@ namespace OpenSettings
             return jsonResponse;
         }
 
-        internal static IJsonResponse Conflict(params ConflictModel[] conflicts)
+        internal static IResponse Conflict(params ConflictModel[] conflicts)
         {
-            var jsonResponse = HttpStatusCode.Conflict.ToFailureJsonResponse("Concurrency Conflict", "The data has been modified by someone else.");
+            var jsonResponse = HttpStatusCode.Conflict.ToFailureResponse("Concurrency Conflict", "The data has been modified by someone else.");
 
             var concurrencyConflict = conflicts.ToDictionary(c => c.Id, c => new ConcurrencyConflictInfo
             {

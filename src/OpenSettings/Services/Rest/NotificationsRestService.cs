@@ -1,4 +1,5 @@
-﻿using Ogu.Response.Json;
+﻿using Ogu.Response.Abstractions;
+using OpenSettings.Extensions;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Services.Rest.Interfaces;
 using System;
@@ -19,17 +20,17 @@ namespace OpenSettings.Services.Rest
             _httpClient = httpClient;
         }
 
-        public async Task<IJsonResponse> GetNotificationsAsync(GetNotificationsInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetNotificationsAsync(GetNotificationsInput input, CancellationToken cancellationToken = default)
         {
             const string relativeUri = "v1/notifications";
 
             using (var response = await _httpClient.GetAsync(relativeUri, cancellationToken))
             {
-                return await response.Content.ToJsonResponseAsync(cancellationToken: cancellationToken);
+                return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
         }
 
-        public async Task<IJsonResponse> CreateNotificationAsync(CreateNotificationInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> CreateNotificationAsync(CreateNotificationInput input, CancellationToken cancellationToken = default)
         {
             const string relativeUri = "v1/notifications";
 
@@ -45,12 +46,12 @@ namespace OpenSettings.Services.Rest
             {
                 using (var response = await _httpClient.PostAsync(relativeUri, stringContent, cancellationToken))
                 {
-                    return await response.Content.ToJsonResponseAsync(cancellationToken: cancellationToken);
+                    return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
                 }
             }
         }
 
-        public Task<IJsonResponse> UpdateNotificationAsync(UpdateNotificationInput input, CancellationToken cancellationToken = default)
+        public Task<IResponse> UpdateNotificationAsync(UpdateNotificationInput input, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
 
@@ -64,12 +65,12 @@ namespace OpenSettings.Services.Rest
             //{
             //    using (var response = await _httpClient.PutAsync(relativeUri, stringContent, cancellationToken))
             //    {
-            //        return await response.Content.ToJsonResponseAsync(cancellationToken: cancellationToken);
+            //        return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             //    }
             //}
         }
 
-        public Task<IJsonResponse> DeleteNotificationAsync(DeleteNotificationInput input, CancellationToken cancellationToken = default)
+        public Task<IResponse> DeleteNotificationAsync(DeleteNotificationInput input, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
 
@@ -77,11 +78,11 @@ namespace OpenSettings.Services.Rest
 
             //using (var response = await _httpClient.DeleteAsync(relativeUri, cancellationToken))
             //{
-            //    return await response.Content.ToJsonResponseAsync(cancellationToken: cancellationToken);
+            //    return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             //}
         }
 
-        public async Task<IJsonResponse> GetUserNotificationsAsync(GetUserNotificationsInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetUserNotificationsAsync(GetUserNotificationsInput input, CancellationToken cancellationToken = default)
         {
             var relativeUri = $"v1/notifications/users/{input.UserId}";
 
@@ -116,48 +117,48 @@ namespace OpenSettings.Services.Rest
 
             using (var response = await _httpClient.GetAsync(relativeUri, cancellationToken))
             {
-                return await response.Content.ToJsonResponseAsync(cancellationToken: cancellationToken);
+                return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
         }
 
-        public async Task<IJsonResponse> MarkNotificationsAsOpenedAsync(MarkNotificationsAsOpenedInput input,
+        public async Task<IResponse> MarkNotificationsAsOpenedAsync(MarkNotificationsAsOpenedInput input,
             CancellationToken cancellationToken = default)
         {
             var relativeUri = $"v1/notifications/users/{input.UserId}/open";
 
             using (var response = await _httpClient.PostAsync(relativeUri, null, cancellationToken))
             {
-                return await response.Content.ToJsonResponseAsync(cancellationToken: cancellationToken);
+                return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
         }
 
-        public async Task<IJsonResponse> MarkNotificationAsViewedAsync(MarkNotificationAsInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> MarkNotificationAsViewedAsync(MarkNotificationAsInput input, CancellationToken cancellationToken = default)
         {
             var relativeUri = $"v1/notifications/users/{input.UserId}/view";
 
             using (var response = await _httpClient.PostAsync(relativeUri, null, cancellationToken))
             {
-                return await response.Content.ToJsonResponseAsync(cancellationToken: cancellationToken);
+                return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
         }
 
-        public async Task<IJsonResponse> MarkNotificationAsDismissedAsync(MarkNotificationAsInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> MarkNotificationAsDismissedAsync(MarkNotificationAsInput input, CancellationToken cancellationToken = default)
         {
             var relativeUri = $"v1/notifications/users/{input.UserId}/dismiss";
 
             using (var response = await _httpClient.PostAsync(relativeUri, null, cancellationToken))
             {
-                return await response.Content.ToJsonResponseAsync(cancellationToken: cancellationToken);
+                return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
         }
 
-        public async Task<IJsonResponse> DispatchNotificationsToUsersAsync(DispatchNotificationsToUsersInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> DispatchNotificationsToUsersAsync(DispatchNotificationsToUsersInput input, CancellationToken cancellationToken = default)
         {
             var relativeUri = $"v1/notifications/{input.NotificationId}/users/dispatch";
 
             using (var response = await _httpClient.PostAsync(relativeUri, null, cancellationToken))
             {
-                return await response.Content.ToJsonResponseAsync(cancellationToken: cancellationToken);
+                return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
         }
     }

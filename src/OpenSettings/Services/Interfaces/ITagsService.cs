@@ -1,4 +1,4 @@
-﻿using Ogu.Response.Json;
+﻿using Ogu.Response.Abstractions;
 using OpenSettings.Models;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Models.Responses;
@@ -10,28 +10,28 @@ namespace OpenSettings.Services.Interfaces
 {
     public interface ITagsService
     {
-        Task<IJsonResponse> GetPaginatedTagsAsync(GetPaginatedInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> GetPaginatedTagsAsync(GetPaginatedInput input, CancellationToken cancellationToken = default);
 
-        Task<IJsonResponse> DeleteUnmappedTagsAsync(CancellationToken cancellationToken = default);
+        Task<IResponse> DeleteUnmappedTagsAsync(CancellationToken cancellationToken = default);
 
-        Task<IJsonResponse> GetTagsAsync(GetTagsInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> GetTagsAsync(GetTagsInput input, CancellationToken cancellationToken = default);
 
-        Task<IJsonResponse> CreateTagAsync(CreateTagInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> CreateTagAsync(CreateTagInput input, CancellationToken cancellationToken = default);
 
-        Task<IJsonResponse> GetTagByIdAsync(GetTagInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> GetTagByIdAsync(GetTagInput input, CancellationToken cancellationToken = default);
 
-        Task<IJsonResponse> GetTagBySlugAsync(GetTagInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> GetTagBySlugAsync(GetTagInput input, CancellationToken cancellationToken = default);
 
-        Task<IJsonResponse> UpdateTagAsync(UpdateTagInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> UpdateTagAsync(UpdateTagInput input, CancellationToken cancellationToken = default);
 
-        Task<IJsonResponse> DeleteTagAsync(DeleteTagInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> DeleteTagAsync(DeleteTagInput input, CancellationToken cancellationToken = default);
 
-        Task<IJsonResponse> UpdateTagSortOrderAsync(UpdateTagSortOrderInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> UpdateTagSortOrderAsync(UpdateTagSortOrderInput input, CancellationToken cancellationToken = default);
 
-        Task<IJsonResponse> DragTagAsync(DragItemSortOrderInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> DragTagAsync(DragItemSortOrderInput input, CancellationToken cancellationToken = default);
 
-        Task<IJsonResponse> ReorderAsync();
+        Task<IResponse> ReorderAsync();
 
-        Task<IJsonResponse<GetOrCreateResponse>> GetOrCreateAsync(string name, SetSortOrderPosition setSortOrderPosition, Guid? createdById, CancellationToken cancellationToken = default);
+        Task<IResponse<GetOrCreateResponse>> GetOrCreateAsync(string name, SetSortOrderPosition setSortOrderPosition, Guid? createdById, CancellationToken cancellationToken = default);
     }
 }

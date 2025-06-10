@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Ogu.Response.Json;
+using Ogu.Response;
+using Ogu.Response.Abstractions;
 using OpenSettings.Attributes;
 using OpenSettings.Configurations;
 using OpenSettings.Exceptions;
@@ -452,39 +453,39 @@ namespace OpenSettings.Services
             }
         }
 
-        public async Task<IJsonResponse> GetLocalSettingAsync(IServiceProvider serviceProvider, Guid computedIdentifier, ConfigSource configSource, CancellationToken cancellationToken)
+        public async Task<IResponse> GetLocalSettingAsync(IServiceProvider serviceProvider, Guid computedIdentifier, ConfigSource configSource, CancellationToken cancellationToken)
         {
             if (!Constants.ComputedIdentifierToLocalSetting.TryGetValue(computedIdentifier, out var localSetting))
             {
-                return HttpStatusCode.NotFound.ToFailureJsonResponse(Errors.LocalSettingNotFound);
+                return HttpStatusCode.NotFound.ToFailureResponse(Errors.LocalSettingNotFound);
             }
 
             var setting = await GetSettingAsync(serviceProvider, computedIdentifier, cancellationToken, configSource);
 
             if (setting != null)
             {
-                return HttpStatusCode.OK.ToSuccessJsonResponse(setting);
+                return HttpStatusCode.OK.ToSuccessResponse(setting);
             }
 
             switch (configSource)
             {
                 case ConfigSource.File:
 
-                    return HttpStatusCode.NotFound.ToFailureJsonResponse(File.Exists(localSetting.GeneratedFilePath) ? Errors.SettingNotFound : Errors.GeneratedSettingFileNotFound);
+                    return HttpStatusCode.NotFound.ToFailureResponse(File.Exists(localSetting.GeneratedFilePath) ? Errors.SettingNotFound : Errors.GeneratedSettingFileNotFound);
 
                 case ConfigSource.Singleton:
 
-                    return HttpStatusCode.BadRequest.ToFailureJsonResponse(Errors.RegistrationModeSingletonNotSupported);
+                    return HttpStatusCode.BadRequest.ToFailureResponse(Errors.RegistrationModeSingletonNotSupported);
 
                 case ConfigSource.Options:
                 case ConfigSource.OptionsSnapshot:
                 case ConfigSource.OptionsMonitor:
 
-                    return HttpStatusCode.BadRequest.ToFailureJsonResponse(Errors.RegistrationModeConfigureNotSupported);
+                    return HttpStatusCode.BadRequest.ToFailureResponse(Errors.RegistrationModeConfigureNotSupported);
 
                 default:
 
-                    return HttpStatusCode.BadRequest.ToFailureJsonResponse(Errors.ConfigSourceNotSupported);
+                    return HttpStatusCode.BadRequest.ToFailureResponse(Errors.ConfigSourceNotSupported);
             }
         }
 

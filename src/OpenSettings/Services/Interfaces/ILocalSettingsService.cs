@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Options;
-using Ogu.Response.Json;
+using Ogu.Response.Abstractions;
 using OpenSettings.Configurations;
 using OpenSettings.Models;
 using System;
@@ -131,6 +131,6 @@ namespace OpenSettings.Services.Interfaces
         /// A task representing the asynchronous operation. The result contains a JSON response with the 
         /// retrieved local setting or an error message if the setting is not found.
         /// </returns>
-        Task<IJsonResponse> GetLocalSettingAsync(IServiceProvider serviceProvider, Guid computedIdentifier, ConfigSource configSource, CancellationToken cancellationToken = default);
+        Task<IResponse> GetLocalSettingAsync(IServiceProvider serviceProvider, Guid computedIdentifier, ConfigSource configSource, CancellationToken cancellationToken = default);
     }
 }

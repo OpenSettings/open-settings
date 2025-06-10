@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Ogu.Response.Json;
+using Ogu.Response.Abstractions;
 using OpenSettings.Domains.Sql;
 using OpenSettings.Models;
 using System.Linq;
@@ -12,7 +12,7 @@ namespace OpenSettings.Services.Sql.Interfaces
     {
         IQueryable<T> FindNeighbour<T>(DbSet<T> items, int id, int order, bool ascent) where T : class, IOrderedEntity, new();
 
-        Task<IJsonResponse> ReorderAsync<T>(DbSet<T> items, CancellationToken cancellationToken) where T : class, IOrderedEntity, new();
+        Task<IResponse> ReorderAsync<T>(DbSet<T> items, CancellationToken cancellationToken) where T : class, IOrderedEntity, new();
 
         Task<ReorderResponse> ReorderAsync<T>(DbSet<T> items) where T : class, IOrderedEntity, new();
 

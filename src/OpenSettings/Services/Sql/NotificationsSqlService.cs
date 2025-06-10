@@ -2,7 +2,8 @@
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Ogu.Extensions.Hosting.HostedServices;
-using Ogu.Response.Json;
+using Ogu.Response;
+using Ogu.Response.Abstractions;
 using OpenSettings.Domains.Sql.DataContext;
 using OpenSettings.Domains.Sql.Entities;
 using OpenSettings.Extensions;
@@ -29,7 +30,6 @@ namespace OpenSettings.Services.Sql
 {
     internal sealed class NotificationsSqlService : INotificationsSqlService
     {
-
         private readonly OpenSettingsDbContext _context;
         private readonly IMemoryCache _memoryCache;
         private readonly IOpenSettingsService _openSettingsService;
@@ -47,7 +47,7 @@ namespace OpenSettings.Services.Sql
             _taskQueue = taskQueueFactory.Get(Constants.TaskQueues.Notification);
         }
 
-        public async Task<IJsonResponse> GetNotificationsAsync(GetNotificationsInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetNotificationsAsync(GetNotificationsInput input, CancellationToken cancellationToken = default)
         {
             var availableNotifications = await GetAvailableNotificationsAsync(input.PackVersion, cancellationToken);
 
@@ -58,13 +58,13 @@ namespace OpenSettings.Services.Sql
                 .OrderByDescending(m => m.CreatedOn)
                 .ToArray();
 
-            return HttpStatusCode.OK.ToSuccessJsonResponse(new GetNotificationsResponse
+            return HttpStatusCode.OK.ToSuccessResponse(new GetNotificationsResponse
             {
                 Notifications = filteredUserNotifications
             });
         }
 
-        public async Task<IJsonResponse> CreateNotificationAsync(CreateNotificationInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> CreateNotificationAsync(CreateNotificationInput input, CancellationToken cancellationToken = default)
         {
             if (input.Id.HasValue)
             {
@@ -72,14 +72,14 @@ namespace OpenSettings.Services.Sql
 
                 if (await _context.Notifications.AsNoTracking().AnyAsync(n => n.Id == notificationId, cancellationToken))
                 {
-                    return HttpStatusCode.Conflict.ToFailureJsonResponse(Errors.NotificationAlreadyExists);
+                    return HttpStatusCode.Conflict.ToFailureResponse(Errors.NotificationAlreadyExists);
                 }
             }
 
 #if !DEBUG
             if (input.Type == NotificationType.NewVersionAvailable)
             {
-                return HttpStatusCode.BadRequest.ToFailureJsonResponse("Type not supported.");
+                return HttpStatusCode.BadRequest.ToFailureResponse("Type not supported.");
             }
 #endif
             var creatorName = string.Empty;
@@ -123,13 +123,13 @@ namespace OpenSettings.Services.Sql
                 }
             }, cancellationToken);
 
-            return HttpStatusCode.OK.ToSuccessJsonResponse(new CreateNotificationResponse
+            return HttpStatusCode.OK.ToSuccessResponse(new CreateNotificationResponse
             {
                 Id = entity.Id
             });
         }
 
-        public Task<IJsonResponse> UpdateNotificationAsync(UpdateNotificationInput input, CancellationToken cancellationToken = default)
+        public Task<IResponse> UpdateNotificationAsync(UpdateNotificationInput input, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
 
@@ -142,7 +142,7 @@ namespace OpenSettings.Services.Sql
             return null;
         }
 
-        public async Task<IJsonResponse> DeleteNotificationAsync(DeleteNotificationInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> DeleteNotificationAsync(DeleteNotificationInput input, CancellationToken cancellationToken = default)
         {
             var notification = await _context.Notifications
                 .AsNoTracking()
@@ -150,7 +150,7 @@ namespace OpenSettings.Services.Sql
 
             if (!notification)
             {
-                return HttpStatusCode.NotFound.ToFailureJsonResponse(Errors.NotificationNotFound);
+                return HttpStatusCode.NotFound.ToFailureResponse(Errors.NotificationNotFound);
             }
 
             _context.Notifications.Remove(new NotificationSqlModel
@@ -160,10 +160,10 @@ namespace OpenSettings.Services.Sql
 
             await _context.SaveChangesAsync(cancellationToken);
 
-            return HttpStatusCode.OK.ToSuccessJsonResponse();
+            return HttpStatusCode.OK.ToSuccessResponse();
         }
 
-        public async Task<IJsonResponse> GetUserNotificationsAsync(GetUserNotificationsInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetUserNotificationsAsync(GetUserNotificationsInput input, CancellationToken cancellationToken = default)
         {
             var availableNotifications = await GetAvailableNotificationsAsync(input.PackVersion, cancellationToken);
 
@@ -186,7 +186,7 @@ namespace OpenSettings.Services.Sql
 
                 if (userNotificationMapping == null)
                 {
-                    return HttpStatusCode.NotFound.ToFailureJsonResponse(Errors.UserNotFound);
+                    return HttpStatusCode.NotFound.ToFailureResponse(Errors.UserNotFound);
                 }
 
                 var currentTime = DateTime.UtcNow;
@@ -249,7 +249,7 @@ namespace OpenSettings.Services.Sql
 
             if (user == null)
             {
-                return HttpStatusCode.NotFound.ToFailureJsonResponse(Errors.UserNotFound);
+                return HttpStatusCode.NotFound.ToFailureResponse(Errors.UserNotFound);
             }
 
             int openedCount = 0, viewedCount = 0, dismissedCount = 0, notOpenedCount = 0, notViewedCount = 0, notDismissedCount = 0;
@@ -284,7 +284,7 @@ namespace OpenSettings.Services.Sql
                 }
             }
 
-            return HttpStatusCode.OK.ToSuccessJsonResponse(new GetUserNotificationsResponse
+            return HttpStatusCode.OK.ToSuccessResponse(new GetUserNotificationsResponse
             {
                 NotificationCounts = new GetUserNotificationsResponseNotificationCounts
                 {
@@ -299,7 +299,7 @@ namespace OpenSettings.Services.Sql
             });
         }
 
-        public async Task<IJsonResponse> MarkNotificationsAsOpenedAsync(MarkNotificationsAsOpenedInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> MarkNotificationsAsOpenedAsync(MarkNotificationsAsOpenedInput input, CancellationToken cancellationToken = default)
         {
             var user = await _context.Users
                 .AsNoTracking()
@@ -321,7 +321,7 @@ namespace OpenSettings.Services.Sql
 
             if (user == null)
             {
-                return HttpStatusCode.NotFound.ToFailureJsonResponse(Errors.UserNotFound);
+                return HttpStatusCode.NotFound.ToFailureResponse(Errors.UserNotFound);
             }
 
             var currentTime = DateTime.UtcNow;
@@ -342,10 +342,10 @@ namespace OpenSettings.Services.Sql
 
             await _context.SaveChangesAsync(cancellationToken);
 
-            return HttpStatusCode.OK.ToSuccessJsonResponse();
+            return HttpStatusCode.OK.ToSuccessResponse();
         }
 
-        public async Task<IJsonResponse> MarkNotificationAsViewedAsync(MarkNotificationAsInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> MarkNotificationAsViewedAsync(MarkNotificationAsInput input, CancellationToken cancellationToken = default)
         {
             var user = await _context.Users
                 .AsNoTracking()
@@ -369,17 +369,17 @@ namespace OpenSettings.Services.Sql
 
             if (user == null)
             {
-                return HttpStatusCode.NotFound.ToFailureJsonResponse(Errors.UserNotFound);
+                return HttpStatusCode.NotFound.ToFailureResponse(Errors.UserNotFound);
             }
 
             if (user.Notification == null)
             {
-                return HttpStatusCode.NotFound.ToFailureJsonResponse(Errors.NotificationNotFound);
+                return HttpStatusCode.NotFound.ToFailureResponse(Errors.NotificationNotFound);
             }
 
             if (user.Notification.IsViewed)
             {
-                return HttpStatusCode.OK.ToSuccessJsonResponse();
+                return HttpStatusCode.OK.ToSuccessResponse();
             }
 
             _context.Attach(user.Notification);
@@ -410,10 +410,10 @@ namespace OpenSettings.Services.Sql
 
             await _context.SaveChangesAsync(cancellationToken);
 
-            return HttpStatusCode.OK.ToSuccessJsonResponse();
+            return HttpStatusCode.OK.ToSuccessResponse();
         }
 
-        public async Task<IJsonResponse> MarkNotificationAsDismissedAsync(MarkNotificationAsInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> MarkNotificationAsDismissedAsync(MarkNotificationAsInput input, CancellationToken cancellationToken = default)
         {
             var user = await _context.Users
                 .AsNoTracking()
@@ -438,17 +438,17 @@ namespace OpenSettings.Services.Sql
 
             if (user == null)
             {
-                return HttpStatusCode.NotFound.ToFailureJsonResponse(Errors.UserNotFound);
+                return HttpStatusCode.NotFound.ToFailureResponse(Errors.UserNotFound);
             }
 
             if (user.Notification == null)
             {
-                return HttpStatusCode.NotFound.ToFailureJsonResponse(Errors.NotificationNotFound);
+                return HttpStatusCode.NotFound.ToFailureResponse(Errors.NotificationNotFound);
             }
 
             if (user.Notification.IsDismissed)
             {
-                return HttpStatusCode.OK.ToSuccessJsonResponse();
+                return HttpStatusCode.OK.ToSuccessResponse();
             }
 
             _context.Attach(user.Notification);
@@ -488,10 +488,10 @@ namespace OpenSettings.Services.Sql
 
             await _context.SaveChangesAsync(cancellationToken);
 
-            return HttpStatusCode.OK.ToSuccessJsonResponse();
+            return HttpStatusCode.OK.ToSuccessResponse();
         }
 
-        public async Task<IJsonResponse> DispatchNotificationsToUsersAsync(DispatchNotificationsToUsersInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> DispatchNotificationsToUsersAsync(DispatchNotificationsToUsersInput input, CancellationToken cancellationToken = default)
         {
             var notification = await _context.Notifications
                 .AsNoTracking()
@@ -503,12 +503,12 @@ namespace OpenSettings.Services.Sql
 
             if (notification == null)
             {
-                return HttpStatusCode.NotFound.ToFailureJsonResponse(Errors.NotificationNotFound);
+                return HttpStatusCode.NotFound.ToFailureResponse(Errors.NotificationNotFound);
             }
 
             if (notification.IsExpired)
             {
-                return HttpStatusCode.BadRequest.ToFailureJsonResponse(Errors.NotificationExpired);
+                return HttpStatusCode.BadRequest.ToFailureResponse(Errors.NotificationExpired);
             }
 
             await _taskQueue.QueueTaskAsync(async c =>
@@ -521,7 +521,7 @@ namespace OpenSettings.Services.Sql
                 }
             }, cancellationToken);
 
-            return HttpStatusCode.OK.ToSuccessJsonResponse();
+            return HttpStatusCode.OK.ToSuccessResponse();
         }
 
         private const string LockKey = nameof(SyncOpenSettingsNotificationsAsync);

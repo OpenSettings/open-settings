@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Ogu.Response.Json;
+using Ogu.Response;
+using Ogu.Response.Abstractions;
 using OpenSettings.Configurations;
 using OpenSettings.Domains.Sql;
 using OpenSettings.Domains.Sql.DataContext;
@@ -35,21 +36,21 @@ namespace OpenSettings.Services.Sql
                 : items.AsNoTracking().Where(a => a.SortOrder <= order && a.Id != id).OrderByDescending(a => a.SortOrder);
         }
 
-        public async Task<IJsonResponse> ReorderAsync<T>(DbSet<T> items, CancellationToken cancellationToken) where T : class, IOrderedEntity, new()
+        public async Task<IResponse> ReorderAsync<T>(DbSet<T> items, CancellationToken cancellationToken) where T : class, IOrderedEntity, new()
         {
             try
             {
                 await ReorderAsync(items);
 
-                return HttpStatusCode.Conflict.ToFailureJsonResponse(Errors.SortOrderBeingReprocessed);
+                return HttpStatusCode.Conflict.ToFailureResponse(Errors.SortOrderBeingReprocessed);
             }
             catch (DbUpdateConcurrencyException ex)
             {
-                return await ex.ToJsonResponseAsync(cancellationToken);
+                return await ex.ToResponseAsync(cancellationToken);
             }
             catch (Exception ex)
             {
-                return ex.ToJsonResponse();
+                return ex.ToResponse();
             }
         }
 
