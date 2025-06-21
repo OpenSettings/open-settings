@@ -50,7 +50,7 @@
 		<PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="7.1.2" />
 		<PackageReference Include="Ogu.Compressions" Version="2.1.1" />
 		<PackageReference Include="Ogu.Extensions.Hosting.HostedServices" Version="2.0.4" />
-		<PackageReference Include="Ogu.Response" Version="3.0.7" />
+		<PackageReference Include="Ogu.Response" Version="3.0.8" />
 		<PackageReference Include="StackExchange.Redis" Version="2.8.24" />
 		<PackageReference Include="System.Net.Http.Json" Version="6.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="3.1.0" />
