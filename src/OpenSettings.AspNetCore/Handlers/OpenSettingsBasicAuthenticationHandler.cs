@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using OpenSettings.AspNetCore.Extensions;
+using OpenSettings.AspNetCore.Models;
 using OpenSettings.Configurations;
 using OpenSettings.Helpers;
 using OpenSettings.Models;
@@ -13,7 +15,7 @@ using System.Security.Claims;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 
-namespace OpenSettings.AspNetCore
+namespace OpenSettings.AspNetCore.Handlers
 {
     internal class OpenSettingsBasicAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
     {

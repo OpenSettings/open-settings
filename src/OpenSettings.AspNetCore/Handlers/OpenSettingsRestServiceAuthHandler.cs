@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
+using OpenSettings.AspNetCore.Extensions;
+using OpenSettings.AspNetCore.Services.Interfaces;
 using OpenSettings.Configurations;
 using OpenSettings.Models;
 using OpenSettings.Services.MemoryCache;
@@ -10,7 +12,7 @@ using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace OpenSettings.AspNetCore
+namespace OpenSettings.AspNetCore.Handlers
 {
     internal class OpenSettingsRestServiceAuthHandler : DelegatingHandler
     {
@@ -19,7 +21,7 @@ namespace OpenSettings.AspNetCore
         private readonly ProviderInfo _providerInfo;
         private readonly OpenSettingsMemoryCache _openSettingsMemoryCache;
         private readonly OpenSettingsConfiguration _openSettingsConfiguration;
-        
+
         public OpenSettingsRestServiceAuthHandler(IHttpContextAccessor httpContextAccessor, IOpenSettingsTokenService openSettingsTokenService, ProviderInfo providerInfo, OpenSettingsMemoryCache openSettingsMemoryCache, OpenSettingsConfiguration openSettingsConfiguration)
         {
             _httpContextAccessor = httpContextAccessor;
@@ -40,9 +42,9 @@ namespace OpenSettings.AspNetCore
 
             if (authHeader.Scheme == JwtBearerDefaults.AuthenticationScheme && _providerInfo.OAuth2.IsActive && _providerInfo.OAuth2.AllowOfflineAccess)
             {
-                var receivedAuthParameter = authHeader.Parameter; 
+                var receivedAuthParameter = authHeader.Parameter;
 
-                if(_openSettingsMemoryCache.TryGetValue<string>(GetAccessTokenKey(receivedAuthParameter), out var accessToken))
+                if (_openSettingsMemoryCache.TryGetValue<string>(GetAccessTokenKey(receivedAuthParameter), out var accessToken))
                 {
                     authHeader = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, accessToken);
                 }

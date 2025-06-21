@@ -1,4 +1,4 @@
-﻿namespace OpenSettings.AspNetCore
+﻿namespace OpenSettings.AspNetCore.Models
 {
     internal enum RoleType
     {

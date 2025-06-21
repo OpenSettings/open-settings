@@ -5,8 +5,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Ogu.AspNetCore.Conventions;
-using Ogu.Compressions;
+using Ogu.Compressions.Abstractions;
 using OpenSettings.AspNetCore.Controllers.v1;
+using OpenSettings.AspNetCore.Handlers;
+using OpenSettings.AspNetCore.Services;
+using OpenSettings.AspNetCore.Services.Interfaces;
 using OpenSettings.Configurations;
 using OpenSettings.Models;
 using OpenSettings.Models.Inputs;
@@ -20,9 +23,8 @@ using System.Net.Http;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-using Ogu.Compressions.Abstractions;
 
-namespace OpenSettings.AspNetCore
+namespace OpenSettings.AspNetCore.Extensions
 {
     /// <summary>
     /// Provides extension methods for configuring MVC services in OpenSettings.
@@ -46,7 +48,7 @@ namespace OpenSettings.AspNetCore
             authenticationBuilder.AddOpenSettingsBasicAuthenticationScheme();
 
             var syncAppDataResponse = SyncAppDataResponse.Get(configuration);
-            
+
             var providerInfo = syncAppDataResponse.ProviderInfo;
             var controllerConfiguration = syncAppDataResponse.Configuration.Controller;
 
@@ -142,7 +144,7 @@ namespace OpenSettings.AspNetCore
                     });
                 }
 
-                mvcBuilder.Services.AddSingleton<ProviderInfo>(sp =>
+                mvcBuilder.Services.AddSingleton(sp =>
                 {
                     var settingsConfiguration = sp.GetService<OpenSettingsConfiguration>();
 
@@ -185,10 +187,11 @@ namespace OpenSettings.AspNetCore
                 mvcBuilder.Services.AddHttpClient<ITagsRestService, TagsRestService>(configureHttpClient).AddHttpMessageHandler<OpenSettingsRestServiceAuthHandler>().AddHttpMessageHandler<DecompressionHandler>();
                 mvcBuilder.Services.AddHttpClient<IUsersRestService, UsersRestService>(configureHttpClient).AddHttpMessageHandler<OpenSettingsRestServiceAuthHandler>().AddHttpMessageHandler<DecompressionHandler>();
 
-                mvcBuilder.Services.AddSingleton<ProviderInfo>(providerInfo);
+                mvcBuilder.Services.AddSingleton(providerInfo);
             }
 
             mvcBuilder.Services.AddSingleton<IOpenSettingsTokenService, OpenSettingsTokenService>();
+            mvcBuilder.Services.AddSingleton<IInstanceUrlResolverService, InstanceUrlResolverService>();
 
             mvcBuilder.Services.AddHttpContextAccessor();
 
