@@ -39,6 +39,7 @@ namespace OpenSettings.Configurations
         {
             _selection = selection;
             UpdateSelectionStatus();
+            IdentifierName = Helpers.Helper.GetEnvironmentName();
         }
 
         /// <summary>
@@ -73,7 +74,7 @@ namespace OpenSettings.Configurations
 
         internal string InstanceNameLowercase { get; private set; } = Constants.DefaultLowercase;
 
-        private string _identifierName = Helpers.Helper.GetEnvironmentName();
+        private string _identifierName;
 
         /// <summary>
         /// Gets or sets the case-insensitive name of the identifier.
@@ -100,7 +101,7 @@ namespace OpenSettings.Configurations
             }
         }
 
-        internal string IdentifierNameLowercase { get; private set; } = Constants.DefaultLowercase;
+        internal string IdentifierNameLowercase { get; private set; }
 
         /// <summary>
         /// Gets or sets the client information, including the client's id, name, and secret.
