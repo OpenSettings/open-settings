@@ -15,24 +15,24 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "Licenses",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    ReferenceId = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ReferenceIdLowercase = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    Features = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ExpiryDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    IsExpired = table.Column<bool>(type: "bit", nullable: false),
-                    ExpiredOn = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    IsRevoked = table.Column<bool>(type: "bit", nullable: false),
-                    RevokedOn = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Key = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Holder = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    HolderLowercase = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    Edition = table.Column<int>(type: "int", nullable: false),
-                    IssuedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    NotBefore = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    ReferenceId = table.Column<string>(type: "TEXT", nullable: true),
+                    ReferenceIdLowercase = table.Column<string>(type: "TEXT", nullable: true),
+                    Features = table.Column<string>(type: "TEXT", nullable: true),
+                    ExpiryDate = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    IsExpired = table.Column<bool>(type: "INTEGER", nullable: false),
+                    ExpiredOn = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    IsRevoked = table.Column<bool>(type: "INTEGER", nullable: false),
+                    RevokedOn = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    Key = table.Column<string>(type: "TEXT", nullable: true),
+                    Holder = table.Column<string>(type: "TEXT", nullable: true),
+                    HolderLowercase = table.Column<string>(type: "TEXT", nullable: true),
+                    Edition = table.Column<int>(type: "INTEGER", nullable: false),
+                    IssuedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    NotBefore = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    CreatedOn = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    UpdatedOn = table.Column<DateTime>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -43,9 +43,9 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "Locks",
                 columns: table => new
                 {
-                    Key = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Owner = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    ExpiryTime = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    Key = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
+                    Owner = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    ExpiryTime = table.Column<DateTime>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -56,16 +56,16 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "UserClaims",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Type = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    TypeLowercase = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Value = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ValueLowercase = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Slug = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Type = table.Column<string>(type: "TEXT", nullable: true),
+                    TypeLowercase = table.Column<string>(type: "TEXT", nullable: true),
+                    Value = table.Column<string>(type: "TEXT", nullable: true),
+                    ValueLowercase = table.Column<string>(type: "TEXT", nullable: true),
+                    Slug = table.Column<string>(type: "TEXT", nullable: true),
+                    Description = table.Column<string>(type: "TEXT", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    UpdatedOn = table.Column<DateTime>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -76,13 +76,13 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "UserGroups",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    NameLowercase = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Slug = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Name = table.Column<string>(type: "TEXT", nullable: true),
+                    NameLowercase = table.Column<string>(type: "TEXT", nullable: true),
+                    Slug = table.Column<string>(type: "TEXT", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    UpdatedOn = table.Column<DateTime>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -93,13 +93,13 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "UserRoles",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    NameLowercase = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Slug = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Name = table.Column<string>(type: "TEXT", nullable: true),
+                    NameLowercase = table.Column<string>(type: "TEXT", nullable: true),
+                    Slug = table.Column<string>(type: "TEXT", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    UpdatedOn = table.Column<DateTime>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -110,25 +110,25 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "Users",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    AuthScheme = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    OAuthProvider = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ProviderId = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    EmailLowercase = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Username = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    UsernameLowercase = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    HashedPassword = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    NameLowercase = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Slug = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    DisplayName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Initials = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    LastLogin = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false),
-                    RowVersion = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
-                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
+                    AuthScheme = table.Column<string>(type: "TEXT", nullable: true),
+                    OAuthProvider = table.Column<string>(type: "TEXT", nullable: true),
+                    ProviderId = table.Column<string>(type: "TEXT", nullable: true),
+                    Email = table.Column<string>(type: "TEXT", nullable: true),
+                    EmailLowercase = table.Column<string>(type: "TEXT", nullable: true),
+                    Username = table.Column<string>(type: "TEXT", nullable: true),
+                    UsernameLowercase = table.Column<string>(type: "TEXT", nullable: true),
+                    HashedPassword = table.Column<string>(type: "TEXT", nullable: true),
+                    Name = table.Column<string>(type: "TEXT", nullable: true),
+                    NameLowercase = table.Column<string>(type: "TEXT", nullable: true),
+                    Slug = table.Column<string>(type: "TEXT", nullable: true),
+                    DisplayName = table.Column<string>(type: "TEXT", nullable: true),
+                    Initials = table.Column<string>(type: "TEXT", nullable: true),
+                    LastLogin = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    IsActive = table.Column<bool>(type: "INTEGER", nullable: false),
+                    RowVersion = table.Column<byte[]>(type: "BLOB", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    UpdatedOn = table.Column<DateTime>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -139,17 +139,17 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "AppGroups",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    NameLowercase = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    Slug = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    UpdatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    SortOrder = table.Column<int>(type: "int", nullable: false),
-                    RowVersion = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
-                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Name = table.Column<string>(type: "TEXT", nullable: true),
+                    NameLowercase = table.Column<string>(type: "TEXT", nullable: true),
+                    Slug = table.Column<string>(type: "TEXT", nullable: true),
+                    CreatedById = table.Column<Guid>(type: "TEXT", nullable: true),
+                    UpdatedById = table.Column<Guid>(type: "TEXT", nullable: true),
+                    SortOrder = table.Column<int>(type: "INTEGER", nullable: false),
+                    RowVersion = table.Column<byte[]>(type: "BLOB", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    UpdatedOn = table.Column<DateTime>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -170,17 +170,17 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "Identifiers",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    NameLowercase = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    Slug = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    UpdatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    SortOrder = table.Column<int>(type: "int", nullable: false),
-                    RowVersion = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
-                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Name = table.Column<string>(type: "TEXT", nullable: true),
+                    NameLowercase = table.Column<string>(type: "TEXT", nullable: true),
+                    Slug = table.Column<string>(type: "TEXT", nullable: true),
+                    CreatedById = table.Column<Guid>(type: "TEXT", nullable: true),
+                    UpdatedById = table.Column<Guid>(type: "TEXT", nullable: true),
+                    SortOrder = table.Column<int>(type: "INTEGER", nullable: false),
+                    RowVersion = table.Column<byte[]>(type: "BLOB", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    UpdatedOn = table.Column<DateTime>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -201,20 +201,20 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "Notifications",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Title = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Message = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Type = table.Column<int>(type: "int", nullable: false),
-                    Source = table.Column<int>(type: "int", nullable: false),
-                    Metadata = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ExpiresIn = table.Column<TimeSpan>(type: "time", nullable: true),
-                    IsExpired = table.Column<bool>(type: "bit", nullable: false),
-                    ExpiredOn = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    CreatorName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    UpdatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
+                    Title = table.Column<string>(type: "TEXT", nullable: true),
+                    Message = table.Column<string>(type: "TEXT", nullable: true),
+                    Type = table.Column<int>(type: "INTEGER", nullable: false),
+                    Source = table.Column<int>(type: "INTEGER", nullable: false),
+                    Metadata = table.Column<string>(type: "TEXT", nullable: true),
+                    ExpiresIn = table.Column<TimeSpan>(type: "TEXT", nullable: true),
+                    IsExpired = table.Column<bool>(type: "INTEGER", nullable: false),
+                    ExpiredOn = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    CreatorName = table.Column<string>(type: "TEXT", nullable: true),
+                    CreatedById = table.Column<Guid>(type: "TEXT", nullable: true),
+                    UpdatedById = table.Column<Guid>(type: "TEXT", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    UpdatedOn = table.Column<DateTime>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -235,17 +235,17 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "Tags",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    NameLowercase = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    Slug = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    UpdatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    SortOrder = table.Column<int>(type: "int", nullable: false),
-                    RowVersion = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
-                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Name = table.Column<string>(type: "TEXT", nullable: true),
+                    NameLowercase = table.Column<string>(type: "TEXT", nullable: true),
+                    Slug = table.Column<string>(type: "TEXT", nullable: true),
+                    CreatedById = table.Column<Guid>(type: "TEXT", nullable: true),
+                    UpdatedById = table.Column<Guid>(type: "TEXT", nullable: true),
+                    SortOrder = table.Column<int>(type: "INTEGER", nullable: false),
+                    RowVersion = table.Column<byte[]>(type: "BLOB", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    UpdatedOn = table.Column<DateTime>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -266,10 +266,10 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "UserClaimMappings",
                 columns: table => new
                 {
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ClaimId = table.Column<int>(type: "int", nullable: false),
-                    CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    UserId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    ClaimId = table.Column<int>(type: "INTEGER", nullable: false),
+                    CreatedById = table.Column<Guid>(type: "TEXT", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -297,10 +297,10 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "UserGroupClaimMappings",
                 columns: table => new
                 {
-                    GroupId = table.Column<int>(type: "int", nullable: false),
-                    ClaimId = table.Column<int>(type: "int", nullable: false),
-                    CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    GroupId = table.Column<int>(type: "INTEGER", nullable: false),
+                    ClaimId = table.Column<int>(type: "INTEGER", nullable: false),
+                    CreatedById = table.Column<Guid>(type: "TEXT", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -328,10 +328,10 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "UserGroupMappings",
                 columns: table => new
                 {
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    GroupId = table.Column<int>(type: "int", nullable: false),
-                    CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    UserId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    GroupId = table.Column<int>(type: "INTEGER", nullable: false),
+                    CreatedById = table.Column<Guid>(type: "TEXT", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -359,10 +359,10 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "UserRoleClaimMappings",
                 columns: table => new
                 {
-                    RoleId = table.Column<int>(type: "int", nullable: false),
-                    ClaimId = table.Column<int>(type: "int", nullable: false),
-                    CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    RoleId = table.Column<int>(type: "INTEGER", nullable: false),
+                    ClaimId = table.Column<int>(type: "INTEGER", nullable: false),
+                    CreatedById = table.Column<Guid>(type: "TEXT", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -390,10 +390,10 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "UserRoleGroupMappings",
                 columns: table => new
                 {
-                    RoleId = table.Column<int>(type: "int", nullable: false),
-                    GroupId = table.Column<int>(type: "int", nullable: false),
-                    CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    RoleId = table.Column<int>(type: "INTEGER", nullable: false),
+                    GroupId = table.Column<int>(type: "INTEGER", nullable: false),
+                    CreatedById = table.Column<Guid>(type: "TEXT", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -421,10 +421,10 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "UserRoleMappings",
                 columns: table => new
                 {
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    RoleId = table.Column<int>(type: "int", nullable: false),
-                    CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    UserId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    RoleId = table.Column<int>(type: "INTEGER", nullable: false),
+                    CreatedById = table.Column<Guid>(type: "TEXT", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -452,27 +452,27 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "Apps",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    DisplayName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    DisplayNameLowercase = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ClientName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ClientNameLowercase = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    Slug = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    ClientId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ClientIdLowercase = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    HashedClientSecret = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    WikiUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Type = table.Column<int>(type: "int", nullable: false),
-                    GroupId = table.Column<int>(type: "int", nullable: true),
-                    CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    UpdatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    SortOrder = table.Column<int>(type: "int", nullable: false),
-                    RowVersion = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
-                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    DisplayName = table.Column<string>(type: "TEXT", nullable: true),
+                    DisplayNameLowercase = table.Column<string>(type: "TEXT", nullable: true),
+                    ClientName = table.Column<string>(type: "TEXT", nullable: true),
+                    ClientNameLowercase = table.Column<string>(type: "TEXT", nullable: true),
+                    Slug = table.Column<string>(type: "TEXT", nullable: true),
+                    ClientId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    ClientIdLowercase = table.Column<string>(type: "TEXT", nullable: true),
+                    HashedClientSecret = table.Column<string>(type: "TEXT", nullable: true),
+                    Description = table.Column<string>(type: "TEXT", nullable: true),
+                    ImageUrl = table.Column<string>(type: "TEXT", nullable: true),
+                    WikiUrl = table.Column<string>(type: "TEXT", nullable: true),
+                    Type = table.Column<int>(type: "INTEGER", nullable: false),
+                    GroupId = table.Column<int>(type: "INTEGER", nullable: true),
+                    CreatedById = table.Column<Guid>(type: "TEXT", nullable: true),
+                    UpdatedById = table.Column<Guid>(type: "TEXT", nullable: true),
+                    SortOrder = table.Column<int>(type: "INTEGER", nullable: false),
+                    RowVersion = table.Column<byte[]>(type: "BLOB", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    UpdatedOn = table.Column<DateTime>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -499,10 +499,10 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "UserGroupNotificationMappings",
                 columns: table => new
                 {
-                    GroupId = table.Column<int>(type: "int", nullable: false),
-                    NotificationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    GroupId = table.Column<int>(type: "INTEGER", nullable: false),
+                    NotificationId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    CreatedById = table.Column<Guid>(type: "TEXT", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -530,17 +530,17 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "UserNotificationMappings",
                 columns: table => new
                 {
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    NotificationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    IsOpened = table.Column<bool>(type: "bit", nullable: false),
-                    OpenedOn = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    IsViewed = table.Column<bool>(type: "bit", nullable: false),
-                    ViewedOn = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    IsDismissed = table.Column<bool>(type: "bit", nullable: false),
-                    DismissedOn = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    UserId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    NotificationId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    CreatedById = table.Column<Guid>(type: "TEXT", nullable: true),
+                    IsOpened = table.Column<bool>(type: "INTEGER", nullable: false),
+                    OpenedOn = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    IsViewed = table.Column<bool>(type: "INTEGER", nullable: false),
+                    ViewedOn = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    IsDismissed = table.Column<bool>(type: "INTEGER", nullable: false),
+                    DismissedOn = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    UpdatedOn = table.Column<DateTime>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -568,14 +568,14 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "AppIdentifierMappings",
                 columns: table => new
                 {
-                    AppId = table.Column<int>(type: "int", nullable: false),
-                    IdentifierId = table.Column<int>(type: "int", nullable: false),
-                    SortOrder = table.Column<int>(type: "int", nullable: false),
-                    CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    UpdatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
-                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    AppId = table.Column<int>(type: "INTEGER", nullable: false),
+                    IdentifierId = table.Column<int>(type: "INTEGER", nullable: false),
+                    SortOrder = table.Column<int>(type: "INTEGER", nullable: false),
+                    CreatedById = table.Column<Guid>(type: "TEXT", nullable: true),
+                    UpdatedById = table.Column<Guid>(type: "TEXT", nullable: true),
+                    RowVersion = table.Column<byte[]>(type: "BLOB", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    UpdatedOn = table.Column<DateTime>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -608,10 +608,10 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "AppTagMappings",
                 columns: table => new
                 {
-                    AppId = table.Column<int>(type: "int", nullable: false),
-                    TagId = table.Column<int>(type: "int", nullable: false),
-                    CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    AppId = table.Column<int>(type: "INTEGER", nullable: false),
+                    TagId = table.Column<int>(type: "INTEGER", nullable: false),
+                    CreatedById = table.Column<Guid>(type: "TEXT", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -639,25 +639,25 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "Configurations",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    StoreInSeparateFile = table.Column<bool>(type: "bit", nullable: false),
-                    IgnoreIndividualStoreInSeparateFile = table.Column<bool>(type: "bit", nullable: false),
-                    IgnoreOnFileChange = table.Column<bool>(type: "bit", nullable: false),
-                    IgnoreIndividualIgnoreOnFileChange = table.Column<bool>(type: "bit", nullable: false),
-                    RegistrationMode = table.Column<int>(type: "int", nullable: false),
-                    IgnoreIndividualRegistrationMode = table.Column<bool>(type: "bit", nullable: false),
-                    Consumer = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Provider = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Controller = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Spa = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    IdentifierId = table.Column<int>(type: "int", nullable: false),
-                    AppId = table.Column<int>(type: "int", nullable: false),
-                    CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    UpdatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
-                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    StoreInSeparateFile = table.Column<bool>(type: "INTEGER", nullable: false),
+                    IgnoreIndividualStoreInSeparateFile = table.Column<bool>(type: "INTEGER", nullable: false),
+                    IgnoreOnFileChange = table.Column<bool>(type: "INTEGER", nullable: false),
+                    IgnoreIndividualIgnoreOnFileChange = table.Column<bool>(type: "INTEGER", nullable: false),
+                    RegistrationMode = table.Column<int>(type: "INTEGER", nullable: false),
+                    IgnoreIndividualRegistrationMode = table.Column<bool>(type: "INTEGER", nullable: false),
+                    Consumer = table.Column<string>(type: "TEXT", nullable: true),
+                    Provider = table.Column<string>(type: "TEXT", nullable: true),
+                    Controller = table.Column<string>(type: "TEXT", nullable: true),
+                    Spa = table.Column<string>(type: "TEXT", nullable: true),
+                    IdentifierId = table.Column<int>(type: "INTEGER", nullable: false),
+                    AppId = table.Column<int>(type: "INTEGER", nullable: false),
+                    CreatedById = table.Column<Guid>(type: "TEXT", nullable: true),
+                    UpdatedById = table.Column<Guid>(type: "TEXT", nullable: true),
+                    RowVersion = table.Column<byte[]>(type: "BLOB", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    UpdatedOn = table.Column<DateTime>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -690,25 +690,25 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "Instances",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    NameLowercase = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    Slug = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    DynamicId = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Urls = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Version = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false),
-                    IpAddress = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    MachineName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Environment = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ReloadStrategies = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ServiceType = table.Column<int>(type: "int", nullable: false),
-                    DataAccessType = table.Column<int>(type: "int", nullable: true),
-                    AppId = table.Column<int>(type: "int", nullable: false),
-                    IdentifierId = table.Column<int>(type: "int", nullable: false),
-                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Name = table.Column<string>(type: "TEXT", nullable: true),
+                    NameLowercase = table.Column<string>(type: "TEXT", nullable: true),
+                    Slug = table.Column<string>(type: "TEXT", nullable: true),
+                    DynamicId = table.Column<string>(type: "TEXT", nullable: true),
+                    Urls = table.Column<string>(type: "TEXT", nullable: true),
+                    Version = table.Column<string>(type: "TEXT", nullable: true),
+                    IsActive = table.Column<bool>(type: "INTEGER", nullable: false),
+                    IpAddress = table.Column<string>(type: "TEXT", nullable: true),
+                    MachineName = table.Column<string>(type: "TEXT", nullable: true),
+                    Environment = table.Column<string>(type: "TEXT", nullable: true),
+                    ReloadStrategies = table.Column<string>(type: "TEXT", nullable: true),
+                    ServiceType = table.Column<int>(type: "INTEGER", nullable: false),
+                    DataAccessType = table.Column<int>(type: "INTEGER", nullable: true),
+                    AppId = table.Column<int>(type: "INTEGER", nullable: false),
+                    IdentifierId = table.Column<int>(type: "INTEGER", nullable: false),
+                    CreatedOn = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    UpdatedOn = table.Column<DateTime>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -731,30 +731,30 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "Settings",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Data = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
-                    ComputedIdentifier = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    SerializerType = table.Column<int>(type: "int", nullable: false),
-                    CompressionType = table.Column<int>(type: "int", nullable: false),
-                    CompressionLevel = table.Column<int>(type: "int", nullable: false),
-                    Version = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    DataRestored = table.Column<bool>(type: "bit", nullable: false),
-                    DataValidationDisabled = table.Column<bool>(type: "bit", nullable: false),
-                    StoreInSeparateFile = table.Column<bool>(type: "bit", nullable: false),
-                    IgnoreOnFileChange = table.Column<bool>(type: "bit", nullable: true),
-                    RegistrationMode = table.Column<int>(type: "int", nullable: false),
-                    IsDraft = table.Column<bool>(type: "bit", nullable: false),
-                    IsCopied = table.Column<bool>(type: "bit", nullable: false),
-                    CopiedOn = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    IdentifierId = table.Column<int>(type: "int", nullable: false),
-                    AppId = table.Column<int>(type: "int", nullable: false),
-                    CopiedFromId = table.Column<int>(type: "int", nullable: true),
-                    CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    UpdatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
-                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Data = table.Column<byte[]>(type: "BLOB", nullable: true),
+                    ComputedIdentifier = table.Column<Guid>(type: "TEXT", nullable: false),
+                    SerializerType = table.Column<int>(type: "INTEGER", nullable: false),
+                    CompressionType = table.Column<int>(type: "INTEGER", nullable: false),
+                    CompressionLevel = table.Column<int>(type: "INTEGER", nullable: false),
+                    Version = table.Column<string>(type: "TEXT", nullable: true),
+                    DataRestored = table.Column<bool>(type: "INTEGER", nullable: false),
+                    DataValidationDisabled = table.Column<bool>(type: "INTEGER", nullable: false),
+                    StoreInSeparateFile = table.Column<bool>(type: "INTEGER", nullable: false),
+                    IgnoreOnFileChange = table.Column<bool>(type: "INTEGER", nullable: true),
+                    RegistrationMode = table.Column<int>(type: "INTEGER", nullable: false),
+                    IsDraft = table.Column<bool>(type: "INTEGER", nullable: false),
+                    IsCopied = table.Column<bool>(type: "INTEGER", nullable: false),
+                    CopiedOn = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    IdentifierId = table.Column<int>(type: "INTEGER", nullable: false),
+                    AppId = table.Column<int>(type: "INTEGER", nullable: false),
+                    CopiedFromId = table.Column<int>(type: "INTEGER", nullable: true),
+                    CreatedById = table.Column<Guid>(type: "TEXT", nullable: true),
+                    UpdatedById = table.Column<Guid>(type: "TEXT", nullable: true),
+                    RowVersion = table.Column<byte[]>(type: "BLOB", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    UpdatedOn = table.Column<DateTime>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -792,19 +792,19 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "SettingClasses",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Identifier = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    FullName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Namespace = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    SettingId = table.Column<int>(type: "int", nullable: false),
-                    CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    UpdatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Properties = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
-                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Identifier = table.Column<Guid>(type: "TEXT", nullable: false),
+                    Name = table.Column<string>(type: "TEXT", nullable: true),
+                    FullName = table.Column<string>(type: "TEXT", nullable: true),
+                    Namespace = table.Column<string>(type: "TEXT", nullable: true),
+                    SettingId = table.Column<int>(type: "INTEGER", nullable: false),
+                    CreatedById = table.Column<Guid>(type: "TEXT", nullable: true),
+                    UpdatedById = table.Column<Guid>(type: "TEXT", nullable: true),
+                    Properties = table.Column<string>(type: "TEXT", nullable: true),
+                    RowVersion = table.Column<byte[]>(type: "BLOB", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    UpdatedOn = table.Column<DateTime>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -831,20 +831,20 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "SettingHistories",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Data = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
-                    SerializerType = table.Column<int>(type: "int", nullable: false),
-                    CompressionType = table.Column<int>(type: "int", nullable: false),
-                    CompressionLevel = table.Column<int>(type: "int", nullable: false),
-                    Version = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    Slug = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    SettingId = table.Column<int>(type: "int", nullable: false),
-                    CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    RestoredById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
-                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Data = table.Column<byte[]>(type: "BLOB", nullable: true),
+                    SerializerType = table.Column<int>(type: "INTEGER", nullable: false),
+                    CompressionType = table.Column<int>(type: "INTEGER", nullable: false),
+                    CompressionLevel = table.Column<int>(type: "INTEGER", nullable: false),
+                    Version = table.Column<string>(type: "TEXT", nullable: true),
+                    Slug = table.Column<string>(type: "TEXT", nullable: true),
+                    SettingId = table.Column<int>(type: "INTEGER", nullable: false),
+                    CreatedById = table.Column<Guid>(type: "TEXT", nullable: true),
+                    RestoredById = table.Column<Guid>(type: "TEXT", nullable: true),
+                    RowVersion = table.Column<byte[]>(type: "BLOB", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    UpdatedOn = table.Column<DateTime>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -876,15 +876,13 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "IX_AppGroups_NameLowercase",
                 table: "AppGroups",
                 column: "NameLowercase",
-                unique: true,
-                filter: "[NameLowercase] IS NOT NULL");
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_AppGroups_Slug",
                 table: "AppGroups",
                 column: "Slug",
-                unique: true,
-                filter: "[Slug] IS NOT NULL");
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_AppGroups_SortOrder",
@@ -941,8 +939,7 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "IX_Apps_Slug",
                 table: "Apps",
                 column: "Slug",
-                unique: true,
-                filter: "[Slug] IS NOT NULL");
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Apps_UpdatedById",
@@ -994,8 +991,7 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "IX_Identifiers_Slug",
                 table: "Identifiers",
                 column: "Slug",
-                unique: true,
-                filter: "[Slug] IS NOT NULL");
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Identifiers_SortOrder",
@@ -1011,8 +1007,7 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "IX_Instances_AppId_IdentifierId_Slug",
                 table: "Instances",
                 columns: new[] { "AppId", "IdentifierId", "Slug" },
-                unique: true,
-                filter: "[Slug] IS NOT NULL");
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Instances_IdentifierId",
@@ -1043,8 +1038,7 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "IX_Licenses_ReferenceIdLowercase",
                 table: "Licenses",
                 column: "ReferenceIdLowercase",
-                unique: true,
-                filter: "[ReferenceIdLowercase] IS NOT NULL");
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Notifications_CreatedById",
@@ -1091,8 +1085,7 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "IX_SettingHistories_Slug_SettingId",
                 table: "SettingHistories",
                 columns: new[] { "Slug", "SettingId" },
-                unique: true,
-                filter: "[Slug] IS NOT NULL");
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_SettingHistories_Version",
@@ -1134,15 +1127,13 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "IX_Tags_NameLowercase",
                 table: "Tags",
                 column: "NameLowercase",
-                unique: true,
-                filter: "[NameLowercase] IS NOT NULL");
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Tags_Slug",
                 table: "Tags",
                 column: "Slug",
-                unique: true,
-                filter: "[Slug] IS NOT NULL");
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Tags_SortOrder",
@@ -1168,8 +1159,7 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "IX_UserClaims_Slug",
                 table: "UserClaims",
                 column: "Slug",
-                unique: true,
-                filter: "[Slug] IS NOT NULL");
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserGroupClaimMappings_ClaimId",
@@ -1205,8 +1195,7 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "IX_UserGroups_Slug",
                 table: "UserGroups",
                 column: "Slug",
-                unique: true,
-                filter: "[Slug] IS NOT NULL");
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserNotificationMappings_CreatedById",
@@ -1252,15 +1241,13 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "IX_UserRoles_Slug",
                 table: "UserRoles",
                 column: "Slug",
-                unique: true,
-                filter: "[Slug] IS NOT NULL");
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_Slug",
                 table: "Users",
                 column: "Slug",
-                unique: true,
-                filter: "[Slug] IS NOT NULL");
+                unique: true);
         }
 
         /// <inheritdoc />
