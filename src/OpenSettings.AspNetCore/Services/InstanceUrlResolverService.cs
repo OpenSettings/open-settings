@@ -41,7 +41,7 @@ namespace OpenSettings.AspNetCore.Services
             {
                 var uri = new Uri(address);
 
-                if (uri.Host is "0.0.0.0" || uri.Host is "localhost"  || uri.Host is "::")
+                if (uri.Host is "0.0.0.0" || uri.Host is "localhost" || uri.Host is "::")
                 {
                     //urls.Add($"{uri.Scheme}://127.0.0.1:{uri.Port}");
                     urls.AddRange(localIps.Select(ip => $"{uri.Scheme}://{ip}:{uri.Port}"));
