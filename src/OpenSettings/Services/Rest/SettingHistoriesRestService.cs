@@ -1,4 +1,4 @@
-﻿using Ogu.Response.Json;
+﻿using Ogu.Response.Abstractions;
 using OpenSettings.Configurations;
 using OpenSettings.Models;
 using OpenSettings.Models.Inputs;
@@ -11,6 +11,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using OpenSettings.Extensions;
 
 namespace OpenSettings.Services.Rest
 {
@@ -36,47 +37,47 @@ namespace OpenSettings.Services.Rest
             _openSettingsMemoryCache = openSettingsMemoryCache;
         }
 
-        public async Task<IJsonResponse> GetSettingHistoryDataAsync(GetSettingHistoryDataInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetSettingHistoryDataAsync(GetSettingHistoryDataInput input, CancellationToken cancellationToken = default)
         {
             var relativeUri = $"v1/setting-histories/{input.HistoryId}/data";
 
             using (var response = await _httpClient.GetAsync(relativeUri, cancellationToken))
             {
-                return await response.Content.ToJsonResponseAsync(cancellationToken: cancellationToken);
+                return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
         }
 
-        public async Task<IJsonResponse> GetSettingHistoryByIdAsync(GetSettingHistoryInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetSettingHistoryByIdAsync(GetSettingHistoryInput input, CancellationToken cancellationToken = default)
         {
             var relativeUri = $"v1/setting-histories/{input.HistoryIdOrSlug}";
 
             using (var response = await _httpClient.GetAsync(relativeUri, cancellationToken))
             {
-                return await response.Content.ToJsonResponseAsync(cancellationToken: cancellationToken);
+                return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
         }
 
-        public async Task<IJsonResponse> GetSettingHistoryBySlugAsync(GetSettingHistoryInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetSettingHistoryBySlugAsync(GetSettingHistoryInput input, CancellationToken cancellationToken = default)
         {
             var relativeUri = $"v1/setting-histories/slug/{input.HistoryIdOrSlug}";
 
             using (var response = await _httpClient.GetAsync(relativeUri, cancellationToken))
             {
-                return await response.Content.ToJsonResponseAsync(cancellationToken: cancellationToken);
+                return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
         }
 
-        public async Task<IJsonResponse> GetSettingHistoriesAsync(GetSettingHistoriesInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetSettingHistoriesAsync(GetSettingHistoriesInput input, CancellationToken cancellationToken = default)
         {
             var relativeUri = $"v1/settings/{input.SettingId}/histories";
 
             using (var response = await _httpClient.GetAsync(relativeUri, cancellationToken))
             {
-                return await response.Content.ToJsonResponseAsync(cancellationToken: cancellationToken);
+                return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
         }
 
-        public async Task<IJsonResponse<RestoreSettingHistoryResponse>> RestoreSettingHistoryAsync(RestoreSettingHistoryInput input, CancellationToken cancellationToken)
+        public async Task<IResponse<RestoreSettingHistoryResponse>> RestoreSettingHistoryAsync(RestoreSettingHistoryInput input, CancellationToken cancellationToken)
         {
             var relativeUri = $"v1/setting-histories/{input.HistoryId}/restore";
 
@@ -90,7 +91,7 @@ namespace OpenSettings.Services.Rest
             {
                 using (var response = await _httpClient.PostAsync(relativeUri, stringContent, cancellationToken))
                 {
-                    var responseContent = await response.Content.ToJsonResponseAsync<RestoreSettingHistoryResponse>(cancellationToken: cancellationToken);
+                    var responseContent = await response.Content.ToResponseAsync<RestoreSettingHistoryResponse>(cancellationToken: cancellationToken);
 
                     if (response.IsSuccessStatusCode && (!_openSettingsConfiguration.Consumer.IsRedisActive || !_providerInfo.Redis.IsActive))
                     {

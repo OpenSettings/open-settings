@@ -1,4 +1,5 @@
-﻿using Ogu.Response.Json;
+﻿using Ogu.Response.Abstractions;
+using OpenSettings.Extensions;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Services.Rest.Interfaces;
 using System.Net.Http;
@@ -18,17 +19,17 @@ namespace OpenSettings.Services.Rest
             _httpClient = httpClient;
         }
 
-        public async Task<IJsonResponse> GetConfigurationByAppIdAndIdentifierIdAsync(GetConfigurationByAppAndIdentifierInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetConfigurationByAppIdAndIdentifierIdAsync(GetConfigurationByAppAndIdentifierInput input, CancellationToken cancellationToken = default)
         {
             var relativeUri = $"v1/apps/{input.AppIdOrSlug}/identifiers/{input.IdentifierIdOrSlug}/configuration";
 
             using (var response = await _httpClient.GetAsync(relativeUri, cancellationToken))
             {
-                return await response.Content.ToJsonResponseAsync(cancellationToken: cancellationToken);
+                return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
         }
 
-        public async Task<IJsonResponse> PatchConfigurationAsync(PatchConfigurationInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> PatchConfigurationAsync(PatchConfigurationInput input, CancellationToken cancellationToken = default)
         {
             var relativeUri = $"v1/apps/{input.AppId}/identifiers/{input.IdentifierId}/configuration";
 
@@ -40,7 +41,7 @@ namespace OpenSettings.Services.Rest
                 using (var response = await _httpClient.PatchAsync(relativeUri, stringContent, cancellationToken))
 #endif
                 {
-                    return await response.Content.ToJsonResponseAsync(cancellationToken: cancellationToken);
+                    return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
                 }
             }
         }

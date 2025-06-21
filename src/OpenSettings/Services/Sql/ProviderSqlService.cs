@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
-using Ogu.Response.Json;
+using Ogu.Response;
+using Ogu.Response.Abstractions;
 using OpenSettings.Configurations;
 using OpenSettings.Domains.Sql.DataContext;
 using OpenSettings.Extensions;
@@ -32,9 +33,9 @@ namespace OpenSettings.Services.Sql
             _memoryCache = memoryCache;
         }
 
-        public async Task<IJsonResponse<ProviderInfo>> GetProviderAsync(CancellationToken cancellationToken = default)
+        public async Task<IResponse<ProviderInfo>> GetProviderAsync(CancellationToken cancellationToken = default)
         {
-            if (GetProviderAsyncCache.TryGetValue<IJsonResponse<ProviderInfo>>(_memoryCache, out var response))
+            if (GetProviderAsyncCache.TryGetValue<IResponse<ProviderInfo>>(_memoryCache, out var response))
             {
                 return response;
             }
@@ -59,11 +60,11 @@ namespace OpenSettings.Services.Sql
                 _openSettingsConfiguration.Provider.CompressionLevel = entity.Provider.CompressionLevel;
             }
 
-            response = HttpStatusCode.OK.ToSuccessJsonResponseOf(_providerInfo);
+            response = HttpStatusCode.OK.ToSuccessResponseOf(_providerInfo);
 
             GetProviderAsyncCache.Set(_memoryCache, response);
 
-            return HttpStatusCode.OK.ToSuccessJsonResponseOf(_providerInfo);
+            return HttpStatusCode.OK.ToSuccessResponseOf(_providerInfo);
         }
     }
 }

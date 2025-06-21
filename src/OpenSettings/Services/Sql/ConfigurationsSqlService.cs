@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Ogu.Response;
 using Ogu.Response.Abstractions;
-using Ogu.Response.Json;
 using OpenSettings.Domains.Sql.DataContext;
 using OpenSettings.Domains.Sql.Entities;
 using OpenSettings.Extensions;
@@ -28,17 +28,17 @@ namespace OpenSettings.Services.Sql
             _context = context;
         }
 
-        public async Task<IJsonResponse> GetConfigurationByAppIdAndIdentifierIdAsync(GetConfigurationByAppAndIdentifierInput input,
+        public async Task<IResponse> GetConfigurationByAppIdAndIdentifierIdAsync(GetConfigurationByAppAndIdentifierInput input,
             CancellationToken cancellationToken = default)
         {
-            var appIdRule = JsonValidationRules.GreaterThanRule(nameof(input.AppIdOrSlug), input.AppIdOrSlug, 0);
-            var identifierIdRule = JsonValidationRules.GreaterThanRule(nameof(input.IdentifierIdOrSlug), input.IdentifierIdOrSlug, 0);
+            var appIdRule = ValidationRules.GreaterThanRule(nameof(input.AppIdOrSlug), input.AppIdOrSlug, 0);
+            var identifierIdRule = ValidationRules.GreaterThanRule(nameof(input.IdentifierIdOrSlug), input.IdentifierIdOrSlug, 0);
 
             var failure = new ValidationRule[] { appIdRule, identifierIdRule }.ValidateFirstOrDefault();
 
             if (failure != null)
             {
-                return failure.ToJsonResponse();
+                return failure.ToResponse();
             }
 
             var appId = appIdRule.GetStoredValue<int>();
@@ -61,20 +61,20 @@ namespace OpenSettings.Services.Sql
                 }).FirstOrDefaultAsync(cancellationToken);
 
             return entity == null 
-                ? HttpStatusCode.NotFound.ToFailureJsonResponse(Errors.ConfigurationNotFound) 
-                : HttpStatusCode.OK.ToSuccessJsonResponse(entity);
+                ? HttpStatusCode.NotFound.ToFailureResponse(Errors.ConfigurationNotFound) 
+                : HttpStatusCode.OK.ToSuccessResponse(entity);
         }
 
-        public async Task<IJsonResponse> PatchConfigurationAsync(PatchConfigurationInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> PatchConfigurationAsync(PatchConfigurationInput input, CancellationToken cancellationToken = default)
         {
-            var appIdRule = JsonValidationRules.GreaterThanRule(nameof(input.AppId), input.AppId, 0);
-            var identifierIdRule = JsonValidationRules.GreaterThanRule(nameof(input.IdentifierId), input.IdentifierId, 0);
+            var appIdRule = ValidationRules.GreaterThanRule(nameof(input.AppId), input.AppId, 0);
+            var identifierIdRule = ValidationRules.GreaterThanRule(nameof(input.IdentifierId), input.IdentifierId, 0);
 
             var failure = new ValidationRule[] { appIdRule, identifierIdRule }.ValidateFirstOrDefault();
 
             if (failure != null)
             {
-                return failure.ToJsonResponse();
+                return failure.ToResponse();
             }
 
             var appId = appIdRule.GetStoredValue<int>();
@@ -93,7 +93,7 @@ namespace OpenSettings.Services.Sql
 
             if (entity == null)
             {
-                return HttpStatusCode.NotFound.ToFailureJsonResponse(Errors.ConfigurationNotFound);
+                return HttpStatusCode.NotFound.ToFailureResponse(Errors.ConfigurationNotFound);
             }
 
             if (!input.Body.RowVersion.SequenceEqual(entity.RowVersion))
@@ -109,8 +109,8 @@ namespace OpenSettings.Services.Sql
             {
                 if (!bool.TryParse(storeInSeparateFileObject?.ToString(), out var storeInSeparateFile))
                 {
-                    return HttpStatusCode.BadRequest.ToFailureJsonResponse(
-                        JsonValidationFailures.InvalidBooleanFormat("StoreInSeparateFile", storeInSeparateFileObject));
+                    return HttpStatusCode.BadRequest.ToFailureResponse(
+                        ValidationFailures.InvalidBooleanFormat("StoreInSeparateFile", storeInSeparateFileObject));
                 }
 
                 entity.StoreInSeparateFile = storeInSeparateFile;
@@ -122,8 +122,8 @@ namespace OpenSettings.Services.Sql
             {
                 if (!bool.TryParse(ignoreOnFileChangeObject?.ToString(), out var ignoreOnFileChange))
                 {
-                    return HttpStatusCode.BadRequest.ToFailureJsonResponse(
-                        JsonValidationFailures.InvalidBooleanFormat("IgnoreOnFileChange", ignoreOnFileChangeObject));
+                    return HttpStatusCode.BadRequest.ToFailureResponse(
+                        ValidationFailures.InvalidBooleanFormat("IgnoreOnFileChange", ignoreOnFileChangeObject));
                 }
 
                 entity.IgnoreOnFileChange = ignoreOnFileChange;
@@ -133,11 +133,11 @@ namespace OpenSettings.Services.Sql
 
             if (input.Body.UpdatedFieldNameToValue.TryGetValue("registrationmode", out var registrationModeObject))
             {
-                var registrationModeEnumRule = JsonValidationRules.ValidEnumRule<RegistrationMode>("RegistrationMode", registrationModeObject);
+                var registrationModeEnumRule = ValidationRules.ValidEnumRule<RegistrationMode>("RegistrationMode", registrationModeObject);
 
                 if (registrationModeEnumRule.IsFailed())
                 {
-                    return registrationModeEnumRule.Failure.ToJsonResponse();
+                    return registrationModeEnumRule.Failure.ToResponse();
                 }
 
                 entity.RegistrationMode = registrationModeEnumRule.GetStoredValue<RegistrationMode>();
@@ -155,7 +155,7 @@ namespace OpenSettings.Services.Sql
                 }
                 catch(Exception ex)
                 {
-                    return ex.ToJsonResponse();
+                    return ex.ToResponse();
                 }
             }
 
@@ -169,7 +169,7 @@ namespace OpenSettings.Services.Sql
                 }
                 catch(Exception ex)
                 {
-                    return ex.ToJsonResponse();
+                    return ex.ToResponse();
                 }
             }
 
@@ -190,7 +190,7 @@ namespace OpenSettings.Services.Sql
                 }
                 catch(Exception ex)
                 {
-                    return ex.ToJsonResponse();
+                    return ex.ToResponse();
                 }
             }
 
@@ -202,7 +202,7 @@ namespace OpenSettings.Services.Sql
 
                     if (entity.Spa.RoutePrefix == null || entity.Spa.RoutePrefix == " ")
                     {
-                        return HttpStatusCode.BadRequest.ToFailureJsonResponse(Errors.InvalidRoutePrefix);
+                        return HttpStatusCode.BadRequest.ToFailureResponse(Errors.InvalidRoutePrefix);
                     }
                     
                     if (entity.Spa.RoutePrefix != string.Empty)
@@ -216,13 +216,13 @@ namespace OpenSettings.Services.Sql
                 }
                 catch (Exception ex)
                 {
-                    return ex.ToJsonResponse();
+                    return ex.ToResponse();
                 }
             }
 
             if (!_context.ChangeTracker.HasChanges())
             {
-                return HttpStatusCode.OK.ToSuccessJsonResponse(new PatchConfigurationResponse
+                return HttpStatusCode.OK.ToSuccessResponse(new PatchConfigurationResponse
                 {
                     RowVersion = entity.RowVersion
                 });
@@ -241,7 +241,7 @@ namespace OpenSettings.Services.Sql
 
             await _context.SaveChangesAsync(cancellationToken);
 
-            return HttpStatusCode.OK.ToSuccessJsonResponse(new PatchConfigurationResponse
+            return HttpStatusCode.OK.ToSuccessResponse(new PatchConfigurationResponse
             {
                 RowVersion = entity.RowVersion,
                 UpdatedFieldNameToValue = updatedFieldNameToValue

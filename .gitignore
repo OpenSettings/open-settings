@@ -361,3 +361,6 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/samples/OpenSettings.Api/OpenSettings.db
+/samples/OpenSettings.Api/OpenSettings.db-shm
+/samples/OpenSettings.Api/OpenSettings.db-wal

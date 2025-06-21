@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Ogu.AspNetCore.Response.Json;
-using Ogu.Response.Json;
+using Ogu.Response;
+using OpenSettings.AspNetCore.Extensions;
 using OpenSettings.AspNetCore.Models.Requests;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Services.Interfaces;
@@ -29,7 +29,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _settingsService.CreateSettingAsync(new CreateSettingInput
@@ -56,7 +56,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _settingsService.GetSettingsLastUpdatedComputedIdentifiersAsync(new GetSettingsLastUpdatedComputedIdentifiersInput
@@ -74,7 +74,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _settingsService.GetSettingByIdAsync(new GetSettingByIdInput(request.SettingId, request.Excludes), cancellationToken);
@@ -87,12 +87,12 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             if (request.Body.ComputedIdentifier == Guid.Empty)
             {
-                return HttpStatusCode.BadRequest.ToFailureJsonResponse(Errors.ComputedIdentifierMustNotEmpty).ToAction();
+                return HttpStatusCode.BadRequest.ToFailureResponse(Errors.ComputedIdentifierMustNotEmpty).ToAction();
             }
 
             var result = await _settingsService.UpdateSettingAsync(new UpdateSettingInput
@@ -119,7 +119,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return HttpStatusCode.BadRequest.ToFailureJsonResponse(ModelState).ToAction();
+                return HttpStatusCode.BadRequest.ToFailureResponse(ModelState).ToAction();
             }
 
             var result = await _settingsService.DeleteSettingAsync(new DeleteSettingInput
@@ -136,7 +136,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _settingHistoriesService.GetSettingHistoriesAsync(new GetSettingHistoriesInput(request.SettingId, request.Excludes), cancellationToken);
@@ -149,7 +149,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _settingsService.CopySettingToAsync(new CopySettingToInput

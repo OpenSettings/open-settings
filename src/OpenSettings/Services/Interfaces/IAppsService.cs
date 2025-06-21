@@ -1,4 +1,4 @@
-﻿using Ogu.Response.Json;
+﻿using Ogu.Response.Abstractions;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Models.Responses;
 using System.Threading;
@@ -8,32 +8,32 @@ namespace OpenSettings.Services.Interfaces
 {
     public interface IAppsService
     {
-        Task<IJsonResponse> GetGroupedAppsAsync(GetGroupedAppsInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> GetGroupedAppsAsync(GetGroupedAppsInput input, CancellationToken cancellationToken = default);
 
-        Task<IJsonResponse<GetAppResponse>> GetAppByIdAsync(GetAppInput input, CancellationToken cancellationToken = default);
+        Task<IResponse<GetAppResponse>> GetAppByIdAsync(GetAppInput input, CancellationToken cancellationToken = default);
 
-        Task<IJsonResponse<GetAppResponse>> GetAppBySlugAsync(GetAppInput input, CancellationToken cancellationToken = default);
+        Task<IResponse<GetAppResponse>> GetAppBySlugAsync(GetAppInput input, CancellationToken cancellationToken = default);
 
-        Task<IJsonResponse> UpdateAppAsync(UpdateAppInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> UpdateAppAsync(UpdateAppInput input, CancellationToken cancellationToken = default);
 
-        Task<IJsonResponse<GetRegisteredAppResponse>> GetRegisteredAppAsync(GetRegisteredAppInput input, CancellationToken cancellationToken = default);
+        Task<IResponse<GetRegisteredAppResponse>> GetRegisteredAppAsync(GetRegisteredAppInput input, CancellationToken cancellationToken = default);
 
-        Task<IJsonResponse<FetchAppDataResponse>> FetchAppDataAsync(FetchAppDataInput input, CancellationToken cancellationToken = default);
+        Task<IResponse<FetchAppDataResponse>> FetchAppDataAsync(FetchAppDataInput input, CancellationToken cancellationToken = default);
 
-        Task<IJsonResponse<SyncAppDataResponse>> SyncAppDataAsync(SyncAppDataInput input, CancellationToken cancellationToken = default);
+        Task<IResponse<SyncAppDataResponse>> SyncAppDataAsync(SyncAppDataInput input, CancellationToken cancellationToken = default);
 
-        Task<IJsonResponse> GetAppsAsync(GetAppsInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> GetAppsAsync(GetAppsInput input, CancellationToken cancellationToken = default);
 
-        Task<IJsonResponse> CreateAppAsync(CreateAppInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> CreateAppAsync(CreateAppInput input, CancellationToken cancellationToken = default);
 
-        Task<IJsonResponse> GetGroupedAppDataByAppIdAsync(GetGroupedAppDataByAppInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> GetGroupedAppDataByAppIdAsync(GetGroupedAppDataByAppInput input, CancellationToken cancellationToken = default);
 
-        Task<IJsonResponse> GetGroupedAppDataByAppSlugAsync(GetGroupedAppDataByAppInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> GetGroupedAppDataByAppSlugAsync(GetGroupedAppDataByAppInput input, CancellationToken cancellationToken = default);
 
-        Task<IJsonResponse> GetGroupedAppDataByAppIdAndIdentifierIdAsync(GetGroupedAppDataByAppAndIdentifierInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> GetGroupedAppDataByAppIdAndIdentifierIdAsync(GetGroupedAppDataByAppAndIdentifierInput input, CancellationToken cancellationToken = default);
 
-        Task<IJsonResponse> GetGroupedAppDataByAppSlugAndIdentifierSlugAsync(GetGroupedAppDataByAppAndIdentifierInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> GetGroupedAppDataByAppSlugAndIdentifierSlugAsync(GetGroupedAppDataByAppAndIdentifierInput input, CancellationToken cancellationToken = default);
 
-        Task<IJsonResponse> DeleteAppAsync(DeleteAppInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> DeleteAppAsync(DeleteAppInput input, CancellationToken cancellationToken = default);
     }
 }

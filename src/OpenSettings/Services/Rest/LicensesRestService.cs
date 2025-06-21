@@ -1,4 +1,5 @@
-﻿using Ogu.Response.Json;
+﻿using Ogu.Response.Abstractions;
+using OpenSettings.Models;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Services.Rest.Interfaces;
 using System;
@@ -7,7 +8,8 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using OpenSettings.Models;
+using Ogu.Response;
+using OpenSettings.Extensions;
 
 namespace OpenSettings.Services.Rest
 {
@@ -20,7 +22,7 @@ namespace OpenSettings.Services.Rest
             _httpClient = httpClient;
         }
 
-        public async Task<IJsonResponse> GetPaginatedLicensesAsync(GetPaginatedLicensesInput input, CancellationToken cancellationToken)
+        public async Task<IResponse> GetPaginatedLicensesAsync(GetPaginatedLicensesInput input, CancellationToken cancellationToken)
         {
             const string relativeUri = "v1/licenses/paginated";
 
@@ -47,21 +49,21 @@ namespace OpenSettings.Services.Rest
 
             using (var response = await _httpClient.GetAsync(queryBuilder.ToString(relativeUri), cancellationToken))
             {
-                return await response.Content.ToJsonResponseAsync(cancellationToken: cancellationToken);
+                return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
         }
 
-        public async Task<IJsonResponse<License>> GetCurrentLicenseAsync(CancellationToken cancellationToken)
+        public async Task<IResponse<License>> GetCurrentLicenseAsync(CancellationToken cancellationToken)
         {
             const string relativeUri = "v1/licenses/current";
 
             using (var response = await _httpClient.GetAsync(relativeUri, cancellationToken))
             {
-                return await response.Content.ToJsonResponseAsync<License>(cancellationToken: cancellationToken);
+                return await response.Content.ToResponseAsync<License>(cancellationToken: cancellationToken);
             }
         }
 
-        public async Task<IJsonResponse> SaveLicenseAsync(string licenseKey, CancellationToken cancellationToken)
+        public async Task<IResponse> SaveLicenseAsync(string licenseKey, CancellationToken cancellationToken)
         {
             const string relativeUri = "v1/licenses";
 
@@ -69,23 +71,23 @@ namespace OpenSettings.Services.Rest
             {
                 using (var response = await _httpClient.PostAsync(relativeUri, stringContent, cancellationToken))
                 {
-                    return await response.Content.ToJsonResponseAsync(cancellationToken: cancellationToken);
+                    return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
                 }
             }
         }
 
-        public async Task<IJsonResponse> DeleteLicenseAsync(DeleteLicenseInput input, CancellationToken cancellationToken)
+        public async Task<IResponse> DeleteLicenseAsync(DeleteLicenseInput input, CancellationToken cancellationToken)
         {
             if (string.IsNullOrWhiteSpace(input.ReferenceId))
             {
-                return HttpStatusCode.BadRequest.ToFailureJsonResponse(Errors.ReferenceIdMustNotEmpty);
+                return HttpStatusCode.BadRequest.ToFailureResponse(Errors.ReferenceIdMustNotEmpty);
             }
 
             var relativeUri = $"v1/licenses/{Uri.EscapeDataString(input.ReferenceId)}";
 
             using (var response = await _httpClient.DeleteAsync(relativeUri, cancellationToken))
             {
-                return await response.Content.ToJsonResponseAsync(cancellationToken: cancellationToken);
+                return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
         }
     }

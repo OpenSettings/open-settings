@@ -1,4 +1,4 @@
-﻿using Ogu.Response.Json;
+﻿using Ogu.Response.Abstractions;
 using OpenSettings.Extensions;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Services.Rest.Interfaces;
@@ -19,7 +19,7 @@ namespace OpenSettings.Services.Rest
             _httpClient = httpClient;
         }
 
-        public async Task<IJsonResponse> CreateInstanceAsync(CreateInstanceInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> CreateInstanceAsync(CreateInstanceInput input, CancellationToken cancellationToken = default)
         {
             var relativeUri = $"v1/apps/{input.ClientId}/instances";
 
@@ -44,12 +44,12 @@ namespace OpenSettings.Services.Rest
             {
                 using (var response = await _httpClient.PostAsync(relativeUri, stringContent, cancellationToken))
                 {
-                    return await response.Content.ToJsonResponseAsync(cancellationToken: cancellationToken);
+                    return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
                 }
             }
         }
 
-        public async Task<IJsonResponse> UpdateInstanceAsync(UpdateInstanceInput input, CancellationToken cancellationToken)
+        public async Task<IResponse> UpdateInstanceAsync(UpdateInstanceInput input, CancellationToken cancellationToken)
         {
             var relativeUri = $"v1/apps/{input.ClientId}/instances";
 
@@ -67,22 +67,22 @@ namespace OpenSettings.Services.Rest
             {
                 using (var response = await _httpClient.PutAsync(relativeUri, stringContent, cancellationToken))
                 {
-                    return await response.Content.ToJsonResponseAsync(cancellationToken: cancellationToken);
+                    return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
                 }
             }
         }
 
-        public async Task<IJsonResponse> DeleteInstanceAsync(DeleteInstanceInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> DeleteInstanceAsync(DeleteInstanceInput input, CancellationToken cancellationToken = default)
         {
             var relativeUri = $"v1/instances/{input.InstanceId}";
 
             using (var response = await _httpClient.DeleteAsync(relativeUri, cancellationToken))
             {
-                return await response.Content.ToJsonResponseAsync(cancellationToken: cancellationToken);
+                return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
         }
 
-        public async Task<IJsonResponse> GetInstancesByAppIdAsync(GetInstancesInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetInstancesByAppIdAsync(GetInstancesInput input, CancellationToken cancellationToken = default)
         {
             var relativeUri = $"v1/apps/{input.AppIdOrSlug}/instances";
 
@@ -95,11 +95,11 @@ namespace OpenSettings.Services.Rest
 
             using (var response = await _httpClient.GetAsync(queryBuilder.ToString(relativeUri), cancellationToken))
             {
-                return await response.Content.ToJsonResponseAsync(cancellationToken: cancellationToken);
+                return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
         }
 
-        public async Task<IJsonResponse> GetInstancesByAppSlugAsync(GetInstancesInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetInstancesByAppSlugAsync(GetInstancesInput input, CancellationToken cancellationToken = default)
         {
             var relativeUri = $"v1/apps/slug/{input.AppIdOrSlug}/instances";
 
@@ -112,27 +112,27 @@ namespace OpenSettings.Services.Rest
 
             using (var response = await _httpClient.GetAsync(queryBuilder.ToString(relativeUri), cancellationToken))
             {
-                return await response.Content.ToJsonResponseAsync(cancellationToken: cancellationToken);
+                return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
         }
 
-        public async Task<IJsonResponse> GetInstancesByAppIdAndIdentifierIdAsync(GetInstancesInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetInstancesByAppIdAndIdentifierIdAsync(GetInstancesInput input, CancellationToken cancellationToken = default)
         {
             var relativeUri = $"v1/apps/{input.AppIdOrSlug}/identifiers/{input.IdentifierIdOrSlug}/instances";
 
             using (var response = await _httpClient.GetAsync(relativeUri, cancellationToken))
             {
-                return await response.Content.ToJsonResponseAsync(cancellationToken: cancellationToken);
+                return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
         }
 
-        public async Task<IJsonResponse> GetInstancesByAppSlugAndIdentifierSlugAsync(GetInstancesInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetInstancesByAppSlugAndIdentifierSlugAsync(GetInstancesInput input, CancellationToken cancellationToken = default)
         {
             var relativeUri = $"v1/apps/slug/{input.AppIdOrSlug}/identifiers/{input.IdentifierIdOrSlug}/instances";
 
             using (var response = await _httpClient.GetAsync(relativeUri, cancellationToken))
             {
-                return await response.Content.ToJsonResponseAsync(cancellationToken: cancellationToken);
+                return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
         }
     }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Ogu.AspNetCore.Response.Json;
+using Ogu.Response;
+using OpenSettings.AspNetCore.Extensions;
 using OpenSettings.AspNetCore.Models.Requests;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Services.Interfaces;
@@ -32,7 +33,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _appsService.GetAppsAsync(new GetAppsInput
@@ -48,7 +49,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _appsService.CreateAppAsync(new CreateAppInput
@@ -89,7 +90,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _appsService.GetGroupedAppsAsync(new GetGroupedAppsInput
@@ -106,7 +107,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _appsService.FetchAppDataAsync(new FetchAppDataInput
@@ -131,7 +132,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             if (request.Body.Instance != null)
@@ -162,7 +163,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _appsService.GetAppByIdAsync(new GetAppInput
@@ -178,7 +179,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _appsService.GetAppBySlugAsync(new GetAppInput
@@ -194,7 +195,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var response = await _appsService.UpdateAppAsync(new UpdateAppInput
@@ -229,7 +230,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _appsService.DeleteAppAsync(new DeleteAppInput
@@ -247,7 +248,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _appsService.GetGroupedAppDataByAppIdAsync(new GetGroupedAppDataByAppInput { AppIdOrSlug = request.AppIdOrSlug }, cancellationToken);
@@ -260,7 +261,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _appsService.GetGroupedAppDataByAppSlugAsync(new GetGroupedAppDataByAppInput { AppIdOrSlug = request.AppIdOrSlug }, cancellationToken);
@@ -273,7 +274,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _instancesService.GetInstancesByAppIdAsync(new GetInstancesInput
@@ -290,7 +291,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _instancesService.GetInstancesByAppSlugAsync(new GetInstancesInput
@@ -307,7 +308,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _instancesService.CreateInstanceAsync(new CreateInstanceInput
@@ -337,7 +338,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _instancesService.UpdateInstanceAsync(new UpdateInstanceInput
@@ -360,7 +361,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _appsService.GetRegisteredAppAsync(new GetRegisteredAppInput
@@ -382,7 +383,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _appIdentifierMappingsService.GetAppIdentifierMappingsByAppIdAsync(
@@ -396,7 +397,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _appIdentifierMappingsService.GetAppIdentifierMappingsByAppSlugAsync(new GetAppIdentifierMappingsInput
@@ -412,7 +413,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
             
             var result = await _appIdentifierMappingsService.CreateAppIdentifierMappingAsync(new CreateAppIdentifierMappingInput
@@ -437,7 +438,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _appIdentifierMappingsService.GetAppIdentifierMappingByAppIdAndIdentifierIdAsync(new GetAppIdentifierMappingByAppAndIdentifierInput
@@ -454,7 +455,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _appIdentifierMappingsService.GetAppIdentifierMappingByAppSlugAndIdentifierSlugAsync(new GetAppIdentifierMappingByAppAndIdentifierInput
@@ -471,7 +472,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _configurationsService.GetConfigurationByAppIdAndIdentifierIdAsync(new GetConfigurationByAppAndIdentifierInput
@@ -488,7 +489,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _configurationsService.PatchConfigurationAsync(new PatchConfigurationInput
@@ -507,7 +508,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _appIdentifierMappingsService.DeleteAppIdentifierMappingAsync(
@@ -526,7 +527,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _instancesService.GetInstancesByAppIdAndIdentifierIdAsync(new GetInstancesInput
@@ -543,7 +544,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _instancesService.GetInstancesByAppSlugAndIdentifierSlugAsync(new GetInstancesInput
@@ -560,7 +561,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _settingsService.GetSettingsByAppIdAndIdentifierIdAsync(
@@ -578,7 +579,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _settingsService.GetSettingsByAppSlugAndIdentifierSlugAsync(
@@ -597,7 +598,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _appIdentifierMappingsService.UpdateAppIdentifierMappingSortOrderAsync(new UpdateAppIdentifierMappingSortOrderInput
@@ -616,7 +617,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _appsService.GetGroupedAppDataByAppIdAndIdentifierIdAsync(new GetGroupedAppDataByAppAndIdentifierInput { AppIdOrSlug = request.AppIdOrSlug, IdentifierIdOrSlug = request.IdentifierIdOrSlug }, cancellationToken);
@@ -629,7 +630,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _appsService.GetGroupedAppDataByAppSlugAndIdentifierSlugAsync(new GetGroupedAppDataByAppAndIdentifierInput { AppIdOrSlug = request.AppIdOrSlug, IdentifierIdOrSlug = request.IdentifierIdOrSlug }, cancellationToken);
@@ -643,7 +644,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (!ModelState.IsValid)
             {
-                return ModelState.ToJsonAction();
+                return ModelState.ToAction();
             }
 
             var result = await _settingsService.GetSettingsDataAsync(new GetSettingsDataInput

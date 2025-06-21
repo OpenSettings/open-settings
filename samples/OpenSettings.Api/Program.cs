@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using OpenSettings.AspNetCore;
+using OpenSettings.AspNetCore.Extensions;
 using OpenSettings.Configurations;
 using OpenSettings.Extensions;
 using OpenSettings.Models;
@@ -17,11 +17,10 @@ var migrationsAssembly = typeof(Program).Assembly.GetName().Name;
 
 openSettingsProviderConfiguration.Provider.Orm.ConfigureDbContext = optsBuilder =>
 {
-    // Configure your database provider here. (e.g. UseSqlServer, UseNpgsql, UseInMemoryDatabase)
+    // Configure your database provider here. (e.g. UseSqlServer, UseSqlite, UseNpgsql, UseInMemoryDatabase)
     //optsBuilder.UseInMemoryDatabase("OpenSettings");
-    optsBuilder.UseSqlServer(
-        "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=OpenSettings;Integrated Security=True;MultipleActiveResultSets=True",
-        opts => opts.MigrationsAssembly(migrationsAssembly));
+    //optsBuilder.UseSqlite("Data Source=OpenSettings.db", opts => opts.MigrationsAssembly(migrationsAssembly));
+    optsBuilder.UseSqlServer("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=OpenSettings;Integrated Security=True;MultipleActiveResultSets=True", opts => opts.MigrationsAssembly(migrationsAssembly));
 };
 
 await builder.Host.UseOpenSettingsAsync(openSettingsProviderConfiguration);

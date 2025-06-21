@@ -2,7 +2,8 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
-using Ogu.Response.Json;
+using Ogu.Response;
+using Ogu.Response.Abstractions;
 using OpenSettings.Configurations;
 using OpenSettings.Domains.Sql.DataContext;
 using OpenSettings.Domains.Sql.Entities;
@@ -43,7 +44,7 @@ namespace OpenSettings.Services.Sql
             _logger = openSettingsConfiguration.LoggerFactory.CreateLogger<LicensesSqlService>();
         }
 
-        public async Task<IJsonResponse> GetPaginatedLicensesAsync(GetPaginatedLicensesInput input, CancellationToken cancellationToken)
+        public async Task<IResponse> GetPaginatedLicensesAsync(GetPaginatedLicensesInput input, CancellationToken cancellationToken)
         {
             var query = _context.Licenses.AsNoTracking();
 
@@ -62,10 +63,10 @@ namespace OpenSettings.Services.Sql
                 .Select(c => new GetPaginatedLicensesResponseLicense(c))
                 .ToPaginatedArrayAsync(input.PaginatedInput.PageIndex, input.PaginatedInput.PageSize, cancellationToken);
 
-            return HttpStatusCode.OK.ToSuccessJsonResponse(new GetPaginatedLicensesResponse(input.PaginatedInput, itemCount, entities));
+            return HttpStatusCode.OK.ToSuccessResponse(new GetPaginatedLicensesResponse(input.PaginatedInput, itemCount, entities));
         }
 
-        public async Task<IJsonResponse> SaveLicenseAsync(string licenseKey, CancellationToken cancellationToken)
+        public async Task<IResponse> SaveLicenseAsync(string licenseKey, CancellationToken cancellationToken)
         {
             var response = await SaveLicenseAsync(licenseKey, "input", cancellationToken);
 
@@ -93,13 +94,13 @@ namespace OpenSettings.Services.Sql
             return response;
         }
 
-        public async Task<IJsonResponse> DeleteLicenseAsync(DeleteLicenseInput input, CancellationToken cancellationToken)
+        public async Task<IResponse> DeleteLicenseAsync(DeleteLicenseInput input, CancellationToken cancellationToken)
         {
-            var referenceIdRule = JsonValidationRules.NotEmptyRule(nameof(input.ReferenceId), input.ReferenceId);
+            var referenceIdRule = ValidationRules.NotEmptyRule(nameof(input.ReferenceId), input.ReferenceId);
 
             if (referenceIdRule.IsFailed())
             {
-                return referenceIdRule.Failure.ToJsonResponse();
+                return referenceIdRule.Failure.ToResponse();
             }
 
             var referenceIdLowercase = input.ReferenceId.ToLowerInvariant();
@@ -110,7 +111,7 @@ namespace OpenSettings.Services.Sql
 
             if (entity == null)
             {
-                return HttpStatusCode.NotFound.ToFailureJsonResponse(Errors.LicenseNotFound);
+                return HttpStatusCode.NotFound.ToFailureResponse(Errors.LicenseNotFound);
             }
 
             _context.Licenses.Remove(new LicenseSqlModel { Id = entity.Id });
@@ -119,21 +120,21 @@ namespace OpenSettings.Services.Sql
 
             if (input.ReferenceId != LicenseProvider.Instance.CurrentLicense.ReferenceId)
             {
-                return HttpStatusCode.OK.ToSuccessJsonResponse();
+                return HttpStatusCode.OK.ToSuccessResponse();
             }
 
             LicenseProvider.Instance.CurrentLicense = await InitializeAsync(CancellationToken.None) ?? License.Community;
 
             MemoryCacheKeys.OpenSettingsSpaMiddlewareHtml.Delete(_openSettingsMemoryCache);
 
-            return HttpStatusCode.OK.ToSuccessJsonResponse();
+            return HttpStatusCode.OK.ToSuccessResponse();
         }
 
-        public async Task<IJsonResponse<License>> GetCurrentLicenseAsync(CancellationToken cancellationToken)
+        public async Task<IResponse<License>> GetCurrentLicenseAsync(CancellationToken cancellationToken)
         {
             var license = LicenseProvider.Instance.CurrentLicense ?? (LicenseProvider.Instance.CurrentLicense = await InitializeAsync(cancellationToken));
 
-            return HttpStatusCode.OK.ToSuccessJsonResponseOf(license);
+            return HttpStatusCode.OK.ToSuccessResponseOf(license);
         }
 
         /// <summary>
@@ -143,16 +144,16 @@ namespace OpenSettings.Services.Sql
         /// <param name="licenseKeyObtainedFrom">The source from which the license key was obtained.</param>
         /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
         /// <returns>
-        /// A task that represents the asynchronous operation. If successful, it returns an <see cref="IJsonResponse"/> with the license data.
+        /// A task that represents the asynchronous operation. If successful, it returns an <see cref="IResponse"/> with the license data.
         /// See data type: <see cref="OpenSettings.Models.License"/>.
         /// </returns>
-        private async Task<IJsonResponse> SaveLicenseAsync(string licenseKey, string licenseKeyObtainedFrom, CancellationToken cancellationToken)
+        private async Task<IResponse> SaveLicenseAsync(string licenseKey, string licenseKeyObtainedFrom, CancellationToken cancellationToken)
         {
-            var licenseKeyRule = JsonValidationRules.NotEmptyRule("LicenseKey", licenseKey);
+            var licenseKeyRule = ValidationRules.NotEmptyRule("LicenseKey", licenseKey);
 
             if (licenseKeyRule.IsFailed())
             {
-                return licenseKeyRule.Failure.ToJsonResponse();
+                return licenseKeyRule.Failure.ToResponse();
             }
 
             var trimmedLicenseKey = licenseKey.Trim();
@@ -163,21 +164,21 @@ namespace OpenSettings.Services.Sql
             {
                 _logger.LogError("Provided LicenseKey from {licenseKeyObtainedFrom} is invalid.", licenseKeyObtainedFrom);
 
-                return HttpStatusCode.BadRequest.ToFailureJsonResponse(Errors.InvalidLicenseKey);
+                return HttpStatusCode.BadRequest.ToFailureResponse(Errors.InvalidLicenseKey);
             }
 
             if (license.IsExpired)
             {
                 _logger.LogError("Provided LicenseKey from {licenseKeyObtainedFrom} is expired.", licenseKeyObtainedFrom);
 
-                return HttpStatusCode.BadRequest.ToFailureJsonResponse(Errors.LicenseExpired);
+                return HttpStatusCode.BadRequest.ToFailureResponse(Errors.LicenseExpired);
             }
 
             if (license.Edition == null)
             {
                 _logger.LogError("Provided LicenseKey from {licenseKeyObtainedFrom} could not be recognized by this version.", licenseKeyObtainedFrom);
 
-                return HttpStatusCode.BadRequest.ToFailureJsonResponse(Errors.UnrecognizedLicenseEdition);
+                return HttpStatusCode.BadRequest.ToFailureResponse(Errors.UnrecognizedLicenseEdition);
             }
 
             var currentTime = DateTime.UtcNow;
@@ -212,19 +213,19 @@ namespace OpenSettings.Services.Sql
 
                 await _context.SaveChangesAsync(cancellationToken);
 
-                return HttpStatusCode.OK.ToSuccessJsonResponse(license);
+                return HttpStatusCode.OK.ToSuccessResponse(license);
             }
 
             if (!licenseSqlModel.IsExpired)
             {
-                return HttpStatusCode.Conflict.ToFailureJsonResponse(Errors.LicenseAlreadyExists);
+                return HttpStatusCode.Conflict.ToFailureResponse(Errors.LicenseAlreadyExists);
             }
 
             if (licenseSqlModel.IsRevoked)
             {
                 _logger.LogError("Provided LicenseKey from {licenseKeyObtainedFrom} is revoked.", licenseKeyObtainedFrom);
 
-                return HttpStatusCode.BadRequest.ToFailureJsonResponse(Errors.LicenseRevoked);
+                return HttpStatusCode.BadRequest.ToFailureResponse(Errors.LicenseRevoked);
             }
 
             var entry = _context.Attach(licenseSqlModel);
@@ -239,7 +240,7 @@ namespace OpenSettings.Services.Sql
 
             await _context.SaveChangesAsync(cancellationToken);
 
-            return HttpStatusCode.OK.ToSuccessJsonResponse(license);
+            return HttpStatusCode.OK.ToSuccessResponse(license);
         }
 
         private async Task<License> ValidateLicenseKeyAsync(string licenseKey)
@@ -340,7 +341,7 @@ namespace OpenSettings.Services.Sql
 
                     license = license == null
                         ? combination.License
-                        : (int)combination.License.Edition > (int)license.Edition
+                        : (int)combination.License.Edition.GetValueOrDefault() > (int)license.Edition.GetValueOrDefault()
                             ? combination.License
                             : combination.License.Edition == license.Edition &&
                               (combination.License.ExpiryDate == null || combination.License.ExpiryDate > license.ExpiryDate)

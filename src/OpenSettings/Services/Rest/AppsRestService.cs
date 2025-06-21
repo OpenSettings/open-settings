@@ -1,5 +1,6 @@
-﻿using Ogu.Response.Json;
+﻿using Ogu.Response.Abstractions;
 using OpenSettings.Configurations;
+using OpenSettings.Extensions;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Models.Responses;
 using OpenSettings.Services.Rest.Interfaces;
@@ -26,7 +27,7 @@ namespace OpenSettings.Services.Rest
             _clientId = openSettingsConfiguration.Client.Id;
         }
 
-        public async Task<IJsonResponse<SyncAppDataResponse>> SyncAppDataAsync(SyncAppDataInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse<SyncAppDataResponse>> SyncAppDataAsync(SyncAppDataInput input, CancellationToken cancellationToken = default)
         {
             var relativeUri = $"v1/apps/{input.Client.Id}/identifiers/{Uri.EscapeDataString(input.IdentifierName)}/sync-data";
 
@@ -128,7 +129,7 @@ namespace OpenSettings.Services.Rest
                 {
                     if (response.IsSuccessStatusCode)
                     {
-                        return await response.Content.ToJsonResponseAsync<SyncAppDataResponse>(cancellationToken: cancellationToken);
+                        return await response.Content.ToResponseAsync<SyncAppDataResponse>(cancellationToken: cancellationToken);
                     }
 
                     switch (response.StatusCode)
@@ -153,17 +154,17 @@ namespace OpenSettings.Services.Rest
             }
         }
 
-        public async Task<IJsonResponse> GetGroupedAppsAsync(GetGroupedAppsInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetGroupedAppsAsync(GetGroupedAppsInput input, CancellationToken cancellationToken = default)
         {
             var relativeUri = $"v1/apps/grouped?searchTerm={_clientId}";
 
             using (var response = await _httpClient.GetAsync(relativeUri, cancellationToken))
             {
-                return await response.Content.ToJsonResponseAsync(cancellationToken: cancellationToken);
+                return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
         }
 
-        public async Task<IJsonResponse<FetchAppDataResponse>> FetchAppDataAsync(FetchAppDataInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse<FetchAppDataResponse>> FetchAppDataAsync(FetchAppDataInput input, CancellationToken cancellationToken = default)
         {
             var relativeUri = $"v1/apps/{input.ClientId}/identifiers/{Uri.EscapeDataString(input.IdentifierName)}/fetch-data";
 
@@ -177,32 +178,32 @@ namespace OpenSettings.Services.Rest
             {
                 using (var response = await _httpClient.PostAsync(relativeUri, stringContent, cancellationToken))
                 {
-                    return await response.Content.ToJsonResponseAsync<FetchAppDataResponse>(cancellationToken: cancellationToken);
+                    return await response.Content.ToResponseAsync<FetchAppDataResponse>(cancellationToken: cancellationToken);
                 }
             }
         }
 
-        public async Task<IJsonResponse<GetAppResponse>> GetAppByIdAsync(GetAppInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse<GetAppResponse>> GetAppByIdAsync(GetAppInput input, CancellationToken cancellationToken = default)
         {
             var relativeUri = $"v1/apps/{input.AppIdOrSlug}";
 
             using (var response = await _httpClient.GetAsync(relativeUri, cancellationToken))
             {
-                return await response.Content.ToJsonResponseAsync<GetAppResponse>(cancellationToken: cancellationToken);
+                return await response.Content.ToResponseAsync<GetAppResponse>(cancellationToken: cancellationToken);
             }
         }
 
-        public async Task<IJsonResponse<GetAppResponse>> GetAppBySlugAsync(GetAppInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse<GetAppResponse>> GetAppBySlugAsync(GetAppInput input, CancellationToken cancellationToken = default)
         {
             var relativeUri = $"v1/apps/slug/{input.AppIdOrSlug}";
 
             using (var response = await _httpClient.GetAsync(relativeUri, cancellationToken))
             {
-                return await response.Content.ToJsonResponseAsync<GetAppResponse>(cancellationToken: cancellationToken);
+                return await response.Content.ToResponseAsync<GetAppResponse>(cancellationToken: cancellationToken);
             }
         }
 
-        public async Task<IJsonResponse> GetAppsAsync(GetAppsInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetAppsAsync(GetAppsInput input, CancellationToken cancellationToken = default)
         {
             throw new NotSupportedException(nameof(GetAppsAsync));
 
@@ -217,11 +218,11 @@ namespace OpenSettings.Services.Rest
 
             using (var response = await _httpClient.GetAsync(queryBuilder.ToString(relativeUri), cancellationToken))
             {
-                return await response.Content.ToJsonResponseAsync(cancellationToken: cancellationToken);
+                return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
         }
 
-        public async Task<IJsonResponse> UpdateAppAsync(UpdateAppInput input, CancellationToken cancellationToken)
+        public async Task<IResponse> UpdateAppAsync(UpdateAppInput input, CancellationToken cancellationToken)
         {
             var pathAndQueryBuilder = $"v1/apps/{input.AppId}";
 
@@ -252,12 +253,12 @@ namespace OpenSettings.Services.Rest
             {
                 using (var response = await _httpClient.PutAsync(pathAndQueryBuilder, stringContent, cancellationToken))
                 {
-                    return await response.Content.ToJsonResponseAsync(cancellationToken: cancellationToken);
+                    return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
                 }
             }
         }
 
-        public async Task<IJsonResponse<GetRegisteredAppResponse>> GetRegisteredAppAsync(GetRegisteredAppInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse<GetRegisteredAppResponse>> GetRegisteredAppAsync(GetRegisteredAppInput input, CancellationToken cancellationToken = default)
         {
             var relativeUri = $"v1/apps/{input.ClientId}/registered";
 
@@ -265,12 +266,12 @@ namespace OpenSettings.Services.Rest
             {
                 using (var response = await _httpClient.PostAsync(relativeUri, stringContent, cancellationToken))
                 {
-                    return await response.Content.ToJsonResponseAsync<GetRegisteredAppResponse>(cancellationToken: cancellationToken);
+                    return await response.Content.ToResponseAsync<GetRegisteredAppResponse>(cancellationToken: cancellationToken);
                 }
             }
         }
 
-        public async Task<IJsonResponse> CreateAppAsync(CreateAppInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> CreateAppAsync(CreateAppInput input, CancellationToken cancellationToken = default)
         {
             throw new NotSupportedException();
 
@@ -307,58 +308,58 @@ namespace OpenSettings.Services.Rest
             {
                 using (var response = await _httpClient.PostAsync(relativeUri, stringContent, cancellationToken))
                 {
-                    return await response.Content.ToJsonResponseAsync(cancellationToken: cancellationToken);
+                    return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
                 }
             }
         }
 
-        public async Task<IJsonResponse> GetGroupedAppDataByAppIdAsync(GetGroupedAppDataByAppInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetGroupedAppDataByAppIdAsync(GetGroupedAppDataByAppInput input, CancellationToken cancellationToken = default)
         {
             var relativeUri = $"v1/apps/{input.AppIdOrSlug}/grouped";
 
             using (var response = await _httpClient.GetAsync(relativeUri, cancellationToken))
             {
-                return await response.Content.ToJsonResponseAsync(cancellationToken: cancellationToken);
+                return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
         }
 
-        public async Task<IJsonResponse> GetGroupedAppDataByAppSlugAsync(GetGroupedAppDataByAppInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetGroupedAppDataByAppSlugAsync(GetGroupedAppDataByAppInput input, CancellationToken cancellationToken = default)
         {
             var relativeUri = $"v1/apps/slug/{input.AppIdOrSlug}/grouped";
 
             using (var response = await _httpClient.GetAsync(relativeUri, cancellationToken))
             {
-                return await response.Content.ToJsonResponseAsync(cancellationToken: cancellationToken);
+                return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
         }
 
-        public async Task<IJsonResponse> GetGroupedAppDataByAppIdAndIdentifierIdAsync(GetGroupedAppDataByAppAndIdentifierInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetGroupedAppDataByAppIdAndIdentifierIdAsync(GetGroupedAppDataByAppAndIdentifierInput input, CancellationToken cancellationToken = default)
         {
             var relativeUri = $"v1/apps/{input.AppIdOrSlug}/identifiers/{input.IdentifierIdOrSlug}/grouped";
 
             using (var response = await _httpClient.GetAsync(relativeUri, cancellationToken))
             {
-                return await response.Content.ToJsonResponseAsync(cancellationToken: cancellationToken);
+                return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
         }
 
-        public async Task<IJsonResponse> GetGroupedAppDataByAppSlugAndIdentifierSlugAsync(GetGroupedAppDataByAppAndIdentifierInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetGroupedAppDataByAppSlugAndIdentifierSlugAsync(GetGroupedAppDataByAppAndIdentifierInput input, CancellationToken cancellationToken = default)
         {
             var relativeUri = $"v1/apps/slug/{input.AppIdOrSlug}/identifiers/{input.IdentifierIdOrSlug}/grouped";
 
             using (var response = await _httpClient.GetAsync(relativeUri, cancellationToken))
             {
-                return await response.Content.ToJsonResponseAsync(cancellationToken: cancellationToken);
+                return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
         }
 
-        public async Task<IJsonResponse> DeleteAppAsync(DeleteAppInput input, CancellationToken cancellationToken)
+        public async Task<IResponse> DeleteAppAsync(DeleteAppInput input, CancellationToken cancellationToken)
         {
             var relativeUri = $"v1/apps/{input.AppId}?rowVersion={Uri.EscapeDataString(Convert.ToBase64String(input.RowVersion))}";
 
             using (var response = await _httpClient.DeleteAsync(relativeUri, cancellationToken))
             {
-                return await response.Content.ToJsonResponseAsync(cancellationToken: cancellationToken);
+                return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
         }
     }

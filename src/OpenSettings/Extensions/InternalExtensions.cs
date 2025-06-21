@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Ogu.Compressions.Abstractions;
-using Ogu.Response.Json;
+using Ogu.Response;
+using Ogu.Response.Abstractions;
 using OpenSettings.Models;
 using StackExchange.Redis;
 using System;
@@ -85,22 +86,22 @@ namespace OpenSettings.Extensions
             return BitConverter.GetBytes(dateTime.Ticks);
         }
 
-        public static async Task<IJsonResponse<TData>> ToJsonResponseAsync<TData>(this DbUpdateConcurrencyException exception, CancellationToken cancellationToken = default)
+        public static async Task<IResponse<TData>> ToResponseAsync<TData>(this DbUpdateConcurrencyException exception, CancellationToken cancellationToken = default)
         {
             var concurrencyConflict = await GetConcurrencyConflictAsync(exception, cancellationToken);
 
-            var jsonResponse = HttpStatusCode.Conflict.ToFailureJsonResponse<TData>("Concurrency Conflict", "The data has been modified or row version didn't match.");
+            var jsonResponse = HttpStatusCode.Conflict.ToFailureResponse<TData>("Concurrency Conflict", "The data has been modified or row version didn't match.");
 
             jsonResponse.Extras["Conflicts"] = concurrencyConflict;
 
             return jsonResponse;
         }
 
-        public static async Task<IJsonResponse> ToJsonResponseAsync(this DbUpdateConcurrencyException exception, CancellationToken cancellationToken = default)
+        public static async Task<IResponse> ToResponseAsync(this DbUpdateConcurrencyException exception, CancellationToken cancellationToken = default)
         {
             var concurrencyConflict = await GetConcurrencyConflictAsync(exception, cancellationToken);
 
-            var jsonResponse = HttpStatusCode.Conflict.ToFailureJsonResponse("Concurrency Conflict", "The data has been modified or row version didn't match.");
+            var jsonResponse = HttpStatusCode.Conflict.ToFailureResponse("Concurrency Conflict", "The data has been modified or row version didn't match.");
 
             jsonResponse.Extras["Conflicts"] = concurrencyConflict;
 
@@ -154,6 +155,32 @@ namespace OpenSettings.Extensions
             }
 
             return concurrencyConflict;
+        }
+
+        public static ValidationRule ValidJsonRule(string propertyName, string attemptedValue, bool storeParsedValue)
+        {
+            return new ValidationRule(() => ValidationFailures.InvalidJsonFormat(propertyName, attemptedValue), delegate (IValidationStore v)
+            {
+                try
+                {
+                    var value = JsonDocument.Parse(attemptedValue);
+
+                    if (storeParsedValue)
+                    {
+                        v.Store(value);
+                    }
+                    else
+                    {
+                        value.Dispose();
+                    }
+
+                    return true;
+                }
+                catch (JsonException)
+                {
+                    return false;
+                }
+            });
         }
     }
 }

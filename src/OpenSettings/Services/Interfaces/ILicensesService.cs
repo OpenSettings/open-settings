@@ -1,4 +1,4 @@
-﻿using Ogu.Response.Json;
+﻿using Ogu.Response.Abstractions;
 using OpenSettings.Models;
 using OpenSettings.Models.Inputs;
 using System.Threading;
@@ -18,17 +18,17 @@ namespace OpenSettings.Services.Interfaces
         /// <param name="input">The input parameters for pagination and filtering.</param>
         /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
         /// <returns>
-        /// A task that represents the asynchronous operation. The task result contains an <see cref="IJsonResponse"/> 
+        /// A task that represents the asynchronous operation. The task result contains an <see cref="IResponse"/> 
         /// with the paginated list of licenses. See data type: <see cref="OpenSettings.Models.Responses.GetPaginatedLicensesResponse"/>.
         /// </returns>
-        Task<IJsonResponse> GetPaginatedLicensesAsync(GetPaginatedLicensesInput input, CancellationToken cancellationToken);
+        Task<IResponse> GetPaginatedLicensesAsync(GetPaginatedLicensesInput input, CancellationToken cancellationToken);
 
         /// <summary>
         /// Retrieves the current active license. This method never returns a failure.
         /// </summary>
         /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
-        /// <returns>A task that represents the asynchronous operation. The task result contains an <see cref="IJsonResponse"/> with the license data. See data type: <see cref="OpenSettings.Models.License"/>.</returns>
-        Task<IJsonResponse<License>> GetCurrentLicenseAsync(CancellationToken cancellationToken);
+        /// <returns>A task that represents the asynchronous operation. The task result contains an <see cref="IResponse"/> with the license data. See data type: <see cref="OpenSettings.Models.License"/>.</returns>
+        Task<IResponse<License>> GetCurrentLicenseAsync(CancellationToken cancellationToken);
 
         /// <summary>
         /// Saves the provided license key.
@@ -36,10 +36,10 @@ namespace OpenSettings.Services.Interfaces
         /// <param name="licenseKey">The license key to be saved.</param>
         /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
         /// <returns>
-        /// A task that represents the asynchronous operation. The task result contains an <see cref="IJsonResponse"/> 
+        /// A task that represents the asynchronous operation. The task result contains an <see cref="IResponse"/> 
         /// with the license data. See data type: <see cref="OpenSettings.Models.License"/>.
         /// </returns>
-        Task<IJsonResponse> SaveLicenseAsync(string licenseKey, CancellationToken cancellationToken);
+        Task<IResponse> SaveLicenseAsync(string licenseKey, CancellationToken cancellationToken);
 
         /// <summary>
         /// Deletes a license based on the provided input parameters.
@@ -47,9 +47,9 @@ namespace OpenSettings.Services.Interfaces
         /// <param name="input">The input parameters required to delete the license.</param>
         /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
         /// <returns>
-        /// A task that represents the asynchronous operation. The task result contains an <see cref="IJsonResponse"/> 
+        /// A task that represents the asynchronous operation. The task result contains an <see cref="IResponse"/> 
         /// indicating the success or failure of the operation.
         /// </returns>
-        Task<IJsonResponse> DeleteLicenseAsync(DeleteLicenseInput input, CancellationToken cancellationToken);
+        Task<IResponse> DeleteLicenseAsync(DeleteLicenseInput input, CancellationToken cancellationToken);
     }
 }

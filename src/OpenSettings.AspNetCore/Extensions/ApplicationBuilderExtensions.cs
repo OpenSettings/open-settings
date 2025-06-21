@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using OpenSettings.AspNetCore.Services.Interfaces;
 using OpenSettings.AspNetCore.Spa;
 using OpenSettings.Configurations;
 using OpenSettings.Models.Inputs;
@@ -13,7 +13,7 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace OpenSettings.AspNetCore
+namespace OpenSettings.AspNetCore.Extensions
 {
     /// <summary>
     /// Provides extension methods for configuring OpenSettings within an ASP.NET Core application pipeline.
@@ -24,7 +24,7 @@ namespace OpenSettings.AspNetCore
         /// <summary>
         /// Updates instance status when the application is starting or stopping.  
         /// <para>This includes updating the instance's activity status, urls, and other relevant data.</para>
-        /// <para>Throws an exception if <see cref="Extensions.HostBuilderExtensions.UseOpenSettingsAsync(IHostBuilder, OpenSettingsConfiguration, Func{Microsoft.Extensions.Configuration.IConfiguration, Task},System.Type[])" /> and <see cref="Extensions.ServiceCollectionExtensions.AddOpenSettings"/> have not been configured yet.</para>
+        /// <para>Throws an exception if <see cref="OpenSettings.Extensions.HostBuilderExtensions.UseOpenSettingsAsync(IHostBuilder, OpenSettingsConfiguration, Func{Microsoft.Extensions.Configuration.IConfiguration, Task},System.Type[])" /> and <see cref="OpenSettings.Extensions.ServiceCollectionExtensions.AddOpenSettings"/> have not been configured yet.</para>
         /// </summary>
         /// <param name="app">The <see cref="IApplicationBuilder"/> instance used to configure the application's request pipeline.</param>
         /// <returns>The modified <see cref="IApplicationBuilder"/> instance.</returns>
@@ -41,6 +41,8 @@ namespace OpenSettings.AspNetCore
 
             var scope = app.ApplicationServices.CreateScope();
 
+            var instanceUrlResolverService = scope.ServiceProvider.GetRequiredService<IInstanceUrlResolverService>();
+
             var instancesService = scope.ServiceProvider.GetRequiredService<IInstancesService>();
 
             var updateInstanceRequest = new UpdateInstanceInput
@@ -51,17 +53,16 @@ namespace OpenSettings.AspNetCore
                 IdentifierName = openSettingsConfiguration.IdentifierName
             };
 
-            string[] urls = null; 
+            string[] urls = null;
 
             hostApplicationLifetime.ApplicationStarted.Register(() =>
             {
-                var serverAddressesFeature = app.ServerFeatures.Get<IServerAddressesFeature>();
-                urls = serverAddressesFeature?.Addresses?.ToArray() ?? Array.Empty<string>();
+                urls = instanceUrlResolverService.ResolveUrls();
 
                 updateInstanceRequest.IsActive = true;
                 updateInstanceRequest.Urls = urls;
 
-                _ = instancesService.UpdateInstanceAsync(updateInstanceRequest, CancellationToken.None).ContinueWith( 
+                _ = instancesService.UpdateInstanceAsync(updateInstanceRequest, CancellationToken.None).ContinueWith(
                     (c) =>
                     {
                         if (c.IsFaulted)

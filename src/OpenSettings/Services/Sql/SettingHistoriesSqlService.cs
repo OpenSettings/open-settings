@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Ogu.Compressions.Abstractions;
-using Ogu.Response.Json;
+using Ogu.Response;
+using Ogu.Response.Abstractions;
 using OpenSettings.Domains.Sql.DataContext;
 using OpenSettings.Domains.Sql.Entities;
 using OpenSettings.Extensions;
@@ -33,13 +34,13 @@ namespace OpenSettings.Services.Sql
             _context = context;
         }
 
-        public async Task<IJsonResponse> GetSettingHistoryDataAsync(GetSettingHistoryDataInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetSettingHistoryDataAsync(GetSettingHistoryDataInput input, CancellationToken cancellationToken = default)
         {
-            var historyIdRule = JsonValidationRules.GreaterThanRule(nameof(input.HistoryId), input.HistoryId, 0);
+            var historyIdRule = ValidationRules.GreaterThanRule(nameof(input.HistoryId), input.HistoryId, 0);
 
             if (historyIdRule.IsFailed())
             {
-                return HttpStatusCode.BadRequest.ToFailureJsonResponse(historyIdRule.Failure);
+                return HttpStatusCode.BadRequest.ToFailureResponse(historyIdRule.Failure);
             }
 
             var historyId = historyIdRule.GetStoredValue<int>();
@@ -56,21 +57,21 @@ namespace OpenSettings.Services.Sql
                 }).FirstOrDefaultAsync(cancellationToken);
 
             return entity == null
-                ? HttpStatusCode.NotFound.ToFailureJsonResponse(Errors.HistoryNotFound)
-                : HttpStatusCode.OK.ToSuccessJsonResponse(new GetSettingHistoryDataResponse
+                ? HttpStatusCode.NotFound.ToFailureResponse(Errors.HistoryNotFound)
+                : HttpStatusCode.OK.ToSuccessResponse(new GetSettingHistoryDataResponse
                 {
                     Data = await _compressionProvider.DecompressToUtf8StringAsync(entity.Data, entity.CompressionType, cancellationToken),
                     RowVersion = entity.RowVersion
                 });
         }
 
-        public async Task<IJsonResponse> GetSettingHistoryByIdAsync(GetSettingHistoryInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetSettingHistoryByIdAsync(GetSettingHistoryInput input, CancellationToken cancellationToken = default)
         {
-            var historyIdRule = JsonValidationRules.GreaterThanRule("HistoryId", input.HistoryIdOrSlug, 0);
+            var historyIdRule = ValidationRules.GreaterThanRule("HistoryId", input.HistoryIdOrSlug, 0);
 
             if (historyIdRule.IsFailed())
             {
-                return HttpStatusCode.BadRequest.ToFailureJsonResponse(historyIdRule.Failure);
+                return HttpStatusCode.BadRequest.ToFailureResponse(historyIdRule.Failure);
             }
 
             var historyId = historyIdRule.GetStoredValue<int>();
@@ -78,20 +79,20 @@ namespace OpenSettings.Services.Sql
             return await GetSettingHistoryByIdOrSlugAsync(s => s.Id == historyId, cancellationToken);
         }
 
-        public Task<IJsonResponse> GetSettingHistoryBySlugAsync(GetSettingHistoryInput input, CancellationToken cancellationToken = default)
+        public Task<IResponse> GetSettingHistoryBySlugAsync(GetSettingHistoryInput input, CancellationToken cancellationToken = default)
         {
             input.HistoryIdOrSlug = input.HistoryIdOrSlug?.ToSlug();
 
             return GetSettingHistoryByIdOrSlugAsync(s => s.Slug == input.HistoryIdOrSlug, cancellationToken);
         }
 
-        public async Task<IJsonResponse> GetSettingHistoriesAsync(GetSettingHistoriesInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetSettingHistoriesAsync(GetSettingHistoriesInput input, CancellationToken cancellationToken = default)
         {
-            var settingIdRule = JsonValidationRules.GreaterThanRule(nameof(input.SettingId), input.SettingId, 0);
+            var settingIdRule = ValidationRules.GreaterThanRule(nameof(input.SettingId), input.SettingId, 0);
 
             if (settingIdRule.IsFailed())
             {
-                return HttpStatusCode.BadRequest.ToFailureJsonResponse(settingIdRule.Failure);
+                return HttpStatusCode.BadRequest.ToFailureResponse(settingIdRule.Failure);
             }
 
             var settingId = settingIdRule.GetStoredValue<int>();
@@ -137,16 +138,16 @@ namespace OpenSettings.Services.Sql
                 UpdatedOn = e.UpdatedOn
             }));
 
-            return HttpStatusCode.OK.ToSuccessJsonResponse(settingHistoriesResponse);
+            return HttpStatusCode.OK.ToSuccessResponse(settingHistoriesResponse);
         }
 
-        public async Task<IJsonResponse<RestoreSettingHistoryResponse>> RestoreSettingHistoryAsync(RestoreSettingHistoryInput input, CancellationToken cancellationToken)
+        public async Task<IResponse<RestoreSettingHistoryResponse>> RestoreSettingHistoryAsync(RestoreSettingHistoryInput input, CancellationToken cancellationToken)
         {
-            var historyIdRule = JsonValidationRules.GreaterThanRule(nameof(input.HistoryId), input.HistoryId, 0);
+            var historyIdRule = ValidationRules.GreaterThanRule(nameof(input.HistoryId), input.HistoryId, 0);
 
             if (historyIdRule.IsFailed())
             {
-                return historyIdRule.Failure.ToJsonResponse<RestoreSettingHistoryResponse>();
+                return historyIdRule.Failure.ToResponse<RestoreSettingHistoryResponse>();
             }
 
             var historyId = historyIdRule.GetStoredValue<int>();
@@ -186,12 +187,12 @@ namespace OpenSettings.Services.Sql
 
             if (entity == null)
             {
-                return HttpStatusCode.NotFound.ToFailureJsonResponse<RestoreSettingHistoryResponse, Errors>(Errors.HistoryNotFound);
+                return HttpStatusCode.NotFound.ToFailureResponse<RestoreSettingHistoryResponse, Errors>(Errors.HistoryNotFound);
             }
 
             if (entity.Version == entity.Setting.Version)
             {
-                return HttpStatusCode.BadRequest.ToFailureJsonResponse<RestoreSettingHistoryResponse, Errors>(Errors.HistoryAlreadyRestored);
+                return HttpStatusCode.BadRequest.ToFailureResponse<RestoreSettingHistoryResponse, Errors>(Errors.HistoryAlreadyRestored);
             }
 
             if (!input.HistoryRowVersion.SequenceEqual(entity.RowVersion))
@@ -258,7 +259,7 @@ namespace OpenSettings.Services.Sql
 
                 await _dataChangeService.NotifyChangeAsync(clientId, identifierName, computedIdentifier, CancellationToken.None);
 
-                return HttpStatusCode.OK.ToSuccessJsonResponseOf(new RestoreSettingHistoryResponse
+                return HttpStatusCode.OK.ToSuccessResponseOf(new RestoreSettingHistoryResponse
                 {
                     ClientId = clientId,
                     Setting = new RestoreSettingHistoryResponseSetting
@@ -274,19 +275,19 @@ namespace OpenSettings.Services.Sql
             }
             catch (DbUpdateConcurrencyException ex)
             {
-                return await ex.ToJsonResponseAsync<RestoreSettingHistoryResponse>(cancellationToken);
+                return await ex.ToResponseAsync<RestoreSettingHistoryResponse>(cancellationToken);
             }
             catch (DbUpdateException ex)
             {
-                return HttpStatusCode.InternalServerError.ToFailureJsonResponse<RestoreSettingHistoryResponse>("Exception", ex.HResult == -2146233088 ? "User not found in db. Re-login might be needed to resolve this issue." : "Db update exception occurred.");
+                return HttpStatusCode.InternalServerError.ToFailureResponse<RestoreSettingHistoryResponse>("Exception", ex.HResult == -2146233088 ? "User not found in db. Re-login might be needed to resolve this issue." : "Db update exception occurred.");
             }
             catch (Exception ex)
             {
-                return HttpStatusCode.InternalServerError.ToFailureJsonResponse<RestoreSettingHistoryResponse>(ex);
+                return HttpStatusCode.InternalServerError.ToFailureResponse<RestoreSettingHistoryResponse>(ex);
             }
         }
 
-        private async Task<IJsonResponse> GetSettingHistoryByIdOrSlugAsync(Expression<Func<SettingHistorySqlModel, bool>> predicate, CancellationToken cancellationToken = default)
+        private async Task<IResponse> GetSettingHistoryByIdOrSlugAsync(Expression<Func<SettingHistorySqlModel, bool>> predicate, CancellationToken cancellationToken = default)
         {
             var entity = await _context.SettingHistories
                 .AsNoTracking()
@@ -308,8 +309,8 @@ namespace OpenSettings.Services.Sql
                 }).FirstOrDefaultAsync(cancellationToken);
 
             return entity == null
-                ? HttpStatusCode.NotFound.ToFailureJsonResponse(Errors.HistoryNotFound)
-                : HttpStatusCode.OK.ToSuccessJsonResponse(new GetSettingHistoryResponse
+                ? HttpStatusCode.NotFound.ToFailureResponse(Errors.HistoryNotFound)
+                : HttpStatusCode.OK.ToSuccessResponse(new GetSettingHistoryResponse
                 {
                     Data = await _compressionProvider.DecompressToUtf8StringAsync(entity.Data, entity.CompressionType, cancellationToken),
                     Version = entity.Version,

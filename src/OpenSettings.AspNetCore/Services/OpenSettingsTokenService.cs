@@ -3,7 +3,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.IdentityModel.Tokens;
+using OpenSettings.AspNetCore.Extensions;
 using OpenSettings.AspNetCore.Models.Responses;
+using OpenSettings.AspNetCore.Services.Interfaces;
 using OpenSettings.Configurations;
 using OpenSettings.Models;
 using OpenSettings.Services.MemoryCache;
@@ -15,7 +17,7 @@ using System.Net.Http.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace OpenSettings.AspNetCore
+namespace OpenSettings.AspNetCore.Services
 {
     internal sealed class OpenSettingsTokenService : IOpenSettingsTokenService
     {

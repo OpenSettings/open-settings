@@ -63,7 +63,6 @@ namespace OpenSettings
         internal const string Dot = ".";
         internal const char DotChar = '.';
         internal const char HyphenChar = '-';
-        internal const char PercentageChar = '%';
 
         internal const string GeneratedSettingsFileNameWithoutExtension = "settings-generated";
         internal const string GeneratedSettingsFileNameWithExtension = "settings-generated.json";

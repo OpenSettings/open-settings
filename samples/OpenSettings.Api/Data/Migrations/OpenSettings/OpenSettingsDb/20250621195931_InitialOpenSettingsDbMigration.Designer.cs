@@ -12,7 +12,7 @@ using OpenSettings.Domains.Sql.DataContext;
 namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 {
     [DbContext(typeof(OpenSettingsDbContext))]
-    [Migration("20250502111431_InitialOpenSettingsDbMigration")]
+    [Migration("20250621195931_InitialOpenSettingsDbMigration")]
     partial class InitialOpenSettingsDbMigration
     {
         /// <inheritdoc />

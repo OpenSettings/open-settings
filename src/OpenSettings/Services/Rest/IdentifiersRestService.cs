@@ -1,4 +1,4 @@
-﻿using Ogu.Response.Json;
+﻿using Ogu.Response.Abstractions;
 using OpenSettings.Models;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Models.Responses;
@@ -9,6 +9,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using OpenSettings.Extensions;
 
 namespace OpenSettings.Services.Rest
 {
@@ -21,7 +22,7 @@ namespace OpenSettings.Services.Rest
             _httpClient = httpClient;
         }
 
-        public async Task<IJsonResponse> GetPaginatedIdentifiersAsync(GetPaginatedInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetPaginatedIdentifiersAsync(GetPaginatedInput input, CancellationToken cancellationToken = default)
         {
             throw new NotSupportedException(nameof(GetPaginatedIdentifiersAsync));
 
@@ -50,11 +51,11 @@ namespace OpenSettings.Services.Rest
 
             using (var response = await _httpClient.GetAsync(queryBuilder.ToString(relativeUri), cancellationToken))
             {
-                return await response.Content.ToJsonResponseAsync(cancellationToken: cancellationToken);
+                return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
         }
 
-        public async Task<IJsonResponse> DeleteUnmappedIdentifiersAsync(CancellationToken cancellationToken = default)
+        public async Task<IResponse> DeleteUnmappedIdentifiersAsync(CancellationToken cancellationToken = default)
         {
             throw new NotSupportedException(nameof(DeleteUnmappedIdentifiersAsync));
 
@@ -62,10 +63,10 @@ namespace OpenSettings.Services.Rest
 
             using (var response = await _httpClient.DeleteAsync(relativeUri, cancellationToken))
             {
-                return await response.Content.ToJsonResponseAsync(cancellationToken: cancellationToken);
+                return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
         }
-        public async Task<IJsonResponse> GetIdentifiersAsync(GetIdentifiersInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetIdentifiersAsync(GetIdentifiersInput input, CancellationToken cancellationToken = default)
         {
             const string relativeUri = "v1/identifiers";
 
@@ -85,11 +86,11 @@ namespace OpenSettings.Services.Rest
 
             using (var response = await _httpClient.GetAsync(queryBuilder.ToString(relativeUri), cancellationToken))
             {
-                return await response.Content.ToJsonResponseAsync(cancellationToken: cancellationToken);
+                return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
         }
 
-        public async Task<IJsonResponse> CreateIdentifierAsync(CreateIdentifierInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> CreateIdentifierAsync(CreateIdentifierInput input, CancellationToken cancellationToken = default)
         {
             throw new NotSupportedException(nameof(CreateIdentifierAsync));
 
@@ -106,32 +107,32 @@ namespace OpenSettings.Services.Rest
             {
                 using (var response = await _httpClient.PostAsync(relativeUri, stringContent, cancellationToken))
                 {
-                    return await response.Content.ToJsonResponseAsync(cancellationToken: cancellationToken);
+                    return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
                 }
             }
         }
 
-        public async Task<IJsonResponse> GetIdentifierByIdAsync(GetIdentifierInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetIdentifierByIdAsync(GetIdentifierInput input, CancellationToken cancellationToken = default)
         {
             var relativeUri = $"v1/identifiers/{input.IdentifierIdOrSlug}";
 
             using (var response = await _httpClient.GetAsync(relativeUri, cancellationToken))
             {
-                return await response.Content.ToJsonResponseAsync(cancellationToken: cancellationToken);
+                return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
         }
 
-        public async Task<IJsonResponse> GetIdentifierBySlugAsync(GetIdentifierInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetIdentifierBySlugAsync(GetIdentifierInput input, CancellationToken cancellationToken = default)
         {
             var relativeUri = $"v1/identifiers/slug/{input.IdentifierIdOrSlug}";
 
             using (var response = await _httpClient.GetAsync(relativeUri, cancellationToken))
             {
-                return await response.Content.ToJsonResponseAsync(cancellationToken: cancellationToken);
+                return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
         }
 
-        public async Task<IJsonResponse> UpdateIdentifierAsync(UpdateIdentifierInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> UpdateIdentifierAsync(UpdateIdentifierInput input, CancellationToken cancellationToken = default)
         {
             throw new NotSupportedException(nameof(UpdateIdentifierAsync));
 
@@ -149,12 +150,12 @@ namespace OpenSettings.Services.Rest
             {
                 using (var response = await _httpClient.PutAsync(relativeUri, stringContent, cancellationToken))
                 {
-                    return await response.Content.ToJsonResponseAsync(cancellationToken: cancellationToken);
+                    return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
                 }
             }
         }
 
-        public async Task<IJsonResponse> DeleteIdentifierAsync(DeleteIdentifierInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> DeleteIdentifierAsync(DeleteIdentifierInput input, CancellationToken cancellationToken = default)
         {
             throw new NotSupportedException(nameof(DeleteIdentifierAsync));
 
@@ -162,11 +163,11 @@ namespace OpenSettings.Services.Rest
 
             using (var response = await _httpClient.DeleteAsync(relativeUri, cancellationToken))
             {
-                return await response.Content.ToJsonResponseAsync(cancellationToken: cancellationToken);
+                return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
         }
 
-        public async Task<IJsonResponse> UpdateIdentifierSortOrderAsync(UpdateIdentifierSortOrderInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> UpdateIdentifierSortOrderAsync(UpdateIdentifierSortOrderInput input, CancellationToken cancellationToken = default)
         {
             throw new NotSupportedException(nameof(UpdateIdentifierSortOrderAsync));
 
@@ -174,11 +175,11 @@ namespace OpenSettings.Services.Rest
 
             using (var response = await _httpClient.PostAsync(relativeUri, null, cancellationToken))
             {
-                return await response.Content.ToJsonResponseAsync(cancellationToken: cancellationToken);
+                return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
         }
 
-        public async Task<IJsonResponse> DragIdentifierAsync(DragItemSortOrderInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> DragIdentifierAsync(DragItemSortOrderInput input, CancellationToken cancellationToken = default)
         {
             throw new NotSupportedException(nameof(DragIdentifierAsync));
 
@@ -186,22 +187,22 @@ namespace OpenSettings.Services.Rest
 
             using (var response = await _httpClient.PostAsync(relativeUri, null, cancellationToken))
             {
-                return await response.Content.ToJsonResponseAsync(cancellationToken: cancellationToken);
+                return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
         }
 
-        public Task<IJsonResponse<GetOrCreateResponse>> GetOrCreateAsync(string name, SetSortOrderPosition setSortOrderPosition, Guid? createdById, CancellationToken cancellationToken = default)
+        public Task<IResponse<GetOrCreateResponse>> GetOrCreateAsync(string name, SetSortOrderPosition setSortOrderPosition, Guid? createdById, CancellationToken cancellationToken = default)
         {
             throw new NotSupportedException(nameof(GetOrCreateAsync));
         }
 
-        public async Task<IJsonResponse> ReorderAsync()
+        public async Task<IResponse> ReorderAsync()
         {
             const string relativeUri = "v1/identifiers/reorder";
 
             using (var response = await _httpClient.PostAsync(relativeUri, null))
             {
-                return await response.Content.ToJsonResponseAsync();
+                return await response.Content.ToResponseAsync();
             }
         }
     }

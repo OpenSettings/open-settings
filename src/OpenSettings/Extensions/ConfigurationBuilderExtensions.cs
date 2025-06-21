@@ -39,7 +39,7 @@ namespace OpenSettings.Extensions
         /// If the setting doesn't exist, it returns the default value for the type. The type <typeparamref name="T"/> must implement <see cref="ISettings"/>.
         /// </para>
         /// <para>
-        /// The non-generic <see cref="GetSettingOrDefault"/> method retrieves a setting by the provided <paramref name="type"/>.
+        /// The non-generic <see cref="GetSettingOrDefault"/> method retrieves a setting by the provided <c>type</c>.
         /// If no setting is found, it returns <c>null</c> or the default value of the specified type.
         /// </para>
         /// </summary>
@@ -231,7 +231,6 @@ namespace OpenSettings.Extensions
 
                 var appsService = new AppsRestService(httpClient, openSettingsConfiguration);
                 var settingsService = new SettingsRestService(dataChangeService: null, httpClient, openSettingsConfiguration, providerInfo: null);
-
                 var localSettingsService = new LocalSettingsService(openSettingsConfiguration, appsService, settingsService);
 
                 await func(localSettingsService);
@@ -249,13 +248,20 @@ namespace OpenSettings.Extensions
                 var appGroupsSqlService = new AppGroupsSqlService(context, sortOrderSqlService);
                 var tagsSqlService = new TagsSqlService(context, sortOrderSqlService);
                 var identifiersSqlService = new IdentifiersSqlService(context, sortOrderSqlService);
-
                 var passwordHasher = new PasswordHasher<AppSqlModel>();
+
                 var appsService = new AppsSqlService(
                     openSettingsConfiguration.LoggerFactory.CreateLogger<AppsSqlService>(), identifiersSqlService,
                     appGroupsSqlService, tagsSqlService, compressionProvider, passwordHasher, context,
                     openSettingsConfiguration, null);
-                var settingsService = new SettingsSqlService(dataChangeService: null, identifiersSqlService, compressionProvider, context, new DataValidationService(), openSettingsConfiguration);
+
+                var settingsService = new SettingsSqlService(
+                    dataChangeService: null, 
+                    identifiersSqlService, 
+                    compressionProvider, 
+                    context, 
+                    new DataValidationService(openSettingsConfiguration.LoggerFactory.CreateLogger<DataValidationService>()), 
+                    openSettingsConfiguration);
 
                 var localSettingsService = new LocalSettingsService(openSettingsConfiguration, appsService, settingsService);
 

@@ -1,4 +1,5 @@
-﻿using Ogu.Response.Json;
+﻿using Ogu.Response.Abstractions;
+using OpenSettings.Extensions;
 using OpenSettings.Models;
 using OpenSettings.Services.Rest.Interfaces;
 using System.Net.Http;
@@ -16,13 +17,13 @@ namespace OpenSettings.Services.Rest
             _httpClient = httpClient;
         }
 
-        public async Task<IJsonResponse<ProviderInfo>> GetProviderAsync(CancellationToken cancellationToken = default)
+        public async Task<IResponse<ProviderInfo>> GetProviderAsync(CancellationToken cancellationToken = default)
         {
             const string relativeUri = "v1/provider";
 
             using (var response = await _httpClient.GetAsync(relativeUri, cancellationToken))
             {
-                return await response.Content.ToJsonResponseAsync<ProviderInfo>(cancellationToken: cancellationToken);
+                return await response.Content.ToResponseAsync<ProviderInfo>(cancellationToken: cancellationToken);
             }
         }
     }

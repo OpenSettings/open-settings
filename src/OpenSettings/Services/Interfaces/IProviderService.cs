@@ -1,4 +1,4 @@
-﻿using Ogu.Response.Json;
+﻿using Ogu.Response.Abstractions;
 using OpenSettings.Models;
 using System.Threading;
 using System.Threading.Tasks;
@@ -7,6 +7,6 @@ namespace OpenSettings.Services.Interfaces
 {
     public interface IProviderService
     {
-        Task<IJsonResponse<ProviderInfo>> GetProviderAsync(CancellationToken cancellationToken = default);
+        Task<IResponse<ProviderInfo>> GetProviderAsync(CancellationToken cancellationToken = default);
     }
 }

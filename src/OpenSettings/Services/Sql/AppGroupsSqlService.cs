@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Ogu.Response;
 using Ogu.Response.Abstractions;
-using Ogu.Response.Json;
 using OpenSettings.Domains.Sql.DataContext;
 using OpenSettings.Domains.Sql.Entities;
 using OpenSettings.Extensions;
@@ -29,13 +29,13 @@ namespace OpenSettings.Services.Sql
             _sortOrderService = sortOrderService;
         }
 
-        public async Task<IJsonResponse> GetPaginatedGroupsAsync(GetPaginatedInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetPaginatedGroupsAsync(GetPaginatedInput input, CancellationToken cancellationToken = default)
         {
             var sortOrderBounds = await _sortOrderService.GetSortOrderBoundsAsync(_context.AppGroups, cancellationToken);
 
             if (sortOrderBounds == null)
             {
-                return HttpStatusCode.OK.ToSuccessJsonResponse(new GetPaginatedAppGroupsResponse(input, 0, null, 0, 0));
+                return HttpStatusCode.OK.ToSuccessResponse(new GetPaginatedAppGroupsResponse(input, 0, null, 0, 0));
             }
 
             if (string.IsNullOrWhiteSpace(input.SearchTerm))
@@ -70,15 +70,15 @@ namespace OpenSettings.Services.Sql
                     .Select(entity => MapToGroupModelForPaginatedResponseData(entity))
                     .ToPaginatedArrayAsync(input.PageIndex, input.PageSize, cancellationToken);
 
-                return HttpStatusCode.OK.ToSuccessJsonResponse(new GetPaginatedAppGroupsResponse(input, filteredTotalItemsCount, filteredEntities, sortOrderBounds.MinSortOrder, sortOrderBounds.MaxSortOrder));
+                return HttpStatusCode.OK.ToSuccessResponse(new GetPaginatedAppGroupsResponse(input, filteredTotalItemsCount, filteredEntities, sortOrderBounds.MinSortOrder, sortOrderBounds.MaxSortOrder));
             }
             catch (Exception ex)
             {
-                return HttpStatusCode.InternalServerError.ToFailureJsonResponse(ex);
+                return HttpStatusCode.InternalServerError.ToFailureResponse(ex);
             }
         }
 
-        public async Task<IJsonResponse> DeleteUnmappedGroupsAsync(CancellationToken cancellationToken = default)
+        public async Task<IResponse> DeleteUnmappedGroupsAsync(CancellationToken cancellationToken = default)
         {
             var entities = await _context.AppGroups
                 .AsNoTracking()
@@ -92,7 +92,7 @@ namespace OpenSettings.Services.Sql
 
             if (entities.Length == 0)
             {
-                return HttpStatusCode.OK.ToSuccessJsonResponse(new DeleteUnmappedItemsResponse { DeletedItemsCount = 0 });
+                return HttpStatusCode.OK.ToSuccessResponse(new DeleteUnmappedItemsResponse { DeletedItemsCount = 0 });
             }
 
             _context.AppGroups.RemoveRange(entities);
@@ -101,19 +101,19 @@ namespace OpenSettings.Services.Sql
             {
                 var count = await _context.SaveChangesAsync(cancellationToken);
 
-                return HttpStatusCode.OK.ToSuccessJsonResponse(new DeleteUnmappedItemsResponse { DeletedItemsCount = count });
+                return HttpStatusCode.OK.ToSuccessResponse(new DeleteUnmappedItemsResponse { DeletedItemsCount = count });
             }
             catch (DbUpdateConcurrencyException ex)
             {
-                return await ex.ToJsonResponseAsync(cancellationToken);
+                return await ex.ToResponseAsync(cancellationToken);
             }
             catch (Exception ex)
             {
-                return ex.ToJsonResponse();
+                return ex.ToResponse();
             }
         }
 
-        public async Task<IJsonResponse> GetGroupsAsync(GetGroupsInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetGroupsAsync(GetGroupsInput input, CancellationToken cancellationToken = default)
         {
             if (!string.IsNullOrWhiteSpace(input.SearchTerm))
             {
@@ -143,16 +143,16 @@ namespace OpenSettings.Services.Sql
                     RowVersion = a.RowVersion
                 }).ToArrayAsync(cancellationToken);
 
-            return HttpStatusCode.OK.ToSuccessJsonResponse(new GetAppGroupsResponse(data));
+            return HttpStatusCode.OK.ToSuccessResponse(new GetAppGroupsResponse(data));
         }
 
-        public async Task<IJsonResponse> CreateGroupAsync(CreateGroupInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> CreateGroupAsync(CreateGroupInput input, CancellationToken cancellationToken = default)
         {
-            var groupNameRule = JsonValidationRules.NotEmptyRule(nameof(input.Name), input.Name);
+            var groupNameRule = ValidationRules.NotEmptyRule(nameof(input.Name), input.Name);
 
             if (groupNameRule.IsFailed())
             {
-                return groupNameRule.Failure.ToJsonResponse();
+                return groupNameRule.Failure.ToResponse();
             }
 
             var trimmedName = input.Name.Trim();
@@ -161,7 +161,7 @@ namespace OpenSettings.Services.Sql
 
             if (await _context.AppGroups.AsNoTracking().AnyAsync(s => s.Slug == slug, cancellationToken))
             {
-                return JsonValidationFailures.AlreadyExists(nameof(TagSqlModel.Slug), slug).ToJsonResponse();
+                return ValidationFailures.AlreadyExists(nameof(TagSqlModel.Slug), slug).ToResponse();
             }
 
             if (input.SetSortOrderPosition.HasValue)
@@ -179,7 +179,7 @@ namespace OpenSettings.Services.Sql
             }
             else if (await _context.AppGroups.AsNoTracking().AnyAsync(s => s.SortOrder == input.SortOrder, cancellationToken))
             {
-                return HttpStatusCode.BadRequest.ToFailureJsonResponse(Errors.DuplicateSortOrder);
+                return HttpStatusCode.BadRequest.ToFailureResponse(Errors.DuplicateSortOrder);
             }
 
             var entity = new AppGroupSqlModel
@@ -198,7 +198,7 @@ namespace OpenSettings.Services.Sql
             {
                 await _context.SaveChangesAsync(cancellationToken);
 
-                return HttpStatusCode.OK.ToSuccessJsonResponse(new CreateAppGroupResponse
+                return HttpStatusCode.OK.ToSuccessResponse(new CreateAppGroupResponse
                 {
                     Id = $"{entity.Id}",
                     Name = entity.Name,
@@ -207,17 +207,17 @@ namespace OpenSettings.Services.Sql
             }
             catch (Exception ex)
             {
-                return ex.ToJsonResponse();
+                return ex.ToResponse();
             }
         }
 
-        public async Task<IJsonResponse> GetGroupByIdAsync(GetGroupInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetGroupByIdAsync(GetGroupInput input, CancellationToken cancellationToken = default)
         {
-            var groupIdRule = JsonValidationRules.GreaterThanRule("GroupId", input.GroupIdOrSlug, 0);
+            var groupIdRule = ValidationRules.GreaterThanRule("GroupId", input.GroupIdOrSlug, 0);
 
             if (groupIdRule.IsFailed())
             {
-                return groupIdRule.Failure.ToJsonResponse();
+                return groupIdRule.Failure.ToResponse();
             }
 
             var id = groupIdRule.GetStoredValue<int>();
@@ -225,23 +225,23 @@ namespace OpenSettings.Services.Sql
             return await GetGroupByIdOrSlugAsync(g => g.Id == id, cancellationToken);
         }
 
-        public Task<IJsonResponse> GetGroupBySlugAsync(GetGroupInput input, CancellationToken cancellationToken = default)
+        public Task<IResponse> GetGroupBySlugAsync(GetGroupInput input, CancellationToken cancellationToken = default)
         {
             input.GroupIdOrSlug = input.GroupIdOrSlug?.ToSlug();
 
             return GetGroupByIdOrSlugAsync(g => g.Slug == input.GroupIdOrSlug, cancellationToken);
         }
 
-        public async Task<IJsonResponse> UpdateGroupAsync(UpdateGroupInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> UpdateGroupAsync(UpdateGroupInput input, CancellationToken cancellationToken = default)
         {
-            var groupIdRule = JsonValidationRules.GreaterThanRule(nameof(input.GroupId), input.GroupId, 0);
-            var nameRule = JsonValidationRules.NotEmptyRule(nameof(input.Name), input.Name);
+            var groupIdRule = ValidationRules.GreaterThanRule(nameof(input.GroupId), input.GroupId, 0);
+            var nameRule = ValidationRules.NotEmptyRule(nameof(input.Name), input.Name);
 
             var failure = new[] { groupIdRule, nameRule }.ValidateFirstOrDefault();
 
             if (failure != null)
             {
-                return failure.ToJsonResponse();
+                return failure.ToResponse();
             }
 
             var groupId = groupIdRule.GetStoredValue<int>();
@@ -252,7 +252,7 @@ namespace OpenSettings.Services.Sql
 
             if (await _context.AppGroups.AsNoTracking().AnyAsync(s => s.Slug == slug && s.Id != groupId, cancellationToken))
             {
-                return HttpStatusCode.BadRequest.ToFailureJsonResponse(Errors.GroupAlreadyExists);
+                return HttpStatusCode.BadRequest.ToFailureResponse(Errors.GroupAlreadyExists);
             }
 
             if (input.SetSortOrderPosition.HasValue)
@@ -309,7 +309,7 @@ namespace OpenSettings.Services.Sql
             {
                 await _context.SaveChangesAsync(cancellationToken);
 
-                return HttpStatusCode.OK.ToSuccessJsonResponse(new UpdateAppGroupResponse(
+                return HttpStatusCode.OK.ToSuccessResponse(new UpdateAppGroupResponse(
                     entity.Name,
                     entity.Slug,
                     entity.SortOrder,
@@ -319,25 +319,25 @@ namespace OpenSettings.Services.Sql
             }
             catch (DbUpdateConcurrencyException ex)
             {
-                return await ex.ToJsonResponseAsync(cancellationToken);
+                return await ex.ToResponseAsync(cancellationToken);
             }
             catch (DbUpdateException ex)
             {
-                return HttpStatusCode.InternalServerError.ToFailureJsonResponse(ex.HResult == -2146233088 ? Errors.UserNotFound : Errors.DbUpdateException);
+                return HttpStatusCode.InternalServerError.ToFailureResponse(ex.HResult == -2146233088 ? Errors.UserNotFound : Errors.DbUpdateException);
             }
             catch (Exception ex)
             {
-                return HttpStatusCode.InternalServerError.ToFailureJsonResponse(ex);
+                return HttpStatusCode.InternalServerError.ToFailureResponse(ex);
             }
         }
 
-        public async Task<IJsonResponse> DeleteGroupAsync(DeleteGroupInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> DeleteGroupAsync(DeleteGroupInput input, CancellationToken cancellationToken = default)
         {
-            var groupIdRule = JsonValidationRules.GreaterThanRule(nameof(input.GroupId), input.GroupId, 0);
+            var groupIdRule = ValidationRules.GreaterThanRule(nameof(input.GroupId), input.GroupId, 0);
 
             if (groupIdRule.IsFailed())
             {
-                return HttpStatusCode.BadRequest.ToFailureJsonResponse(groupIdRule.Failure);
+                return HttpStatusCode.BadRequest.ToFailureResponse(groupIdRule.Failure);
             }
 
             var groupId = groupIdRule.GetStoredValue<int>();
@@ -348,25 +348,25 @@ namespace OpenSettings.Services.Sql
             {
                 await _context.SaveChangesAsync(cancellationToken);
 
-                return HttpStatusCode.OK.ToSuccessJsonResponse();
+                return HttpStatusCode.OK.ToSuccessResponse();
             }
             catch (DbUpdateConcurrencyException ex)
             {
-                return await ex.ToJsonResponseAsync(cancellationToken);
+                return await ex.ToResponseAsync(cancellationToken);
             }
             catch (Exception ex)
             {
-                return ex.ToJsonResponse();
+                return ex.ToResponse();
             }
         }
 
-        public async Task<IJsonResponse> UpdateGroupSortOrderAsync(UpdateGroupSortOrderInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> UpdateGroupSortOrderAsync(UpdateGroupSortOrderInput input, CancellationToken cancellationToken = default)
         {
-            var groupIdRule = JsonValidationRules.GreaterThanRule(nameof(input.GroupId), input.GroupId, 0);
+            var groupIdRule = ValidationRules.GreaterThanRule(nameof(input.GroupId), input.GroupId, 0);
 
             if (groupIdRule.IsFailed())
             {
-                return HttpStatusCode.BadRequest.ToFailureJsonResponse(groupIdRule.Failure);
+                return HttpStatusCode.BadRequest.ToFailureResponse(groupIdRule.Failure);
             }
 
             var groupId = groupIdRule.GetStoredValue<int>();
@@ -385,7 +385,7 @@ namespace OpenSettings.Services.Sql
 
             if (entity == null)
             {
-                return HttpStatusCode.NotFound.ToFailureJsonResponse(Errors.GroupNotFound);
+                return HttpStatusCode.NotFound.ToFailureResponse(Errors.GroupNotFound);
             }
 
             if (!input.RowVersion.SequenceEqual(entity.RowVersion))
@@ -404,7 +404,7 @@ namespace OpenSettings.Services.Sql
 
             if (foundEntity == null)
             {
-                return HttpStatusCode.BadRequest.ToFailureJsonResponse(input.Ascent ? Errors.MaxSortOrderReached : Errors.MinSortOrderReached);
+                return HttpStatusCode.BadRequest.ToFailureResponse(input.Ascent ? Errors.MaxSortOrderReached : Errors.MinSortOrderReached);
             }
 
             if (entity.SortOrder == foundEntity.SortOrder)
@@ -431,7 +431,7 @@ namespace OpenSettings.Services.Sql
             {
                 await _context.SaveChangesAsync(cancellationToken);
 
-                return HttpStatusCode.OK.ToSuccessJsonResponse(new UpdateSortOrderResponse
+                return HttpStatusCode.OK.ToSuccessResponse(new UpdateSortOrderResponse
                 {
                     Source = new UpdateSortOrderResponseSource
                     {
@@ -449,24 +449,24 @@ namespace OpenSettings.Services.Sql
             }
             catch (DbUpdateConcurrencyException ex)
             {
-                return await ex.ToJsonResponseAsync(cancellationToken);
+                return await ex.ToResponseAsync(cancellationToken);
             }
             catch (Exception ex)
             {
-                return ex.ToJsonResponse();
+                return ex.ToResponse();
             }
         }
 
-        public async Task<IJsonResponse> DragGroupAsync(DragItemSortOrderInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> DragGroupAsync(DragItemSortOrderInput input, CancellationToken cancellationToken = default)
         {
-            var sourceIdRule = JsonValidationRules.GreaterThanRule(nameof(input.SourceId), input.SourceId, 0);
-            var targetIdRule = JsonValidationRules.GreaterThanRule(nameof(input.TargetId), input.TargetId, 0);
+            var sourceIdRule = ValidationRules.GreaterThanRule(nameof(input.SourceId), input.SourceId, 0);
+            var targetIdRule = ValidationRules.GreaterThanRule(nameof(input.TargetId), input.TargetId, 0);
 
             var failure = new[] { sourceIdRule, targetIdRule }.ValidateFirstOrDefault();
 
             if (failure != null)
             {
-                return HttpStatusCode.BadRequest.ToFailureJsonResponse(failure);
+                return HttpStatusCode.BadRequest.ToFailureResponse(failure);
             }
 
             var sourceId = sourceIdRule.GetStoredValue<int>();
@@ -488,7 +488,7 @@ namespace OpenSettings.Services.Sql
 
             if (sourceEntity == null)
             {
-                return HttpStatusCode.NotFound.ToFailureJsonResponse(Errors.SourceGroupNotFound);
+                return HttpStatusCode.NotFound.ToFailureResponse(Errors.SourceGroupNotFound);
             }
 
             if (!input.SourceRowVersion.SequenceEqual(sourceEntity.RowVersion))
@@ -500,7 +500,7 @@ namespace OpenSettings.Services.Sql
 
             if (targetEntity == null)
             {
-                return HttpStatusCode.NotFound.ToFailureJsonResponse(Errors.TargetGroupNotFound);
+                return HttpStatusCode.NotFound.ToFailureResponse(Errors.TargetGroupNotFound);
             }
 
             if (sourceEntity.SortOrder == targetEntity.SortOrder)
@@ -523,7 +523,7 @@ namespace OpenSettings.Services.Sql
             }
             else if (targetNeighbour.Id == sourceEntity.Id)
             {
-                return HttpStatusCode.OK.ToSuccessJsonResponse(new DragItemSortOrderResponse
+                return HttpStatusCode.OK.ToSuccessResponse(new DragItemSortOrderResponse
                 {
                     Source = new DragItemSortOrderResponseSource
                     {
@@ -559,7 +559,7 @@ namespace OpenSettings.Services.Sql
             {
                 await _context.SaveChangesAsync(cancellationToken);
 
-                return HttpStatusCode.OK.ToSuccessJsonResponse(new DragItemSortOrderResponse
+                return HttpStatusCode.OK.ToSuccessResponse(new DragItemSortOrderResponse
                 {
                     Source = new DragItemSortOrderResponseSource
                     {
@@ -571,15 +571,15 @@ namespace OpenSettings.Services.Sql
             }
             catch (DbUpdateConcurrencyException ex)
             {
-                return await ex.ToJsonResponseAsync(cancellationToken);
+                return await ex.ToResponseAsync(cancellationToken);
             }
             catch (Exception ex)
             {
-                return ex.ToJsonResponse();
+                return ex.ToResponse();
             }
         }
 
-        public async Task<IJsonResponse<GetOrCreateResponse>> GetOrCreateAsync(string name, SetSortOrderPosition setSortOrderPosition, Guid? createdById, CancellationToken cancellationToken = default)
+        public async Task<IResponse<GetOrCreateResponse>> GetOrCreateAsync(string name, SetSortOrderPosition setSortOrderPosition, Guid? createdById, CancellationToken cancellationToken = default)
         {
             name = name.Trim();
             var trimmedNameLowercase = name.ToLowerInvariant();
@@ -594,7 +594,7 @@ namespace OpenSettings.Services.Sql
 
             if (entity != null)
             {
-                return HttpStatusCode.OK.ToSuccessJsonResponseOf(new GetOrCreateResponse
+                return HttpStatusCode.OK.ToSuccessResponseOf(new GetOrCreateResponse
                 {
                     Id = entity.Id,
                     Name = entity.Name,
@@ -634,7 +634,7 @@ namespace OpenSettings.Services.Sql
 
                 _context.Detach(entity);
 
-                return HttpStatusCode.OK.ToSuccessJsonResponseOf(new GetOrCreateResponse
+                return HttpStatusCode.OK.ToSuccessResponseOf(new GetOrCreateResponse
                 {
                     Id = entity.Id,
                     Name = name,
@@ -644,25 +644,25 @@ namespace OpenSettings.Services.Sql
             }
             catch (Exception ex)
             {
-                return ex.ToJsonResponse<GetOrCreateResponse>();
+                return ex.ToResponse<GetOrCreateResponse>();
             }
         }
 
-        public async Task<IJsonResponse> ReorderAsync()
+        public async Task<IResponse> ReorderAsync()
         {
             try
             {
                 var reorderResponse = await _sortOrderService.ReorderAsync(_context.AppGroups);
 
-                return HttpStatusCode.OK.ToSuccessJsonResponse(reorderResponse);
+                return HttpStatusCode.OK.ToSuccessResponse(reorderResponse);
             }
             catch (Exception ex)
             {
-                return ex.ToJsonResponse();
+                return ex.ToResponse();
             }
         }
 
-        private async Task<IJsonResponse> GetGroupByIdOrSlugAsync(Expression<Func<AppGroupSqlModel, bool>> predicate, CancellationToken cancellationToken = default)
+        private async Task<IResponse> GetGroupByIdOrSlugAsync(Expression<Func<AppGroupSqlModel, bool>> predicate, CancellationToken cancellationToken = default)
         {
             var entity = await _context.AppGroups
                 .AsNoTracking()
@@ -676,11 +676,11 @@ namespace OpenSettings.Services.Sql
                 }).FirstOrDefaultAsync(cancellationToken);
 
             return entity == null
-                ? HttpStatusCode.NotFound.ToFailureJsonResponse(Errors.GroupNotFound)
-                : HttpStatusCode.OK.ToSuccessJsonResponse(entity);
+                ? HttpStatusCode.NotFound.ToFailureResponse(Errors.GroupNotFound)
+                : HttpStatusCode.OK.ToSuccessResponse(entity);
         }
 
-        private async Task<IJsonResponse> GetUnfilteredPaginatedGroupsAsync(GetPaginatedInput input, SortOrderBounds sortOrderBounds, CancellationToken cancellationToken = default)
+        private async Task<IResponse> GetUnfilteredPaginatedGroupsAsync(GetPaginatedInput input, SortOrderBounds sortOrderBounds, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -703,15 +703,15 @@ namespace OpenSettings.Services.Sql
                     .Select(entity => MapToGroupModelForPaginatedResponseData(entity))
                     .ToPaginatedArrayAsync(input.PageIndex, input.PageSize, cancellationToken);
 
-                return HttpStatusCode.OK.ToSuccessJsonResponse(new GetPaginatedAppGroupsResponse(input, sortOrderBounds.Count, unfilteredEntities, sortOrderBounds.MinSortOrder, sortOrderBounds.MaxSortOrder));
+                return HttpStatusCode.OK.ToSuccessResponse(new GetPaginatedAppGroupsResponse(input, sortOrderBounds.Count, unfilteredEntities, sortOrderBounds.MinSortOrder, sortOrderBounds.MaxSortOrder));
             }
             catch (Exception ex)
             {
-                return HttpStatusCode.InternalServerError.ToFailureJsonResponse(ex);
+                return HttpStatusCode.InternalServerError.ToFailureResponse(ex);
             }
         }
 
-        private async Task<IJsonResponse> GetGroupsBySearchAsync(GetGroupsInput input, CancellationToken cancellationToken)
+        private async Task<IResponse> GetGroupsBySearchAsync(GetGroupsInput input, CancellationToken cancellationToken)
         {
             var searchLowercase = input.SearchTerm.ToLowerInvariant();
 
@@ -728,7 +728,7 @@ namespace OpenSettings.Services.Sql
                     RowVersion = a.RowVersion
                 }).ToArrayAsync(cancellationToken);
 
-            return HttpStatusCode.OK.ToSuccessJsonResponse(new GetAppGroupsResponse(data));
+            return HttpStatusCode.OK.ToSuccessResponse(new GetAppGroupsResponse(data));
         }
 
         private static IQueryable<AppGroupSqlModel> SortBy(IQueryable<AppGroupSqlModel> entities, string sortBy, SortDirection sortDirection)

@@ -2,8 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Ogu.Compressions.Abstractions;
+using Ogu.Response;
 using Ogu.Response.Abstractions;
-using Ogu.Response.Json;
 using OpenSettings.Configurations;
 using OpenSettings.Domains.Sql.DataContext;
 using OpenSettings.Domains.Sql.Entities;
@@ -61,7 +61,7 @@ namespace OpenSettings.Services.Sql
             _providerInfo = providerInfo;
         }
 
-        public async Task<IJsonResponse<SyncAppDataResponse>> SyncAppDataAsync(SyncAppDataInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse<SyncAppDataResponse>> SyncAppDataAsync(SyncAppDataInput input, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -71,7 +71,7 @@ namespace OpenSettings.Services.Sql
 
                 if (!identifier.Success)
                 {
-                    return identifier.Status.ToFailureJsonResponse<SyncAppDataResponse>(identifier.Errors);
+                    return identifier.Status.ToFailureResponse<SyncAppDataResponse>(identifier.Errors);
                 }
 
                 var classNameToCount = new Dictionary<string, int>();
@@ -109,23 +109,23 @@ namespace OpenSettings.Services.Sql
 
                 if (partialApp.ClientNameLowercase != clientNameLowercase)
                 {
-                    return HttpStatusCode.BadRequest.ToFailureJsonResponse<SyncAppDataResponse, Errors>(Errors.MismatchedClientName);
+                    return HttpStatusCode.BadRequest.ToFailureResponse<SyncAppDataResponse, Errors>(Errors.MismatchedClientName);
                 }
 
                 if (partialApp.ClientId != input.Client.Id)
                 {
-                    return HttpStatusCode.BadRequest.ToFailureJsonResponse<SyncAppDataResponse, Errors>(Errors.MismatchedClientId);
+                    return HttpStatusCode.BadRequest.ToFailureResponse<SyncAppDataResponse, Errors>(Errors.MismatchedClientId);
                 }
 
                 return await HandleExistingAppAsync(input, classNameToCount, identifier.Data.Id, partialApp.Id, partialApp.HashedClientSecret, partialApp.MappedAppIdentifierIds, cancellationToken);
             }
             catch (Exception ex)
             {
-                return HttpStatusCode.InternalServerError.ToFailureJsonResponse<SyncAppDataResponse>(ex);
+                return HttpStatusCode.InternalServerError.ToFailureResponse<SyncAppDataResponse>(ex);
             }
         }
 
-        public async Task<IJsonResponse> GetGroupedAppsAsync(GetGroupedAppsInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetGroupedAppsAsync(GetGroupedAppsInput input, CancellationToken cancellationToken = default)
         {
             var query = _context.Apps
                 .AsNoTracking()
@@ -170,7 +170,7 @@ namespace OpenSettings.Services.Sql
                 .GroupBy(e => e.Group.Name)
                 .ToDictionary(e => e.Key, e => e.ToArray());
 
-            return HttpStatusCode.OK.ToSuccessJsonResponse(new GetGroupedAppsResponse
+            return HttpStatusCode.OK.ToSuccessResponse(new GetGroupedAppsResponse
             {
                 GroupNameToApps = groupNameToAppsMap,
                 GroupsCount = groupNameToAppsMap.Count,
@@ -178,13 +178,13 @@ namespace OpenSettings.Services.Sql
             });
         }
 
-        public async Task<IJsonResponse<GetAppResponse>> GetAppByIdAsync(GetAppInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse<GetAppResponse>> GetAppByIdAsync(GetAppInput input, CancellationToken cancellationToken = default)
         {
-            var appIdRule = JsonValidationRules.GreaterThanRule("AppId", input.AppIdOrSlug, 0);
+            var appIdRule = ValidationRules.GreaterThanRule("AppId", input.AppIdOrSlug, 0);
 
             if (appIdRule.IsFailed())
             {
-                return appIdRule.Failure.ToJsonResponse<GetAppResponse>();
+                return appIdRule.Failure.ToResponse<GetAppResponse>();
             }
 
             var appId = appIdRule.GetStoredValue<int>();
@@ -192,20 +192,20 @@ namespace OpenSettings.Services.Sql
             return await GetAppByIdOrSlugAsync(a => a.Id == appId, cancellationToken);
         }
 
-        public Task<IJsonResponse<GetAppResponse>> GetAppBySlugAsync(GetAppInput input, CancellationToken cancellationToken = default)
+        public Task<IResponse<GetAppResponse>> GetAppBySlugAsync(GetAppInput input, CancellationToken cancellationToken = default)
         {
             input.AppIdOrSlug = input.AppIdOrSlug?.ToSlug();
 
             return GetAppByIdOrSlugAsync(a => a.Slug == input.AppIdOrSlug, cancellationToken);
         }
 
-        public async Task<IJsonResponse> UpdateAppAsync(UpdateAppInput input, CancellationToken cancellationToken)
+        public async Task<IResponse> UpdateAppAsync(UpdateAppInput input, CancellationToken cancellationToken)
         {
-            var appIdRule = JsonValidationRules.GreaterThanRule(nameof(input.AppId), input.AppId, 0);
+            var appIdRule = ValidationRules.GreaterThanRule(nameof(input.AppId), input.AppId, 0);
 
             if (appIdRule.IsFailed())
             {
-                return appIdRule.Failure.ToJsonResponse();
+                return appIdRule.Failure.ToResponse();
             }
 
             var appId = appIdRule.GetStoredValue<int>();
@@ -236,7 +236,7 @@ namespace OpenSettings.Services.Sql
 
             if (entity == null)
             {
-                return HttpStatusCode.NotFound.ToFailureJsonResponse(Errors.AppNotFound);
+                return HttpStatusCode.NotFound.ToFailureResponse(Errors.AppNotFound);
             }
 
             if (!input.RowVersion.SequenceEqual(entity.RowVersion))
@@ -258,7 +258,7 @@ namespace OpenSettings.Services.Sql
 
                 if (slug == null)
                 {
-                    return HttpStatusCode.BadRequest.ToFailureJsonResponse(Errors.SlugAlreadyExists);
+                    return HttpStatusCode.BadRequest.ToFailureResponse(Errors.SlugAlreadyExists);
                 }
 
                 entity.Slug = slug;
@@ -287,7 +287,7 @@ namespace OpenSettings.Services.Sql
 
                 if (!groupJsonResponse.Success)
                 {
-                    return groupJsonResponse.ToJsonResponse();
+                    return groupJsonResponse.ToResponse();
                 }
 
                 var groupEntity = new AppGroupSqlModel
@@ -338,7 +338,7 @@ namespace OpenSettings.Services.Sql
 
                     if (!getOrCreateTag.Success)
                     {
-                        return getOrCreateTag.ToJsonResponse();
+                        return getOrCreateTag.ToResponse();
                     }
 
                     var tagEntity = new TagSqlModel { Id = getOrCreateTag.Data.Id, Name = tag.Name };
@@ -355,7 +355,7 @@ namespace OpenSettings.Services.Sql
 
             await _context.SaveChangesAsync(cancellationToken);
 
-            return HttpStatusCode.OK.ToSuccessJsonResponse(new UpdateAppResponse
+            return HttpStatusCode.OK.ToSuccessResponse(new UpdateAppResponse
             {
                 DisplayName = entity.DisplayName,
                 ClientName = entity.ClientName,
@@ -381,7 +381,7 @@ namespace OpenSettings.Services.Sql
             });
         }
 
-        public async Task<IJsonResponse<GetRegisteredAppResponse>> GetRegisteredAppAsync(GetRegisteredAppInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse<GetRegisteredAppResponse>> GetRegisteredAppAsync(GetRegisteredAppInput input, CancellationToken cancellationToken = default)
         {
             var entity = await _context.Apps
                 .AsNoTracking()
@@ -400,7 +400,7 @@ namespace OpenSettings.Services.Sql
             {
                 var passwordVerificationResult = _passwordHasher.VerifyHashedPassword(null, entity.HashedClientSecret, $"{input.ClientSecret}");
 
-                return HttpStatusCode.OK.ToSuccessJsonResponseOf(new GetRegisteredAppResponse
+                return HttpStatusCode.OK.ToSuccessResponseOf(new GetRegisteredAppResponse
                 {
                     ClientName = entity.ClientName,
                     IsRegistered = entity.IsRegistered,
@@ -411,7 +411,7 @@ namespace OpenSettings.Services.Sql
 
             var isClientIdUnique = !await _context.Apps.AsNoTracking().AnyAsync(a => a.ClientId == input.ClientId, cancellationToken);
 
-            return HttpStatusCode.OK.ToSuccessJsonResponseOf(new GetRegisteredAppResponse
+            return HttpStatusCode.OK.ToSuccessResponseOf(new GetRegisteredAppResponse
             {
                 ClientName = string.Empty,
                 IsRegistered = false,
@@ -420,7 +420,7 @@ namespace OpenSettings.Services.Sql
             });
         }
 
-        public async Task<IJsonResponse<FetchAppDataResponse>> FetchAppDataAsync(FetchAppDataInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse<FetchAppDataResponse>> FetchAppDataAsync(FetchAppDataInput input, CancellationToken cancellationToken = default)
         {
             input.IdentifierName = input.IdentifierName.Trim().ToLowerInvariant();
 
@@ -482,7 +482,7 @@ namespace OpenSettings.Services.Sql
 
             await Task.WhenAll(rawReadResponseData.Select(r => r.DataTask));
 
-            return HttpStatusCode.OK.ToSuccessJsonResponseOf(new FetchAppDataResponse
+            return HttpStatusCode.OK.ToSuccessResponseOf(new FetchAppDataResponse
             {
                 LastUpdatedOn = lastUpdatedOn,
                 Settings = rawReadResponseData.Select(d => new FetchAppDataResponseSetting
@@ -497,7 +497,7 @@ namespace OpenSettings.Services.Sql
             });
         }
 
-        public async Task<IJsonResponse> GetAppsAsync(GetAppsInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetAppsAsync(GetAppsInput input, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(input.SearchTerm))
             {
@@ -513,7 +513,7 @@ namespace OpenSettings.Services.Sql
                         }
                     }).ToArrayAsync(cancellationToken);
 
-                return HttpStatusCode.OK.ToSuccessJsonResponse(unfilteredEntities);
+                return HttpStatusCode.OK.ToSuccessResponse(unfilteredEntities);
             }
 
             var searchTermLowercase = input.SearchTerm.ToLowerInvariant();
@@ -539,7 +539,7 @@ namespace OpenSettings.Services.Sql
                     }
                 }).ToArrayAsync(cancellationToken);
 
-            return HttpStatusCode.OK.ToSuccessJsonResponse(filteredEntities);
+            return HttpStatusCode.OK.ToSuccessResponse(filteredEntities);
         }
 
         private async Task<string> GenerateAppSlugAsync(string clientName, string slug, DateTime currentTime, int? id = null, CancellationToken cancellationToken = default)
@@ -562,17 +562,17 @@ namespace OpenSettings.Services.Sql
                 cancellationToken) ? null : slug;
         }
 
-        public async Task<IJsonResponse> CreateAppAsync(CreateAppInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> CreateAppAsync(CreateAppInput input, CancellationToken cancellationToken = default)
         {
-            var clientIdNotEmptyRule = JsonValidationRules.NotEmptyRule("Client.Id", input.Client.Id);
-            var clientSecretNotEmptyRule = JsonValidationRules.NotEmptyRule("Client.Secret", input.Client.Secret);
-            var clientNameNotEmptyRule = JsonValidationRules.NotEmptyRule("Client.Name", input.Client.Name);
+            var clientIdNotEmptyRule = ValidationRules.NotEmptyRule("Client.Id", input.Client.Id);
+            var clientSecretNotEmptyRule = ValidationRules.NotEmptyRule("Client.Secret", input.Client.Secret);
+            var clientNameNotEmptyRule = ValidationRules.NotEmptyRule("Client.Name", input.Client.Name);
 
             var failure = new[] { clientIdNotEmptyRule, clientSecretNotEmptyRule, clientNameNotEmptyRule }.ValidateFirstOrDefault();
 
             if (failure != null)
             {
-                return failure.ToJsonResponse();
+                return failure.ToResponse();
             }
 
             var trimmedClientName = input.Client.Name.Trim();
@@ -584,7 +584,7 @@ namespace OpenSettings.Services.Sql
 
             if (slug == null)
             {
-                return HttpStatusCode.BadRequest.ToFailureJsonResponse(Errors.SlugAlreadyExists);
+                return HttpStatusCode.BadRequest.ToFailureResponse(Errors.SlugAlreadyExists);
             }
 
             var displayName = string.IsNullOrWhiteSpace(input.DisplayName) ? trimmedClientName : input.DisplayName.Trim();
@@ -619,7 +619,7 @@ namespace OpenSettings.Services.Sql
 
                 if (!groupJsonResponse.Success)
                 {
-                    return groupJsonResponse.ToJsonResponse();
+                    return groupJsonResponse.ToResponse();
                 }
 
                 var groupEntity = new AppGroupSqlModel
@@ -776,16 +776,16 @@ namespace OpenSettings.Services.Sql
                 RowVersion = appSqlModel.RowVersion
             };
 
-            return HttpStatusCode.OK.ToSuccessJsonResponse(data);
+            return HttpStatusCode.OK.ToSuccessResponse(data);
         }
 
-        public async Task<IJsonResponse> GetGroupedAppDataByAppIdAsync(GetGroupedAppDataByAppInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetGroupedAppDataByAppIdAsync(GetGroupedAppDataByAppInput input, CancellationToken cancellationToken = default)
         {
-            var appIdRule = JsonValidationRules.GreaterThanRule("AppId", input.AppIdOrSlug, 0);
+            var appIdRule = ValidationRules.GreaterThanRule("AppId", input.AppIdOrSlug, 0);
 
             if (appIdRule.IsFailed())
             {
-                return appIdRule.Failure.ToJsonResponse();
+                return appIdRule.Failure.ToResponse();
             }
 
             var appId = appIdRule.GetStoredValue<int>();
@@ -793,7 +793,7 @@ namespace OpenSettings.Services.Sql
             return await GetGroupedAppDataByAppIdOrSlugAsync(a => a.Id == appId, cancellationToken);
         }
 
-        public Task<IJsonResponse> GetGroupedAppDataByAppSlugAsync(GetGroupedAppDataByAppInput input, CancellationToken cancellationToken = default)
+        public Task<IResponse> GetGroupedAppDataByAppSlugAsync(GetGroupedAppDataByAppInput input, CancellationToken cancellationToken = default)
         {
             input.AppIdOrSlug = input.AppIdOrSlug?.ToSlug();
 
@@ -801,16 +801,16 @@ namespace OpenSettings.Services.Sql
         }
 
 
-        public async Task<IJsonResponse> GetGroupedAppDataByAppIdAndIdentifierIdAsync(GetGroupedAppDataByAppAndIdentifierInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetGroupedAppDataByAppIdAndIdentifierIdAsync(GetGroupedAppDataByAppAndIdentifierInput input, CancellationToken cancellationToken = default)
         {
-            var appIdRule = JsonValidationRules.GreaterThanRule("AppId", input.AppIdOrSlug, 0);
-            var identifierIdRule = JsonValidationRules.GreaterThanRule("IdentifierId", input.IdentifierIdOrSlug, 0);
+            var appIdRule = ValidationRules.GreaterThanRule("AppId", input.AppIdOrSlug, 0);
+            var identifierIdRule = ValidationRules.GreaterThanRule("IdentifierId", input.IdentifierIdOrSlug, 0);
 
             var failure = new ValidationRule[] { appIdRule, identifierIdRule }.ValidateFirstOrDefault();
 
             if (failure != null)
             {
-                return failure.ToJsonResponse();
+                return failure.ToResponse();
             }
 
             var appId = appIdRule.GetStoredValue<int>();
@@ -819,7 +819,7 @@ namespace OpenSettings.Services.Sql
             return await GetGroupedAppDataByAppIdOrAppSlugAndIdentifierIdAsync(a => a.Id == appId, identifierId, cancellationToken);
         }
 
-        public async Task<IJsonResponse> GetGroupedAppDataByAppSlugAndIdentifierSlugAsync(GetGroupedAppDataByAppAndIdentifierInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetGroupedAppDataByAppSlugAndIdentifierSlugAsync(GetGroupedAppDataByAppAndIdentifierInput input, CancellationToken cancellationToken = default)
         {
             input.IdentifierIdOrSlug = input.IdentifierIdOrSlug?.ToSlug();
 
@@ -832,7 +832,7 @@ namespace OpenSettings.Services.Sql
 
             if (identifier == null)
             {
-                return HttpStatusCode.NotFound.ToFailureJsonResponse(Errors.IdentifierNotFound);
+                return HttpStatusCode.NotFound.ToFailureResponse(Errors.IdentifierNotFound);
             }
 
             input.AppIdOrSlug = input.AppIdOrSlug?.ToSlug();
@@ -841,13 +841,13 @@ namespace OpenSettings.Services.Sql
         }
 
 
-        public async Task<IJsonResponse> DeleteAppAsync(DeleteAppInput input, CancellationToken cancellationToken)
+        public async Task<IResponse> DeleteAppAsync(DeleteAppInput input, CancellationToken cancellationToken)
         {
-            var appIdRule = JsonValidationRules.GreaterThanRule(nameof(input.AppId), input.AppId, 0);
+            var appIdRule = ValidationRules.GreaterThanRule(nameof(input.AppId), input.AppId, 0);
 
             if (appIdRule.IsFailed())
             {
-                return appIdRule.Failure.ToJsonResponse();
+                return appIdRule.Failure.ToResponse();
             }
 
             var appId = appIdRule.GetStoredValue<int>();
@@ -861,7 +861,7 @@ namespace OpenSettings.Services.Sql
 
             if (entity == null)
             {
-                return HttpStatusCode.NotFound.ToFailureJsonResponse(Errors.AppNotFound);
+                return HttpStatusCode.NotFound.ToFailureResponse(Errors.AppNotFound);
             }
 
             if (!input.RowVersion.SequenceEqual(entity.RowVersion))
@@ -873,10 +873,10 @@ namespace OpenSettings.Services.Sql
 
             await _context.SaveChangesAsync(cancellationToken);
 
-            return HttpStatusCode.OK.ToSuccessJsonResponse();
+            return HttpStatusCode.OK.ToSuccessResponse();
         }
 
-        private async Task<IJsonResponse> GetGroupedAppDataByAppIdOrSlugAsync(Expression<Func<AppSqlModel, bool>> predicate, CancellationToken cancellationToken = default)
+        private async Task<IResponse> GetGroupedAppDataByAppIdOrSlugAsync(Expression<Func<AppSqlModel, bool>> predicate, CancellationToken cancellationToken = default)
         {
             var entity = await _context.Apps
                 .AsNoTracking()
@@ -958,12 +958,12 @@ namespace OpenSettings.Services.Sql
 
             if (entity == null)
             {
-                return HttpStatusCode.NotFound.ToFailureJsonResponse(Errors.AppNotFound);
+                return HttpStatusCode.NotFound.ToFailureResponse(Errors.AppNotFound);
             }
 
             if (entity.AppIdentifierMappings.Length == 0)
             {
-                return HttpStatusCode.OK.ToSuccessJsonResponse(new GetGroupedAppDataResponse());
+                return HttpStatusCode.OK.ToSuccessResponse(new GetGroupedAppDataResponse());
             }
 
             var firstMapping = entity.AppIdentifierMappings.First();
@@ -1055,7 +1055,7 @@ namespace OpenSettings.Services.Sql
                 identifierIdToInstances[identifierId] = identifierToInstancesMap.GetValueOrDefault(mapping.Identifier.Id, Array.Empty<GetGroupedAppDataResponseInstance>());
             }
 
-            return HttpStatusCode.OK.ToSuccessJsonResponse(new GetGroupedAppDataResponse
+            return HttpStatusCode.OK.ToSuccessResponse(new GetGroupedAppDataResponse
             {
                 IdentifierInfo = new GetGroupedAppDataResponseIdentifierInfo
                 {
@@ -1072,7 +1072,7 @@ namespace OpenSettings.Services.Sql
         }
 
 
-        private async Task<IJsonResponse<GetAppResponse>> GetAppByIdOrSlugAsync(Expression<Func<AppSqlModel, bool>> predicate, CancellationToken cancellationToken = default)
+        private async Task<IResponse<GetAppResponse>> GetAppByIdOrSlugAsync(Expression<Func<AppSqlModel, bool>> predicate, CancellationToken cancellationToken = default)
         {
             var query = _context.Apps
                 .AsNoTracking()
@@ -1087,11 +1087,11 @@ namespace OpenSettings.Services.Sql
             var entity = await GetAppResponse(query).FirstOrDefaultAsync(cancellationToken);
 
             return entity == null
-                ? HttpStatusCode.NotFound.ToFailureJsonResponse<GetAppResponse, Errors>(Errors.AppNotFound)
-                : HttpStatusCode.OK.ToSuccessJsonResponseOf(entity);
+                ? HttpStatusCode.NotFound.ToFailureResponse<GetAppResponse, Errors>(Errors.AppNotFound)
+                : HttpStatusCode.OK.ToSuccessResponseOf(entity);
         }
 
-        private async Task<IJsonResponse> GetGroupedAppDataByAppIdOrAppSlugAndIdentifierIdAsync(Expression<Func<AppSqlModel, bool>> predicate, int identifierId, CancellationToken cancellationToken = default)
+        private async Task<IResponse> GetGroupedAppDataByAppIdOrAppSlugAndIdentifierIdAsync(Expression<Func<AppSqlModel, bool>> predicate, int identifierId, CancellationToken cancellationToken = default)
         {
             var entity = await _context.Apps
                 .AsNoTracking()
@@ -1168,15 +1168,15 @@ namespace OpenSettings.Services.Sql
 
             if (entity == null)
             {
-                return HttpStatusCode.NotFound.ToFailureJsonResponse(Errors.AppNotFound);
+                return HttpStatusCode.NotFound.ToFailureResponse(Errors.AppNotFound);
             }
 
             if (entity.AppIdentifierMapping == null)
             {
-                return HttpStatusCode.OK.ToSuccessJsonResponse(new GetGroupedAppDataResponse());
+                return HttpStatusCode.OK.ToSuccessResponse(new GetGroupedAppDataResponse());
             }
 
-            return HttpStatusCode.OK.ToSuccessJsonResponse(new GetGroupedAppDataByIdentifierIdResponse
+            return HttpStatusCode.OK.ToSuccessResponse(new GetGroupedAppDataByIdentifierIdResponse
             {
                 Identifier = new GetGroupedAppDataByIdentifierIdResponseIdentifier
                 {
@@ -1228,7 +1228,7 @@ namespace OpenSettings.Services.Sql
             });
         }
 
-        private async Task<IJsonResponse<SyncAppDataResponse>> HandleNewAppAsync(SyncAppDataInput input, Dictionary<string, int> classNameToCount, int identifierId, CancellationToken cancellationToken = default)
+        private async Task<IResponse<SyncAppDataResponse>> HandleNewAppAsync(SyncAppDataInput input, Dictionary<string, int> classNameToCount, int identifierId, CancellationToken cancellationToken = default)
         {
             var settings = new List<SyncAppDataResponseSetting>(input.Settings.Count);
 
@@ -1372,7 +1372,7 @@ namespace OpenSettings.Services.Sql
             {
                 await _context.SaveChangesAsync(cancellationToken);
 
-                return HttpStatusCode.OK.ToSuccessJsonResponseOf(new SyncAppDataResponse
+                return HttpStatusCode.OK.ToSuccessResponseOf(new SyncAppDataResponse
                 {
                     Settings = settings,
                     Configuration = new SyncAppDataResponseConfiguration
@@ -1390,7 +1390,7 @@ namespace OpenSettings.Services.Sql
             }
             catch (Exception ex)
             {
-                return ex.ToJsonResponse<SyncAppDataResponse>();
+                return ex.ToResponse<SyncAppDataResponse>();
             }
         }
 
@@ -1437,13 +1437,13 @@ namespace OpenSettings.Services.Sql
             return clientId;
         }
 
-        private async Task<IJsonResponse<SyncAppDataResponse>> HandleExistingAppAsync(SyncAppDataInput input, Dictionary<string, int> classNameToCount, int identifierId, int appId, string hashedClientSecret, ICollection<int> mappedAppIdentifierIds, CancellationToken cancellationToken = default)
+        private async Task<IResponse<SyncAppDataResponse>> HandleExistingAppAsync(SyncAppDataInput input, Dictionary<string, int> classNameToCount, int identifierId, int appId, string hashedClientSecret, ICollection<int> mappedAppIdentifierIds, CancellationToken cancellationToken = default)
         {
             var passwordVerificationResult = _passwordHasher.VerifyHashedPassword(null, hashedClientSecret, $"{input.Client.Secret}");
 
             if (passwordVerificationResult == PasswordVerificationResult.Failed)
             {
-                return HttpStatusCode.Unauthorized.ToFailureJsonResponse<SyncAppDataResponse, Errors>(Errors.InvalidCredentials);
+                return HttpStatusCode.Unauthorized.ToFailureResponse<SyncAppDataResponse, Errors>(Errors.InvalidCredentials);
             }
 
             var currentTime = DateTime.UtcNow;
@@ -1619,7 +1619,7 @@ namespace OpenSettings.Services.Sql
 
                 await Task.WhenAll(internalContext.SaveChangesAsync(cancellationToken), _context.SaveChangesAsync(cancellationToken));
 
-                return HttpStatusCode.OK.ToSuccessJsonResponseOf(new SyncAppDataResponse
+                return HttpStatusCode.OK.ToSuccessResponseOf(new SyncAppDataResponse
                 {
                     Settings = settings,
                     ProviderInfo = _providerInfo,

@@ -3,7 +3,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace OpenSettings.AspNetCore
+namespace OpenSettings.AspNetCore.Services.Interfaces
 {
     /// <summary>
     /// Defines methods for handling and managing OpenSettings token validation and refresh functionality.
