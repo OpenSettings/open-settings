@@ -39,7 +39,7 @@ namespace OpenSettings.Extensions
         /// If the setting doesn't exist, it returns the default value for the type. The type <typeparamref name="T"/> must implement <see cref="ISettings"/>.
         /// </para>
         /// <para>
-        /// The non-generic <see cref="GetSettingOrDefault"/> method retrieves a setting by the provided <paramref name="type"/>.
+        /// The non-generic <see cref="GetSettingOrDefault"/> method retrieves a setting by the provided <c>type</c>.
         /// If no setting is found, it returns <c>null</c> or the default value of the specified type.
         /// </para>
         /// </summary>

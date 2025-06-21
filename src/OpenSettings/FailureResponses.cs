@@ -9,9 +9,12 @@ namespace OpenSettings
 {
     internal static class FailureResponses
     {
+        private const string ConcurrencyConflictTitle = "Concurrency Conflict";
+        private const string ConcurrencyConflictMessage = "The data has been modified by someone else.";
+
         internal static IResponse<T> Conflict<T>(string id, byte[] currentRowVersion, byte[] proposedRowVersion, bool isDeleted)
         {
-            var jsonResponse = HttpStatusCode.Conflict.ToFailureResponse<T>("Concurrency Conflict", "The data has been modified by someone else.");
+            var jsonResponse = HttpStatusCode.Conflict.ToFailureResponse<T>(ConcurrencyConflictTitle, ConcurrencyConflictMessage);
 
             jsonResponse.Extras["Conflicts"] = new ConcurrencyConflict
             {
@@ -32,7 +35,7 @@ namespace OpenSettings
 
         internal static IResponse Conflict(string id, byte[] currentRowVersion, byte[] proposedRowVersion, bool isDeleted)
         {
-            var jsonResponse = HttpStatusCode.Conflict.ToFailureResponse("Concurrency Conflict", "The data has been modified by someone else.");
+            var jsonResponse = HttpStatusCode.Conflict.ToFailureResponse(ConcurrencyConflictTitle, ConcurrencyConflictMessage);
 
             jsonResponse.Extras["Conflicts"] = new ConcurrencyConflict
             {
@@ -53,7 +56,7 @@ namespace OpenSettings
 
         internal static IResponse<T> Conflict<T>(params ConflictModel[] conflicts)
         {
-            var jsonResponse = HttpStatusCode.Conflict.ToFailureResponse<T>("Concurrency Conflict", "The data has been modified by someone else.");
+            var jsonResponse = HttpStatusCode.Conflict.ToFailureResponse<T>(ConcurrencyConflictTitle, ConcurrencyConflictMessage);
 
             var concurrencyConflict = conflicts.ToDictionary(c => c.Id, c => new ConcurrencyConflictInfo
             {
@@ -71,7 +74,7 @@ namespace OpenSettings
 
         internal static IResponse Conflict(params ConflictModel[] conflicts)
         {
-            var jsonResponse = HttpStatusCode.Conflict.ToFailureResponse("Concurrency Conflict", "The data has been modified by someone else.");
+            var jsonResponse = HttpStatusCode.Conflict.ToFailureResponse(ConcurrencyConflictTitle, ConcurrencyConflictMessage);
 
             var concurrencyConflict = conflicts.ToDictionary(c => c.Id, c => new ConcurrencyConflictInfo
             {

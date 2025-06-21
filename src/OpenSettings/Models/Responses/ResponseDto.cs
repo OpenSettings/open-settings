@@ -102,65 +102,6 @@ namespace OpenSettings.Models.Responses
             return new Response<TData>(data, responseDto.Success, responseDto.Status, responseDto.Extras, responseDto.Errors?.Select(e => (IError)e.ToError()).ToList());
         }
 
-        //public static IActionResult ToActionDto(this ModelStateDictionary modelState)
-        //{
-        //    return modelState.ToResponse().ToActionDto();
-        //}
-
-        //public static IActionResult ToActionDto<T>(this ModelStateDictionary modelState)
-        //{
-        //    return modelState.ToResponse().ToActionDto();
-        //}
-
-        //public static IActionResult ToAction(this ResponseDto responseDto)
-        //{
-        //    return InternalToAction((int)responseDto.Status, responseDto);
-        //}
-
-        //public static IActionResult ToAction<T>(this ResponseDto<T> responseDto)
-        //{
-        //    return InternalToAction((int)responseDto.Status, responseDto);
-        //}
-
-        //private static IActionResult InternalToAction(int statusCode, object response)
-        //{
-        //    return ResponseDefaults.NoResponseStatusCodes.Contains(statusCode)
-        //        ? (IActionResult)new StatusCodeResult(statusCode)
-        //        : new ObjectResult(response);
-        //}
-
-        //public static IActionResult ToActionDto(this IResponse response)
-        //{
-        //    var responseDto = new ResponseDto
-        //    {
-        //        Success = response.Success,
-        //        Status = response.Status,
-        //        Data = response.Data,
-        //        Errors = response.Errors.Count == 0
-        //            ? null
-        //            : response.Errors.Select(e => e.ToErrorDto()).ToArray(),
-        //        Extras = response.Extras.Count == 0 ? null : response.Extras as Dictionary<string, object> ?? response.Extras.ToDictionary(e => e.Key, e => e.Value)
-        //    };
-
-        //    return responseDto.ToAction();
-        //}
-
-        //public static IActionResult ToActionDto<T>(this IResponse<T> response)
-        //{
-        //    var responseDto = new ResponseDto<T>
-        //    {
-        //        Success = response.Success,
-        //        Status = response.Status,
-        //        Data = response.Data,
-        //        Errors = response.Errors.Count == 0
-        //            ? null
-        //            : response.Errors.Select(e => e.ToErrorDto()).ToArray(),
-        //        Extras = response.Extras.Count == 0 ? null : response.Extras as Dictionary<string, object> ?? response.Extras.ToDictionary(e => e.Key, e => e.Value)
-        //    };
-
-        //    return responseDto.ToAction();
-        //}
-
         private static Error ToError(this ErrorDto errorDto)
         {
             return new Error(errorDto.Title, errorDto.Description, errorDto.Traces, errorDto.Code, errorDto.HelpLink,
@@ -201,5 +142,4 @@ namespace OpenSettings.Models.Responses
             };
         }
     }
-
 }

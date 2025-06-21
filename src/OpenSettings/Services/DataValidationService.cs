@@ -69,7 +69,7 @@ namespace OpenSettings.Services
                         }
                         catch
                         {
-                            _logger.LogError("Failed to deserialize complex type for property '{PropertyName}' with value '{PropertyValue}'", propertyName, propertyValue);
+                            _logger.LogError("Failed to deserialize complex type for property '{propertyName}' with value '{propertyValue}'", propertyName, propertyValue);
 
                             return false;
                         }
@@ -115,7 +115,7 @@ namespace OpenSettings.Services
                     }
                     catch(Exception ex)
                     {
-                        _logger.LogError(ex, "Failed to validate complex property '{PropertyName}' with value '{PropertyValue}'.", property.Name, propertyValue);
+                        _logger.LogError(ex, "Failed to validate complex property '{propertyName}' with value '{propertyValue}'.", property.Name, propertyValue);
 
                         return false;
                     }
@@ -211,17 +211,17 @@ namespace OpenSettings.Services
             }
             catch (ObjectDisposedException ex)
             {
-                _logger.LogError(ex, "Failed to deserialize to type '{TypeName}' because the JsonElement was disposed.",
+                _logger.LogError(ex, "Failed to deserialize to type '{targetTypeName}' because the JsonElement was disposed.",
                     targetType.Name);
             }
             catch (JsonException ex)
             {
-                _logger.LogError(ex, "Failed to deserialize JsonElement to type '{TypeName}' with value '{RawJson}'.",
+                _logger.LogError(ex, "Failed to deserialize JsonElement to type '{targetTypeName}' with value '{rawJson}'.",
                     targetType.Name, rawJson);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unexpected error while deserializing to type '{TypeName}' with value '{RawJson}'.",
+                _logger.LogError(ex, "Unexpected error while deserializing to type '{targetTypeName}' with value '{rawJson}'.",
                     targetType.Name, rawJson);
             }
 
