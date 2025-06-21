@@ -157,14 +157,23 @@ namespace OpenSettings.Extensions
             return concurrencyConflict;
         }
 
-        public static ValidationRule ValidJsonRule(string propertyName, string attemptedValue)
+        public static ValidationRule ValidJsonRule(string propertyName, string attemptedValue, bool storeParsedValue)
         {
             return new ValidationRule(() => ValidationFailures.InvalidJsonFormat(propertyName, attemptedValue), delegate (IValidationStore v)
             {
                 try
                 {
-                    JsonDocument value = JsonDocument.Parse(attemptedValue);
-                    v.Store(value);
+                    var value = JsonDocument.Parse(attemptedValue);
+
+                    if (storeParsedValue)
+                    {
+                        v.Store(value);
+                    }
+                    else
+                    {
+                        value.Dispose();
+                    }
+
                     return true;
                 }
                 catch (JsonException)

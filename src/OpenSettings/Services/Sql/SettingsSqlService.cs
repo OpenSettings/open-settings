@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Net;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -28,7 +29,7 @@ namespace OpenSettings.Services.Sql
         private readonly IIdentifiersService _identifiersService;
         private readonly ICompressionProvider _compressionProvider;
         private readonly OpenSettingsDbContext _context;
-        private readonly DataValidationService _settingsDataValidationService;
+        private readonly IDataValidationService _dataValidationService;
         private readonly OpenSettingsConfiguration _openSettingsConfiguration;
 
         public SettingsSqlService(
@@ -36,23 +37,23 @@ namespace OpenSettings.Services.Sql
             IIdentifiersService identifiersService,
             ICompressionProvider compressionProvider,
             OpenSettingsDbContext context,
-            DataValidationService settingsDataValidationService,
+            IDataValidationService dataValidationService,
             OpenSettingsConfiguration openSettingsConfiguration)
         {
             _dataChangeService = dataChangeService;
             _identifiersService = identifiersService;
             _compressionProvider = compressionProvider;
             _context = context;
-            _settingsDataValidationService = settingsDataValidationService;
+            _dataValidationService = dataValidationService;
             _openSettingsConfiguration = openSettingsConfiguration;
         }
 
         public async Task<IResponse> GetSettingsByAppIdAndIdentifierIdAsync(GetSettingsByAppAndIdentifierInput input, CancellationToken cancellationToken = default)
         {
             var appIdValidationRule = ValidationRules.GreaterThanRule("AppId", input.AppIdOrSlug, 0);
-            var IdentifierIdValidationRule = ValidationRules.GreaterThanRule("IdentifierId", input.IdentifierIdOrSlug, 0);
+            var identifierIdValidationRule = ValidationRules.GreaterThanRule("IdentifierId", input.IdentifierIdOrSlug, 0);
 
-            var failure = new ValidationRule[] { appIdValidationRule, IdentifierIdValidationRule }.ValidateFirstOrDefault();
+            var failure = new ValidationRule[] { appIdValidationRule, identifierIdValidationRule }.ValidateFirstOrDefault();
 
             if (failure != null)
             {
@@ -60,9 +61,9 @@ namespace OpenSettings.Services.Sql
             }
 
             var appId = appIdValidationRule.GetStoredValue<int>();
-            var IdentifierId = IdentifierIdValidationRule.GetStoredValue<int>();
+            var identifierId = identifierIdValidationRule.GetStoredValue<int>();
 
-            return await GetSettingsByAppAndIdentifierAsync(a => a.Id == appId, IdentifierId, cancellationToken);
+            return await GetSettingsByAppAndIdentifierAsync(a => a.Id == appId, identifierId, cancellationToken);
         }
 
         public async Task<IResponse> GetSettingsByAppSlugAndIdentifierSlugAsync(GetSettingsByAppAndIdentifierInput input, CancellationToken cancellationToken = default)
@@ -810,7 +811,7 @@ namespace OpenSettings.Services.Sql
             var appIdRule = ValidationRules.GreaterThanRule(nameof(input.AppId), input.AppId, 0);
             var computedIdentifierRule = ValidationRules.NotEmptyRule(nameof(input.ComputedIdentifier), input.ComputedIdentifier);
             var identifierIdRule = ValidationRules.GreaterThanRule(nameof(input.IdentifierId), input.IdentifierId, 0);
-            var validJsonRule = InternalExtensions.ValidJsonRule(nameof(input.Data), input.Data);
+            var validJsonRule = InternalExtensions.ValidJsonRule(nameof(input.Data), input.Data, storeParsedValue: false);
 
             var failure = new[] { appIdRule, computedIdentifierRule, identifierIdRule, validJsonRule }.ValidateFirstOrDefault();
 
@@ -939,8 +940,8 @@ namespace OpenSettings.Services.Sql
         public async Task<IResponse<UpdateSettingDataResponse>> UpdateSettingDataAsync(UpdateSettingDataInput input, CancellationToken cancellationToken)
         {
             var settingIdValidationRule = ValidationRules.GreaterThanRule(nameof(input.SettingId), input.SettingId, 0);
-            var validJsonRule = InternalExtensions.ValidJsonRule(nameof(input.Data), input.Data);
-
+            var validJsonRule = InternalExtensions.ValidJsonRule(nameof(input.Data), input.Data, storeParsedValue: true);
+            
             var failure = new ValidationRule[] { settingIdValidationRule, validJsonRule }.ValidateFirstOrDefault();
 
             if (failure != null)
@@ -949,6 +950,8 @@ namespace OpenSettings.Services.Sql
             }
 
             var settingId = settingIdValidationRule.GetStoredValue<int>();
+
+            var jsonDocument = validJsonRule.GetStoredValue<JsonDocument>();
 
             var entity = await _context.Settings
                 .AsNoTracking()
@@ -1003,10 +1006,12 @@ namespace OpenSettings.Services.Sql
                 return HttpStatusCode.BadRequest.ToFailureResponse<UpdateSettingDataResponse, Errors>(Errors.NoChanges);
             }
 
-            if (!entity.DataValidationDisabled && !_settingsDataValidationService.IsDataMappingValid(input.Data, entity.SettingClass.Properties))
+            if (!entity.DataValidationDisabled && !_dataValidationService.IsDataMappingValid(jsonDocument, entity.SettingClass.Properties))
             {
                 return HttpStatusCode.BadRequest.ToFailureResponse<UpdateSettingDataResponse, Errors>(Errors.InvalidSettingData);
             }
+
+            jsonDocument.Dispose();
 
             var currentTime = DateTime.UtcNow;
 

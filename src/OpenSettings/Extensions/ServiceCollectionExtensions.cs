@@ -43,8 +43,14 @@ namespace OpenSettings.Extensions
         /// <param name="services">The <see cref="IServiceCollection"/> to which the OpenSettings services will be added.</param>
         /// <param name="configuration">The <see cref="IConfiguration"/> instance used to configure the settings.</param>
         /// <returns>The <see cref="IServiceCollection"/> with OpenSettings services configured.</returns>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="services" /> is null.</exception>
         public static IServiceCollection ConfigureOpenSettings(this IServiceCollection services, IConfiguration configuration)
         {
+            if (services == null)
+            {
+                throw new ArgumentNullException(nameof(services));
+            }
+
             foreach (var kvp in Constants.FullNameToLocalSetting)
             {
                 services.ConfigureSetting(configuration, kvp.Value);
@@ -61,9 +67,14 @@ namespace OpenSettings.Extensions
         /// <param name="openSettingsConfiguration">The configuration that governs the behavior of OpenSettings (such as the service type: Provider or Consumer).</param>
         /// <param name="providerInfo">Information about the provider being registered.</param>
         /// <returns>The <see cref="IServiceCollection"/> with OpenSettings services registered.</returns>
-        /// <exception cref="ArgumentNullException">Thrown if <paramref name="openSettingsConfiguration"/> is null.</exception>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="services" /> or <paramref name="openSettingsConfiguration"/> is null.</exception>
         public static IServiceCollection AddOpenSettings(this IServiceCollection services, OpenSettingsConfiguration openSettingsConfiguration, ProviderInfo providerInfo)
         {
+            if(services == null)
+            {
+                throw new ArgumentNullException(nameof(services));
+            }
+
             if (openSettingsConfiguration == null)
             {
                 throw new ArgumentNullException(nameof(openSettingsConfiguration));
@@ -164,7 +175,7 @@ namespace OpenSettings.Extensions
                     services.RegisterRedisServiceCollection(openSettingsConfiguration.Provider.Redis.Configuration);
                 }
 
-                services.AddSingleton<DataValidationService>();
+                services.AddSingleton<IDataValidationService, DataValidationService>();
 
                 services.AddSingleton<IPasswordHasher<AppSqlModel>, PasswordHasher<AppSqlModel>>();
 

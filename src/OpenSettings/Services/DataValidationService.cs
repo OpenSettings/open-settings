@@ -1,4 +1,6 @@
-﻿using OpenSettings.Models;
+﻿using Microsoft.Extensions.Logging;
+using OpenSettings.Models;
+using OpenSettings.Services.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,13 +8,20 @@ using System.Text.Json;
 
 namespace OpenSettings.Services
 {
-    public class DataValidationService
+    internal sealed class DataValidationService : IDataValidationService
     {
         private const string NullableGenericTypeName = "Nullable`1";
 
-        public bool IsDataMappingValid(string data, ICollection<PropertyInfoHelperModel> properties)
+        private readonly ILogger _logger;
+
+        public DataValidationService(ILogger<DataValidationService> logger)
         {
-            var deserializedData = JsonSerializer.Deserialize<Dictionary<string, object>>(data);
+            _logger = logger;
+        }
+
+        public bool IsDataMappingValid(JsonDocument jsonDocument, ICollection<PropertyInfoHelperModel> properties)
+        {
+            var deserializedData = jsonDocument.Deserialize<Dictionary<string, object>>();
 
             foreach (var propertyFromDb in properties)
             {
@@ -60,15 +69,14 @@ namespace OpenSettings.Services
                         }
                         catch
                         {
+                            _logger.LogError("Failed to deserialize complex type for property '{PropertyName}' with value '{PropertyValue}'", propertyName, propertyValue);
+
                             return false;
                         }
                     }
-                    else
+                    else if (!ValidatePropertyValue(propertyValue, propertyFromDb.TypeFullName))
                     {
-                        if (!ValidatePropertyValue(propertyValue, propertyFromDb.TypeFullName))
-                        {
-                            return false;
-                        }
+                        return false;
                     }
                 }
                 else
@@ -80,7 +88,7 @@ namespace OpenSettings.Services
             return true;
         }
 
-        private static bool ValidateComplexType(IReadOnlyDictionary<string, object> complexData, PropertyInfoHelperModel propertyFromDb)
+        private bool ValidateComplexType(Dictionary<string, object> complexData, PropertyInfoHelperModel propertyFromDb)
         {
             if (complexData == null)
             {
@@ -105,8 +113,10 @@ namespace OpenSettings.Services
                             return false;
                         }
                     }
-                    catch
+                    catch(Exception ex)
                     {
+                        _logger.LogError(ex, "Failed to validate complex property '{PropertyName}' with value '{PropertyValue}'.", property.Name, propertyValue);
+
                         return false;
                     }
                 }
@@ -182,7 +192,7 @@ namespace OpenSettings.Services
             }
         }
 
-        private static object DeserializeJsonElement(JsonElement jsonElement, string typeName)
+        private object DeserializeJsonElement(JsonElement jsonElement, string typeName)
         {
             var targetType = Type.GetType(typeName);
 
@@ -191,14 +201,31 @@ namespace OpenSettings.Services
                 return null;
             }
 
+            string rawJson = null;
+
             try
             {
-                return JsonSerializer.Deserialize(jsonElement.GetRawText(), targetType);
+                rawJson = jsonElement.GetRawText();
+
+                return JsonSerializer.Deserialize(rawJson, targetType);
             }
-            catch (JsonException)
+            catch (ObjectDisposedException ex)
             {
-                return null;
+                _logger.LogError(ex, "Failed to deserialize to type '{TypeName}' because the JsonElement was disposed.",
+                    targetType.Name);
             }
+            catch (JsonException ex)
+            {
+                _logger.LogError(ex, "Failed to deserialize JsonElement to type '{TypeName}' with value '{RawJson}'.",
+                    targetType.Name, rawJson);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error while deserializing to type '{TypeName}' with value '{RawJson}'.",
+                    targetType.Name, rawJson);
+            }
+
+            return null;
         }
     }
 }

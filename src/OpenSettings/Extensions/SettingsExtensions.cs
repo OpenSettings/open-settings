@@ -18,7 +18,7 @@ namespace OpenSettings.Extensions
         /// A nullable <see cref="RegistrationMode"/> indicating the registration mode of the setting,
         /// or <c>null</c> if not found.
         /// </returns>
-        /// <exception cref="NullReferenceException">Thrown if <c>setting</c> param null.</exception>
+        /// <exception cref="NullReferenceException">Thrown if <paramref name="setting"/> is null.</exception>
         public static RegistrationMode? GetRegistrationMode(this ISettings setting)
         {
             return SettingsProvider.GetRegistrationMode(setting.GetType().FullName);
@@ -32,7 +32,7 @@ namespace OpenSettings.Extensions
         /// <returns>
         /// The local setting data associated with the setting object, or <c>null</c> if no data is found.
         /// </returns>
-        /// <exception cref="NullReferenceException">Thrown if <c>setting</c> param null.</exception>
+        /// <exception cref="NullReferenceException">Thrown if <paramref name="setting"/> is null.</exception>
         public static object GetLocalSettingOrDefault(this ISettings setting)
         {
             return SettingsProvider.GetLocalSettingOrDefault(setting.GetType().FullName);
@@ -49,7 +49,7 @@ namespace OpenSettings.Extensions
         /// The local setting data associated with the setting object, cast to type <typeparamref name="T"/>, 
         /// or <c>null</c> if no data is found.
         /// </returns>
-        /// <exception cref="NullReferenceException">Thrown if <c>setting</c> param null.</exception>
+        /// <exception cref="NullReferenceException">Thrown if <paramref name="setting"/> is null.</exception>
         public static T GetLocalSettingOrDefault<T>(this ISettings setting) where T : ISettings
         {
             return (T)GetLocalSettingOrDefault(setting);

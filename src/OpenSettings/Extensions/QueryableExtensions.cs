@@ -12,8 +12,6 @@ namespace OpenSettings.Extensions
     {
         private const string InMemoryProviderName = "Microsoft.EntityFrameworkCore.InMemory";
 
-        private const string SqliteProviderName = "Microsoft.EntityFrameworkCore.Sqlite";
-
         private static readonly MethodInfo StringContainsMethod = typeof(string).GetMethod(nameof(string.Contains), new[] { typeof(string) });
 
         private static readonly MemberExpression EfFunctionsProperty = Expression.Property(null, typeof(EF).GetProperty(nameof(EF.Functions)));
@@ -27,17 +25,6 @@ namespace OpenSettings.Extensions
 
             return database.ProviderName == InMemoryProviderName;
         }
-
-        public static bool IsSqlite(this DatabaseFacade database)
-        {
-            if (database == null)
-            {
-                throw new ArgumentNullException(nameof(database));
-            }
-
-            return database.ProviderName == SqliteProviderName;
-        }
-
         internal static IQueryable<TEntity> SearchBy<TEntity>(
             this IQueryable<TEntity> query,
             IEnumerable<Expression<Func<TEntity, string>>> fieldSelectors,
