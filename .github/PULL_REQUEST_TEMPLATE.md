@@ -1,6 +1,6 @@
 # 📜 Pull Request
 
-Thank you for contributing to OpenSettings! Please complete the checklist and provide a short summary of your changes.
+<!-- Thank you for contributing to OpenSettings! Please complete the checklist and provide a short summary of your changes. -->
 
 ## ✏️ Description
 
