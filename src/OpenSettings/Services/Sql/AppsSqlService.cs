@@ -78,7 +78,7 @@ namespace OpenSettings.Services.Sql
 
                 foreach (var setting in input.Settings)
                 {
-                    classNameToCount[setting.SettingClass.Name] = Constants.ClassNameToCount.GetValueOrDefault(setting.SettingClass.Name, 0) + 1;
+                    classNameToCount[setting.SettingClass.Name] = classNameToCount.GetValueOrDefault(setting.SettingClass.Name, 0) + 1;
                 }
 
                 var clientNameLowercase = input.Client.Name.Trim().ToLowerInvariant();

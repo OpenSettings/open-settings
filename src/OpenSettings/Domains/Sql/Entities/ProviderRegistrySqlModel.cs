@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OpenSettings.Models;
+using System;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OpenSettings.Domains.Sql.Entities
@@ -6,7 +7,7 @@ namespace OpenSettings.Domains.Sql.Entities
     [Table("ProviderRegistries")]
     public class ProviderRegistrySqlModel : EntityBase<int>
     {
-        public string Scheme { get; set; }
+        public ProviderRegistryScheme Scheme { get; set; }
 
         public string Host { get; set; }
 
@@ -16,14 +17,5 @@ namespace OpenSettings.Domains.Sql.Entities
 
         [NotMapped]
         public override DateTime? UpdatedOn { get; set; }
-    }
-
-    public enum ProviderRegistryScheme
-    {
-        Tcp = 1,
-        Grpc = 2,
-        Http = 3,
-        Https = 4,
-        WebSocket = 5
     }
 }
