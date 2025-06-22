@@ -191,11 +191,16 @@ namespace OpenSettings.Services.Sql
                     a.AppId,
                     a.App.ClientId,
                     AppSlug = a.App.Slug,
+                    a.SerializerType,
                     a.CompressionType,
                     a.CompressionLevel,
                     a.Data,
                     a.ComputedIdentifier,
                     a.DataValidationDisabled,
+                    a.StoreInSeparateFile,
+                    a.IgnoreOnFileChange,
+                    a.RegistrationMode,
+                    a.IsDraft,
                     a.IdentifierId,
                     a.SettingClass.Namespace,
                     a.SettingClass.Name,
@@ -363,17 +368,27 @@ namespace OpenSettings.Services.Sql
 
             var newSetting = new SettingSqlModel
             {
-                AppId = sourceSetting.AppId,
-                CompressionType = sourceSetting.CompressionType,
-                CompressionLevel = sourceSetting.CompressionLevel,
                 Data = sourceSetting.Data,
                 ComputedIdentifier = sourceSetting.ComputedIdentifier,
+                SerializerType = sourceSetting.SerializerType,
+                CompressionType = sourceSetting.CompressionType,
+                CompressionLevel = sourceSetting.CompressionLevel,
                 Version = "0",
+                DataRestored = false,
                 DataValidationDisabled = sourceSetting.DataValidationDisabled,
+                StoreInSeparateFile = sourceSetting.StoreInSeparateFile,
+                IgnoreOnFileChange = sourceSetting.IgnoreOnFileChange,
+                RegistrationMode = sourceSetting.RegistrationMode,
+                IsDraft = sourceSetting.IsDraft,
                 IsCopied = true,
                 CopiedOn = currentTime,
                 IdentifierId = identifierId,
+                AppId = sourceSetting.AppId,
                 CopiedFromId = settingId,
+                CreatedById = input.UserId,
+                UpdatedById = null,
+                RowVersion = Array.Empty<byte>(),
+                CreatedOn = currentTime,
                 SettingClass = new SettingClassSqlModel
                 {
                     Namespace = sourceSetting.Namespace,
@@ -381,9 +396,7 @@ namespace OpenSettings.Services.Sql
                     FullName = sourceSetting.FullName,
                     Identifier = sourceSetting.Identifier,
                     Properties = sourceSetting.Properties
-                },
-                CreatedOn = currentTime,
-                CreatedById = input.UserId
+                }
             };
 
             app.Settings.Add(newSetting);

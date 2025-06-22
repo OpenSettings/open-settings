@@ -19,10 +19,22 @@ namespace OpenSettings.Services
             _logger = logger;
         }
 
+        public bool IsDataMappingValid(string jsonData, ICollection<PropertyInfoHelperModel> properties)
+        {
+            var deserializedData = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonData);
+
+            return InternalIsDataMappingValid(deserializedData, properties);
+        }
+
         public bool IsDataMappingValid(JsonDocument jsonDocument, ICollection<PropertyInfoHelperModel> properties)
         {
             var deserializedData = jsonDocument.Deserialize<Dictionary<string, object>>();
 
+            return InternalIsDataMappingValid(deserializedData, properties);
+        }
+
+        private bool InternalIsDataMappingValid(Dictionary<string, object> deserializedData, ICollection<PropertyInfoHelperModel> properties)
+        {
             foreach (var propertyFromDb in properties)
             {
                 var propertyName = propertyFromDb.Name;
@@ -113,7 +125,7 @@ namespace OpenSettings.Services
                             return false;
                         }
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
                         _logger.LogError(ex, "Failed to validate complex property '{propertyName}' with value '{propertyValue}'.", property.Name, propertyValue);
 

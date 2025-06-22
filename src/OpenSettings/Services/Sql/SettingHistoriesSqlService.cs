@@ -21,15 +21,18 @@ namespace OpenSettings.Services.Sql
     internal sealed class SettingHistoriesSqlService : ISettingHistoriesSqlService
     {
         private readonly IDataChangeService _dataChangeService;
+        private readonly IDataValidationService _dataValidationService;
         private readonly ICompressionProvider _compressionProvider;
         private readonly OpenSettingsDbContext _context;
 
         public SettingHistoriesSqlService(
             IDataChangeService dataChangeService,
+            IDataValidationService dataValidationService,
             ICompressionProvider compressionProvider,
             OpenSettingsDbContext context)
         {
             _dataChangeService = dataChangeService;
+            _dataValidationService = dataValidationService;
             _compressionProvider = compressionProvider;
             _context = context;
         }
@@ -171,6 +174,7 @@ namespace OpenSettings.Services.Sql
                         CompressionLevel = a.Setting.CompressionLevel,
                         Data = a.Setting.Data,
                         ComputedIdentifier = a.Setting.ComputedIdentifier,
+                        DataValidationDisabled = a.Setting.DataValidationDisabled,
                         Identifier = new IdentifierSqlModel
                         {
                             Name = a.Setting.Identifier.Name,
@@ -181,6 +185,10 @@ namespace OpenSettings.Services.Sql
                         App = new AppSqlModel
                         {
                             ClientId = a.Setting.App.ClientId
+                        },
+                        SettingClass = new SettingClassSqlModel
+                        {
+                            Properties = a.Setting.SettingClass.Properties
                         }
                     }
                 }).FirstOrDefaultAsync(cancellationToken);
@@ -203,6 +211,13 @@ namespace OpenSettings.Services.Sql
             if (!input.SettingRowVersion.SequenceEqual(entity.Setting.RowVersion))
             {
                 return FailureResponses.Conflict<RestoreSettingHistoryResponse>($"{entity.Setting.Id}", entity.Setting.RowVersion, input.SettingRowVersion, false);
+            }
+
+            var decompressedData = await _compressionProvider.DecompressToUtf8StringAsync(entity.Data, entity.CompressionType, cancellationToken);
+
+            if (!entity.Setting.DataValidationDisabled && !_dataValidationService.IsDataMappingValid(decompressedData, entity.Setting.SettingClass.Properties))
+            {
+                return HttpStatusCode.BadRequest.ToFailureResponse<RestoreSettingHistoryResponse, Errors>(Errors.InvalidSettingData);
             }
 
             var currentTime = DateTime.UtcNow;
