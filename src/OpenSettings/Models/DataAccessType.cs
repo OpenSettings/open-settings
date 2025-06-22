@@ -7,6 +7,11 @@
     public enum DataAccessType
     {
         /// <summary>
+        /// Represents an unset or undefined data access type.
+        /// </summary>
+        Unset = 0,
+
+        /// <summary>
         /// Represents the use of an Object-Relational Mapper (ORM) for data persistence.
         /// The ORM approach abstracts the database interactions, allowing objects in the application 
         /// to be mapped to relational database tables.

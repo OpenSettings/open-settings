@@ -9,7 +9,7 @@ namespace OpenSettings.Models.Inputs
         public CreateInstanceInput()
         {
         }
-
+        
         public CreateInstanceInput(OpenSettingsConfiguration openSettingsConfiguration, bool isActive, string[] urls)
         {
             ClientId = openSettingsConfiguration.Client.Id;

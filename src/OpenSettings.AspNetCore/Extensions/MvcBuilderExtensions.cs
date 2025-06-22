@@ -161,7 +161,7 @@ namespace OpenSettings.AspNetCore.Extensions
             else
             {
                 mvcBuilder.Services.AddTransient<OpenSettingsRestServiceAuthHandler>();
-                mvcBuilder.Services.AddSingleton<DecompressionHandler>();
+                mvcBuilder.Services.AddTransient<DecompressionHandler>();
 
                 Action<IServiceProvider, HttpClient> configureHttpClient = (sp, httpClient) =>
                 {

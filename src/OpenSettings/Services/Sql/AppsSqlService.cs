@@ -1507,14 +1507,17 @@ namespace OpenSettings.Services.Sql
                         Name = instanceName,
                         NameLowercase = instanceNameLowercase,
                         Slug = instanceSlug,
-                        IdentifierId = identifierId,
                         DynamicId = input.Instance.DynamicId,
-                        Urls = Array.Empty<string>(),
+                        Urls = input.Instance.Urls,
+                        Version = input.Instance.Version,
+                        IsActive = input.Instance.IsActive,
+                        IpAddress = input.Instance.IpAddress,
                         MachineName = input.Instance.MachineName,
                         Environment = input.Instance.Environment,
                         ReloadStrategies = input.Instance.ReloadStrategies,
                         ServiceType = input.Instance.ServiceType,
-                        Version = input.Instance.Version,
+                        DataAccessType = input.Instance.DataAccessType,
+                        IdentifierId = identifierId,
                         CreatedOn = currentTime
                     });
                 }
@@ -1526,11 +1529,15 @@ namespace OpenSettings.Services.Sql
                     instance.NameLowercase = instanceNameLowercase;
                     instance.Slug = instanceSlug;
                     instance.DynamicId = input.Instance.DynamicId;
+                    instance.Urls = input.Instance.Urls;
+                    instance.Version = input.Instance.Version;
+                    instance.IsActive = input.Instance.IsActive;
+                    instance.IpAddress = input.Instance.IpAddress;
                     instance.MachineName = input.Instance.MachineName;
                     instance.Environment = input.Instance.Environment;
                     instance.ReloadStrategies = input.Instance.ReloadStrategies;
                     instance.ServiceType = input.Instance.ServiceType;
-                    instance.Version = input.Instance.Version;
+                    instance.DataAccessType = input.Instance.DataAccessType;
                     instance.UpdatedOn = currentTime;
 
                     _context.MarkAsModified(instance,
@@ -1538,11 +1545,15 @@ namespace OpenSettings.Services.Sql
                         i => i.NameLowercase,
                         i => i.Slug,
                         i => i.DynamicId,
+                        i => i.Urls,
+                        i => i.Version,
+                        i => i.IsActive,
+                        i => i.IpAddress,
                         i => i.MachineName,
                         i => i.Environment,
                         i => i.ReloadStrategies,
                         i => i.ServiceType,
-                        i => i.Version,
+                        i => i.DataAccessType,
                         i => i.UpdatedOn);
                 }
             }

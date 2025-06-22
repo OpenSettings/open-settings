@@ -1,6 +1,5 @@
 ﻿using OpenSettings.Helpers;
 using System;
-using System.Reflection;
 
 namespace OpenSettings.Models
 {
