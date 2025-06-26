@@ -11,7 +11,7 @@ namespace OpenSettings.AspNetCore.Services
 {
     internal sealed class InstanceUrlResolverService : IInstanceUrlResolverService
     {
-        private const int FallbackPort = 5000;
+        private const string FallbackPort = "5000";
 
         private readonly IServerAddressesFeature _serverAddressesFeature;
 
@@ -23,27 +23,42 @@ namespace OpenSettings.AspNetCore.Services
         public string[] ResolveUrls()
         {
             var urls = new List<string>();
+            
+            var enableK8sDns = Environment.GetEnvironmentVariable("ENABLE_K8S_DNS")?.ToLowerInvariant() == "true";
+
+            var serviceName = Environment.GetEnvironmentVariable("SERVICE_NAME");
+            var namespaceName = Environment.GetEnvironmentVariable("POD_NAMESPACE") ?? "default";
+
+            var envPort = Environment.GetEnvironmentVariable("SERVICE_PORT") ??
+                          Environment.GetEnvironmentVariable("POD_PORT") ?? "80";
 
             var envHost = Environment.GetEnvironmentVariable("SERVICE_HOST")
                           ?? Environment.GetEnvironmentVariable("POD_IP");
-
-            if (!string.IsNullOrWhiteSpace(envHost))
-            {
-                urls.Add($"http://{envHost}:{FallbackPort}");
-            }
 
             var localIps = Dns.GetHostEntry(Dns.GetHostName())
                 .AddressList
                 .Where(ip => ip.AddressFamily == AddressFamily.InterNetwork && !IPAddress.IsLoopback(ip))
                 .ToArray();
 
+            var hasHttp = false;
+            var hasHttps = false;
+
             foreach (var address in _serverAddressesFeature.Addresses)
             {
                 var uri = new Uri(address);
 
+                if (string.Equals(uri.Scheme, "http", StringComparison.OrdinalIgnoreCase))
+                {
+                    hasHttp = true;
+                }
+
+                if (string.Equals(uri.Scheme, "https", StringComparison.OrdinalIgnoreCase))
+                {
+                    hasHttps = true;
+                }
+
                 if (uri.Host is "0.0.0.0" || uri.Host is "localhost" || uri.Host is "::")
                 {
-                    //urls.Add($"{uri.Scheme}://127.0.0.1:{uri.Port}");
                     urls.AddRange(localIps.Select(ip => $"{uri.Scheme}://{ip}:{uri.Port}"));
                 }
                 else
@@ -54,8 +69,33 @@ namespace OpenSettings.AspNetCore.Services
 
             if (urls.Count == 0 && localIps.Length > 0)
             {
-                var fallbackIp = localIps.First();
-                urls.Add($"http://{fallbackIp}:{FallbackPort}");
+                urls.Add($"http://{localIps.First()}:{FallbackPort}");
+            }
+
+            if (hasHttp)
+            {
+                if (!string.IsNullOrWhiteSpace(envHost))
+                {
+                    urls.Insert(0, $"http://{envHost}:{envPort}");
+                }
+
+                if (enableK8sDns && !string.IsNullOrWhiteSpace(serviceName))
+                {
+                    urls.Insert(0, $"http://{serviceName}.{namespaceName}.svc.cluster.local:{envPort}");
+                }
+            }
+
+            if (hasHttps)
+            {
+                if (!string.IsNullOrWhiteSpace(envHost))
+                {
+                    urls.Insert(0, $"https://{envHost}:{envPort}");
+                }
+
+                if (enableK8sDns && !string.IsNullOrWhiteSpace(serviceName))
+                {
+                    urls.Insert(0, $"https://{serviceName}.{namespaceName}.svc.cluster.local:{envPort}");
+                }
             }
 
             return urls.Distinct().ToArray();

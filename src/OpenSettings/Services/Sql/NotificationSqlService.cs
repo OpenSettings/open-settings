@@ -37,7 +37,7 @@ namespace OpenSettings.Services.Sql
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly ITaskQueue _taskQueue;
 
-        public NotificationsSqlService(OpenSettingsDbContext context, OpenSettingsMemoryCache openSettingsMemoryCache, IOpenSettingsService openSettingsService, ILocksService locksService, IServiceScopeFactory serviceScopeFactory, ITaskQueueFactory taskQueueFactory)
+        public NotificationsSqlService(OpenSettingsDbContext context, IOpenSettingsMemoryCache openSettingsMemoryCache, IOpenSettingsService openSettingsService, ILocksService locksService, IServiceScopeFactory serviceScopeFactory, ITaskQueueFactory taskQueueFactory)
         {
             _context = context;
             _memoryCache = openSettingsMemoryCache;
@@ -555,8 +555,8 @@ namespace OpenSettings.Services.Sql
                 var openSettingsConfigResponse = await _openSettingsService.GetConfigsDataAsync(Constants.NotificationsConfigName, cancellationToken);
 
                 var idToOpenSettingNotification = openSettingsConfigResponse?.Data == null
-                    ? new Dictionary<Guid, GetOpenSettingsNotificationsResponse>()
-                    : JsonSerializer.Deserialize<GetOpenSettingsNotificationsResponse[]>(openSettingsConfigResponse.Data, Constants.JsonCaseInsensitiveOptions)
+                    ? new Dictionary<Guid, GetOpenSettingsNotificationsResponseNotification>()
+                    : JsonSerializer.Deserialize<GetOpenSettingsNotificationsResponseNotification[]>(openSettingsConfigResponse.Data, Constants.JsonCaseInsensitiveOptions)
                         .DistinctBy(n => n.Id)
                         .Where(n => n.Id != Guid.Empty)
                         .ToDictionary(n => n.Id);

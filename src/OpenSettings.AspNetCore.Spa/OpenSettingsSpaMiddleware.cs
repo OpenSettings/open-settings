@@ -14,6 +14,7 @@ using Microsoft.Extensions.Logging;
 using OpenSettings.Configurations;
 using OpenSettings.Extensions;
 using OpenSettings.Models;
+using OpenSettings.Services.Interfaces;
 using OpenSettings.Services.MemoryCache;
 #if NETSTANDARD2_0 || NETSTANDARD2_1
 using IWebHostEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
@@ -29,7 +30,7 @@ namespace OpenSettings.AspNetCore.Spa
     public class OpenSettingsSpaMiddleware
     {
         private readonly Assembly _currentAssembly = typeof(OpenSettingsSpaMiddleware).GetTypeInfo().Assembly;
-        private readonly OpenSettingsMemoryCache _openSettingsMemoryCache;
+        private readonly IOpenSettingsMemoryCache _openSettingsMemoryCache;
         private readonly OpenSettingsConfiguration _openSettingsConfiguration;
         private readonly StaticFileMiddleware _staticFileMiddleware;
         private readonly JsonSerializerOptions _jsonSerializerOptions;
@@ -50,7 +51,7 @@ namespace OpenSettings.AspNetCore.Spa
         /// <param name="loggerFactory">Factory for creating loggers.</param>
         public OpenSettingsSpaMiddleware(
             RequestDelegate requestDelegate,
-            OpenSettingsMemoryCache openSettingsMemoryCache,
+            IOpenSettingsMemoryCache openSettingsMemoryCache,
             OpenSettingsConfiguration openSettingsConfiguration,
             ProviderInfo providerInfo,
             IWebHostEnvironment hostingEnv,

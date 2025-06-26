@@ -18,14 +18,14 @@ using System.Threading.Tasks;
 
 namespace OpenSettings.Services.Sql
 {
-    internal sealed class AppIdentifierMappingsSqlService : IAppIdentifierMappingsSqlService
+    internal sealed class AppIdentifierMappingSqlService : IAppIdentifierMappingsSqlService
     {
         private readonly OpenSettingsDbContext _context;
         private readonly Guid _clientId;
         private readonly ILocksSqlService _locksSqlService;
         private readonly IIdentifiersSqlService _identifiersSqlService;
 
-        public AppIdentifierMappingsSqlService(OpenSettingsDbContext context, OpenSettingsConfiguration openSettingsConfiguration, ILocksSqlService locksSqlService, IIdentifiersSqlService identifiersSqlService)
+        public AppIdentifierMappingSqlService(OpenSettingsDbContext context, OpenSettingsConfiguration openSettingsConfiguration, ILocksSqlService locksSqlService, IIdentifiersSqlService identifiersSqlService)
         {
             _context = context;
             _clientId = openSettingsConfiguration.Client.Id;
@@ -475,7 +475,7 @@ namespace OpenSettings.Services.Sql
 
         private async Task<ReorderResponse> ReorderAsync(int appId)
         {
-            var key = $"{nameof(AppIdentifierMappingsSqlService)}-{appId}";
+            var key = $"{nameof(AppIdentifierMappingSqlService)}-{appId}";
 
             var lockAcquired = await _locksSqlService.AcquireLockAsync(new AcquireLockInput
             { Key = key, Owner = Environment.MachineName, Timeout = TimeSpan.FromSeconds(30) });

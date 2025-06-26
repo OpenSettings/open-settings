@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Ogu.AspNetCore.Conventions;
 using Ogu.Compressions.Abstractions;
@@ -14,6 +15,7 @@ using OpenSettings.Configurations;
 using OpenSettings.Models;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Models.Responses;
+using OpenSettings.Services;
 using OpenSettings.Services.Interfaces;
 using OpenSettings.Services.Rest;
 using OpenSettings.Services.Rest.Interfaces;
@@ -157,6 +159,13 @@ namespace OpenSettings.AspNetCore.Extensions
 
                     return providerInfo;
                 });
+
+                mvcBuilder.Services.AddSingleton<ProviderCoordinationTimedService>();
+                mvcBuilder.Services.AddSingleton<IOpenSettingsNotificationSyncTimedService, OpenSettingsNotificationSyncTimedService>();
+                mvcBuilder.Services.AddSingleton<IProviderRegistryCleanupTimedService, ProviderRegistryCleanupTimedService>();
+
+                mvcBuilder.Services.AddSingleton<IHostedService>(sp => sp.GetRequiredService<ProviderCoordinationTimedService>());
+
             }
             else
             {

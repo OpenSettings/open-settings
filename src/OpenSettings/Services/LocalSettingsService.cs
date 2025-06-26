@@ -592,12 +592,13 @@ namespace OpenSettings.Services
                 {
                     throw;
                 }
-                catch (Exception) when (Debugger.IsAttached)
-                {
-                    throw;
-                }
                 catch (Exception ex)
                 {
+                    if (Debugger.IsAttached)
+                    {
+                        throw;
+                    }
+
                     exception = ex;
                 }
 

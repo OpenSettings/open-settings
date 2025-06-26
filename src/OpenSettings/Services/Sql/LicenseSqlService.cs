@@ -22,6 +22,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
+using OpenSettings.Services.Interfaces;
 
 namespace OpenSettings.Services.Sql
 {
@@ -32,10 +33,10 @@ namespace OpenSettings.Services.Sql
         private readonly JsonWebTokenHandler _jsonWebTokenHandler;
         private readonly string _licenseKeyFromProviderConfiguration;
         private readonly OpenSettingsDbContext _context;
-        private readonly OpenSettingsMemoryCache _openSettingsMemoryCache;
+        private readonly IOpenSettingsMemoryCache _openSettingsMemoryCache;
         private readonly ILogger _logger;
 
-        public LicensesSqlService(JsonWebTokenHandler jsonWebTokenHandler, OpenSettingsConfiguration openSettingsConfiguration, OpenSettingsDbContext context, OpenSettingsMemoryCache openSettingsMemoryCache)
+        public LicensesSqlService(JsonWebTokenHandler jsonWebTokenHandler, OpenSettingsConfiguration openSettingsConfiguration, OpenSettingsDbContext context, IOpenSettingsMemoryCache openSettingsMemoryCache)
         {
             _jsonWebTokenHandler = jsonWebTokenHandler;
             _licenseKeyFromProviderConfiguration = openSettingsConfiguration.Provider.LicenseKey;

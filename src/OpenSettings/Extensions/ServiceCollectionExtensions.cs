@@ -190,45 +190,26 @@ namespace OpenSettings.Extensions
                     return new TaskQueueHostedService(sp.GetRequiredService<ILogger<TaskQueueHostedService>>(), "NotificationQueueWorker", taskQueue);
                 });
 
-                services.AddSingleton<IHostedService>(sp =>
-                {
-                    return new TimedHostedService(sp.GetRequiredService<ILogger<TimedHostedService>>(), "NotificationTimedWorker",
-                        async cancellationToken =>
-                        {
-                            using (var scope = sp.CreateScope())
-                            {
-                                var notificationsService = scope.ServiceProvider.GetRequiredService<INotificationsSqlService>();
-
-                                await notificationsService.SyncOpenSettingsNotificationsAsync(cancellationToken);
-                            }
-                        }, opts =>
-                        {
-                            opts.StartsIn = TimeSpan.Zero;
-                            opts.Period = TimeSpan.FromMinutes(5);
-                            opts.TaskTimeout = TimeSpan.FromMinutes(2);
-                        });
-                });
-
                 services.AddScoped<JsonWebTokenHandler>();
 
-                services.AddScoped<IAppGroupsSqlService, AppGroupsSqlService>();
-                services.AddScoped<IAppIdentifierMappingsSqlService, AppIdentifierMappingsSqlService>();
+                services.AddScoped<IAppGroupsSqlService, AppGroupSqlService>();
+                services.AddScoped<IAppIdentifierMappingsSqlService, AppIdentifierMappingSqlService>();
                 services.AddScoped<IAppsSqlService, AppsSqlService>();
-                services.AddScoped<IAppTagMappingsSqlService, AppTagMappingsSqlService>();
-                services.AddScoped<IConfigurationsSqlService, ConfigurationsSqlService>();
-                services.AddScoped<IIdentifiersSqlService, IdentifiersSqlService>();
+                services.AddScoped<IAppTagMappingsSqlService, AppTagMappingSqlService>();
+                services.AddScoped<IConfigurationsSqlService, ConfigurationSqlService>();
+                services.AddScoped<IIdentifiersSqlService, IdentifierSqlService>();
                 services.AddScoped<IInstancesSqlService, InstancesSqlService>();
                 services.AddScoped<ILicensesSqlService, LicensesSqlService>();
                 services.AddScoped<ILocksSqlService, LocksSqlService>();
                 services.AddScoped<INotificationsSqlService, NotificationsSqlService>();
                 services.AddScoped<IProviderSqlService, ProviderSqlService>();
-                services.AddScoped<ISettingClassesSqlService, SettingClassesSqlService>();
+                services.AddScoped<ISettingClassesSqlService, SettingClassSqlService>();
                 services.AddScoped<ISettingHistoriesSqlService, SettingHistoriesSqlService>();
-                services.AddScoped<ISettingsSqlService, SettingsSqlService>();
+                services.AddScoped<ISettingsSqlService, SettingSqlService>();
                 services.AddScoped<ISortOrderSqlService, SortOrderSqlService>();
-                services.AddScoped<ITagsSqlService, TagsSqlService>();
-                services.AddScoped<IUserNotificationMappingsSqlService, UserNotificationMappingsSqlService>();
-                services.AddScoped<IUsersSqlService, UsersSqlService>();
+                services.AddScoped<ITagsSqlService, TagSqlService>();
+                services.AddScoped<IUserNotificationMappingsSqlService, UserNotificationMappingSqlService>();
+                services.AddScoped<IUsersSqlService, UserSqlService>();
                 services.AddSingleton<IOpenSettingsService, OpenSettingsService>();
 
                 services.AddScoped<IAppGroupsService>(sp => sp.GetRequiredService<IAppGroupsSqlService>());
@@ -272,8 +253,7 @@ namespace OpenSettings.Extensions
             });
 
             services.AddSingleton<IDataChangeService, DataChangeService>();
-
-            services.AddSingleton<OpenSettingsMemoryCache>();
+            services.AddSingleton<IOpenSettingsMemoryCache, OpenSettingsMemoryCache>();
 
             return services;
         }

@@ -19,11 +19,11 @@ using System.Threading.Tasks;
 
 namespace OpenSettings.Services.Sql
 {
-    internal sealed class ConfigurationsSqlService : IConfigurationsSqlService
+    internal sealed class ConfigurationSqlService : IConfigurationsSqlService
     {
         private readonly OpenSettingsDbContext _context;
 
-        public ConfigurationsSqlService(OpenSettingsDbContext context)
+        public ConfigurationSqlService(OpenSettingsDbContext context)
         {
             _context = context;
         }

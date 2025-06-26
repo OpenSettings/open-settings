@@ -1,17 +1,16 @@
 ﻿using Ogu.Response.Abstractions;
 using OpenSettings.Configurations;
+using OpenSettings.Extensions;
 using OpenSettings.Models;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Models.Responses;
 using OpenSettings.Services.Interfaces;
-using OpenSettings.Services.MemoryCache;
 using OpenSettings.Services.Rest.Interfaces;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using OpenSettings.Extensions;
 
 namespace OpenSettings.Services.Rest
 {
@@ -21,20 +20,17 @@ namespace OpenSettings.Services.Rest
         private readonly HttpClient _httpClient;
         private readonly OpenSettingsConfiguration _openSettingsConfiguration;
         private readonly ProviderInfo _providerInfo;
-        private readonly OpenSettingsMemoryCache _openSettingsMemoryCache;
 
         public SettingHistoriesRestService(
             IDataChangeService dataChangeService,
             HttpClient httpClient,
             OpenSettingsConfiguration openSettingsConfiguration,
-            ProviderInfo providerInfo,
-            OpenSettingsMemoryCache openSettingsMemoryCache)
+            ProviderInfo providerInfo)
         {
             _dataChangeService = dataChangeService;
             _httpClient = httpClient;
             _openSettingsConfiguration = openSettingsConfiguration;
             _providerInfo = providerInfo;
-            _openSettingsMemoryCache = openSettingsMemoryCache;
         }
 
         public async Task<IResponse> GetSettingHistoryDataAsync(GetSettingHistoryDataInput input, CancellationToken cancellationToken = default)

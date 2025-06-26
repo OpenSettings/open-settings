@@ -1,16 +1,15 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
-using OpenSettings.AspNetCore.Extensions;
 using OpenSettings.AspNetCore.Services.Interfaces;
 using OpenSettings.Configurations;
 using OpenSettings.Models;
-using OpenSettings.Services.MemoryCache;
 using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
+using OpenSettings.Services.Interfaces;
 
 namespace OpenSettings.AspNetCore.Handlers
 {
@@ -19,10 +18,10 @@ namespace OpenSettings.AspNetCore.Handlers
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IOpenSettingsTokenService _openSettingsTokenService;
         private readonly ProviderInfo _providerInfo;
-        private readonly OpenSettingsMemoryCache _openSettingsMemoryCache;
+        private readonly IOpenSettingsMemoryCache _openSettingsMemoryCache;
         private readonly OpenSettingsConfiguration _openSettingsConfiguration;
 
-        public OpenSettingsRestServiceAuthHandler(IHttpContextAccessor httpContextAccessor, IOpenSettingsTokenService openSettingsTokenService, ProviderInfo providerInfo, OpenSettingsMemoryCache openSettingsMemoryCache, OpenSettingsConfiguration openSettingsConfiguration)
+        public OpenSettingsRestServiceAuthHandler(IHttpContextAccessor httpContextAccessor, IOpenSettingsTokenService openSettingsTokenService, ProviderInfo providerInfo, IOpenSettingsMemoryCache openSettingsMemoryCache, OpenSettingsConfiguration openSettingsConfiguration)
         {
             _httpContextAccessor = httpContextAccessor;
             _openSettingsTokenService = openSettingsTokenService;

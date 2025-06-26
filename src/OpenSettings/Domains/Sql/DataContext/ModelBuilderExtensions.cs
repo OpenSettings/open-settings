@@ -355,7 +355,13 @@ namespace OpenSettings.Domains.Sql.DataContext
                 entity.HasIndex(e => e.HolderLowercase);
                 entity.HasIndex(e => e.Edition);
             });
-        }
 
+            modelBuilder.Entity<ProviderRegistrySqlModel>(entity =>
+            {
+                entity.HasIndex(e => e.Type);
+                entity.HasIndex(e => e.ClientIdLowercase);
+                entity.HasIndex(e => e.LastHeartbeatOn);
+            });
+        }
     }
 }

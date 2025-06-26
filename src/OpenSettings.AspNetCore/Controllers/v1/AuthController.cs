@@ -6,7 +6,7 @@ using OpenSettings.AspNetCore.Models.Requests;
 using OpenSettings.AspNetCore.Services.Interfaces;
 using OpenSettings.Configurations;
 using OpenSettings.Models;
-using OpenSettings.Services.MemoryCache;
+using OpenSettings.Services.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,13 +22,13 @@ namespace OpenSettings.AspNetCore.Controllers.v1
     {
         private readonly string _route;
         private readonly OpenSettingsConfiguration _openSettingsConfiguration;
-        private readonly OpenSettingsMemoryCache _openSettingsMemoryCache;
+        private readonly IOpenSettingsMemoryCache _openSettingsMemoryCache;
         private readonly ProviderInfo _providerInfo;
         private readonly IOpenSettingsTokenService _tokenService;
         private readonly IHttpClientFactory _httpClientFactory;
 
         public AuthController(
-            OpenSettingsMemoryCache openSettingsMemoryCache,
+            IOpenSettingsMemoryCache openSettingsMemoryCache,
             OpenSettingsConfiguration openSettingsConfiguration,
             ProviderInfo providerInfo,
             IOpenSettingsTokenService tokenService,

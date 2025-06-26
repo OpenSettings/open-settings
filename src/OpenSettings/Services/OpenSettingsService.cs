@@ -1,10 +1,12 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
+using OpenSettings.Helpers;
 using OpenSettings.Models;
 using OpenSettings.Models.Responses;
 using OpenSettings.Services.Interfaces;
 using OpenSettings.Services.MemoryCache;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -27,7 +29,7 @@ namespace OpenSettings.Services
         private readonly IMemoryCache _memoryCache;
         private readonly HttpClient _httpClient;
 
-        public OpenSettingsService(OpenSettingsMemoryCache memoryCache, HttpClient httpClient)
+        public OpenSettingsService(IOpenSettingsMemoryCache memoryCache, HttpClient httpClient)
         {
             _memoryCache = memoryCache;
             _httpClient = httpClient;
@@ -124,6 +126,25 @@ namespace OpenSettings.Services
                 CacheControl = string.Format(CacheControlFormat, expiresInSeconds),
                 Expires = configsData.AbsoluteExpiration.ToString("R"),
                 Data = configsData.Data
+            };
+        }
+
+        public async Task<GetOpenSettingsNotificationsResponse> GetNotificationsAsync(CancellationToken cancellationToken = default)
+        {
+            var openSettingsConfigResponse = await GetConfigsDataAsync(Constants.NotificationsConfigName, cancellationToken);
+
+            var idToOpenSettingNotification = openSettingsConfigResponse?.Data == null
+                ? new Dictionary<Guid, GetOpenSettingsNotificationsResponseNotification>()
+                : JsonSerializer.Deserialize<GetOpenSettingsNotificationsResponseNotification[]>(openSettingsConfigResponse.Data, Constants.JsonCaseInsensitiveOptions)
+                    .DistinctBy(n => n.Id)
+                    .Where(n => n.Id != Guid.Empty)
+                    .ToDictionary(n => n.Id);
+
+            return new GetOpenSettingsNotificationsResponse
+            {
+                IdToNotification = idToOpenSettingNotification,
+                CacheControl = openSettingsConfigResponse?.CacheControl,
+                Expires = openSettingsConfigResponse?.Expires
             };
         }
 

@@ -245,9 +245,9 @@ namespace OpenSettings.Extensions
                 await openSettingsConfiguration.Provider.InitializeDbAsync(context, cancellationToken);
 
                 var sortOrderSqlService = new SortOrderSqlService(new LocksSqlService(context), context, openSettingsConfiguration);
-                var appGroupsSqlService = new AppGroupsSqlService(context, sortOrderSqlService);
-                var tagsSqlService = new TagsSqlService(context, sortOrderSqlService);
-                var identifiersSqlService = new IdentifiersSqlService(context, sortOrderSqlService);
+                var appGroupsSqlService = new AppGroupSqlService(context, sortOrderSqlService);
+                var tagsSqlService = new TagSqlService(context, sortOrderSqlService);
+                var identifiersSqlService = new IdentifierSqlService(context, sortOrderSqlService);
                 var passwordHasher = new PasswordHasher<AppSqlModel>();
 
                 var appsService = new AppsSqlService(
@@ -255,7 +255,7 @@ namespace OpenSettings.Extensions
                     appGroupsSqlService, tagsSqlService, compressionProvider, passwordHasher, context,
                     openSettingsConfiguration, null);
 
-                var settingsService = new SettingsSqlService(
+                var settingsService = new SettingSqlService(
                     dataChangeService: null, 
                     identifiersSqlService, 
                     compressionProvider, 

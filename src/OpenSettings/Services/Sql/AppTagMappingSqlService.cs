@@ -3,11 +3,11 @@ using OpenSettings.Services.Sql.Interfaces;
 
 namespace OpenSettings.Services.Sql
 {
-    internal sealed class AppTagMappingsSqlService : IAppTagMappingsSqlService
+    internal sealed class AppTagMappingSqlService : IAppTagMappingsSqlService
     {
         private readonly OpenSettingsDbContext _context;
 
-        public AppTagMappingsSqlService(OpenSettingsDbContext context)
+        public AppTagMappingSqlService(OpenSettingsDbContext context)
         {
             _context = context;
         }

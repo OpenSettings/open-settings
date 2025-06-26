@@ -86,5 +86,10 @@ namespace OpenSettings.Services.Rest
                 };
             }
         }
+
+        public Task<GetOpenSettingsNotificationsResponse> GetNotificationsAsync(CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

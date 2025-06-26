@@ -53,6 +53,26 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 });
 
             migrationBuilder.CreateTable(
+                name: "ProviderRegistries",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Type = table.Column<int>(type: "int", nullable: false),
+                    ClientId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ClientIdLowercase = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    Scheme = table.Column<int>(type: "int", nullable: false),
+                    Host = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Port = table.Column<int>(type: "int", nullable: false),
+                    Region = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LastHeartbeatOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProviderRegistries", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "UserClaims",
                 columns: table => new
                 {
@@ -1057,6 +1077,21 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 column: "UpdatedById");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ProviderRegistries_ClientIdLowercase",
+                table: "ProviderRegistries",
+                column: "ClientIdLowercase");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ProviderRegistries_LastHeartbeatOn",
+                table: "ProviderRegistries",
+                column: "LastHeartbeatOn");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ProviderRegistries_Type",
+                table: "ProviderRegistries",
+                column: "Type");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_SettingClasses_CreatedById",
                 table: "SettingClasses",
                 column: "CreatedById");
@@ -1283,6 +1318,9 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 
             migrationBuilder.DropTable(
                 name: "Locks");
+
+            migrationBuilder.DropTable(
+                name: "ProviderRegistries");
 
             migrationBuilder.DropTable(
                 name: "SettingClasses");

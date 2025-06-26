@@ -23,7 +23,7 @@ using System.Threading.Tasks;
 
 namespace OpenSettings.Services.Sql
 {
-    internal sealed class SettingsSqlService : ISettingsSqlService
+    internal sealed class SettingSqlService : ISettingsSqlService
     {
         private readonly IDataChangeService _dataChangeService;
         private readonly IIdentifiersService _identifiersService;
@@ -32,7 +32,7 @@ namespace OpenSettings.Services.Sql
         private readonly IDataValidationService _dataValidationService;
         private readonly OpenSettingsConfiguration _openSettingsConfiguration;
 
-        public SettingsSqlService(
+        public SettingSqlService(
             IDataChangeService dataChangeService,
             IIdentifiersService identifiersService,
             ICompressionProvider compressionProvider,

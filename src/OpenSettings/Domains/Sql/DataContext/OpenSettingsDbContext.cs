@@ -148,6 +148,11 @@ namespace OpenSettings.Domains.Sql.DataContext
         /// </summary>
         public DbSet<LicenseSqlModel> Licenses { get; set; }
 
+        /// <summary>
+        /// Gets or sets the <see cref="DbSet{ProviderRegistrySqlModel}"/> for managing ProviderRegistries.
+        /// </summary>
+        public DbSet<ProviderRegistrySqlModel> ProviderRegistries { get; set; }
+
         public virtual void Detach(object entity)
         {
             Entry(entity).State = EntityState.Detached;

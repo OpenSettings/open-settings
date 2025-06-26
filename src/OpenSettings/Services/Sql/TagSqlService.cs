@@ -18,36 +18,36 @@ using System.Threading.Tasks;
 
 namespace OpenSettings.Services.Sql
 {
-    internal sealed class AppGroupsSqlService : IAppGroupsSqlService
+    internal sealed class TagSqlService : ITagsSqlService
     {
         private readonly OpenSettingsDbContext _context;
         private readonly ISortOrderSqlService _sortOrderService;
 
-        public AppGroupsSqlService(OpenSettingsDbContext context, ISortOrderSqlService sortOrderService)
+        public TagSqlService(OpenSettingsDbContext context, ISortOrderSqlService sortOrderService)
         {
             _context = context;
             _sortOrderService = sortOrderService;
         }
 
-        public async Task<IResponse> GetPaginatedGroupsAsync(GetPaginatedInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetPaginatedTagsAsync(GetPaginatedInput input, CancellationToken cancellationToken = default)
         {
-            var sortOrderBounds = await _sortOrderService.GetSortOrderBoundsAsync(_context.AppGroups, cancellationToken);
+            var sortOrderBounds = await _sortOrderService.GetSortOrderBoundsAsync(_context.Tags, cancellationToken);
 
             if (sortOrderBounds == null)
             {
-                return HttpStatusCode.OK.ToSuccessResponse(new GetPaginatedAppGroupsResponse(input, 0, null, 0, 0));
+                return HttpStatusCode.OK.ToSuccessResponse(new GetPaginatedTagsResponse(input, 0, null, 0, 0));
             }
 
             if (string.IsNullOrWhiteSpace(input.SearchTerm))
             {
-                return await GetUnfilteredPaginatedGroupsAsync(input, sortOrderBounds, cancellationToken);
+                return await GetUnfilteredPaginatedTagsAsync(input, sortOrderBounds, cancellationToken);
             }
 
             try
             {
                 var searchLowercase = input.SearchTerm.ToLowerInvariant();
 
-                var filteredQuery = _context.AppGroups
+                var filteredQuery = _context.Tags
                     .AsNoTracking()
                     .SearchBy(a => a.NameLowercase, searchLowercase, _context);
 
@@ -57,7 +57,7 @@ namespace OpenSettings.Services.Sql
 #if !NETSTANDARD2_0
                     .AsSplitQuery()
 #endif
-                    .Include(a => a.Apps)
+                    .Include(a => a.AppTagMappings)
                     .Include(a => a.CreatedBy)
                     .Include(a => a.UpdatedBy)
                     .OrderBy(a => a.NameLowercase.IndexOf(searchLowercase));
@@ -67,10 +67,10 @@ namespace OpenSettings.Services.Sql
                     : SortThenBy(filteredEntitiesQuery, input.SortBy, input.SortDirection);
 
                 var filteredEntities = await filteredEntitiesQuery
-                    .Select(entity => MapToGroupModelForPaginatedResponseData(entity))
+                    .Select(entity => MapToTagModelForPaginatedResponseData(entity))
                     .ToPaginatedArrayAsync(input.PageIndex, input.PageSize, cancellationToken);
 
-                return HttpStatusCode.OK.ToSuccessResponse(new GetPaginatedAppGroupsResponse(input, filteredTotalItemsCount, filteredEntities, sortOrderBounds.MinSortOrder, sortOrderBounds.MaxSortOrder));
+                return HttpStatusCode.OK.ToSuccessResponse(new GetPaginatedTagsResponse(input, filteredTotalItemsCount, filteredEntities, sortOrderBounds.MinSortOrder, sortOrderBounds.MaxSortOrder));
             }
             catch (Exception ex)
             {
@@ -78,16 +78,16 @@ namespace OpenSettings.Services.Sql
             }
         }
 
-        public async Task<IResponse> DeleteUnmappedGroupsAsync(CancellationToken cancellationToken = default)
+        public async Task<IResponse> DeleteUnmappedTagsAsync(CancellationToken cancellationToken = default)
         {
-            var entities = await _context.AppGroups
+            var entities = await _context.Tags
                 .AsNoTracking()
 #if !NETSTANDARD2_0
                 .AsSplitQuery()
 #endif
-                .Include(a => a.Apps)
-                .Where(a => !a.Apps.Any())
-                .Select(a => new AppGroupSqlModel { Id = a.Id, RowVersion = a.RowVersion })
+                .Include(a => a.AppTagMappings)
+                .Where(a => !a.AppTagMappings.Any())
+                .Select(a => new TagSqlModel { Id = a.Id, RowVersion = a.RowVersion })
                 .ToArrayAsync(cancellationToken);
 
             if (entities.Length == 0)
@@ -95,7 +95,7 @@ namespace OpenSettings.Services.Sql
                 return HttpStatusCode.OK.ToSuccessResponse(new DeleteUnmappedItemsResponse { DeletedItemsCount = 0 });
             }
 
-            _context.AppGroups.RemoveRange(entities);
+            _context.Tags.RemoveRange(entities);
 
             try
             {
@@ -113,29 +113,29 @@ namespace OpenSettings.Services.Sql
             }
         }
 
-        public async Task<IResponse> GetGroupsAsync(GetGroupsInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetTagsAsync(GetTagsInput input, CancellationToken cancellationToken = default)
         {
             if (!string.IsNullOrWhiteSpace(input.SearchTerm))
             {
-                return await GetGroupsBySearchAsync(input, cancellationToken);
+                return await GetTagsBySearchAsync(input, cancellationToken);
             }
 
-            var query = _context.AppGroups.AsNoTracking();
+            var query = _context.Tags.AsNoTracking();
 
             if (input.HasMappings.HasValue)
             {
                 query = query
-                    .Include(a => a.Apps)
+                    .Include(a => a.AppTagMappings)
 #if !NETSTANDARD2_0
                     .AsSplitQuery()
 #endif
-                    .Include(a => a.Apps)
-                    .Where(a => input.HasMappings.Value ? a.Apps.Any() : !a.Apps.Any());
+                    .Include(a => a.AppTagMappings)
+                    .Where(a => input.HasMappings.Value ? a.AppTagMappings.Any() : !a.AppTagMappings.Any());
             }
 
             var data = await query
                 .OrderBy(a => a.SortOrder)
-                .Select(a => new GetAppGroupsResponseGroup
+                .Select(a => new GetTagsResponseTag
                 {
                     Id = $"{a.Id}",
                     Name = a.Name,
@@ -143,23 +143,23 @@ namespace OpenSettings.Services.Sql
                     RowVersion = a.RowVersion
                 }).ToArrayAsync(cancellationToken);
 
-            return HttpStatusCode.OK.ToSuccessResponse(new GetAppGroupsResponse(data));
+            return HttpStatusCode.OK.ToSuccessResponse(new GetTagsResponse(data));
         }
 
-        public async Task<IResponse> CreateGroupAsync(CreateGroupInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> CreateTagAsync(CreateTagInput input, CancellationToken cancellationToken = default)
         {
-            var groupNameRule = ValidationRules.NotEmptyRule(nameof(input.Name), input.Name);
+            var nameRule = ValidationRules.NotEmptyRule(nameof(input.Name), input.Name);
 
-            if (groupNameRule.IsFailed())
+            if (nameRule.IsFailed())
             {
-                return groupNameRule.Failure.ToResponse();
+                return HttpStatusCode.BadRequest.ToFailureResponse(nameRule.Failure);
             }
 
             var trimmedName = input.Name.Trim();
             var trimmedNameLowercase = trimmedName.ToLowerInvariant();
             var slug = trimmedName.ToSlug();
 
-            if (await _context.AppGroups.AsNoTracking().AnyAsync(s => s.Slug == slug, cancellationToken))
+            if (await _context.Tags.AsNoTracking().AnyAsync(s => s.Slug == slug, cancellationToken))
             {
                 return ValidationFailures.AlreadyExists(nameof(TagSqlModel.Slug), slug).ToResponse();
             }
@@ -169,20 +169,20 @@ namespace OpenSettings.Services.Sql
                 try
                 {
                     input.SortOrder = input.SetSortOrderPosition == SetSortOrderPosition.Bottom
-                        ? await _context.AppGroups.AsNoTracking().MaxAsync(s => s.SortOrder, cancellationToken) + Constants.SortOrderGap
-                        : await _context.AppGroups.AsNoTracking().MinAsync(s => s.SortOrder, cancellationToken) - Constants.SortOrderGap;
+                        ? await _context.Tags.AsNoTracking().MaxAsync(s => s.SortOrder, cancellationToken) + Constants.SortOrderGap
+                        : await _context.Tags.AsNoTracking().MinAsync(s => s.SortOrder, cancellationToken) - Constants.SortOrderGap;
                 }
                 catch (InvalidOperationException)
                 {
                     // ignored
                 }
             }
-            else if (await _context.AppGroups.AsNoTracking().AnyAsync(s => s.SortOrder == input.SortOrder, cancellationToken))
+            else if (await _context.Tags.AsNoTracking().AnyAsync(s => s.SortOrder == input.SortOrder, cancellationToken))
             {
                 return HttpStatusCode.BadRequest.ToFailureResponse(Errors.DuplicateSortOrder);
             }
 
-            var entity = new AppGroupSqlModel
+            var entity = new TagSqlModel
             {
                 Name = trimmedName,
                 NameLowercase = trimmedNameLowercase,
@@ -192,13 +192,13 @@ namespace OpenSettings.Services.Sql
                 CreatedById = input.CreatedById
             };
 
-            _context.AppGroups.Add(entity);
+            _context.Tags.Add(entity);
 
             try
             {
                 await _context.SaveChangesAsync(cancellationToken);
 
-                return HttpStatusCode.OK.ToSuccessResponse(new CreateAppGroupResponse
+                return HttpStatusCode.OK.ToSuccessResponse(new CreateTagResponse
                 {
                     Id = $"{entity.Id}",
                     Name = entity.Name,
@@ -210,49 +210,49 @@ namespace OpenSettings.Services.Sql
                 return ex.ToResponse();
             }
         }
-
-        public async Task<IResponse> GetGroupByIdAsync(GetGroupInput input, CancellationToken cancellationToken = default)
+      
+        public async Task<IResponse> GetTagByIdAsync(GetTagInput input, CancellationToken cancellationToken = default)
         {
-            var groupIdRule = ValidationRules.GreaterThanRule("GroupId", input.GroupIdOrSlug, 0);
+            var tagIdRule = ValidationRules.GreaterThanRule("TagId", input.TagIdOrSlug, 0);
 
-            if (groupIdRule.IsFailed())
+            if (tagIdRule.IsFailed())
             {
-                return groupIdRule.Failure.ToResponse();
+                return tagIdRule.Failure.ToResponse();
             }
 
-            var id = groupIdRule.GetStoredValue<int>();
+            var tagId = tagIdRule.GetStoredValue<int>();
 
-            return await GetGroupByIdOrSlugAsync(g => g.Id == id, cancellationToken);
+            return await GetTagByTagIdOrSlugAsync(t => t.Id == tagId, cancellationToken);
         }
 
-        public Task<IResponse> GetGroupBySlugAsync(GetGroupInput input, CancellationToken cancellationToken = default)
+        public Task<IResponse> GetTagBySlugAsync(GetTagInput input, CancellationToken cancellationToken = default)
         {
-            input.GroupIdOrSlug = input.GroupIdOrSlug?.ToSlug();
+            input.TagIdOrSlug = input.TagIdOrSlug?.ToSlug();
 
-            return GetGroupByIdOrSlugAsync(g => g.Slug == input.GroupIdOrSlug, cancellationToken);
+            return GetTagByTagIdOrSlugAsync(t => t.Slug == input.TagIdOrSlug, cancellationToken);
         }
 
-        public async Task<IResponse> UpdateGroupAsync(UpdateGroupInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> UpdateTagAsync(UpdateTagInput input, CancellationToken cancellationToken = default)
         {
-            var groupIdRule = ValidationRules.GreaterThanRule(nameof(input.GroupId), input.GroupId, 0);
+            var tagIdRule = ValidationRules.GreaterThanRule(nameof(input.TagId), input.TagId, 0);
             var nameRule = ValidationRules.NotEmptyRule(nameof(input.Name), input.Name);
 
-            var failure = new[] { groupIdRule, nameRule }.ValidateFirstOrDefault();
+            var failure = new[] { tagIdRule, nameRule }.ValidateFirstOrDefault();
 
             if (failure != null)
             {
                 return failure.ToResponse();
             }
 
-            var groupId = groupIdRule.GetStoredValue<int>();
+            var tagId = tagIdRule.GetStoredValue<int>();
 
             var trimmedName = input.Name.Trim();
             var trimmedNameLowercase = trimmedName.ToLowerInvariant();
             var slug = trimmedName.ToSlug();
 
-            if (await _context.AppGroups.AsNoTracking().AnyAsync(s => s.Slug == slug && s.Id != groupId, cancellationToken))
+            if (await _context.Tags.AsNoTracking().AnyAsync(s => s.Slug == slug && s.Id != tagId, cancellationToken))
             {
-                return HttpStatusCode.BadRequest.ToFailureResponse(Errors.GroupAlreadyExists);
+                return HttpStatusCode.BadRequest.ToFailureResponse(Errors.TagAlreadyExists);
             }
 
             if (input.SetSortOrderPosition.HasValue)
@@ -261,30 +261,30 @@ namespace OpenSettings.Services.Sql
                 {
                     if (input.SetSortOrderPosition == SetSortOrderPosition.Bottom)
                     {
-                        var maxOrder = await _context.AppGroups.AsNoTracking().Where(s => s.Id != groupId).MaxAsync(s => s.SortOrder, cancellationToken);
+                        var maxOrder = await _context.Tags.AsNoTracking().Where(s => s.Id != tagId).MaxAsync(s => s.SortOrder, cancellationToken);
 
                         input.SortOrder = input.SortOrder > maxOrder ? input.SortOrder : maxOrder + Constants.SortOrderGap;
                     }
                     else
                     {
-                        var minOrder = await _context.AppGroups.AsNoTracking().Where(s => s.Id != groupId).MinAsync(s => s.SortOrder, cancellationToken);
+                        var minOrder = await _context.Tags.AsNoTracking().Where(s => s.Id != tagId).MinAsync(s => s.SortOrder, cancellationToken);
 
                         input.SortOrder = input.SortOrder < minOrder ? input.SortOrder : minOrder - Constants.SortOrderGap;
                     }
                 }
-                catch (InvalidOperationException)
+                catch(InvalidOperationException)
                 {
                     // ignored
                 }
             }
 
-            var entity = new AppGroupSqlModel
+            var entity = new TagSqlModel
             {
-                Id = groupId,
+                Id = tagId,
                 RowVersion = input.RowVersion
             };
 
-            _context.AppGroups.Attach(entity);
+            _context.Tags.Attach(entity);
 
             var currentTime = DateTime.UtcNow;
 
@@ -309,7 +309,7 @@ namespace OpenSettings.Services.Sql
             {
                 await _context.SaveChangesAsync(cancellationToken);
 
-                return HttpStatusCode.OK.ToSuccessResponse(new UpdateAppGroupResponse(
+                return HttpStatusCode.OK.ToSuccessResponse(new UpdateTagResponse(
                     entity.Name,
                     entity.Slug,
                     entity.SortOrder,
@@ -327,22 +327,22 @@ namespace OpenSettings.Services.Sql
             }
             catch (Exception ex)
             {
-                return HttpStatusCode.InternalServerError.ToFailureResponse(ex);
+                return ex.ToResponse();
             }
         }
 
-        public async Task<IResponse> DeleteGroupAsync(DeleteGroupInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> DeleteTagAsync(DeleteTagInput input, CancellationToken cancellationToken = default)
         {
-            var groupIdRule = ValidationRules.GreaterThanRule(nameof(input.GroupId), input.GroupId, 0);
+            var tagIdRule = ValidationRules.GreaterThanRule(nameof(input.TagId), input.TagId, 0);
 
-            if (groupIdRule.IsFailed())
+            if (tagIdRule.IsFailed())
             {
-                return HttpStatusCode.BadRequest.ToFailureResponse(groupIdRule.Failure);
+                return HttpStatusCode.BadRequest.ToFailureResponse(tagIdRule.Failure);
             }
 
-            var groupId = groupIdRule.GetStoredValue<int>();
+            var tagId = tagIdRule.GetStoredValue<int>();
 
-            _context.AppGroups.Remove(new AppGroupSqlModel { Id = groupId, RowVersion = input.RowVersion });
+            _context.Tags.Remove(new TagSqlModel { Id = tagId, RowVersion = input.RowVersion });
 
             try
             {
@@ -360,24 +360,24 @@ namespace OpenSettings.Services.Sql
             }
         }
 
-        public async Task<IResponse> UpdateGroupSortOrderAsync(UpdateGroupSortOrderInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> UpdateTagSortOrderAsync(UpdateTagSortOrderInput input, CancellationToken cancellationToken = default)
         {
-            var groupIdRule = ValidationRules.GreaterThanRule(nameof(input.GroupId), input.GroupId, 0);
+            var tagIdRule = ValidationRules.GreaterThanRule(nameof(input.TagId), input.TagId, 0);
 
-            if (groupIdRule.IsFailed())
+            if (tagIdRule.IsFailed())
             {
-                return HttpStatusCode.BadRequest.ToFailureResponse(groupIdRule.Failure);
+                return HttpStatusCode.BadRequest.ToFailureResponse(tagIdRule.Failure);
             }
 
-            var groupId = groupIdRule.GetStoredValue<int>();
+            var tagId = tagIdRule.GetStoredValue<int>();
 
-            var entity = await _context.AppGroups
+            var entity = await _context.Tags
                 .AsNoTracking()
-                .Where(a => a.Id == groupId)
+                .Where(a => a.Id == tagId)
                 .OrderBy(a => a.Id)
-                .Select(a => new AppGroupSqlModel
+                .Select(a => new TagSqlModel
                 {
-                    Id = groupId,
+                    Id = tagId,
                     SortOrder = a.SortOrder,
                     RowVersion = a.RowVersion
                 })
@@ -385,16 +385,16 @@ namespace OpenSettings.Services.Sql
 
             if (entity == null)
             {
-                return HttpStatusCode.NotFound.ToFailureResponse(Errors.GroupNotFound);
+                return HttpStatusCode.NotFound.ToFailureResponse(Errors.TagNotFound);
             }
 
             if (!input.RowVersion.SequenceEqual(entity.RowVersion))
             {
-                return FailureResponses.Conflict(input.GroupId, entity.RowVersion, input.RowVersion, false);
+                return FailureResponses.Conflict(input.TagId, entity.RowVersion, input.RowVersion, false);
             }
 
-            var foundEntity = await _sortOrderService.FindNeighbour(_context.AppGroups, entity.Id, entity.SortOrder, input.Ascent)
-                .Select(a => new AppGroupSqlModel
+            var foundEntity = await _sortOrderService.FindNeighbour(_context.Tags, entity.Id, entity.SortOrder, input.Ascent)
+                .Select(a => new TagSqlModel
                 {
                     Id = a.Id,
                     SortOrder = a.SortOrder,
@@ -409,10 +409,10 @@ namespace OpenSettings.Services.Sql
 
             if (entity.SortOrder == foundEntity.SortOrder)
             {
-                return await _sortOrderService.ReorderAsync(_context.AppGroups, cancellationToken);
+                return await _sortOrderService.ReorderAsync(_context.Tags, cancellationToken);
             }
 
-            _context.AppGroups.AttachRange(foundEntity, entity);
+            _context.Tags.AttachRange(foundEntity, entity);
 
             var currentTime = DateTime.UtcNow;
             var rowVersion = currentTime.ToRowVersion();
@@ -431,21 +431,7 @@ namespace OpenSettings.Services.Sql
             {
                 await _context.SaveChangesAsync(cancellationToken);
 
-                return HttpStatusCode.OK.ToSuccessResponse(new UpdateSortOrderResponse
-                {
-                    Source = new UpdateSortOrderResponseSource
-                    {
-                        NewSortOrder = entity.SortOrder,
-                        OldSortOrder = foundEntity.SortOrder
-                    },
-                    Neighbour = new UpdateSortOrderResponseNeighbour
-                    {
-                        Id = $"{foundEntity.Id}",
-                        NewSortOrder = foundEntity.SortOrder,
-                        OldSortOrder = entity.SortOrder
-                    },
-                    RowVersion = rowVersion
-                });
+                return HttpStatusCode.OK.ToSuccessResponse();
             }
             catch (DbUpdateConcurrencyException ex)
             {
@@ -457,7 +443,7 @@ namespace OpenSettings.Services.Sql
             }
         }
 
-        public async Task<IResponse> DragGroupAsync(DragItemSortOrderInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> DragTagAsync(DragItemSortOrderInput input, CancellationToken cancellationToken = default)
         {
             var sourceIdRule = ValidationRules.GreaterThanRule(nameof(input.SourceId), input.SourceId, 0);
             var targetIdRule = ValidationRules.GreaterThanRule(nameof(input.TargetId), input.TargetId, 0);
@@ -472,12 +458,12 @@ namespace OpenSettings.Services.Sql
             var sourceId = sourceIdRule.GetStoredValue<int>();
             var targetId = targetIdRule.GetStoredValue<int>();
 
-            var ids = new int[] { sourceId, targetId };
+            var ids = new[] { sourceId, targetId };
 
-            var entities = await _context.AppGroups
+            var entities = await _context.Tags
                 .AsNoTracking()
                 .Where(a => ids.Contains(a.Id))
-                .Select(a => new AppGroupSqlModel
+                .Select(a => new TagSqlModel
                 {
                     Id = a.Id,
                     SortOrder = a.SortOrder,
@@ -488,7 +474,7 @@ namespace OpenSettings.Services.Sql
 
             if (sourceEntity == null)
             {
-                return HttpStatusCode.NotFound.ToFailureResponse(Errors.SourceGroupNotFound);
+                return HttpStatusCode.NotFound.ToFailureResponse(Errors.SourceTagNotFound);
             }
 
             if (!input.SourceRowVersion.SequenceEqual(sourceEntity.RowVersion))
@@ -500,16 +486,16 @@ namespace OpenSettings.Services.Sql
 
             if (targetEntity == null)
             {
-                return HttpStatusCode.NotFound.ToFailureResponse(Errors.TargetGroupNotFound);
+                return HttpStatusCode.NotFound.ToFailureResponse(Errors.TargetTagNotFound);
             }
 
             if (sourceEntity.SortOrder == targetEntity.SortOrder)
             {
-                return await _sortOrderService.ReorderAsync(_context.AppGroups, cancellationToken);
+                return await _sortOrderService.ReorderAsync(_context.Tags, cancellationToken);
             }
 
             var targetNeighbour = await _sortOrderService
-                .FindNeighbour(_context.AppGroups, targetEntity.Id, targetEntity.SortOrder, input.Ascent)
+                .FindNeighbour(_context.Tags, targetEntity.Id, targetEntity.SortOrder, input.Ascent)
                 .Select(s => new { s.Id, Order = s.SortOrder })
                 .FirstOrDefaultAsync(cancellationToken);
 
@@ -537,18 +523,18 @@ namespace OpenSettings.Services.Sql
             var sourceNewSortOrder = (targetEntity.SortOrder + targetNeighbour.Order) / 2;
             var sourceOldSortOrder = sourceEntity.SortOrder;
 
-            var anyMatch = await _context.AppGroups.AsNoTracking().AnyAsync(s => s.SortOrder == sourceNewSortOrder, cancellationToken);
+            var anyMatch = await _context.Tags.AsNoTracking().AnyAsync(s => s.SortOrder == sourceNewSortOrder, cancellationToken);
 
             if (anyMatch)
             {
-                return await _sortOrderService.ReorderAsync(_context.AppGroups, cancellationToken);
+                return await _sortOrderService.ReorderAsync(_context.Tags, cancellationToken);
             }
 
             var currentTime = DateTime.UtcNow;
 
             var rowVersion = currentTime.ToRowVersion();
 
-            _context.AppGroups.Attach(sourceEntity);
+            _context.Tags.Attach(sourceEntity);
 
             sourceEntity.SortOrder = sourceNewSortOrder;
             sourceEntity.UpdatedOn = currentTime;
@@ -585,11 +571,11 @@ namespace OpenSettings.Services.Sql
             var trimmedNameLowercase = name.ToLowerInvariant();
             var slug = name.ToSlug();
 
-            var entity = await _context.AppGroups
+            var entity = await _context.Tags
                 .AsNoTracking()
                 .Where(a => a.Slug == slug)
                 .OrderBy(a => a.Id)
-                .Select(a => new AppGroupSqlModel { Id = a.Id, Name = a.Name, SortOrder = a.SortOrder })
+                .Select(a => new TagSqlModel { Id = a.Id, Name = a.Name, SortOrder = a.SortOrder })
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (entity != null)
@@ -608,15 +594,15 @@ namespace OpenSettings.Services.Sql
             try
             {
                 sortOrder = setSortOrderPosition == SetSortOrderPosition.Bottom
-                    ? await _context.AppGroups.AsNoTracking().MaxAsync(s => s.SortOrder, cancellationToken) + Constants.SortOrderGap
-                    : await _context.AppGroups.AsNoTracking().MinAsync(s => s.SortOrder, cancellationToken) - Constants.SortOrderGap;
+                    ? await _context.Tags.AsNoTracking().MaxAsync(s => s.SortOrder, cancellationToken) + Constants.SortOrderGap
+                    : await _context.Tags.AsNoTracking().MinAsync(s => s.SortOrder, cancellationToken) - Constants.SortOrderGap;
             }
-            catch (InvalidOperationException)
+            catch(InvalidOperationException)
             {
                 sortOrder = 0;
             }
 
-            entity = new AppGroupSqlModel
+            entity = new TagSqlModel
             {
                 Name = name,
                 NameLowercase = trimmedNameLowercase,
@@ -626,7 +612,7 @@ namespace OpenSettings.Services.Sql
                 CreatedOn = DateTime.UtcNow
             };
 
-            _context.AppGroups.Add(entity);
+            _context.Tags.Add(entity);
 
             try
             {
@@ -652,7 +638,7 @@ namespace OpenSettings.Services.Sql
         {
             try
             {
-                var reorderResponse = await _sortOrderService.ReorderAsync(_context.AppGroups);
+                var reorderResponse = await _sortOrderService.ReorderAsync(_context.Tags);
 
                 return HttpStatusCode.OK.ToSuccessResponse(reorderResponse);
             }
@@ -662,13 +648,13 @@ namespace OpenSettings.Services.Sql
             }
         }
 
-        private async Task<IResponse> GetGroupByIdOrSlugAsync(Expression<Func<AppGroupSqlModel, bool>> predicate, CancellationToken cancellationToken = default)
+        private async Task<IResponse> GetTagByTagIdOrSlugAsync(Expression<Func<TagSqlModel, bool>> predicate, CancellationToken cancellationToken = default)
         {
-            var entity = await _context.AppGroups
+            var entity = await _context.Tags
                 .AsNoTracking()
                 .Where(predicate)
                 .OrderBy(a => a.Id)
-                .Select(a => new GetAppGroupResponse
+                .Select(a => new GetTagResponse
                 {
                     Name = a.Name,
                     SortOrder = a.SortOrder,
@@ -676,21 +662,21 @@ namespace OpenSettings.Services.Sql
                 }).FirstOrDefaultAsync(cancellationToken);
 
             return entity == null
-                ? HttpStatusCode.NotFound.ToFailureResponse(Errors.GroupNotFound)
+                ? HttpStatusCode.NotFound.ToFailureResponse(Errors.TagNotFound)
                 : HttpStatusCode.OK.ToSuccessResponse(entity);
         }
 
-        private async Task<IResponse> GetUnfilteredPaginatedGroupsAsync(GetPaginatedInput input, SortOrderBounds sortOrderBounds, CancellationToken cancellationToken = default)
+        private async Task<IResponse> GetUnfilteredPaginatedTagsAsync(GetPaginatedInput input, SortOrderBounds sortOrderBounds, CancellationToken cancellationToken = default)
         {
             try
             {
-                var unfilteredQuery = _context.AppGroups.AsNoTracking();
+                var unfilteredQuery = _context.Tags.AsNoTracking();
 
                 var unfilteredEntitiesQuery = unfilteredQuery
 #if !NETSTANDARD2_0
                     .AsSplitQuery()
 #endif
-                    .Include(a => a.Apps)
+                    .Include(a => a.AppTagMappings)
                     .Include(a => a.CreatedBy)
                     .Include(a => a.UpdatedBy)
                     .AsQueryable();
@@ -700,10 +686,10 @@ namespace OpenSettings.Services.Sql
                     : SortBy(unfilteredEntitiesQuery, input.SortBy, input.SortDirection);
 
                 var unfilteredEntities = await unfilteredEntitiesQuery
-                    .Select(entity => MapToGroupModelForPaginatedResponseData(entity))
+                    .Select(entity => MapToTagModelForPaginatedResponseData(entity))
                     .ToPaginatedArrayAsync(input.PageIndex, input.PageSize, cancellationToken);
 
-                return HttpStatusCode.OK.ToSuccessResponse(new GetPaginatedAppGroupsResponse(input, sortOrderBounds.Count, unfilteredEntities, sortOrderBounds.MinSortOrder, sortOrderBounds.MaxSortOrder));
+                return HttpStatusCode.OK.ToSuccessResponse(new GetPaginatedTagsResponse(input, sortOrderBounds.Count, unfilteredEntities, sortOrderBounds.MinSortOrder, sortOrderBounds.MaxSortOrder));
             }
             catch (Exception ex)
             {
@@ -711,16 +697,16 @@ namespace OpenSettings.Services.Sql
             }
         }
 
-        private async Task<IResponse> GetGroupsBySearchAsync(GetGroupsInput input, CancellationToken cancellationToken)
+        private async Task<IResponse> GetTagsBySearchAsync(GetTagsInput input, CancellationToken cancellationToken)
         {
             var searchLowercase = input.SearchTerm.ToLowerInvariant();
 
-            var query = _context.AppGroups.AsNoTracking();
+            var query = _context.Tags.AsNoTracking();
 
             var data = await query.SearchBy(a => a.NameLowercase, searchLowercase, _context)
                 .OrderBy(a => a.NameLowercase.IndexOf(searchLowercase))
                 .ThenBy(a => a.SortOrder)
-                .Select(a => new GetAppGroupsResponseGroup
+                .Select(a => new GetTagsResponseTag
                 {
                     Id = $"{a.Id}",
                     Name = a.Name,
@@ -728,10 +714,10 @@ namespace OpenSettings.Services.Sql
                     RowVersion = a.RowVersion
                 }).ToArrayAsync(cancellationToken);
 
-            return HttpStatusCode.OK.ToSuccessResponse(new GetAppGroupsResponse(data));
+            return HttpStatusCode.OK.ToSuccessResponse(new GetTagsResponse(data));
         }
 
-        private static IQueryable<AppGroupSqlModel> SortBy(IQueryable<AppGroupSqlModel> entities, string sortBy, SortDirection sortDirection)
+        private static IQueryable<TagSqlModel> SortBy(IQueryable<TagSqlModel> entities, string sortBy, SortDirection sortDirection)
         {
             switch (sortBy)
             {
@@ -752,8 +738,8 @@ namespace OpenSettings.Services.Sql
 
                 case "mappingsCount":
                     return sortDirection == SortDirection.Desc
-                        ? entities.OrderByDescending(a => a.Apps.Count())
-                        : entities.OrderBy(a => a.Apps.Count());
+                        ? entities.OrderByDescending(a => a.AppTagMappings.Count())
+                        : entities.OrderBy(a => a.AppTagMappings.Count());
 
                 case "createdOn":
                     return sortDirection == SortDirection.Desc
@@ -780,10 +766,8 @@ namespace OpenSettings.Services.Sql
             }
         }
 
-        private static IOrderedQueryable<AppGroupSqlModel> SortThenBy(IOrderedQueryable<AppGroupSqlModel> orderedEntities, string sortBy, SortDirection sortDirection)
+        private static IOrderedQueryable<TagSqlModel> SortThenBy(IOrderedQueryable<TagSqlModel> orderedEntities, string sortBy, SortDirection sortDirection)
         {
-            sortBy = sortBy.Trim().ToLowerInvariant();
-
             switch (sortBy)
             {
                 case "id":
@@ -803,8 +787,8 @@ namespace OpenSettings.Services.Sql
 
                 case "mappingsCount":
                     return sortDirection == SortDirection.Desc
-                        ? orderedEntities.ThenByDescending(a => a.Apps.Count())
-                        : orderedEntities.ThenBy(a => a.Apps.Count());
+                        ? orderedEntities.ThenByDescending(a => a.AppTagMappings.Count())
+                        : orderedEntities.ThenBy(a => a.AppTagMappings.Count());
 
                 case "createdOn":
                     return sortDirection == SortDirection.Desc
@@ -831,7 +815,7 @@ namespace OpenSettings.Services.Sql
             }
         }
 
-        private static ModelForPaginatedResponseData MapToGroupModelForPaginatedResponseData(AppGroupSqlModel entity)
+        private static ModelForPaginatedResponseData MapToTagModelForPaginatedResponseData(TagSqlModel entity)
         {
             return new ModelForPaginatedResponseData
             {
@@ -839,7 +823,7 @@ namespace OpenSettings.Services.Sql
                 Name = entity.Name,
                 Slug = entity.Slug,
                 SortOrder = entity.SortOrder,
-                MappingsCount = entity.Apps.Count(),
+                MappingsCount = entity.AppTagMappings.Count(),
                 CreatedOn = entity.CreatedOn,
                 UpdatedOn = entity.UpdatedOn,
                 CreatedBy = entity.CreatedBy?.DisplayName,

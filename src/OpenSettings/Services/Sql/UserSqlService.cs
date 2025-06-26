@@ -14,13 +14,13 @@ using System.Threading.Tasks;
 
 namespace OpenSettings.Services.Sql
 {
-    internal sealed class UsersSqlService : IUsersSqlService
+    internal sealed class UserSqlService : IUsersSqlService
     {
         private const string IdentityProviderClaimTypeName = "http://schemas.microsoft.com/identity/claims/identityprovider";
 
         private readonly OpenSettingsDbContext _context;
 
-        public UsersSqlService(OpenSettingsDbContext context)
+        public UserSqlService(OpenSettingsDbContext context)
         {
             _context = context;
         }

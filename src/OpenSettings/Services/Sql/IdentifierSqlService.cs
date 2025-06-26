@@ -18,12 +18,12 @@ using System.Threading.Tasks;
 
 namespace OpenSettings.Services.Sql
 {
-    internal sealed class IdentifiersSqlService : IIdentifiersSqlService
+    internal sealed class IdentifierSqlService : IIdentifiersSqlService
     {
         private readonly OpenSettingsDbContext _context;
         private readonly ISortOrderSqlService _sortOrderService;
 
-        public IdentifiersSqlService(OpenSettingsDbContext context, ISortOrderSqlService sortOrderService)
+        public IdentifierSqlService(OpenSettingsDbContext context, ISortOrderSqlService sortOrderService)
         {
             _context = context;
             _sortOrderService = sortOrderService;

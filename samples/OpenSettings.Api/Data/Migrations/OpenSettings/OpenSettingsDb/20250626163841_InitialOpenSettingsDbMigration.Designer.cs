@@ -12,7 +12,7 @@ using OpenSettings.Domains.Sql.DataContext;
 namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 {
     [DbContext(typeof(OpenSettingsDbContext))]
-    [Migration("20250621195931_InitialOpenSettingsDbMigration")]
+    [Migration("20250626163841_InitialOpenSettingsDbMigration")]
     partial class InitialOpenSettingsDbMigration
     {
         /// <inheritdoc />
@@ -569,6 +569,50 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.HasIndex("UpdatedById");
 
                     b.ToTable("Notifications");
+                });
+
+            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.ProviderRegistrySqlModel", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ClientId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ClientIdLowercase")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Host")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("LastHeartbeatOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Port")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Region")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Scheme")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClientIdLowercase");
+
+                    b.HasIndex("LastHeartbeatOn");
+
+                    b.HasIndex("Type");
+
+                    b.ToTable("ProviderRegistries");
                 });
 
             modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.SettingClassSqlModel", b =>

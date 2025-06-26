@@ -568,6 +568,50 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.ToTable("Notifications");
                 });
 
+            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.ProviderRegistrySqlModel", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ClientId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ClientIdLowercase")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Host")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("LastHeartbeatOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Port")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Region")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Scheme")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClientIdLowercase");
+
+                    b.HasIndex("LastHeartbeatOn");
+
+                    b.HasIndex("Type");
+
+                    b.ToTable("ProviderRegistries");
+                });
+
             modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.SettingClassSqlModel", b =>
                 {
                     b.Property<int>("Id")

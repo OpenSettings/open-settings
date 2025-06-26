@@ -3,12 +3,11 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.IdentityModel.Tokens;
-using OpenSettings.AspNetCore.Extensions;
 using OpenSettings.AspNetCore.Models.Responses;
 using OpenSettings.AspNetCore.Services.Interfaces;
 using OpenSettings.Configurations;
 using OpenSettings.Models;
-using OpenSettings.Services.MemoryCache;
+using OpenSettings.Services.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -22,11 +21,11 @@ namespace OpenSettings.AspNetCore.Services
     internal sealed class OpenSettingsTokenService : IOpenSettingsTokenService
     {
         private readonly JwtSecurityTokenHandler _jwtHandler;
-        private readonly OpenSettingsMemoryCache _openSettingsMemoryCache;
+        private readonly IOpenSettingsMemoryCache _openSettingsMemoryCache;
         private readonly ControllerConfiguration _controllerConfiguration;
         private readonly HttpClient _httpClient;
 
-        public OpenSettingsTokenService(OpenSettingsMemoryCache openSettingsMemoryCache, ProviderInfo providerInfo, OpenSettingsConfiguration openSettingsConfiguration, IHttpClientFactory httpClientFactory)
+        public OpenSettingsTokenService(IOpenSettingsMemoryCache openSettingsMemoryCache, ProviderInfo providerInfo, OpenSettingsConfiguration openSettingsConfiguration, IHttpClientFactory httpClientFactory)
         {
             _jwtHandler = new JwtSecurityTokenHandler();
             _openSettingsMemoryCache = openSettingsMemoryCache;
