@@ -25,6 +25,8 @@ namespace OpenSettings.Models.Responses
 
         public string Version { get; set; }
 
+        public string PackVersion { get; set; }
+
         public DateTime CreatedOn { get; set; }
 
         public DateTime? UpdatedOn { get; set; }

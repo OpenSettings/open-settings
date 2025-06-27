@@ -186,8 +186,8 @@ namespace OpenSettings.AspNetCore.Services
         {
             var instanceUrlResolver = _serviceProvider.GetRequiredService<IInstanceUrlResolverService>();
 
-            var clientId = $"{_openSettingsConfiguration.Client.Id}";
-            var clientIdLowercase = clientId.ToLowerInvariant();
+            var clientId = _openSettingsConfiguration.Client.Id;
+            var clientIdLowercase = $"{clientId}".ToLowerInvariant();
             var currentTime = DateTime.UtcNow;
 
             var providerRegistry = new ProviderRegistrySqlModel
@@ -198,6 +198,8 @@ namespace OpenSettings.AspNetCore.Services
                 ClientIdLowercase = clientIdLowercase,
                 Scheme = ProviderRegistryScheme.Unset,
                 Region = string.Empty,
+                Version = _openSettingsConfiguration.Client.Version,
+                PackVersion = OpenSettingsAssemblyInfo.Instance.PackVersion,
                 CreatedOn = currentTime,
                 LastHeartbeatOn = currentTime
             };
@@ -206,11 +208,23 @@ namespace OpenSettings.AspNetCore.Services
             {
                 switch (uri.Scheme.ToLowerInvariant())
                 {
+                    case "tcp":
+                        providerRegistry.Scheme = ProviderRegistryScheme.Tcp;
+                        break;
+                    case "grpc":
+                        providerRegistry.Scheme = ProviderRegistryScheme.Grpc;
+                        break;
                     case "http":
                         providerRegistry.Scheme = ProviderRegistryScheme.Http;
                         break;
                     case "https":
                         providerRegistry.Scheme = ProviderRegistryScheme.Https;
+                        break;
+                    case "ws":
+                        providerRegistry.Scheme = ProviderRegistryScheme.WebSocket;
+                        break;
+                    case "wss":
+                        providerRegistry.Scheme = ProviderRegistryScheme.WebSocketSecure;
                         break;
                     default:
                         providerRegistry.Scheme = ProviderRegistryScheme.Unset;
@@ -257,9 +271,30 @@ namespace OpenSettings.AspNetCore.Services
             entry.Property(p => p.Type).IsModified = true;
             entry.Property(p => p.LastHeartbeatOn).IsModified = true;
 
+            var oldMasterProviders = await context.ProviderRegistries.AsNoTracking()
+                .Where(p => p.Id != InstanceId && p.Type == ProviderRegistryType.Master)
+                .Select(p => new ProviderRegistrySqlModel { Id = p.Id })
+                .ToArrayAsync(cancellationToken);
+
+            var oldMasterProviderEntries = oldMasterProviders.Select(p =>
+            {
+                var oldProviderEntry = context.ProviderRegistries.Attach(p);
+
+                p.Type = ProviderRegistryType.Slave;
+
+                oldProviderEntry.Property(pp => pp.Type).IsModified = true;
+
+                return oldProviderEntry;
+            }).ToArray();
+
             await context.SaveChangesAsync(cancellationToken);
 
             entry.State = EntityState.Detached;
+
+            foreach (var oldMasterProviderEntry in oldMasterProviderEntries)
+            {
+                oldMasterProviderEntry.State = EntityState.Detached;
+            }
         }
 
         private async Task<bool> IsMasterStaleAsync(OpenSettingsDbContext context, CancellationToken cancellationToken)

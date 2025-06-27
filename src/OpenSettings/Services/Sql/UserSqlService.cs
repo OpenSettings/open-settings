@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Ogu.Response.Abstractions;
 using OpenSettings.Domains.Sql.DataContext;
 using OpenSettings.Domains.Sql.Entities;
 using OpenSettings.Extensions;
@@ -66,8 +67,8 @@ namespace OpenSettings.Services.Sql
                     Username = username,
                     UsernameLowercase = username.ToLowerInvariant(),
                     HashedPassword = null,
-                    Name = trimmedName,
-                    NameLowercase = trimmedName.ToLowerInvariant(),
+                    FullName = trimmedName,
+                    FullNameLowercase = trimmedName.ToLowerInvariant(),
                     Slug = id.ToString().ToSlug(),
                     DisplayName = trimmedName,
                     Initials = Helper.GetInitials(trimmedName),
@@ -121,6 +122,36 @@ namespace OpenSettings.Services.Sql
         private static Claim GetFirstClaimOrDefault(ClaimsPrincipal claimsPrincipal, params string[] claimTypes)
         {
             return claimTypes.Select(claimsPrincipal.FindFirst).FirstOrDefault(claim => claim != null);
+        }
+
+        public Task<IResponse> CreateUserAsync(CreateUserInput input, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IResponse> GetPaginatedUsersAsync(GetPaginatedInput input, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IResponse> GetUserByIdAsync(GetUserInput input, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IResponse> GetUserBySlugAsync(GetUserInput input, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IResponse> UpdateUserAsync(UpdateUserInput input, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IResponse> DeleteUserAsync(DeleteUserInput input, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
         }
     }
 }

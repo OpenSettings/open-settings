@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Ogu.Response;
-using OpenSettings.AspNetCore.Extensions;
 using OpenSettings.AspNetCore.Models.Requests;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Services.Interfaces;
@@ -137,7 +136,11 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return ModelState.ToAction();
             }
 
-            var result = await _identifiersService.DeleteIdentifierAsync(new DeleteIdentifierInput { IdentifierId = request.IdentifierId, RowVersion = request.RowVersion }, cancellationToken);
+            var result = await _identifiersService.DeleteIdentifierAsync(new DeleteIdentifierInput
+            {
+                IdentifierId = request.IdentifierId,
+                RowVersion = request.RowVersion
+            }, cancellationToken);
 
             return result.ToAction();
         }

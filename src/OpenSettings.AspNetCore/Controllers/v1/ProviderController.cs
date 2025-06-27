@@ -25,5 +25,13 @@ namespace OpenSettings.AspNetCore.Controllers.v1
 
             return response.ToAction();
         }
+
+        [HttpGet("provider/primary")]
+        public async Task<IActionResult> GetPrimaryProvider(CancellationToken cancellationToken)
+        {
+            var response = await _providerService.GetPrimaryProviderAsync(cancellationToken);
+
+            return response.ToAction();
+        }
     }
 }

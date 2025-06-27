@@ -89,7 +89,7 @@ namespace OpenSettings.Services.Sql
                 creatorName = await _context.Users.AsNoTracking()
                     .Where(u => u.Id == input.CreatedById)
                     .OrderBy(u => u.Id)
-                    .Select(u => u.Name)
+                    .Select(u => u.FullName)
                     .FirstOrDefaultAsync(cancellationToken);
             }
 

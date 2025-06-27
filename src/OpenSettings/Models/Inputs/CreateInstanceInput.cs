@@ -19,6 +19,7 @@ namespace OpenSettings.Models.Inputs
             DynamicId = openSettingsConfiguration.InstanceDynamicId;
             Urls = urls ?? Array.Empty<string>();
             Version = openSettingsConfiguration.Client.Version;
+            PackVersion = OpenSettingsAssemblyInfo.Instance.PackVersion;
             IsActive = isActive;
             MachineName = System.Environment.MachineName;
             Environment = Helpers.Helper.GetEnvironmentName();
@@ -40,6 +41,8 @@ namespace OpenSettings.Models.Inputs
         public string[] Urls { get; set; } = Array.Empty<string>();
 
         public string Version { get; set; }
+
+        public string PackVersion { get; set; }
 
         public bool IsActive { get; set; }
 

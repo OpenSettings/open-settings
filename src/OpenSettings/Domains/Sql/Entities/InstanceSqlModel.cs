@@ -39,8 +39,15 @@ namespace OpenSettings.Domains.Sql.Entities
 
         /// <summary>
         /// The version of the instance.
+        /// e.g. 1.0.0
         /// </summary>
         public string Version { get; set; }
+
+        /// <summary>
+        /// The OpenSettings pack version.
+        /// e.g. '<c>1.0.0-preview.1.0.1</c>'.
+        /// </summary>
+        public string PackVersion { get; set; }
 
         /// <summary>
         /// Indicates whether the instance is active.

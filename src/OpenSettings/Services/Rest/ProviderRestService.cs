@@ -26,5 +26,15 @@ namespace OpenSettings.Services.Rest
                 return await response.Content.ToResponseAsync<ProviderInfo>(cancellationToken: cancellationToken);
             }
         }
+
+        public async Task<IResponse> GetPrimaryProviderAsync(CancellationToken cancellationToken = default)
+        {
+            const string relativeUri = "v1/provider/primary";
+
+            using (var response = await _httpClient.GetAsync(relativeUri, cancellationToken))
+            {
+                return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
+            }
+        }
     }
 }

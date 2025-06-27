@@ -1,6 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Ogu.Extensions.Hosting.HostedServices;
+using OpenSettings.AspNetCore.Models;
+using OpenSettings.AspNetCore.Services.Interfaces;
 using OpenSettings.Configurations;
 using OpenSettings.Domains.Sql.DataContext;
 using OpenSettings.Domains.Sql.Entities;
@@ -12,10 +15,12 @@ using System.Linq;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
-using OpenSettings.AspNetCore.Services.Interfaces;
 
-namespace OpenSettings.Services
+namespace OpenSettings.AspNetCore.Services
 {
+    /// <summary>
+    /// A timed service that synchronizes OpenSettings notifications with the local database.
+    /// </summary>
     internal sealed class OpenSettingsNotificationSyncTimedService : TimedHostedService, IOpenSettingsNotificationSyncTimedService
     {
         private readonly IOpenSettingsService _openSettingsService;
@@ -23,13 +28,10 @@ namespace OpenSettings.Services
 
         public OpenSettingsNotificationSyncTimedService(
             ILogger<OpenSettingsNotificationSyncTimedService> logger, 
+            IOptions<OpenSettingsNotificationSyncTimedServiceOptions> openSettingsNotificationSyncTimedServiceOptions,
             IOpenSettingsService openSettingsService, 
             OpenSettingsConfiguration openSettingsConfiguration) : base(logger, nameof(OpenSettingsNotificationSyncTimedService),
-            options =>
-            {
-                options.PreservePeriod = true;
-                options.TaskTimeout = TimeSpan.FromMinutes(2);
-            })
+            timedHostedServiceOptions => Configure(openSettingsNotificationSyncTimedServiceOptions.Value, timedHostedServiceOptions))
         {
             _openSettingsService = openSettingsService;
             _openSettingsConfiguration = openSettingsConfiguration;
@@ -136,6 +138,12 @@ namespace OpenSettings.Services
                     opts.Period = TimeSpan.FromSeconds(periodInSeconds);
                 });
             }
+        }
+
+        private static void Configure(OpenSettingsNotificationSyncTimedServiceOptions openSettingsNotificationSyncTimedServiceOptions, TimedHostedServiceOptions timedHostedServiceOptions)
+        {
+            timedHostedServiceOptions.PreservePeriod = openSettingsNotificationSyncTimedServiceOptions.PreservePeriod;
+            timedHostedServiceOptions.TaskTimeout = openSettingsNotificationSyncTimedServiceOptions.TaskTimeout;
         }
     }
 }

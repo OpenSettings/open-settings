@@ -2,7 +2,11 @@
 
 namespace OpenSettings.AspNetCore.Models
 {
-    public class ProviderCoordinationTimedServiceOptions : IOptions<ProviderCoordinationTimedServiceOptions>
+    /// <summary>
+    /// Configuration options for the <see cref="ProviderCoordinationTimedServiceOptions"/>.
+    /// Used to control the behavior of the provider coordination timed service.
+    /// </summary>
+    internal sealed class ProviderCoordinationTimedServiceOptions : IOptions<ProviderCoordinationTimedServiceOptions>
     {
         private int _masterCheckInterval = 8000;
 

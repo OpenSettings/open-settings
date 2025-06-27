@@ -26,6 +26,8 @@ namespace OpenSettings.Models.Inputs
 
         public string Version { get; set; }
 
+        public string PackVersion { get; set; }
+
         public bool IsActive { get; set; }
 
         [JsonIgnore]

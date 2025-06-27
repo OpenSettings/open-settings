@@ -135,6 +135,9 @@ namespace OpenSettings
         [Description("App - Identifier mapping not found.")]
         AppIdentifierMappingNotFound = 40421,
 
+        [Description("Primary provider not found.")]
+        PrimaryProviderNotFound = 40422,
+
         // NotSupported Errors (40500-40599)
 
         [Description("Config source not supported.")]

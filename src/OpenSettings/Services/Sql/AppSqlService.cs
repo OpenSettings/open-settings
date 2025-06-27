@@ -733,8 +733,8 @@ namespace OpenSettings.Services.Sql
                 Username = clientIdAsString,
                 UsernameLowercase = clientIdAsStringLowercase,
                 HashedPassword = hashedPassword,
-                Name = trimmedClientName,
-                NameLowercase = trimmedClientNameLowercase,
+                FullName = trimmedClientName,
+                FullNameLowercase = trimmedClientNameLowercase,
                 DisplayName = trimmedClientName,
                 LastLogin = currentTime,
                 CreatedOn = currentTime,
@@ -898,6 +898,7 @@ namespace OpenSettings.Services.Sql
                         i.IdentifierId,
                         i.Name,
                         i.Version,
+                        i.PackVersion,
                         i.Urls,
                         i.IsActive,
                         i.IpAddress,
@@ -1119,6 +1120,7 @@ namespace OpenSettings.Services.Sql
                         i.ReloadStrategies,
                         i.ServiceType,
                         i.Version,
+                        i.PackVersion,
                         i.CreatedOn,
                         i.UpdatedOn
                     }).ToArray(),
@@ -1332,6 +1334,7 @@ namespace OpenSettings.Services.Sql
                     ReloadStrategies = input.Instance.ReloadStrategies,
                     ServiceType = input.Instance.ServiceType,
                     Version = input.Instance.Version,
+                    PackVersion = input.Instance.PackVersion,
                     CreatedOn = currentTime,
                 });
             }
@@ -1422,8 +1425,8 @@ namespace OpenSettings.Services.Sql
                 HashedPassword = _passwordHasher.HashPassword(null, $"{clientSecret}"),
                 Username = clientIdAsString,
                 UsernameLowercase = clientIdAsStringLowercase,
-                Name = trimmedClientName,
-                NameLowercase = trimmedClientNameLowercase,
+                FullName = trimmedClientName,
+                FullNameLowercase = trimmedClientNameLowercase,
                 DisplayName = trimmedClientName,
                 LastLogin = currentTime,
                 CreatedOn = currentTime,
@@ -1510,6 +1513,7 @@ namespace OpenSettings.Services.Sql
                         DynamicId = input.Instance.DynamicId,
                         Urls = input.Instance.Urls,
                         Version = input.Instance.Version,
+                        PackVersion = input.Instance.PackVersion,
                         IsActive = input.Instance.IsActive,
                         IpAddress = input.Instance.IpAddress,
                         MachineName = input.Instance.MachineName,
@@ -1531,6 +1535,7 @@ namespace OpenSettings.Services.Sql
                     instance.DynamicId = input.Instance.DynamicId;
                     instance.Urls = input.Instance.Urls;
                     instance.Version = input.Instance.Version;
+                    instance.PackVersion = input.Instance.PackVersion;
                     instance.IsActive = input.Instance.IsActive;
                     instance.IpAddress = input.Instance.IpAddress;
                     instance.MachineName = input.Instance.MachineName;
@@ -1547,6 +1552,7 @@ namespace OpenSettings.Services.Sql
                         i => i.DynamicId,
                         i => i.Urls,
                         i => i.Version,
+                        i => i.PackVersion,
                         i => i.IsActive,
                         i => i.IpAddress,
                         i => i.MachineName,

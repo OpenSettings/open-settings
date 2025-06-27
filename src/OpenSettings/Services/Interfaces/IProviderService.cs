@@ -8,5 +8,7 @@ namespace OpenSettings.Services.Interfaces
     public interface IProviderService
     {
         Task<IResponse<ProviderInfo>> GetProviderAsync(CancellationToken cancellationToken = default);
+
+        Task<IResponse> GetPrimaryProviderAsync(CancellationToken cancellationToken = default);
     }
 }

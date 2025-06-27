@@ -3,42 +3,32 @@ using Ogu.Response;
 using Ogu.Response.Abstractions;
 using OpenSettings.Configurations;
 using OpenSettings.Domains.Sql.DataContext;
-using OpenSettings.Extensions;
 using OpenSettings.Models;
-using OpenSettings.Services.Interfaces;
 using OpenSettings.Services.Sql.Interfaces;
-using System;
 using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using OpenSettings.Models.Responses;
 
 namespace OpenSettings.Services.Sql
 {
     internal sealed class ProviderSqlService : IProviderSqlService
     {
-        private static readonly CacheModel GetProviderAsyncCache = new CacheModel("pss:gpa", TimeSpan.FromSeconds(30));
-
         private readonly OpenSettingsDbContext _context;
         private readonly ProviderInfo _providerInfo;
         private readonly OpenSettingsConfiguration _openSettingsConfiguration;
-        private readonly IOpenSettingsMemoryCache _openSettingsMemoryCache;
 
-        public ProviderSqlService(OpenSettingsDbContext context, ProviderInfo providerInfo, OpenSettingsConfiguration openSettingsConfiguration, IOpenSettingsMemoryCache openSettingsMemoryCache)
+        public ProviderSqlService(OpenSettingsDbContext context, ProviderInfo providerInfo,
+            OpenSettingsConfiguration openSettingsConfiguration)
         {
             _context = context;
             _providerInfo = providerInfo;
             _openSettingsConfiguration = openSettingsConfiguration;
-            _openSettingsMemoryCache = openSettingsMemoryCache;
         }
 
         public async Task<IResponse<ProviderInfo>> GetProviderAsync(CancellationToken cancellationToken = default)
         {
-            if (GetProviderAsyncCache.TryGetValue<IResponse<ProviderInfo>>(_openSettingsMemoryCache, out var response))
-            {
-                return response;
-            }
-
             var entity = await _context.Configurations.AsNoTracking()
                 .Include(e => e.App)
                 .Include(e => e.Identifier)
@@ -59,11 +49,34 @@ namespace OpenSettings.Services.Sql
                 _openSettingsConfiguration.Provider.CompressionLevel = entity.Provider.CompressionLevel;
             }
 
-            response = HttpStatusCode.OK.ToSuccessResponseOf(_providerInfo);
-
-            GetProviderAsyncCache.Set(_openSettingsMemoryCache, response);
-
             return HttpStatusCode.OK.ToSuccessResponseOf(_providerInfo);
+        }
+
+        public async Task<IResponse> GetPrimaryProviderAsync(CancellationToken cancellationToken = default)
+        {
+            var primaryProvider = await _context.ProviderRegistries
+                .AsNoTracking()
+                .Where(p => p.Type == ProviderRegistryType.Master)
+                .OrderBy(p => p.LastHeartbeatOn)
+                .Select(p => new GetPrimaryProviderResponse
+                {
+                    Id = p.Id,
+                    Type = p.Type,
+                    ClientId = p.ClientId,
+                    Scheme = p.Scheme,
+                    Host = p.Host,
+                    Port = p.Port,
+                    Region = p.Region,
+                    Version = p.Version,
+                    PackVersion = p.PackVersion,
+                    LastHeartbeatOn = p.LastHeartbeatOn,
+                    CreatedOn = p.CreatedOn
+                })
+                .FirstOrDefaultAsync(cancellationToken);
+
+            return primaryProvider == null
+                ? HttpStatusCode.NotFound.ToFailureResponse(Errors.PrimaryProviderNotFound)
+                : HttpStatusCode.OK.ToSuccessResponse(primaryProvider);
         }
     }
 }

@@ -87,6 +87,7 @@ namespace OpenSettings.Services.Sql
                 DynamicId = input.DynamicId,
                 Urls = input.Urls,
                 Version = input.Version,
+                PackVersion = input.PackVersion,
                 IsActive = input.IsActive,
                 IpAddress = input.IpAddress,
                 MachineName = input.MachineName,
@@ -280,6 +281,7 @@ namespace OpenSettings.Services.Sql
                             ReloadStrategies = i.ReloadStrategies,
                             ServiceType = i.ServiceType,
                             Version = i.Version,
+                            PackVersion = i.PackVersion,
                             CreatedOn = i.CreatedOn,
                             UpdatedOn = i.UpdatedOn
                         }).ToArray()
@@ -332,6 +334,7 @@ namespace OpenSettings.Services.Sql
                 ReloadStrategies = instance.ReloadStrategies,
                 ServiceType = instance.ServiceType,
                 Version = instance.Version,
+                PackVersion = instance.PackVersion,
                 CreatedOn = instance.CreatedOn,
                 UpdatedOn = instance.UpdatedOn
             };

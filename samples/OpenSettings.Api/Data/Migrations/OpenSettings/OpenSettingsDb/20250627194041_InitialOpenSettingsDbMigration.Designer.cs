@@ -12,7 +12,7 @@ using OpenSettings.Domains.Sql.DataContext;
 namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 {
     [DbContext(typeof(OpenSettingsDbContext))]
-    [Migration("20250626163841_InitialOpenSettingsDbMigration")]
+    [Migration("20250627194041_InitialOpenSettingsDbMigration")]
     partial class InitialOpenSettingsDbMigration
     {
         /// <inheritdoc />
@@ -397,6 +397,9 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.Property<string>("NameLowercase")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("PackVersion")
+                        .HasColumnType("nvarchar(max)");
+
                     b.PrimitiveCollection<string>("ReloadStrategies")
                         .HasColumnType("nvarchar(max)");
 
@@ -577,8 +580,8 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("ClientId")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ClientIdLowercase")
                         .HasColumnType("nvarchar(450)");
@@ -592,6 +595,9 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.Property<DateTime>("LastHeartbeatOn")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("PackVersion")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("Port")
                         .HasColumnType("int");
 
@@ -603,6 +609,9 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 
                     b.Property<int>("Type")
                         .HasColumnType("int");
+
+                    b.Property<string>("Version")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -1207,6 +1216,12 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.Property<string>("EmailLowercase")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("FullName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FullNameLowercase")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("HashedPassword")
                         .HasColumnType("nvarchar(max)");
 
@@ -1218,12 +1233,6 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 
                     b.Property<DateTime>("LastLogin")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NameLowercase")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("OAuthProvider")
                         .HasColumnType("nvarchar(max)");

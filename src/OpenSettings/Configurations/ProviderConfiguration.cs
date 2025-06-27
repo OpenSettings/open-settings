@@ -37,7 +37,7 @@ namespace OpenSettings.Configurations
         /// </param>
         public ProviderConfiguration(DataAccessType selection)
         {
-            _selectionHandlers = new Dictionary<DataAccessType, Action>()
+            _selectionHandlers = new Dictionary<DataAccessType, Action>
             {
                 { DataAccessType.Orm , () =>
                 {
