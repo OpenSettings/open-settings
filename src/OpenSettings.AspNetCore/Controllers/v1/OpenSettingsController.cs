@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace OpenSettings.AspNetCore.Controllers.v1
 {
-    [Route("v1/open-settings")]
+    [Route(OpenSettingsDefaults.Routes.V1.OpenSettings)]
     public class OpenSettingsController : ControllerBase
     {
         private const string OctetStreamContentType = "application/octet-stream";

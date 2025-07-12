@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace OpenSettings.AspNetCore.Controllers.v1
 {
-    [Route("v1/instances")]
+    [Route(OpenSettingsDefaults.Routes.V1.Instances)]
     public class InstancesController : ControllerBase
     {
         private readonly IInstancesService _instancesService;

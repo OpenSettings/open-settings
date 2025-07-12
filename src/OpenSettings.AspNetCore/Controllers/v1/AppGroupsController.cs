@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Ogu.Response;
-using OpenSettings.AspNetCore.Extensions;
 using OpenSettings.AspNetCore.Models.Requests;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Services.Interfaces;
@@ -9,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace OpenSettings.AspNetCore.Controllers.v1
 {
-    [Route("v1/app-groups")]
+    [Route(OpenSettingsDefaults.Routes.V1.AppGroups)]
     public class AppGroupsController : ControllerBase
     {
         private readonly IAppGroupsService _appGroupsService;

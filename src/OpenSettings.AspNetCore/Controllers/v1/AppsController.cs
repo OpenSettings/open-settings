@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Ogu.Response;
-using OpenSettings.AspNetCore.Extensions;
 using OpenSettings.AspNetCore.Models.Requests;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Services.Interfaces;
@@ -10,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace OpenSettings.AspNetCore.Controllers.v1
 {
-    [Route("v1/apps")]
+    [Route(OpenSettingsDefaults.Routes.V1.Apps)]
     public class AppsController : ControllerBase
     {
         private readonly IAppsService _appsService;

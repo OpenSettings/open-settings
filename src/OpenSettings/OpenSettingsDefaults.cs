@@ -16,14 +16,74 @@
             public static class V1
             {
                 /// <summary>
-                /// The SettingsController base route.
+                /// The AppGroupsController base route.
                 /// </summary>
-                public const string Settings = "v1/settings";
+                public const string AppGroups = "v1/app-groups";
+
+                /// <summary>
+                /// The AppsController base route.
+                /// </summary>
+                public const string Apps = "v1/apps";
 
                 /// <summary>
                 /// The AuthController base route.
                 /// </summary>
                 public const string Auth = "v1/auth";
+
+                /// <summary>
+                /// The IdentifiersController base route.
+                /// </summary>
+                public const string Identifiers = "v1/identifiers";
+
+                /// <summary>
+                /// The InstancesController base route.
+                /// </summary>
+                public const string Instances = "v1/instances";
+
+                /// <summary>
+                /// The LicensesController base route.
+                /// </summary>
+                public const string Licenses = "v1/licenses";
+
+                /// <summary>
+                /// The LocalSettingsController base route.
+                /// </summary>
+                public const string LocalSettings = "v1/local-settings";
+
+                /// <summary>
+                /// The NotificationsController base route.
+                /// </summary>
+                public const string Notifications = "v1/notifications";
+
+                /// <summary>
+                /// The OpenSettingsController base route.
+                /// </summary>
+                public const string OpenSettings = "v1/open-settings";
+
+                /// <summary>
+                /// The ProviderController base route.
+                /// </summary>
+                public const string Provider = "v1/provider";
+
+                /// <summary>
+                /// The SettingHistoriesController base route.
+                /// </summary>
+                public const string SettingHistories = "v1/setting-histories";
+
+                /// <summary>
+                /// The SettingsController base route.
+                /// </summary>
+                public const string Settings = "v1/settings";
+
+                /// <summary>
+                /// The TagsController base route.
+                /// </summary>
+                public const string Tags = "v1/tags";
+
+                /// <summary>
+                /// The UsersController base route.
+                /// </summary>
+                public const string Users = "v1/users";
             }
         }
 
@@ -46,6 +106,27 @@
             /// The authentication scheme for OAuth2 Authentication in OpenSettings.
             /// </summary>
             public const string OAuth2 = "OpenSettingsOAuth2";
+
+            /// <summary>
+            /// The authentication scheme for JWT Bearer Authentication in OpenSettings.
+            /// </summary>
+            public const string JwtBearer = "OpenSettingsJwtBearer";
+
+            /// <summary>
+            /// The authentication scheme for OAuth2 JWT Bearer Authentication in OpenSettings.
+            /// </summary>
+            public const string OAuth2JwtBearer = "OpenSettingsOAuth2JwtBearer";
+        }
+
+        /// <summary>
+        /// Provides constant values for claim types used in OpenSettings.
+        /// </summary>
+        public static class Claims
+        {
+            public const string DbUserId = "db_user_id";
+            public const string DbUserDisplayName = "db_user_displayName";
+            public const string DbUserInitials = "db_user_initials";
+            public const string DbUserImage = "db_user_image";
         }
 
         /// <summary>

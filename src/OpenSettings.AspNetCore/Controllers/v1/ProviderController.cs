@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace OpenSettings.AspNetCore.Controllers.v1
 {
-    [Route("v1")]
+    [Route(OpenSettingsDefaults.Routes.V1.Provider)]
     public class ProviderController : ControllerBase
     {
         private readonly IProviderService _providerService;
@@ -17,7 +17,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             _providerService = providerService;
         }
 
-        [HttpGet("provider")]
+        [HttpGet]
         [Authorize(AuthenticationSchemes = OpenSettingsDefaults.AuthSchemes.Basic)]
         public async Task<IActionResult> GetProviderInfo(CancellationToken cancellationToken)
         {
@@ -26,7 +26,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             return response.ToAction();
         }
 
-        [HttpGet("provider/primary")]
+        [HttpGet("primary")]
         public async Task<IActionResult> GetPrimaryProvider(CancellationToken cancellationToken)
         {
             var response = await _providerService.GetPrimaryProviderAsync(cancellationToken);

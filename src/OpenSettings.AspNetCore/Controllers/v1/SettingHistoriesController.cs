@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Ogu.Response;
-using OpenSettings.AspNetCore.Extensions;
 using OpenSettings.AspNetCore.Models.Requests;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Services.Interfaces;
@@ -9,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace OpenSettings.AspNetCore.Controllers.v1
 {
-    [Route("v1/setting-histories")]
+    [Route(OpenSettingsDefaults.Routes.V1.SettingHistories)]
     public class SettingHistoriesController : ControllerBase
     {
         private readonly ISettingHistoriesService _settingHistoriesService;

@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace OpenSettings.AspNetCore.Controllers.v1
 {
-    [Route("v1/notifications")]
+    [Route(OpenSettingsDefaults.Routes.V1.Notifications)]
     public class NotificationsController : ControllerBase
     {
         private readonly INotificationsService _notificationsService;

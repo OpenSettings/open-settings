@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace OpenSettings.AspNetCore.Controllers.v1
 {
-    [Route("v1/licenses")]
+    [Route(OpenSettingsDefaults.Routes.V1.Licenses)]
     public class LicensesController : ControllerBase
     {
         private readonly ILicensesService _licenseService;

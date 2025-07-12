@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace OpenSettings.AspNetCore.Controllers.v1
 {
-    [Route("v1/users")]
+    [Route(OpenSettingsDefaults.Routes.V1.Users)]
     public class UsersController : ControllerBase
     {
         private readonly IUsersService _usersService;

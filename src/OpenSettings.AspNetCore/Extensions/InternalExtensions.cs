@@ -1,13 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Ogu.Response;
-using Ogu.Response.Abstractions;
 using OpenSettings.AspNetCore.Models;
 using System;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text;
-using System.Text.Json;
 
 namespace OpenSettings.AspNetCore
 {
@@ -75,7 +72,7 @@ namespace OpenSettings.AspNetCore
 
         internal static Guid? GetUserId(this ClaimsPrincipal claimsPrincipal)
         {
-            var claim = claimsPrincipal.GetClaim(Constants.DbUserIdClaim);
+            var claim = claimsPrincipal.GetClaim(OpenSettingsDefaults.Claims.DbUserId);
 
             return Guid.TryParse(claim?.Value, out var userId)
                 ? userId == Guid.Empty ? (Guid?)null : userId
@@ -89,7 +86,7 @@ namespace OpenSettings.AspNetCore
 
         internal static string GetUserDisplayName(this ClaimsPrincipal claimsPrincipal)
         {
-            var claim = claimsPrincipal.GetClaim(Constants.DbUserDisplayNameClaim);
+            var claim = claimsPrincipal.GetClaim(OpenSettingsDefaults.Claims.DbUserDisplayName);
 
             return claim?.Value;
         }

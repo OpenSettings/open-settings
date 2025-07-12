@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace OpenSettings.AspNetCore.Controllers.v1
 {
-    [Route("v1/identifiers")]
+    [Route(OpenSettingsDefaults.Routes.V1.Identifiers)]
     public class IdentifiersController : ControllerBase
     {
         private readonly IIdentifiersService _identifiersService;

@@ -91,7 +91,7 @@ namespace OpenSettings.AspNetCore.Extensions
             if (authorize && providerInfo.OAuth2.IsActive)
             {
                 authenticationBuilder
-                    .AddJwtBearer(Constants.OpenSettingsOAuth2JwtBearerScheme, jwtBearerOpts =>
+                    .AddJwtBearer(OpenSettingsDefaults.AuthSchemes.OAuth2JwtBearer, jwtBearerOpts =>
                     {
                         jwtBearerOpts.Authority = providerInfo.OAuth2.Authority;
                         jwtBearerOpts.SaveToken = true;
@@ -144,7 +144,7 @@ namespace OpenSettings.AspNetCore.Extensions
                 {
                     mvcOpts.Conventions.AddControllerAuthorizeConvention(controllerTypes,
                         conventionOpts =>
-                            ApplyConventionOpts(conventionOpts, providerInfo, isProvider));
+                            ApplyConventionOptions(conventionOpts, providerInfo, isProvider));
                 }
 
             }).AddControllersAsServices();
@@ -210,9 +210,9 @@ namespace OpenSettings.AspNetCore.Extensions
 
                             context.Principal?.AddIdentity(new ClaimsIdentity(new Claim[]
                             {
-                                new Claim(Constants.DbUserIdClaim, user.Id.ToString()),
-                                new Claim(Constants.DbUserDisplayNameClaim, user.DisplayName),
-                                new Claim(Constants.DbUserInitialsClaim, user.Initials)
+                                new Claim(OpenSettingsDefaults.Claims.DbUserId, $"{user.Id}"),
+                                new Claim(OpenSettingsDefaults.Claims.DbUserDisplayName, user.DisplayName),
+                                new Claim(OpenSettingsDefaults.Claims.DbUserInitials, user.Initials)
                             }));
                         },
                         OnRemoteFailure = context =>
@@ -285,7 +285,7 @@ namespace OpenSettings.AspNetCore.Extensions
             return authenticationBuilder.AddScheme<AuthenticationSchemeOptions, OpenSettingsBasicAuthenticationHandler>(OpenSettingsDefaults.AuthSchemes.Basic, null);
         }
 
-        private static void ApplyConventionOpts(ControllerAuthorizeConventionOptions conventionOpts, ProviderInfo providerInfo, bool isServiceTypeProvider)
+        private static void ApplyConventionOptions(ControllerAuthorizeConventionOptions conventionOptions, ProviderInfo providerInfo, bool isServiceTypeProvider)
         {
             var authSchemes = new List<string> { OpenSettingsDefaults.AuthSchemes.Basic };
 
@@ -295,10 +295,11 @@ namespace OpenSettings.AspNetCore.Extensions
                 {
                     authSchemes.Add(OpenSettingsDefaults.AuthSchemes.OAuth2);
                 }
-                authSchemes.Add(Constants.OpenSettingsOAuth2JwtBearerScheme);
+
+                authSchemes.Add(OpenSettingsDefaults.AuthSchemes.OAuth2JwtBearer);
             }
 
-            conventionOpts.AuthenticationSchemes = string.Join(",", authSchemes);
+            conventionOptions.AuthenticationSchemes = string.Join(",", authSchemes);
         }
     }
 }

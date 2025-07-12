@@ -164,7 +164,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             var isSelectedRest = _openSettingsConfiguration.IsConsumerSelected;
 
             var authenticateResult = await HttpContext.AuthenticateAsync(isSelectedRest
-                ? Constants.OpenSettingsOAuth2JwtBearerScheme
+                ? OpenSettingsDefaults.AuthSchemes.OAuth2JwtBearer
                 : OpenSettingsDefaults.AuthSchemes.OAuth2);
 
             if (string.IsNullOrWhiteSpace(returnUrl))
@@ -292,7 +292,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         }
 
         [HttpPost("refresh-token")]
-        [Authorize(AuthenticationSchemes = Constants.OpenSettingsOAuth2JwtBearerScheme)]
+        [Authorize(AuthenticationSchemes = OpenSettingsDefaults.AuthSchemes.OAuth2JwtBearer)]
         public async Task<IActionResult> RefreshToken(CancellationToken cancellationToken = default)
         {
             var refreshToken = await _tokenService.RefreshTokenAsync(HttpContext, cancellationToken);

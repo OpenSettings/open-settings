@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace OpenSettings.AspNetCore.Controllers.v1
 {
-    [Route("v1/local-settings")]
+    [Route(OpenSettingsDefaults.Routes.V1.LocalSettings)]
     public class LocalSettingsController : ControllerBase
     {
         private readonly ILocalSettingsService _localSettingsService;
