@@ -12,11 +12,13 @@ namespace OpenSettings.Services.Rest
 {
     public sealed class InstancesRestService : IInstancesRestService
     {
-        private readonly HttpClient _httpClient;
+        private HttpClient HttpClient => _httpClientFactory.CreateOpenSettingsHttpClient();
 
-        public InstancesRestService(HttpClient httpClient)
+        private readonly IHttpClientFactory _httpClientFactory;
+
+        public InstancesRestService(IHttpClientFactory httpClientFactory)
         {
-            _httpClient = httpClient;
+            _httpClientFactory = httpClientFactory;
         }
 
         public async Task<IResponse> CreateInstanceAsync(CreateInstanceInput input, CancellationToken cancellationToken = default)
@@ -42,7 +44,7 @@ namespace OpenSettings.Services.Rest
 
             using (var stringContent = new StringContent(JsonSerializer.Serialize(body), Encoding.UTF8, Constants.ApplicationJson))
             {
-                using (var response = await _httpClient.PostAsync(relativeUri, stringContent, cancellationToken))
+                using (var response = await HttpClient.PostAsync(relativeUri, stringContent, cancellationToken))
                 {
                     return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
                 }
@@ -65,7 +67,7 @@ namespace OpenSettings.Services.Rest
 
             using (var stringContent = new StringContent(JsonSerializer.Serialize(body), Encoding.UTF8, Constants.ApplicationJson))
             {
-                using (var response = await _httpClient.PutAsync(relativeUri, stringContent, cancellationToken))
+                using (var response = await HttpClient.PutAsync(relativeUri, stringContent, cancellationToken))
                 {
                     return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
                 }
@@ -76,7 +78,7 @@ namespace OpenSettings.Services.Rest
         {
             var relativeUri = $"v1/instances/{input.InstanceId}";
 
-            using (var response = await _httpClient.DeleteAsync(relativeUri, cancellationToken))
+            using (var response = await HttpClient.DeleteAsync(relativeUri, cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
@@ -93,7 +95,7 @@ namespace OpenSettings.Services.Rest
                 queryBuilder.Append("IdentifierId", input.IdentifierIdOrSlug);
             }
 
-            using (var response = await _httpClient.GetAsync(queryBuilder.ToString(relativeUri), cancellationToken))
+            using (var response = await HttpClient.GetAsync(queryBuilder.ToString(relativeUri), cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
@@ -110,7 +112,7 @@ namespace OpenSettings.Services.Rest
                 queryBuilder.Append("IdentifierId", input.IdentifierIdOrSlug);
             }
 
-            using (var response = await _httpClient.GetAsync(queryBuilder.ToString(relativeUri), cancellationToken))
+            using (var response = await HttpClient.GetAsync(queryBuilder.ToString(relativeUri), cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
@@ -120,7 +122,7 @@ namespace OpenSettings.Services.Rest
         {
             var relativeUri = $"v1/apps/{input.AppIdOrSlug}/identifiers/{input.IdentifierIdOrSlug}/instances";
 
-            using (var response = await _httpClient.GetAsync(relativeUri, cancellationToken))
+            using (var response = await HttpClient.GetAsync(relativeUri, cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
@@ -130,7 +132,7 @@ namespace OpenSettings.Services.Rest
         {
             var relativeUri = $"v1/apps/slug/{input.AppIdOrSlug}/identifiers/{input.IdentifierIdOrSlug}/instances";
 
-            using (var response = await _httpClient.GetAsync(relativeUri, cancellationToken))
+            using (var response = await HttpClient.GetAsync(relativeUri, cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }

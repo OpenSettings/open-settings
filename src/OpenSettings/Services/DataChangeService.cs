@@ -8,6 +8,7 @@ using StackExchange.Redis;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using OpenSettings.Extensions;
 
 namespace OpenSettings.Services
 {
@@ -22,7 +23,7 @@ namespace OpenSettings.Services
 
         public DataChangeService(ITaskQueueFactory taskQueueFactory, IServiceProvider serviceProvider, OpenSettingsConfiguration openSettingsConfiguration, Domains.Redis.DataContext.Context redisContext = null)
         {
-            _taskQueue = taskQueueFactory.Get(Constants.TaskQueues.DataChange);
+            _taskQueue = taskQueueFactory.GetDataChangeQueue();
             _serviceProvider = serviceProvider;
             _openSettingsConfiguration = openSettingsConfiguration;
             _redisContext = redisContext;

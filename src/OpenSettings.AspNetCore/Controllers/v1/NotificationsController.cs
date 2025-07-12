@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Ogu.Response;
-using OpenSettings.AspNetCore.Extensions;
 using OpenSettings.AspNetCore.Models.Requests;
 using OpenSettings.Models;
 using OpenSettings.Models.Inputs;
@@ -34,7 +33,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 IsExpired = request.IsExpired,
                 Type = request.Type,
                 Source = request.Source,
-                PackVersion = this.HttpContext.Request.Headers.GetPackVersionHeaderValueOrDefault()
+                PackVersion = HttpContext.Request.Headers.GetPackVersionHeaderValueOrDefault()
             }, cancellationToken);
 
             return result.ToAction();

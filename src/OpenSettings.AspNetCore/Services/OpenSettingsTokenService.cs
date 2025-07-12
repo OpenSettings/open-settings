@@ -121,7 +121,7 @@ namespace OpenSettings.AspNetCore.Services
 
             await _openSettingsMemoryCache.GetOrCreateAsync(GetRefreshTokenKey(jwtSecurityToken), async cacheEntry =>
             {
-                var refreshToken = await httpContext.GetTokenAsync(OpenSettings.Constants.OpenSettingsCookieScheme, "refresh_token");
+                var refreshToken = await httpContext.GetTokenAsync(OpenSettingsDefaults.AuthSchemes.Cookie, "refresh_token");
 
                 cacheEntry.AbsoluteExpiration = jwtSecurityToken.ValidTo;
 

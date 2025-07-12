@@ -1,10 +1,10 @@
-﻿using OpenSettings.Models.Inputs;
+﻿using Ogu.Response.Abstractions;
+using OpenSettings.Models.Inputs;
 using OpenSettings.Models.Responses;
 using OpenSettings.Services.Rest.Interfaces;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Ogu.Response.Abstractions;
 
 namespace OpenSettings.Services.Rest
 {

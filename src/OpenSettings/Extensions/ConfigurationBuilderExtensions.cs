@@ -108,7 +108,7 @@ namespace OpenSettings.Extensions
             }
 
             return openSettingsConfiguration.IsConsumerSelected &&
-                   openSettingsConfiguration.Consumer.SkipInitialSyncAppData && 
+                   openSettingsConfiguration.Consumer.SkipInitialSyncAppData &&
                    !ConsumerConfiguration.IsGeneratorModeEnabled
                 ? await GenerateConfigurationSkippingInitialSyncAsync(configurationBuilder,
                     openSettingsConfiguration, settingsTypes, cancellationToken)
@@ -145,7 +145,7 @@ namespace OpenSettings.Extensions
         {
             var syncAppDataResponse = await SyncAppDataResponse.GetAsync(cancellationToken);
 
-            if (syncAppDataResponse?.ProviderInfo == null || 
+            if (syncAppDataResponse?.ProviderInfo == null ||
                 syncAppDataResponse.Configuration == null)
             {
                 throw new MissingConfigurationWhenSkipInitialSyncAppDataException();
@@ -220,23 +220,14 @@ namespace OpenSettings.Extensions
 
             if (openSettingsConfiguration.IsConsumerSelected)
             {
-                var handler = new DecompressionHandler(compressionProvider)
+                using (var openSettingsHttpClientFactory = new OpenSettingsHttpClientFactory(openSettingsConfiguration))
                 {
-                    InnerHandler = new HttpClientHandler()
-                };
+                    var appsService = new AppsRestService(openSettingsHttpClientFactory, openSettingsConfiguration);
+                    var settingsService = new SettingsRestService(dataChangeService: null, openSettingsHttpClientFactory, openSettingsConfiguration, providerInfo: null);
+                    var localSettingsService = new LocalSettingsService(openSettingsConfiguration, appsService, settingsService);
 
-                var httpClient = new HttpClient(handler);
-
-                openSettingsConfiguration.Consumer.ConfigureHttpClient(httpClient, openSettingsConfiguration.Client);
-
-                var appsService = new AppsRestService(httpClient, openSettingsConfiguration);
-                var settingsService = new SettingsRestService(dataChangeService: null, httpClient, openSettingsConfiguration, providerInfo: null);
-                var localSettingsService = new LocalSettingsService(openSettingsConfiguration, appsService, settingsService);
-
-                await func(localSettingsService);
-
-                httpClient.Dispose();
-                handler.Dispose();
+                    await func(localSettingsService);
+                }
             }
             else
             {
@@ -256,11 +247,11 @@ namespace OpenSettings.Extensions
                     openSettingsConfiguration, null);
 
                 var settingsService = new SettingSqlService(
-                    dataChangeService: null, 
-                    identifiersSqlService, 
-                    compressionProvider, 
-                    context, 
-                    new DataValidationService(openSettingsConfiguration.LoggerFactory.CreateLogger<DataValidationService>()), 
+                    dataChangeService: null,
+                    identifiersSqlService,
+                    compressionProvider,
+                    context,
+                    new DataValidationService(openSettingsConfiguration.LoggerFactory.CreateLogger<DataValidationService>()),
                     openSettingsConfiguration);
 
                 var localSettingsService = new LocalSettingsService(openSettingsConfiguration, appsService, settingsService);

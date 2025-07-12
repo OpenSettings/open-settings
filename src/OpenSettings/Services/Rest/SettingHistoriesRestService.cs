@@ -16,19 +16,21 @@ namespace OpenSettings.Services.Rest
 {
     public sealed class SettingHistoriesRestService : ISettingHistoriesRestService
     {
+        private HttpClient HttpClient => _httpClientFactory.CreateOpenSettingsHttpClient();
+
         private readonly IDataChangeService _dataChangeService;
-        private readonly HttpClient _httpClient;
+        private readonly IHttpClientFactory _httpClientFactory;
         private readonly OpenSettingsConfiguration _openSettingsConfiguration;
         private readonly ProviderInfo _providerInfo;
 
         public SettingHistoriesRestService(
             IDataChangeService dataChangeService,
-            HttpClient httpClient,
+            IHttpClientFactory httpClientFactory,
             OpenSettingsConfiguration openSettingsConfiguration,
             ProviderInfo providerInfo)
         {
             _dataChangeService = dataChangeService;
-            _httpClient = httpClient;
+            _httpClientFactory = httpClientFactory;
             _openSettingsConfiguration = openSettingsConfiguration;
             _providerInfo = providerInfo;
         }
@@ -37,7 +39,7 @@ namespace OpenSettings.Services.Rest
         {
             var relativeUri = $"v1/setting-histories/{input.HistoryId}/data";
 
-            using (var response = await _httpClient.GetAsync(relativeUri, cancellationToken))
+            using (var response = await HttpClient.GetAsync(relativeUri, cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
@@ -47,7 +49,7 @@ namespace OpenSettings.Services.Rest
         {
             var relativeUri = $"v1/setting-histories/{input.HistoryIdOrSlug}";
 
-            using (var response = await _httpClient.GetAsync(relativeUri, cancellationToken))
+            using (var response = await HttpClient.GetAsync(relativeUri, cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
@@ -57,7 +59,7 @@ namespace OpenSettings.Services.Rest
         {
             var relativeUri = $"v1/setting-histories/slug/{input.HistoryIdOrSlug}";
 
-            using (var response = await _httpClient.GetAsync(relativeUri, cancellationToken))
+            using (var response = await HttpClient.GetAsync(relativeUri, cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
@@ -67,7 +69,7 @@ namespace OpenSettings.Services.Rest
         {
             var relativeUri = $"v1/settings/{input.SettingId}/histories";
 
-            using (var response = await _httpClient.GetAsync(relativeUri, cancellationToken))
+            using (var response = await HttpClient.GetAsync(relativeUri, cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
@@ -85,7 +87,7 @@ namespace OpenSettings.Services.Rest
 
             using (var stringContent = new StringContent(JsonSerializer.Serialize(body), Encoding.UTF8, Constants.ApplicationJson))
             {
-                using (var response = await _httpClient.PostAsync(relativeUri, stringContent, cancellationToken))
+                using (var response = await HttpClient.PostAsync(relativeUri, stringContent, cancellationToken))
                 {
                     var responseContent = await response.Content.ToResponseAsync<RestoreSettingHistoryResponse>(cancellationToken: cancellationToken);
 

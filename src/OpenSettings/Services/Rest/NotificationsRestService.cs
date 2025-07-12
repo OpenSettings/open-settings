@@ -13,18 +13,20 @@ namespace OpenSettings.Services.Rest
 {
     public class NotificationsRestService : INotificationsRestService
     {
-        private readonly HttpClient _httpClient;
+        private HttpClient HttpClient => _httpClientFactory.CreateOpenSettingsHttpClient();
 
-        public NotificationsRestService(HttpClient httpClient)
+        private readonly IHttpClientFactory _httpClientFactory;
+
+        public NotificationsRestService(IHttpClientFactory httpClientFactory)
         {
-            _httpClient = httpClient;
+            _httpClientFactory = httpClientFactory;
         }
 
         public async Task<IResponse> GetNotificationsAsync(GetNotificationsInput input, CancellationToken cancellationToken = default)
         {
             const string relativeUri = "v1/notifications";
 
-            using (var response = await _httpClient.GetAsync(relativeUri, cancellationToken))
+            using (var response = await HttpClient.GetAsync(relativeUri, cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
@@ -44,7 +46,7 @@ namespace OpenSettings.Services.Rest
 
             using (var stringContent = new StringContent(JsonSerializer.Serialize(body), Encoding.UTF8, Constants.ApplicationJson))
             {
-                using (var response = await _httpClient.PostAsync(relativeUri, stringContent, cancellationToken))
+                using (var response = await HttpClient.PostAsync(relativeUri, stringContent, cancellationToken))
                 {
                     return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
                 }
@@ -115,7 +117,7 @@ namespace OpenSettings.Services.Rest
 
             relativeUri = queryBuilder.ToString(relativeUri);
 
-            using (var response = await _httpClient.GetAsync(relativeUri, cancellationToken))
+            using (var response = await HttpClient.GetAsync(relativeUri, cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
@@ -126,7 +128,7 @@ namespace OpenSettings.Services.Rest
         {
             var relativeUri = $"v1/notifications/users/{input.UserId}/open";
 
-            using (var response = await _httpClient.PostAsync(relativeUri, null, cancellationToken))
+            using (var response = await HttpClient.PostAsync(relativeUri, null, cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
@@ -136,7 +138,7 @@ namespace OpenSettings.Services.Rest
         {
             var relativeUri = $"v1/notifications/users/{input.UserId}/view";
 
-            using (var response = await _httpClient.PostAsync(relativeUri, null, cancellationToken))
+            using (var response = await HttpClient.PostAsync(relativeUri, null, cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
@@ -146,7 +148,7 @@ namespace OpenSettings.Services.Rest
         {
             var relativeUri = $"v1/notifications/users/{input.UserId}/dismiss";
 
-            using (var response = await _httpClient.PostAsync(relativeUri, null, cancellationToken))
+            using (var response = await HttpClient.PostAsync(relativeUri, null, cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
@@ -156,7 +158,7 @@ namespace OpenSettings.Services.Rest
         {
             var relativeUri = $"v1/notifications/{input.NotificationId}/users/dispatch";
 
-            using (var response = await _httpClient.PostAsync(relativeUri, null, cancellationToken))
+            using (var response = await HttpClient.PostAsync(relativeUri, null, cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }

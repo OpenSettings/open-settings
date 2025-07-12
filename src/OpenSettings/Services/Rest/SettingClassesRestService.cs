@@ -1,15 +1,18 @@
-﻿using OpenSettings.Services.Rest.Interfaces;
+﻿using OpenSettings.Extensions;
+using OpenSettings.Services.Rest.Interfaces;
 using System.Net.Http;
 
 namespace OpenSettings.Services.Rest
 {
     public sealed class SettingClassesRestService : ISettingClassesRestService
     {
-        private readonly HttpClient _httpClient;
+        private HttpClient HttpClient => _httpClientFactory.CreateOpenSettingsHttpClient();
 
-        public SettingClassesRestService(HttpClient httpClient)
+        private readonly IHttpClientFactory _httpClientFactory;
+
+        public SettingClassesRestService(IHttpClientFactory httpClientFactory)
         {
-            _httpClient = httpClient;
+            _httpClientFactory = httpClientFactory;
         }
     }
 }

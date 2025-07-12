@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace OpenSettings.AspNetCore.Controllers.v1
 {
-    [Route("v1/auth")]
+    [Route(OpenSettingsDefaults.Routes.V1.Auth)]
     public class AuthController : ControllerBase
     {
         private readonly string _route;
@@ -73,7 +73,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 });
             }
 
-            var authenticateResult = await HttpContext.AuthenticateAsync(OpenSettings.Constants.OpenSettingsBasicAuthScheme);
+            var authenticateResult = await HttpContext.AuthenticateAsync(OpenSettingsDefaults.AuthSchemes.Basic);
 
             return Ok(new AuthenticatedResponse
             {
@@ -165,7 +165,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
 
             var authenticateResult = await HttpContext.AuthenticateAsync(isSelectedRest
                 ? Constants.OpenSettingsOAuth2JwtBearerScheme
-                : OpenSettings.Constants.OpenSettingsOAuth2Scheme);
+                : OpenSettingsDefaults.AuthSchemes.OAuth2);
 
             if (string.IsNullOrWhiteSpace(returnUrl))
             {
@@ -197,9 +197,9 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                     return Redirect(returnUrl);
                 }
 
-                var accessToken = await HttpContext.GetTokenAsync(OpenSettings.Constants.OpenSettingsCookieScheme, "access_token");
+                var accessToken = await HttpContext.GetTokenAsync(OpenSettingsDefaults.AuthSchemes.Cookie, "access_token");
 
-                _openSettingsMemoryCache.Set(accessToken, User.Claims.ToArray(), new MemoryCacheEntryOptions{ SlidingExpiration = TimeSpan.FromHours(1)});
+                _openSettingsMemoryCache.Set(accessToken, User.Claims.ToArray(), new MemoryCacheEntryOptions { SlidingExpiration = TimeSpan.FromHours(1)} );
 
                 if (!await _tokenService.IsTokenExpiredAsync(HttpContext, accessToken))
                 {
@@ -208,7 +208,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                     return Redirect(returnToUrl);
                 }
 
-                await HttpContext.SignOutAsync(OpenSettings.Constants.OpenSettingsCookieScheme);
+                await HttpContext.SignOutAsync(OpenSettingsDefaults.AuthSchemes.Cookie);
             }
 
             if (string.IsNullOrWhiteSpace(returnUrl))
@@ -233,7 +233,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                     { "ReturnUrl", returnUrl },
                     { "ApiUrl", apiUrl },
                     { "uuid", uuid }
-                }), OpenSettings.Constants.OpenSettingsOAuth2Scheme);
+                }), OpenSettingsDefaults.AuthSchemes.OAuth2);
             }
             catch
             {
@@ -258,16 +258,16 @@ namespace OpenSettings.AspNetCore.Controllers.v1
 
                     if (response.IsSuccessStatusCode)
                     {
-                        return SignOut(OpenSettings.Constants.OpenSettingsCookieScheme, OpenSettings.Constants.OpenSettingsOAuth2Scheme);
+                        return SignOut(OpenSettingsDefaults.AuthSchemes.Cookie, OpenSettingsDefaults.AuthSchemes.OAuth2);
                     }
 
-                    await HttpContext.SignOutAsync(OpenSettings.Constants.OpenSettingsCookieScheme);
+                    await HttpContext.SignOutAsync(OpenSettingsDefaults.AuthSchemes.Cookie);
 
                     return Redirect(returnUrl);
                 }
                 catch
                 {
-                    await HttpContext.SignOutAsync(OpenSettings.Constants.OpenSettingsCookieScheme);
+                    await HttpContext.SignOutAsync(OpenSettingsDefaults.AuthSchemes.Cookie);
 
                     if (!string.IsNullOrWhiteSpace(returnUrl))
                     {

@@ -57,7 +57,7 @@ namespace OpenSettings.AspNetCore
 
         internal static string GetPackVersionHeaderValueOrDefault(this IHeaderDictionary headerDictionary)
         {
-            return headerDictionary.TryGetValue(OpenSettings.Constants.PackVersionName, out var values) ? values.ToString() : null;
+            return headerDictionary.TryGetValue(OpenSettingsDefaults.HeaderNames.PackVersion, out var values) ? values.ToString() : null;
         }
 
         internal static (string username, string password) GetBasicCredentialsFromAuthHeader(this AuthenticationHeaderValue authenticationHeaderValue)

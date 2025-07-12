@@ -15,11 +15,13 @@ namespace OpenSettings.Services.Rest
 {
     public sealed class TagsRestService : ITagsRestService
     {
-        private readonly HttpClient _httpClient;
+        private HttpClient HttpClient => _httpClientFactory.CreateOpenSettingsHttpClient();
 
-        public TagsRestService(HttpClient httpClient)
+        private readonly IHttpClientFactory _httpClientFactory;
+
+        public TagsRestService(IHttpClientFactory httpClientFactory)
         {
-            _httpClient = httpClient;
+            _httpClientFactory = httpClientFactory;
         }
 
         public async Task<IResponse> GetTagsAsync(GetTagsInput input, CancellationToken cancellationToken = default)
@@ -35,7 +37,7 @@ namespace OpenSettings.Services.Rest
 
             queryBuilder.Append(nameof(input.HasMappings), input.HasMappings);
 
-            using (var response = await _httpClient.GetAsync(queryBuilder.ToString(relativeUri), cancellationToken))
+            using (var response = await HttpClient.GetAsync(queryBuilder.ToString(relativeUri), cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
@@ -56,7 +58,7 @@ namespace OpenSettings.Services.Rest
 
             using (var stringContent = new StringContent(JsonSerializer.Serialize(body), Encoding.UTF8, Constants.ApplicationJson))
             {
-                using (var response = await _httpClient.PostAsync(relativeUri, stringContent, cancellationToken))
+                using (var response = await HttpClient.PostAsync(relativeUri, stringContent, cancellationToken))
                 {
                     return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
                 }
@@ -90,7 +92,7 @@ namespace OpenSettings.Services.Rest
 
             queryBuilder.Append(nameof(input.SortDirection), input.SortDirection);
 
-            using (var response = await _httpClient.GetAsync(queryBuilder.ToString(relativeUri), cancellationToken))
+            using (var response = await HttpClient.GetAsync(queryBuilder.ToString(relativeUri), cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
@@ -102,7 +104,7 @@ namespace OpenSettings.Services.Rest
 
             const string relativeUri = "v1/tags/unmapped";
 
-            using (var response = await _httpClient.DeleteAsync(relativeUri, cancellationToken))
+            using (var response = await HttpClient.DeleteAsync(relativeUri, cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
@@ -112,7 +114,7 @@ namespace OpenSettings.Services.Rest
         {
             var relativeUri = $"v1/tags/{input.TagIdOrSlug}";
 
-            using (var response = await _httpClient.GetAsync(relativeUri, cancellationToken))
+            using (var response = await HttpClient.GetAsync(relativeUri, cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
@@ -122,7 +124,7 @@ namespace OpenSettings.Services.Rest
         {
             var relativeUri = $"v1/tags/slug/{input.TagIdOrSlug}";
 
-            using (var response = await _httpClient.GetAsync(relativeUri, cancellationToken))
+            using (var response = await HttpClient.GetAsync(relativeUri, cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
@@ -142,7 +144,7 @@ namespace OpenSettings.Services.Rest
 
             using (var stringContent = new StringContent(JsonSerializer.Serialize(body), Encoding.UTF8, Constants.ApplicationJson))
             {
-                using (var response = await _httpClient.PutAsync(relativeUri, stringContent, cancellationToken))
+                using (var response = await HttpClient.PutAsync(relativeUri, stringContent, cancellationToken))
                 {
                     return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
 
@@ -156,7 +158,7 @@ namespace OpenSettings.Services.Rest
 
             var relativeUri = $"v1/tags/{input.TagId}?rowVersion={Uri.EscapeDataString(Convert.ToBase64String(input.RowVersion))}";
 
-            using (var response = await _httpClient.DeleteAsync(relativeUri, cancellationToken))
+            using (var response = await HttpClient.DeleteAsync(relativeUri, cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
@@ -175,7 +177,7 @@ namespace OpenSettings.Services.Rest
 
             queryBuilder.Append(nameof(input.RowVersion), input.RowVersion);
 
-            using (var response = await _httpClient.PostAsync(queryBuilder.ToString(relativeUri), null, cancellationToken))
+            using (var response = await HttpClient.PostAsync(queryBuilder.ToString(relativeUri), null, cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
@@ -187,7 +189,7 @@ namespace OpenSettings.Services.Rest
 
             var relativeUri = $"v1/tags/{input.SourceId}/drag/{input.TargetId}?ascent={input.Ascent}&sourceRowVersion={Uri.EscapeDataString(Convert.ToBase64String(input.SourceRowVersion))}";
 
-            using (var response = await _httpClient.PostAsync(relativeUri, null, cancellationToken))
+            using (var response = await HttpClient.PostAsync(relativeUri, null, cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
@@ -202,7 +204,7 @@ namespace OpenSettings.Services.Rest
         {
             const string relativeUri = "v1/tags/reorder";
 
-            using (var response = await _httpClient.PostAsync(relativeUri, null))
+            using (var response = await HttpClient.PostAsync(relativeUri, null))
             {
                 return await response.Content.ToResponseAsync();
 

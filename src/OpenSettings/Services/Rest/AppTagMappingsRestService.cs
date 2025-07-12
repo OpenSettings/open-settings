@@ -1,15 +1,18 @@
-﻿using OpenSettings.Services.Rest.Interfaces;
+﻿using OpenSettings.Extensions;
+using OpenSettings.Services.Rest.Interfaces;
 using System.Net.Http;
 
 namespace OpenSettings.Services.Rest
 {
     public class AppTagMappingsRestService : IAppTagMappingsRestService
     {
-        private readonly HttpClient _httpClient;
+        private HttpClient HttpClient => _httpClientFactory.CreateOpenSettingsHttpClient();
 
-        public AppTagMappingsRestService(HttpClient httpClient)
+        private readonly IHttpClientFactory _httpClientFactory;
+
+        public AppTagMappingsRestService(IHttpClientFactory httpClientFactory)
         {
-            _httpClient = httpClient;
+            _httpClientFactory = httpClientFactory;
         }
     }
 }

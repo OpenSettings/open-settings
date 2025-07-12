@@ -8,18 +8,35 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Ogu.Extensions.Hosting.HostedServices;
 using ClientInfo = OpenSettings.Models.ClientInfo;
 
 namespace OpenSettings.Extensions
 {
     internal static class InternalExtensions
     {
+        internal static ITaskQueue GetNotificationQueue(this ITaskQueueFactory taskQueueFactory)
+        {
+            return taskQueueFactory.Get(OpenSettingsDefaults.TaskQueues.Notification);
+        }
+
+        internal static ITaskQueue GetDataChangeQueue(this ITaskQueueFactory taskQueueFactory)
+        {
+            return taskQueueFactory.Get(OpenSettingsDefaults.TaskQueues.DataChange);
+        }
+
+        internal static HttpClient CreateOpenSettingsHttpClient(this IHttpClientFactory httpClientFactory)
+        {
+            return httpClientFactory.CreateClient(Constants.OpenSettingsHttpClientName);
+        }
+
         internal static Task<T[]> ToPaginatedArrayAsync<T>(this IQueryable<T> entities, int pageIndex, int pageSize,
             CancellationToken cancellationToken)
         {

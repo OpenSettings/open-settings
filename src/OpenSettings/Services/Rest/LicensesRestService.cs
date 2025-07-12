@@ -1,4 +1,6 @@
-﻿using Ogu.Response.Abstractions;
+﻿using Ogu.Response;
+using Ogu.Response.Abstractions;
+using OpenSettings.Extensions;
 using OpenSettings.Models;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Services.Rest.Interfaces;
@@ -8,18 +10,18 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Ogu.Response;
-using OpenSettings.Extensions;
 
 namespace OpenSettings.Services.Rest
 {
     public class LicensesRestService : ILicensesRestService
     {
-        private readonly HttpClient _httpClient;
+        private HttpClient HttpClient => _httpClientFactory.CreateOpenSettingsHttpClient();
 
-        public LicensesRestService(HttpClient httpClient)
+        private readonly IHttpClientFactory _httpClientFactory;
+
+        public LicensesRestService(IHttpClientFactory httpClientFactory)
         {
-            _httpClient = httpClient;
+            _httpClientFactory = httpClientFactory;
         }
 
         public async Task<IResponse> GetPaginatedLicensesAsync(GetPaginatedLicensesInput input, CancellationToken cancellationToken)
@@ -47,7 +49,7 @@ namespace OpenSettings.Services.Rest
 
             queryBuilder.Append(nameof(input.PaginatedInput.SortDirection), input.PaginatedInput.SortDirection);
 
-            using (var response = await _httpClient.GetAsync(queryBuilder.ToString(relativeUri), cancellationToken))
+            using (var response = await HttpClient.GetAsync(queryBuilder.ToString(relativeUri), cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
@@ -57,7 +59,7 @@ namespace OpenSettings.Services.Rest
         {
             const string relativeUri = "v1/licenses/current";
 
-            using (var response = await _httpClient.GetAsync(relativeUri, cancellationToken))
+            using (var response = await HttpClient.GetAsync(relativeUri, cancellationToken))
             {
                 return await response.Content.ToResponseAsync<License>(cancellationToken: cancellationToken);
             }
@@ -69,7 +71,7 @@ namespace OpenSettings.Services.Rest
 
             using (var stringContent = new StringContent($"\"{licenseKey}\"", Encoding.UTF8, Constants.ApplicationJson))
             {
-                using (var response = await _httpClient.PostAsync(relativeUri, stringContent, cancellationToken))
+                using (var response = await HttpClient.PostAsync(relativeUri, stringContent, cancellationToken))
                 {
                     return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
                 }
@@ -85,7 +87,7 @@ namespace OpenSettings.Services.Rest
 
             var relativeUri = $"v1/licenses/{Uri.EscapeDataString(input.ReferenceId)}";
 
-            using (var response = await _httpClient.DeleteAsync(relativeUri, cancellationToken))
+            using (var response = await HttpClient.DeleteAsync(relativeUri, cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }

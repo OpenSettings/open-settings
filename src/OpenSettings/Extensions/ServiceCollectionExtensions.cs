@@ -185,7 +185,7 @@ namespace OpenSettings.Extensions
                 {
                     var taskQueueFactory = sp.GetRequiredService<ITaskQueueFactory>();
 
-                    var taskQueue = taskQueueFactory.Get(Constants.TaskQueues.Notification);
+                    var taskQueue = taskQueueFactory.GetNotificationQueue();
 
                     return new TaskQueueHostedService(sp.GetRequiredService<ILogger<TaskQueueHostedService>>(), "NotificationQueueWorker", taskQueue);
                 });
@@ -237,8 +237,8 @@ namespace OpenSettings.Extensions
             {
                 var taskQueueFactory = new TaskQueueFactory();
 
-                taskQueueFactory.TryAdd(Constants.TaskQueues.Notification, new BoundedChannelOptions(25));
-                taskQueueFactory.TryAdd(Constants.TaskQueues.DataChange, new BoundedChannelOptions(1000));
+                taskQueueFactory.TryAdd(OpenSettingsDefaults.TaskQueues.Notification, new BoundedChannelOptions(25));
+                taskQueueFactory.TryAdd(OpenSettingsDefaults.TaskQueues.DataChange, new BoundedChannelOptions(1000));
 
                 return taskQueueFactory;
             });
@@ -247,7 +247,7 @@ namespace OpenSettings.Extensions
             {
                 var taskQueueFactory = sp.GetRequiredService<ITaskQueueFactory>();
 
-                var taskQueue = taskQueueFactory.Get(Constants.TaskQueues.DataChange);
+                var taskQueue = taskQueueFactory.GetDataChangeQueue();
 
                 return new TaskQueueHostedService(sp.GetRequiredService<ILogger<TaskQueueHostedService>>(), "DataChangeQueueWorker", taskQueue);
             });

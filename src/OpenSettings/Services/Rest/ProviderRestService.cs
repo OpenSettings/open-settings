@@ -10,18 +10,20 @@ namespace OpenSettings.Services.Rest
 {
     public sealed class ProviderRestService : IProviderRestService
     {
-        private readonly HttpClient _httpClient;
+        private HttpClient HttpClient => _httpClientFactory.CreateOpenSettingsHttpClient();
 
-        public ProviderRestService(HttpClient httpClient)
+        private readonly IHttpClientFactory _httpClientFactory;
+
+        public ProviderRestService(IHttpClientFactory httpClientFactory)
         {
-            _httpClient = httpClient;
+            _httpClientFactory = httpClientFactory;
         }
 
         public async Task<IResponse<ProviderInfo>> GetProviderAsync(CancellationToken cancellationToken = default)
         {
             const string relativeUri = "v1/provider";
 
-            using (var response = await _httpClient.GetAsync(relativeUri, cancellationToken))
+            using (var response = await HttpClient.GetAsync(relativeUri, cancellationToken))
             {
                 return await response.Content.ToResponseAsync<ProviderInfo>(cancellationToken: cancellationToken);
             }
@@ -31,7 +33,7 @@ namespace OpenSettings.Services.Rest
         {
             const string relativeUri = "v1/provider/primary";
 
-            using (var response = await _httpClient.GetAsync(relativeUri, cancellationToken))
+            using (var response = await HttpClient.GetAsync(relativeUri, cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }

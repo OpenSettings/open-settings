@@ -44,7 +44,7 @@ namespace OpenSettings.Services.Sql
             _openSettingsService = openSettingsService;
             _locksService = locksService;
             _serviceScopeFactory = serviceScopeFactory;
-            _taskQueue = taskQueueFactory.Get(Constants.TaskQueues.Notification);
+            _taskQueue = taskQueueFactory.Get(OpenSettingsDefaults.TaskQueues.Notification);
         }
 
         public async Task<IResponse> GetNotificationsAsync(GetNotificationsInput input, CancellationToken cancellationToken = default)

@@ -2,17 +2,14 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.JsonWebTokens;
-using Ogu.Compressions;
 using OpenSettings.Configurations;
 using OpenSettings.Domains.Sql.DataContext;
 using OpenSettings.Models;
 using OpenSettings.Services.Rest;
 using OpenSettings.Services.Sql;
 using System;
-using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Ogu.Compressions.Abstractions;
 
 namespace OpenSettings
 {
@@ -46,64 +43,52 @@ namespace OpenSettings
         /// <param name="openSettingsConfiguration">The configuration settings for OpenSettings.</param>
         /// <param name="cancellationToken">A token to cancel the operation if needed.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        internal async Task InitializeAsync(OpenSettingsConfiguration openSettingsConfiguration, CancellationToken cancellationToken)
+        internal Task InitializeAsync(OpenSettingsConfiguration openSettingsConfiguration, CancellationToken cancellationToken)
         {
             if (CurrentLicense != null)
             {
-                return;
+                return Task.CompletedTask;
             }
 
             var logger = openSettingsConfiguration.LoggerFactory.CreateLogger(nameof(LicenseProvider));
 
-            if (openSettingsConfiguration.IsConsumerSelected)
+            return openSettingsConfiguration.IsConsumerSelected
+                ? InitializeConsumerLicenseAsync(logger, openSettingsConfiguration, cancellationToken)
+                : InitializeProviderLicenseAsync(logger, openSettingsConfiguration, cancellationToken);
+        }
+
+        private async Task InitializeConsumerLicenseAsync(ILogger logger, OpenSettingsConfiguration openSettingsConfiguration, CancellationToken cancellationToken)
+        {
+            using (var openSettingsHttpClientFactory = new OpenSettingsHttpClientFactory(openSettingsConfiguration))
             {
-                var compressionProvider = new CompressionProvider(new ICompression[]
+                var licensesRestService = new LicensesRestService(openSettingsHttpClientFactory);
+
+                try
                 {
-                    new BrotliCompression(new BrotliCompressionOptions()),
-                    new DeflateCompression(new DeflateCompressionOptions()),
-                    new GzipCompression(new GzipCompressionOptions()),
-                    new SnappyCompression(new SnappyCompressionOptions()),
-                    new ZstdCompression(new ZstdCompressionOptions()),
-                    new NoneCompression(new NoneCompressionOptions())
-                });
+                    var response = await licensesRestService.GetCurrentLicenseAsync(cancellationToken);
 
-                var handler = new DecompressionHandler(compressionProvider)
-                {
-                    InnerHandler = new HttpClientHandler()
-                };
-
-                using (var httpClient = new HttpClient(handler))
-                {
-                    openSettingsConfiguration.Consumer.ConfigureHttpClient(httpClient, openSettingsConfiguration.Client);
-
-                    var licensesRestService = new LicensesRestService(httpClient);
-
-                    try
+                    if (response.Success)
                     {
-                        var response = await licensesRestService.GetCurrentLicenseAsync(cancellationToken);
-
-                        if (response.Success)
-                        {
-                            CurrentLicense = response.Data;
-                        }
-                        else
-                        {
-                            CurrentLicense = License.Community;
-                            CurrentLicense.FailureReasons.Add(LicenseFailureReason.RestFailure);
-                        }
+                        CurrentLicense = response.Data;
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        logger.LogError(ex, "Exception occurred while retrieving current license from provider '{providerUrl}'. The fallback license edition is Community.", openSettingsConfiguration.Consumer.ProviderUrl);
-
                         CurrentLicense = License.Community;
-                        CurrentLicense.FailureReasons.Add(LicenseFailureReason.RestException);
+                        CurrentLicense.FailureReasons.Add(LicenseFailureReason.RestFailure);
                     }
                 }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Exception occurred while license initialization for consumer. ProviderUrl: '{providerUrl}'. The fallback license edition is '{license}'.", openSettingsConfiguration.Consumer.ProviderUrl, nameof(License.Community));
 
-                return;
+                    CurrentLicense = License.Community;
+                    CurrentLicense.FailureReasons.Add(LicenseFailureReason.RestException);
+                }
             }
+        }
 
+        private async Task InitializeProviderLicenseAsync(ILogger logger, OpenSettingsConfiguration openSettingsConfiguration, CancellationToken cancellationToken)
+        {
             try
             {
                 using (var context = OpenSettingsDbContext.GetInstance(openSettingsConfiguration.Provider))
@@ -114,12 +99,12 @@ namespace OpenSettings
 
                     var response = await licensesSqlService.GetCurrentLicenseAsync(cancellationToken);
 
-                    CurrentLicense = (License)response.Data;
+                    CurrentLicense = response.Data;
                 }
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Exception occurred while license initialization. The fallback license edition is Community.");
+                logger.LogError(ex, "Exception occurred while license initialization for provider. The fallback license edition is '{license}'.", nameof(License.Community));
 
                 CurrentLicense = License.Community;
                 CurrentLicense.FailureReasons.Add(LicenseFailureReason.SqlException);

@@ -1,0 +1,76 @@
+﻿namespace OpenSettings
+{
+    /// <summary>
+    /// Provides constant values for OpenSettings.
+    /// </summary>
+    public static class OpenSettingsDefaults
+    {
+        /// <summary>
+        /// Provides constant values for API routes used in OpenSettings.
+        /// </summary>
+        public static class Routes
+        {
+            /// <summary>
+            /// The V1 API base routes.
+            /// </summary>
+            public static class V1
+            {
+                /// <summary>
+                /// The SettingsController base route.
+                /// </summary>
+                public const string Settings = "v1/settings";
+
+                /// <summary>
+                /// The AuthController base route.
+                /// </summary>
+                public const string Auth = "v1/auth";
+            }
+        }
+
+        /// <summary>
+        /// Provides constant values for authentication schemes used in OpenSettings.
+        /// </summary>
+        public static class AuthSchemes
+        {
+            /// <summary>
+            /// The authentication scheme for Basic Authentication in OpenSettings.
+            /// </summary>
+            public const string Basic = "OpenSettingsBasicAuth";
+
+            /// <summary>
+            /// The authentication scheme for Cookie-based Authentication in OpenSettings.
+            /// </summary>
+            public const string Cookie = "OpenSettingsCookieScheme";
+
+            /// <summary>
+            /// The authentication scheme for OAuth2 Authentication in OpenSettings.
+            /// </summary>
+            public const string OAuth2 = "OpenSettingsOAuth2";
+        }
+
+        /// <summary>
+        /// Provides constant values for header names used in OpenSettings.
+        /// </summary>
+        public static class HeaderNames
+        {
+            /// <summary>
+            /// The header name used to represent the pack version in OpenSettings.
+            /// </summary>
+            public const string PackVersion = "x-os-pack-version";
+
+            /// <summary>
+            /// The header name used to represent the pack version score in OpenSettings.
+            /// </summary>
+            public const string PackVersionScore = "x-os-pack-version-score";
+        }
+
+        /// <summary>
+        /// Provides constant values for task queue names used in OpenSettings.
+        /// </summary>
+        internal static class TaskQueues
+        {
+            internal const string Notification = "notification-queue";
+            internal const string DataChange = "data-change-queue";
+        }
+    }
+}

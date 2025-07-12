@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Ogu.Response;
-using OpenSettings.AspNetCore.Extensions;
 using OpenSettings.AspNetCore.Models.Requests;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Services.Interfaces;
@@ -12,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace OpenSettings.AspNetCore.Controllers.v1
 {
-    [Route("v1/settings")]
+    [Route(OpenSettingsDefaults.Routes.V1.Settings)]
     public class SettingsController : ControllerBase
     {
         private readonly ISettingsService _settingsService;
@@ -51,7 +50,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         }
 
         [HttpPost("latest-updates")]
-        [Authorize(AuthenticationSchemes = OpenSettings.Constants.OpenSettingsBasicAuthScheme)]
+        [Authorize(AuthenticationSchemes = OpenSettingsDefaults.AuthSchemes.Basic)]
         public async Task<IActionResult> GetSettingsLastUpdatedComputedIdentifiers([FromBody] GetSettingsLastUpdatedComputedIdentifiersRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)

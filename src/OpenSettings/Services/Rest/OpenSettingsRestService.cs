@@ -1,4 +1,5 @@
-﻿using OpenSettings.Models.Responses;
+﻿using OpenSettings.Extensions;
+using OpenSettings.Models.Responses;
 using OpenSettings.Services.Rest.Interfaces;
 using System;
 using System.Linq;
@@ -11,18 +12,20 @@ namespace OpenSettings.Services.Rest
 {
     public class OpenSettingsRestService : IOpenSettingsRestService
     {
-        private readonly HttpClient _httpClient;
+        private HttpClient HttpClient => _httpClientFactory.CreateOpenSettingsHttpClient();
 
-        public OpenSettingsRestService(HttpClient httpClient)
+        private readonly IHttpClientFactory _httpClientFactory;
+
+        public OpenSettingsRestService(IHttpClientFactory httpClientFactory)
         {
-            _httpClient = httpClient;
+            _httpClientFactory = httpClientFactory;
         }
 
         public async Task<GetConfigsResponse> GetConfigsAsync(CancellationToken cancellationToken = default)
         {
             const string relativeUri = "v1/open-settings/configs";
 
-            using (var response = await _httpClient.GetAsync(relativeUri, cancellationToken))
+            using (var response = await HttpClient.GetAsync(relativeUri, cancellationToken))
             {
                 if (!response.IsSuccessStatusCode)
                 {
@@ -59,7 +62,7 @@ namespace OpenSettings.Services.Rest
 
             var relativeUri = $"v1/open-settings/configs-data/{configName}";
 
-            using (var response = await _httpClient.GetAsync(relativeUri, cancellationToken))
+            using (var response = await HttpClient.GetAsync(relativeUri, cancellationToken))
             {
                 if (!response.IsSuccessStatusCode)
                 {

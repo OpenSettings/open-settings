@@ -14,36 +14,16 @@ namespace OpenSettings
     public static class Constants
     {
         /// <summary>
-        /// The authentication scheme for Basic Authentication in OpenSettings.
+        /// The name of the HTTP client used for OpenSettings API calls.
         /// </summary>
-        public const string OpenSettingsBasicAuthScheme = "OpenSettingsBasicAuth";
-
-        /// <summary>
-        /// The authentication scheme for Cookie-based Authentication in OpenSettings.
-        /// </summary>
-        public const string OpenSettingsCookieScheme = "OpenSettingsCookieScheme";
-
-        /// <summary>
-        /// The authentication scheme for OAuth2 Authentication in OpenSettings.
-        /// </summary>
-        public const string OpenSettingsOAuth2Scheme = "OpenSettingsOAuth2";
-
-        /// <summary>
-        /// The name used to represent the pack version in OpenSettings.
-        /// </summary>
-        public const string PackVersionName = "PackVersion";
-
-        /// <summary>
-        /// The name used to represent the pack version score in OpenSettings.
-        /// </summary>
-        public const string PackVersionScoreName = "PackVersionScore";
+        public const string OpenSettingsHttpClientName = "OpenSettingsHttpClient";
 
         /// <summary>
         /// The current embedded index html file namespace for the OpenSettings Spa.
         /// </summary>
         public const string EmbeddedIndexHtmlFileNamespace = "OpenSettings.AspNetCore.Spa.open_settings_spa_dist.browser.index.html";
 
-        internal const string BasicSchemeName = "Basic";
+        public const string BasicSchemeName = "Basic";
 
         internal static JsonSerializerOptions UnsafeRelaxedJsonSerializerOptions = new JsonSerializerOptions { Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
         internal static JsonSerializerOptions UnsafeRelaxedJsonAndWriteIndentedSerializerOptions = new JsonSerializerOptions { WriteIndented = true, Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
@@ -67,7 +47,7 @@ namespace OpenSettings
         internal const string GeneratedSettingsFileNameWithoutExtension = "settings-generated";
         internal const string GeneratedSettingsFileNameWithExtension = "settings-generated.json";
 
-        internal static string GeneratedOpenSettingsFilePath = Path.Combine(AppContext.BaseDirectory, "settings-generated.open-settings.json");
+        internal static readonly string GeneratedOpenSettingsFilePath = Path.Combine(AppContext.BaseDirectory, "settings-generated.open-settings.json");
 
         internal const string DefaultVersion = "1.0.0";
         internal const string RedisSubscriberName = "OpenSettings";
@@ -97,11 +77,5 @@ namespace OpenSettings
         {
             PropertyNameCaseInsensitive = true
         };
-
-        internal static class TaskQueues
-        {
-            internal const string Notification = "notification-queue";
-            internal const string DataChange = "data-change-queue";
-        }
     }
 }
