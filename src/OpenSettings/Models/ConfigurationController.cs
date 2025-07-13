@@ -4,7 +4,7 @@ namespace OpenSettings.Models
 {
     public class ConfigurationController
     {
-        public string Route { get; set; } = Constants.OpenSettingsApiRoute;
+        public string Route { get; set; } = OpenSettingsDefaults.Routes.OpenSettingsApiRoute;
 
         public bool AllowFromExploring { get; set; }
 

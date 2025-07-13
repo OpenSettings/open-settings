@@ -5,7 +5,7 @@
     /// </summary>
     public class ControllerConfiguration
     {
-        private string _route = Constants.OpenSettingsApiRoute;
+        private string _route = OpenSettingsDefaults.Routes.OpenSettingsApiRoute;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ControllerConfiguration"/> class.

@@ -45,7 +45,7 @@ namespace OpenSettings.AspNetCore.Extensions
         {
             var authenticationBuilder = mvcBuilder.Services.AddAuthentication();
 
-            authenticationBuilder.AddOpenSettingsBasicAuthenticationScheme();
+            authenticationBuilder.AddScheme<AuthenticationSchemeOptions, OpenSettingsBasicAuthenticationHandler>(OpenSettingsDefaults.AuthSchemes.Basic, null);
 
             var syncAppDataResponse = SyncAppDataResponse.Get(configuration);
 
@@ -251,7 +251,7 @@ namespace OpenSettings.AspNetCore.Extensions
             services.AddTransient<DecompressionHandler>();
 
             services
-                .AddHttpClient(OpenSettings.Constants.OpenSettingsHttpClientName, (sp, httpClient) =>
+                .AddHttpClient(OpenSettingsDefaults.Names.HttpClientName, (sp, httpClient) =>
                 {
                     var openSettingsConfiguration = sp.GetRequiredService<OpenSettingsConfiguration>();
 
@@ -280,14 +280,9 @@ namespace OpenSettings.AspNetCore.Extensions
             services.AddSingleton<ProviderInfo>(providerInfo);
         }
 
-        private static AuthenticationBuilder AddOpenSettingsBasicAuthenticationScheme(this AuthenticationBuilder authenticationBuilder)
-        {
-            return authenticationBuilder.AddScheme<AuthenticationSchemeOptions, OpenSettingsBasicAuthenticationHandler>(OpenSettingsDefaults.AuthSchemes.Basic, null);
-        }
-
         private static void ApplyConventionOptions(ControllerAuthorizeConventionOptions conventionOptions, ProviderInfo providerInfo, bool isServiceTypeProvider)
         {
-            var authSchemes = new List<string> { OpenSettingsDefaults.AuthSchemes.Basic };
+            var authSchemes = new List<string>(3) { OpenSettingsDefaults.AuthSchemes.Basic };
 
             if (providerInfo.OAuth2.IsActive)
             {

@@ -34,7 +34,7 @@ namespace OpenSettings.Extensions
 
         internal static HttpClient CreateOpenSettingsHttpClient(this IHttpClientFactory httpClientFactory)
         {
-            return httpClientFactory.CreateClient(Constants.OpenSettingsHttpClientName);
+            return httpClientFactory.CreateClient(OpenSettingsDefaults.Names.HttpClientName);
         }
 
         internal static Task<T[]> ToPaginatedArrayAsync<T>(this IQueryable<T> entities, int pageIndex, int pageSize,
@@ -45,7 +45,7 @@ namespace OpenSettings.Extensions
 
         internal static AuthenticationHeaderValue CreateBasicAuthenticationHeaderValue(this ClientInfo clientInfo)
         {
-            return new AuthenticationHeaderValue(Constants.BasicSchemeName, Convert.ToBase64String(Encoding.UTF8.GetBytes($"{clientInfo.Id}:{clientInfo.Secret}")));
+            return new AuthenticationHeaderValue(OpenSettingsDefaults.Names.BasicSchemeName, Convert.ToBase64String(Encoding.UTF8.GetBytes($"{clientInfo.Id}:{clientInfo.Secret}")));
         }
 
         internal static async Task<string> DecompressToUtf8StringAsync(this ICompressionProvider compressionProvider, byte[] data, CompressionType compressionType, CancellationToken cancellationToken = default)

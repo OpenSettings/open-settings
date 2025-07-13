@@ -41,7 +41,7 @@ namespace OpenSettings.Helpers
                 return;
             }
 
-            var json = JsonSerializer.Serialize(data, Constants.UnsafeRelaxedJsonAndWriteIndentedSerializerOptions);
+            var json = JsonSerializer.Serialize(data, OpenSettingsDefaults.Serialization.UnsafeRelaxedJsonAndWriteIndentedSerializerOptions);
 
 #if NETSTANDARD2_0
             File.WriteAllText(filePath, json);
@@ -52,7 +52,7 @@ namespace OpenSettings.Helpers
 
         internal static void DeleteSettingsFiles()
         {
-            foreach (var settingData in Constants.ComputedIdentifierToLocalSetting.Values)
+            foreach (var settingData in OpenSettingsDefaults.Caches.ComputedIdentifierToLocalSetting.Values)
             {
                 File.Delete(settingData.GeneratedFilePath);
             }

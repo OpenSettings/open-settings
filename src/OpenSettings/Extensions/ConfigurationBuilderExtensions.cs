@@ -17,7 +17,6 @@ using OpenSettings.Services.Sql;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 #if NETSTANDARD2_0
@@ -107,13 +106,11 @@ namespace OpenSettings.Extensions
                 environmentName = Helper.GetEnvironmentName();
             }
 
-            return openSettingsConfiguration.IsConsumerSelected &&
+            return await (openSettingsConfiguration.IsConsumerSelected &&
                    openSettingsConfiguration.Consumer.SkipInitialSyncAppData &&
                    !ConsumerConfiguration.IsGeneratorModeEnabled
-                ? await GenerateConfigurationSkippingInitialSyncAsync(configurationBuilder,
-                    openSettingsConfiguration, settingsTypes, cancellationToken)
-                : await GenerateConfigurationWithSyncAsync(configurationBuilder, environmentName,
-                    openSettingsConfiguration, settingsTypes, cancellationToken);
+                ? GenerateConfigurationSkippingInitialSyncAsync(configurationBuilder, openSettingsConfiguration, settingsTypes, cancellationToken)
+                : GenerateConfigurationWithSyncAsync(configurationBuilder, environmentName, openSettingsConfiguration, settingsTypes, cancellationToken));
         }
 
         private static async Task<ConfigurationBuilder> GenerateConfigurationWithSyncAsync(ConfigurationBuilder configurationBuilder, string environmentName, OpenSettingsConfiguration openSettingsConfiguration, Type[] settingsTypes, CancellationToken cancellationToken)
@@ -198,39 +195,39 @@ namespace OpenSettings.Extensions
         {
             foreach (var localSetting in localSettings)
             {
-                Constants.ComputedIdentifierToLocalSetting[localSetting.ComputedIdentifier] = localSetting;
-                Constants.TypeIdToComputedIdentifier[localSetting.Type.GUID] = localSetting.ComputedIdentifier;
-                Constants.FullNameToLocalSetting[localSetting.Type.FullName] = localSetting;
-                Constants.ClassNameToCount[localSetting.Type.Name] = Constants.ClassNameToCount.GetValueOrDefault(localSetting.Type.Name, 0) + 1;
+                OpenSettingsDefaults.Caches.ComputedIdentifierToLocalSetting[localSetting.ComputedIdentifier] = localSetting;
+                OpenSettingsDefaults.Caches.TypeIdToComputedIdentifier[localSetting.Type.GUID] = localSetting.ComputedIdentifier;
+                OpenSettingsDefaults.Caches.FullNameToLocalSetting[localSetting.Type.FullName] = localSetting;
+                OpenSettingsDefaults.Caches.ClassNameToCount[localSetting.Type.Name] = OpenSettingsDefaults.Caches.ClassNameToCount.GetValueOrDefault(localSetting.Type.Name, 0) + 1;
             }
         }
 
         private static async Task ExecuteWithLocalSettingsServiceAsync(Func<LocalSettingsService, Task> func,
          OpenSettingsConfiguration openSettingsConfiguration, CancellationToken cancellationToken)
         {
-            var compressionProvider = new CompressionProvider(new ICompression[]
-            {
-                new BrotliCompression(new BrotliCompressionOptions(openSettingsConfiguration.Provider.CompressionLevel)),
-                new DeflateCompression(new DeflateCompressionOptions(openSettingsConfiguration.Provider.CompressionLevel)),
-                new GzipCompression(new GzipCompressionOptions(openSettingsConfiguration.Provider.CompressionLevel)),
-                new SnappyCompression(new SnappyCompressionOptions(openSettingsConfiguration.Provider.CompressionLevel)),
-                new ZstdCompression(new ZstdCompressionOptions(openSettingsConfiguration.Provider.CompressionLevel)),
-                new NoneCompression(new NoneCompressionOptions(openSettingsConfiguration.Provider.CompressionLevel))
-            });
-
             if (openSettingsConfiguration.IsConsumerSelected)
             {
                 using (var openSettingsHttpClientFactory = new OpenSettingsHttpClientFactory(openSettingsConfiguration))
                 {
                     var appsService = new AppsRestService(openSettingsHttpClientFactory, openSettingsConfiguration);
                     var settingsService = new SettingsRestService(dataChangeService: null, openSettingsHttpClientFactory, openSettingsConfiguration, providerInfo: null);
-                    var localSettingsService = new LocalSettingsService(openSettingsConfiguration, appsService, settingsService);
+                    var localSettingsService = new LocalSettingsService(appsService, settingsService, openSettingsConfiguration);
 
                     await func(localSettingsService);
                 }
             }
             else
             {
+                var compressionProvider = new CompressionProvider(new ICompression[]
+                {
+                    new BrotliCompression(new BrotliCompressionOptions(openSettingsConfiguration.Provider.CompressionLevel)),
+                    new DeflateCompression(new DeflateCompressionOptions(openSettingsConfiguration.Provider.CompressionLevel)),
+                    new GzipCompression(new GzipCompressionOptions(openSettingsConfiguration.Provider.CompressionLevel)),
+                    new SnappyCompression(new SnappyCompressionOptions(openSettingsConfiguration.Provider.CompressionLevel)),
+                    new ZstdCompression(new ZstdCompressionOptions(openSettingsConfiguration.Provider.CompressionLevel)),
+                    new NoneCompression(new NoneCompressionOptions(openSettingsConfiguration.Provider.CompressionLevel))
+                });
+
                 var context = OpenSettingsDbContext.GetInstance(openSettingsConfiguration.Provider);
 
                 await openSettingsConfiguration.Provider.InitializeDbAsync(context, cancellationToken);
@@ -254,7 +251,7 @@ namespace OpenSettings.Extensions
                     new DataValidationService(openSettingsConfiguration.LoggerFactory.CreateLogger<DataValidationService>()),
                     openSettingsConfiguration);
 
-                var localSettingsService = new LocalSettingsService(openSettingsConfiguration, appsService, settingsService);
+                var localSettingsService = new LocalSettingsService(appsService, settingsService, openSettingsConfiguration);
 
                 await func(localSettingsService);
 

@@ -4,12 +4,12 @@ using Microsoft.Extensions.Caching.Memory;
 using OpenSettings.AspNetCore.Services.Interfaces;
 using OpenSettings.Configurations;
 using OpenSettings.Models;
+using OpenSettings.Services.Interfaces;
 using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
-using OpenSettings.Services.Interfaces;
 
 namespace OpenSettings.AspNetCore.Handlers
 {
@@ -17,16 +17,16 @@ namespace OpenSettings.AspNetCore.Handlers
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IOpenSettingsTokenService _openSettingsTokenService;
-        private readonly ProviderInfo _providerInfo;
         private readonly IOpenSettingsMemoryCache _openSettingsMemoryCache;
+        private readonly ProviderInfo _providerInfo;
         private readonly OpenSettingsConfiguration _openSettingsConfiguration;
 
-        public OpenSettingsRestServiceAuthHandler(IHttpContextAccessor httpContextAccessor, IOpenSettingsTokenService openSettingsTokenService, ProviderInfo providerInfo, IOpenSettingsMemoryCache openSettingsMemoryCache, OpenSettingsConfiguration openSettingsConfiguration)
+        public OpenSettingsRestServiceAuthHandler(IHttpContextAccessor httpContextAccessor, IOpenSettingsTokenService openSettingsTokenService, IOpenSettingsMemoryCache openSettingsMemoryCache, ProviderInfo providerInfo,  OpenSettingsConfiguration openSettingsConfiguration)
         {
             _httpContextAccessor = httpContextAccessor;
             _openSettingsTokenService = openSettingsTokenService;
-            _providerInfo = providerInfo;
             _openSettingsMemoryCache = openSettingsMemoryCache;
+            _providerInfo = providerInfo;
             _openSettingsConfiguration = openSettingsConfiguration;
         }
 
@@ -66,12 +66,11 @@ namespace OpenSettings.AspNetCore.Handlers
 
                     if (refreshTokenResponse.IsSuccessStatusCode)
                     {
-                        var newAccessToken =
+                        var newAccessToken = await refreshTokenResponse.Content.ReadAsStringAsync(
 #if NET5_0_OR_GREATER
-                            await refreshTokenResponse.Content.ReadAsStringAsync(cancellationToken);
-#else
-                            await refreshTokenResponse.Content.ReadAsStringAsync();
+                            cancellationToken
 #endif
+                            );
 
                         _openSettingsMemoryCache.Set(GetAccessTokenKey(receivedAuthParameter), newAccessToken);
 

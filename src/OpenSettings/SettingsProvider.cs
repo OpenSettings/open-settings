@@ -44,7 +44,7 @@ namespace OpenSettings
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="settingFullName"/> is null or empty.</exception>
         public static object GetLocalSettingOrDefault(string settingFullName)
         {
-            return Constants.FullNameToLocalSetting.TryGetValue(settingFullName, out var localSetting)
+            return OpenSettingsDefaults.Caches.FullNameToLocalSetting.TryGetValue(settingFullName, out var localSetting)
                 ? localSetting.Instance
                 : null;
         }
@@ -58,7 +58,7 @@ namespace OpenSettings
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="settingFullName"/> is null or empty.</exception>
         public static RegistrationMode? GetRegistrationMode(string settingFullName)
         {
-            return Constants.FullNameToLocalSetting.TryGetValue(settingFullName, out var localSetting)
+            return OpenSettingsDefaults.Caches.FullNameToLocalSetting.TryGetValue(settingFullName, out var localSetting)
                 ? (RegistrationMode?)localSetting.RegistrationMode
                 : null;
         }

@@ -11,7 +11,7 @@ namespace OpenSettings.Models.Inputs
             SettingId = settingId;
             Excludes = string.IsNullOrWhiteSpace(excludes)
                 ? new HashSet<string>()
-                : new HashSet<string>(excludes.Split(Constants.CommaSeparator, StringSplitOptions.RemoveEmptyEntries)
+                : new HashSet<string>(excludes.Split(OpenSettingsDefaults.Separators.CommaSeparator, StringSplitOptions.RemoveEmptyEntries)
                     .Select(e => e.Trim().ToLowerInvariant()).Where(e => e != string.Empty));
         }
 

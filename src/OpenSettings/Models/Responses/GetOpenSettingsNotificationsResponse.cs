@@ -10,5 +10,7 @@ namespace OpenSettings.Models.Responses
         public string CacheControl { get; set; }
 
         public string Expires { get; set; }
+
+        public bool IsFaulted { get; set; }
     }
 }

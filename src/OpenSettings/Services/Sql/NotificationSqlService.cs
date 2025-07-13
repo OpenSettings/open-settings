@@ -21,7 +21,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Net;
 using System.Net.Http.Headers;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using UserNotificationMappingSqlModel = OpenSettings.Domains.Sql.Entities.UserNotificationMappingSqlModel;
@@ -552,14 +551,7 @@ namespace OpenSettings.Services.Sql
             {
                 var currentTime = DateTime.UtcNow;
 
-                var openSettingsConfigResponse = await _openSettingsService.GetConfigsDataAsync(Constants.NotificationsConfigName, cancellationToken);
-
-                var idToOpenSettingNotification = openSettingsConfigResponse?.Data == null
-                    ? new Dictionary<Guid, GetOpenSettingsNotificationsResponseNotification>()
-                    : JsonSerializer.Deserialize<GetOpenSettingsNotificationsResponseNotification[]>(openSettingsConfigResponse.Data, Constants.JsonCaseInsensitiveOptions)
-                        .DistinctBy(n => n.Id)
-                        .Where(n => n.Id != Guid.Empty)
-                        .ToDictionary(n => n.Id);
+                var notificationsResponse = await _openSettingsService.GetNotificationsAsync(cancellationToken);
 
                 var notifications = await _context.Notifications
                     .AsNoTracking()
@@ -568,7 +560,7 @@ namespace OpenSettings.Services.Sql
 
                 var newNotificationIdToNotification = new Dictionary<Guid, NotificationSqlModel>();
 
-                foreach (var openSettingNotification in idToOpenSettingNotification.Values)
+                foreach (var openSettingNotification in notificationsResponse.IdToNotification.Values)
                 {
                     var isExpired = !openSettingNotification.IsExpired && openSettingNotification.ExpiresIn.HasValue
                         ? currentTime > openSettingNotification.CreatedOn.Add(openSettingNotification.ExpiresIn.Value)
@@ -632,16 +624,14 @@ namespace OpenSettings.Services.Sql
 
                 await _context.SaveChangesAsync(cancellationToken);
 
-                if (openSettingsConfigResponse != null)
+                if (!notificationsResponse.IsFaulted)
                 {
                     var cacheControl =
-                        CacheControlHeaderValue.Parse(openSettingsConfigResponse.CacheControl);
+                        CacheControlHeaderValue.Parse(notificationsResponse.CacheControl);
 
                     if (cacheControl.MaxAge.HasValue)
                     {
-                        setLockExpiryTimeInput.ExpiryTime =
-                            DateTime.ParseExact(openSettingsConfigResponse.Expires, "R",
-                                CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
+                        setLockExpiryTimeInput.ExpiryTime = Helper.GetExpiryTime(notificationsResponse.Expires);
 
                         if (setLockExpiryTimeInput.ExpiryTime > currentTime)
                         {

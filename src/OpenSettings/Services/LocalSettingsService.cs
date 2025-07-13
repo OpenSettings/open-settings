@@ -36,31 +36,32 @@ namespace OpenSettings.Services
         private static readonly ConcurrentDictionary<string, CurrentSettingsData> IdentifierNameToCurrentSettingsData = new ConcurrentDictionary<string, CurrentSettingsData>();
 
         private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
-        private readonly ILogger _logger;
-        private readonly OpenSettingsConfiguration _openSettingsConfiguration;
+        
         private readonly IAppsService _appsService;
         private readonly ISettingsService _settingsService;
+        private readonly ILogger _logger;
+        private readonly OpenSettingsConfiguration _openSettingsConfiguration;
 
-        public LocalSettingsService(OpenSettingsConfiguration openSettingsConfiguration, IAppsService appsService, ISettingsService settingsService)
+        public LocalSettingsService(IAppsService appsService, ISettingsService settingsService, OpenSettingsConfiguration openSettingsConfiguration)
         {
-            _logger = openSettingsConfiguration.LoggerFactory.CreateLogger<LocalSettingsService>();
-            _openSettingsConfiguration = openSettingsConfiguration;
             _appsService = appsService;
             _settingsService = settingsService;
+            _logger = openSettingsConfiguration.LoggerFactory.CreateLogger<LocalSettingsService>();
+            _openSettingsConfiguration = openSettingsConfiguration;
         }
 
         public async Task<T> GetSettingAsync<T>(string identifierName, CancellationToken cancellationToken = default) where T : ISettings
         {
             if (string.IsNullOrWhiteSpace(identifierName))
             {
-                throw new ArgumentException("Identifier cannot be null, empty, or whitespace.", nameof(identifierName));
+                throw new ArgumentException("Identifier name cannot be null, empty, or whitespace.", nameof(identifierName));
             }
 
             var type = typeof(T);
 
-            var requestComputedIdentifier = Constants.TypeIdToComputedIdentifier.TryGetValue(type.GUID, out var computedIdentifier)
+            var requestComputedIdentifier = OpenSettingsDefaults.Caches.TypeIdToComputedIdentifier.TryGetValue(type.GUID, out var computedIdentifier)
                 ? computedIdentifier
-                : ((ComputedIdentifierAttribute)type.GetCustomAttribute(Constants.ComputedIdentifierAttributeType, true))?.ComputedIdentifier ?? Helper.ComputeIdentifier(type.FullName);
+                : ((ComputedIdentifierAttribute)type.GetCustomAttribute(OpenSettingsDefaults.Types.ComputedIdentifierAttributeType, true))?.ComputedIdentifier ?? Helper.ComputeIdentifier(type.FullName);
 
             identifierName = identifierName.Trim().ToLowerInvariant();
 
@@ -86,7 +87,7 @@ namespace OpenSettings.Services
             object requestTypeInstance = null;
             var computedIdentifierToData = readResponse.Data.Settings.ToDictionary(r => r.ComputedIdentifier, r => r.Data);
 
-            foreach (var settingData in Constants.ComputedIdentifierToLocalSetting.Values)
+            foreach (var settingData in OpenSettingsDefaults.Caches.ComputedIdentifierToLocalSetting.Values)
             {
                 if (!computedIdentifierToData.TryGetValue(settingData.ComputedIdentifier, out var data))
                 {
@@ -130,7 +131,7 @@ namespace OpenSettings.Services
         {
             var requestTypeGuid = typeof(T).GUID;
 
-            return Constants.TypeIdToComputedIdentifier.TryGetValue(requestTypeGuid, out var computedIdentifier) &&
+            return OpenSettingsDefaults.Caches.TypeIdToComputedIdentifier.TryGetValue(requestTypeGuid, out var computedIdentifier) &&
                    IdentifierNameToCurrentSettingsData.TryGetValue(_openSettingsConfiguration.IdentifierNameLowercase, out var result) &&
                    result.ComputedIdentifierToInstance.TryGetValue(computedIdentifier, out var data)
                 ? (T)data
@@ -146,7 +147,7 @@ namespace OpenSettings.Services
         {
             var requestTypeGuid = typeof(T).GUID;
 
-            if (!Constants.TypeIdToComputedIdentifier.TryGetValue(requestTypeGuid, out var computedIdentifier))
+            if (!OpenSettingsDefaults.Caches.TypeIdToComputedIdentifier.TryGetValue(requestTypeGuid, out var computedIdentifier))
             {
                 return default;
             }
@@ -163,7 +164,7 @@ namespace OpenSettings.Services
 
         public async Task<object> GetSettingAsync(IServiceProvider serviceProvider, Guid computedIdentifier, CancellationToken cancellationToken, params ConfigSource[] configSources)
         {
-            if (!Constants.ComputedIdentifierToLocalSetting.TryGetValue(computedIdentifier, out var localSetting) || !(configSources?.Length > 0))
+            if (!OpenSettingsDefaults.Caches.ComputedIdentifierToLocalSetting.TryGetValue(computedIdentifier, out var localSetting) || !(configSources?.Length > 0))
             {
                 return null;
             }
@@ -210,7 +211,7 @@ namespace OpenSettings.Services
 
         public async Task SettingDataChangeNotifiedAsync(Guid computedIdentifier, CancellationToken cancellationToken = default)
         {
-            if (!Constants.ComputedIdentifierToLocalSetting.TryGetValue(computedIdentifier, out var settingData) ||
+            if (!OpenSettingsDefaults.Caches.ComputedIdentifierToLocalSetting.TryGetValue(computedIdentifier, out var settingData) ||
                 !IdentifierNameToCurrentSettingsData.TryGetValue(_openSettingsConfiguration.IdentifierNameLowercase, out var model) ||
                 !model.ComputedIdentifierToInstance.TryGetValue(computedIdentifier, out var instance))
             {
@@ -329,7 +330,7 @@ namespace OpenSettings.Services
 
             var computedIdentifierToInstance = new Dictionary<Guid, object>();
 
-            foreach (var settingData in Constants.ComputedIdentifierToLocalSetting.Values)
+            foreach (var settingData in OpenSettingsDefaults.Caches.ComputedIdentifierToLocalSetting.Values)
             {
                 if (!computedIdentifierToData.TryGetValue(settingData.ComputedIdentifier, out var data))
                 {
@@ -409,7 +410,7 @@ namespace OpenSettings.Services
 
             foreach (var responseData in computedIdentifierToData)
             {
-                computedIdentifierToSyncAppDataResponse[responseData.Key] = Constants.ComputedIdentifierToLocalSetting.TryGetValue(responseData.Key, out var settingData)
+                computedIdentifierToSyncAppDataResponse[responseData.Key] = OpenSettingsDefaults.Caches.ComputedIdentifierToLocalSetting.TryGetValue(responseData.Key, out var settingData)
                     ? new SyncAppDataResponseSetting
                     {
                         ComputedIdentifier = settingData.ComputedIdentifier,
@@ -455,7 +456,7 @@ namespace OpenSettings.Services
 
         public async Task<IResponse> GetLocalSettingAsync(IServiceProvider serviceProvider, Guid computedIdentifier, ConfigSource configSource, CancellationToken cancellationToken)
         {
-            if (!Constants.ComputedIdentifierToLocalSetting.TryGetValue(computedIdentifier, out var localSetting))
+            if (!OpenSettingsDefaults.Caches.ComputedIdentifierToLocalSetting.TryGetValue(computedIdentifier, out var localSetting))
             {
                 return HttpStatusCode.NotFound.ToFailureResponse(Errors.LocalSettingNotFound);
             }
@@ -544,7 +545,7 @@ namespace OpenSettings.Services
                         IsActive = _openSettingsConfiguration.Spa.IsActive
                     }
                 },
-                Settings = GenerateSettings(Constants.ComputedIdentifierToLocalSetting.Values, _openSettingsConfiguration),
+                Settings = GenerateSettings(OpenSettingsDefaults.Caches.ComputedIdentifierToLocalSetting.Values, _openSettingsConfiguration),
                 Instance = new SyncAppDataInputInstance
                 {
                     InstanceName = _openSettingsConfiguration.InstanceName,
@@ -689,7 +690,7 @@ namespace OpenSettings.Services
             var fullPathToInstanceFullNameToObjectInstance = new Dictionary<string, Dictionary<string, object>>();
             var computedIdentifierToInstance = new Dictionary<Guid, object>();
 
-            foreach (var kvp in Constants.ComputedIdentifierToLocalSetting)
+            foreach (var kvp in OpenSettingsDefaults.Caches.ComputedIdentifierToLocalSetting)
             {
                 var fullNameToObjectInstance = fullPathToInstanceFullNameToObjectInstance.GetOrCreateDictionary(kvp.Value.GeneratedFilePath);
 
@@ -720,13 +721,13 @@ namespace OpenSettings.Services
 
             var computedIdentifierToInstance = new Dictionary<Guid, object>();
 
-            foreach (var localSetting in Constants.ComputedIdentifierToLocalSetting.Values)
+            foreach (var localSetting in OpenSettingsDefaults.Caches.ComputedIdentifierToLocalSetting.Values)
             {
                 if (computedIdentifierToSetting.TryGetValue(localSetting.ComputedIdentifier, out var syncAppDataResponseSetting))
                 {
                     localSetting.StoreInSeparateFile = syncAppDataResponseSetting.StoreInSeparateFile;
                     localSetting.IgnoreOnFileChange = localSetting.StoreInSeparateFile
-                        ? Constants.ClassNameToCount[localSetting.Type.Name] == 1
+                        ? OpenSettingsDefaults.Caches.ClassNameToCount[localSetting.Type.Name] == 1
                             ? syncAppDataResponseSetting.IgnoreOnFileChange
                             : false
                         : null;
@@ -806,7 +807,7 @@ namespace OpenSettings.Services
                 if (settingData.HasStoreInSeparateFileAttribute)
                 {
                     storeInSeparateFile = settingData.StoreInSeparateFile;
-                    ignoreOnFileChange = Constants.ClassNameToCount[settingData.Type.Name] == 1
+                    ignoreOnFileChange = OpenSettingsDefaults.Caches.ClassNameToCount[settingData.Type.Name] == 1
                         ? settingData.IgnoreOnFileChange
                         : false;
                 }
@@ -818,7 +819,7 @@ namespace OpenSettings.Services
 
                 var appSettingDto = new SyncAppDataInputSetting
                 {
-                    Data = JsonSerializer.Serialize(settingData.Instance, Constants.UnsafeRelaxedJsonSerializerOptions),
+                    Data = JsonSerializer.Serialize(settingData.Instance, OpenSettingsDefaults.Serialization.UnsafeRelaxedJsonSerializerOptions),
                     ComputedIdentifier = settingData.ComputedIdentifier,
                     StoreInSeparateFile = storeInSeparateFile,
                     IgnoreOnFileChange = ignoreOnFileChange,

@@ -1693,7 +1693,7 @@ namespace OpenSettings.Services.Sql
 
             if (!jsonMergeResult.IsFaulted)
             {
-                data = JsonSerializer.Serialize(jsonMergeResult.Data, Constants.UnsafeRelaxedJsonSerializerOptions);
+                data = JsonSerializer.Serialize(jsonMergeResult.Data, OpenSettingsDefaults.Serialization.UnsafeRelaxedJsonSerializerOptions);
 
                 if (decompressedData != data)
                 {

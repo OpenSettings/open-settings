@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Ogu.Extensions.Hosting.HostedServices;
 using OpenSettings.Configurations;
@@ -33,7 +34,7 @@ namespace OpenSettings.Extensions
     public static class ServiceCollectionExtensions
     {
         /// <summary>
-        /// Configures OpenSettings for the application by iterating over the <see cref="Constants.FullNameToLocalSetting"/>
+        /// Configures OpenSettings for the application by iterating over the <see cref="OpenSettingsDefaults.Caches.FullNameToLocalSetting"/>
         /// and registering each setting type in the <see cref="IServiceCollection"/> based on the configuration.
         /// <para>
         /// This method is typically called during the <see cref="HostBuilderExtensions.UseOpenSettingsAsync(IHostBuilder, OpenSettingsConfiguration, Type[])"/> extension to initialize
@@ -51,7 +52,7 @@ namespace OpenSettings.Extensions
                 throw new ArgumentNullException(nameof(services));
             }
 
-            foreach (var kvp in Constants.FullNameToLocalSetting)
+            foreach (var kvp in OpenSettingsDefaults.Caches.FullNameToLocalSetting)
             {
                 services.ConfigureSetting(configuration, kvp.Value);
             }
@@ -60,8 +61,8 @@ namespace OpenSettings.Extensions
         }
 
         /// <summary>
-        /// Adds OpenSettings services to the application's <see cref="Microsoft.Extensions.DependencyInjection.IServiceCollection"/>. This registers services
-        /// necessary to run OpenSettings, based on the inherited <see cref="OpenSettings.Services.Interfaces.ISettings"/> types and the registration type.
+        /// Adds OpenSettings services to the application's <see cref="IServiceCollection"/>. This registers services
+        /// necessary to run OpenSettings, based on the inherited <see cref="ISettings"/> types and the registration type.
         /// </summary>
         /// <param name="services">The <see cref="IServiceCollection"/> to which OpenSettings services will be added.</param>
         /// <param name="openSettingsConfiguration">The configuration that governs the behavior of OpenSettings (such as the service type: Provider or Consumer).</param>
@@ -86,7 +87,7 @@ namespace OpenSettings.Extensions
             {
                 var loggerFactory = sp.GetService<ILoggerFactory>();
 
-                openSettingsConfiguration.LoggerFactory = loggerFactory;
+                openSettingsConfiguration.LoggerFactory = loggerFactory ?? NullLoggerFactory.Instance;
 
                 return openSettingsConfiguration;
             });

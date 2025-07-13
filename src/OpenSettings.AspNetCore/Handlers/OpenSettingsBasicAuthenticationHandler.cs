@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using OpenSettings.AspNetCore.Extensions;
 using OpenSettings.AspNetCore.Models;
 using OpenSettings.Configurations;
 using OpenSettings.Helpers;
@@ -98,9 +97,9 @@ namespace OpenSettings.AspNetCore.Handlers
                     new Claim(ClaimTypes.NameIdentifier, clientIdAsString),
                     new Claim(ClaimTypes.Name, registeredApp.ClientName),
                     new Claim(ClaimTypes.Role, roleType.ToString()),
-                    new Claim(Constants.DbUserIdClaim, clientIdAsString),
-                    new Claim(Constants.DbUserDisplayNameClaim, registeredApp.ClientName),
-                    new Claim(Constants.DbUserInitialsClaim, Helper.GetInitials(registeredApp.ClientName))
+                    new Claim(OpenSettingsDefaults.Claims.DbUserId, clientIdAsString),
+                    new Claim(OpenSettingsDefaults.Claims.DbUserDisplayName, registeredApp.ClientName),
+                    new Claim(OpenSettingsDefaults.Claims.DbUserInitials, Helper.GetInitials(registeredApp.ClientName))
                 };
 
                 var identity = new ClaimsIdentity(claims, Scheme.Name);

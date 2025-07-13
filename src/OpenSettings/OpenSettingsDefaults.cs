@@ -1,15 +1,53 @@
-﻿namespace OpenSettings
+﻿using OpenSettings.Attributes;
+using OpenSettings.Models;
+using System;
+using System.Collections.Generic;
+using System.Text.Encodings.Web;
+using System.Text.Json;
+
+namespace OpenSettings
 {
     /// <summary>
     /// Provides constant values for OpenSettings.
     /// </summary>
     public static class OpenSettingsDefaults
     {
+        public static class Names
+        {
+            /// <summary>
+            /// The name of the HTTP client used for OpenSettings API calls.
+            /// </summary>
+            public const string HttpClientName = "OpenSettingsHttpClient";
+
+            public const string BasicSchemeName = "Basic";
+        }
+
+        public static class Serialization
+        {
+            internal static JsonSerializerOptions UnsafeRelaxedJsonSerializerOptions = new JsonSerializerOptions
+            {
+                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+            };
+
+            internal static JsonSerializerOptions UnsafeRelaxedJsonAndWriteIndentedSerializerOptions = new JsonSerializerOptions
+            {
+                WriteIndented = true, 
+                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+            };
+
+            internal static readonly JsonSerializerOptions JsonCaseInsensitiveOptions = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
+        }
+
         /// <summary>
         /// Provides constant values for API routes used in OpenSettings.
         /// </summary>
         public static class Routes
         {
+            internal const string OpenSettingsApiRoute = "api/settings";
+
             /// <summary>
             /// The V1 API base routes.
             /// </summary>
@@ -32,7 +70,7 @@
 
                 /// <summary>
                 /// The IdentifiersController base route.
-                /// </summary>
+                /// </summary> 
                 public const string Identifiers = "v1/identifiers";
 
                 /// <summary>
@@ -152,6 +190,27 @@
         {
             internal const string Notification = "notification-queue";
             internal const string DataChange = "data-change-queue";
+        }
+
+        internal static class Types
+        {
+            internal static Type ComputedIdentifierAttributeType = typeof(ComputedIdentifierAttribute);
+            internal static Type RegistrationModeAttributeType = typeof(RegistrationModeAttribute);
+            internal static Type StoreInSeparateFileAttributeType = typeof(StoreInSeparateFileAttribute);
+        }
+
+        internal static class Separators
+        {
+            internal static readonly char[] CommaSeparator = { ',' };
+            internal static readonly char[] SpaceSeparator = { ' ' };
+        }
+
+        internal static class Caches
+        {
+            internal static Dictionary<Guid, LocalSetting> ComputedIdentifierToLocalSetting { get; set; } = new Dictionary<Guid, LocalSetting>();
+            internal static Dictionary<Guid, Guid> TypeIdToComputedIdentifier { get; set; } = new Dictionary<Guid, Guid>();
+            internal static Dictionary<string, LocalSetting> FullNameToLocalSetting { get; set; } = new Dictionary<string, LocalSetting>();
+            internal static Dictionary<string, int> ClassNameToCount { get; set; } = new Dictionary<string, int>();
         }
     }
 }

@@ -149,7 +149,7 @@ namespace OpenSettings.Services.Sql
             {
                 try
                 {
-                    entity.Consumer = JsonSerializer.Deserialize<ConfigurationConsumer>($"{consumerObject}", Constants.JsonCaseInsensitiveOptions);
+                    entity.Consumer = JsonSerializer.Deserialize<ConfigurationConsumer>($"{consumerObject}", OpenSettingsDefaults.Serialization.JsonCaseInsensitiveOptions);
                     updatedFieldNameToValue["Consumer"] = entity.Consumer;
                     _context.MarkAsModified(entity, e => e.Consumer);
                 }
@@ -163,7 +163,7 @@ namespace OpenSettings.Services.Sql
             {
                 try
                 {
-                    entity.Provider = JsonSerializer.Deserialize<ConfigurationProvider>($"{providerObject}", Constants.JsonCaseInsensitiveOptions);
+                    entity.Provider = JsonSerializer.Deserialize<ConfigurationProvider>($"{providerObject}", OpenSettingsDefaults.Serialization.JsonCaseInsensitiveOptions);
                     updatedFieldNameToValue["Provider"] = entity.Provider;
                     _context.MarkAsModified(entity, e => e.Provider);
                 }
@@ -177,7 +177,7 @@ namespace OpenSettings.Services.Sql
             {
                 try
                 {
-                    entity.Controller = JsonSerializer.Deserialize<ConfigurationController>($"{controllerObject}", Constants.JsonCaseInsensitiveOptions);
+                    entity.Controller = JsonSerializer.Deserialize<ConfigurationController>($"{controllerObject}", OpenSettingsDefaults.Serialization.JsonCaseInsensitiveOptions);
 
                     if (!string.IsNullOrWhiteSpace(entity.Controller.Route))
                     {
@@ -198,9 +198,9 @@ namespace OpenSettings.Services.Sql
             {
                 try
                 {
-                    entity.Spa = JsonSerializer.Deserialize<ConfigurationSpa>($"{spaObject}", Constants.JsonCaseInsensitiveOptions);
+                    entity.Spa = JsonSerializer.Deserialize<ConfigurationSpa>($"{spaObject}", OpenSettingsDefaults.Serialization.JsonCaseInsensitiveOptions);
 
-                    if (entity.Spa.RoutePrefix == null || entity.Spa.RoutePrefix == " ")
+                    if (entity.Spa.RoutePrefix == null || entity.Spa.RoutePrefix == Constants.Space)
                     {
                         return HttpStatusCode.BadRequest.ToFailureResponse(Errors.InvalidRoutePrefix);
                     }

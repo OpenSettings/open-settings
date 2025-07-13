@@ -6,6 +6,7 @@ using OpenSettings.Services.Interfaces;
 using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
@@ -13,7 +14,6 @@ using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -31,7 +31,7 @@ namespace OpenSettings.Helpers
         /// <returns>A string containing the uppercase initials of the name. Returns an empty string if the input is empty.</returns>
         public static string GetInitials(string name)
         {
-            var parts = name.Replace(Constants.Dot, Constants.Space).Split(Constants.SpaceSeparator, StringSplitOptions.RemoveEmptyEntries);
+            var parts = name.Replace(Constants.Dot, Constants.Space).Split(OpenSettingsDefaults.Separators.SpaceSeparator, StringSplitOptions.RemoveEmptyEntries);
 
             return parts.Length == 0 ? string.Empty : string.Join(string.Empty, parts.Select(p => p[0])).ToUpper();
         }
@@ -487,6 +487,16 @@ namespace OpenSettings.Helpers
             return $"{Constants.GeneratedSettingsFileNameWithoutExtension}.{className}.{Constants.SettingsFileExtension}";
         }
 
+        /// <summary>
+        /// Parses an HTTP-date formatted expiration string (RFC1123 format) into a UTC <see cref="DateTime"/>.
+        /// </summary>
+        /// <param name="expires">The expiration time as a string in RFC1123 ("R") format.</param>
+        /// <returns>A <see cref="DateTime"/> object representing the expiration time in UTC.</returns>
+        internal static DateTime GetExpiryTime(string expires)
+        {
+            return DateTime.ParseExact(expires, "R", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
+        }
+
         private static LocalSetting[] ProcessSettingsTypes(IReadOnlyCollection<Type> settingsTypes, Dictionary<string, object> preSettingsData, bool createInstances, RegistrationMode registrationMode)
         {
             var enumeratedTypes = settingsTypes?.Count > 0 ? settingsTypes : GetSettingsTypesFromAssemblies();
@@ -533,11 +543,11 @@ namespace OpenSettings.Helpers
             var settingData = new LocalSetting
             {
                 Type = type,
-                ComputedIdentifier = ((ComputedIdentifierAttribute)type.GetCustomAttribute(Constants.ComputedIdentifierAttributeType, true))?.ComputedIdentifier ?? ComputeIdentifier(md5, type.FullName),
+                ComputedIdentifier = ((ComputedIdentifierAttribute)type.GetCustomAttribute(OpenSettingsDefaults.Types.ComputedIdentifierAttributeType, true))?.ComputedIdentifier ?? ComputeIdentifier(md5, type.FullName),
                 Instance = instance
             };
 
-            var storeInSeparateFileAttribute = (StoreInSeparateFileAttribute)type.GetCustomAttribute(Constants.StoreInSeparateFileAttributeType, true);
+            var storeInSeparateFileAttribute = (StoreInSeparateFileAttribute)type.GetCustomAttribute(OpenSettingsDefaults.Types.StoreInSeparateFileAttributeType, true);
 
             if (storeInSeparateFileAttribute == null)
             {
@@ -554,7 +564,7 @@ namespace OpenSettings.Helpers
                 settingData.GeneratedFilePath = GetGeneratedSettingFilePathWithExtension(type.Name, stringBuilder);
             }
 
-            var registrationModeAttribute = type.GetCustomAttribute(Constants.RegistrationModeAttributeType, true);
+            var registrationModeAttribute = type.GetCustomAttribute(OpenSettingsDefaults.Types.RegistrationModeAttributeType, true);
 
             if (registrationModeAttribute == null)
             {
@@ -576,10 +586,10 @@ namespace OpenSettings.Helpers
             var settingData = new LocalSetting
             {
                 Type = type,
-                ComputedIdentifier = ((ComputedIdentifierAttribute)type.GetCustomAttribute(Constants.ComputedIdentifierAttributeType, true))?.ComputedIdentifier ?? ComputeIdentifier(md5, type.FullName)
+                ComputedIdentifier = ((ComputedIdentifierAttribute)type.GetCustomAttribute(OpenSettingsDefaults.Types.ComputedIdentifierAttributeType, true))?.ComputedIdentifier ?? ComputeIdentifier(md5, type.FullName)
             };
 
-            var storeInSeparateFileAttribute = (StoreInSeparateFileAttribute)type.GetCustomAttribute(Constants.StoreInSeparateFileAttributeType, true);
+            var storeInSeparateFileAttribute = (StoreInSeparateFileAttribute)type.GetCustomAttribute(OpenSettingsDefaults.Types.StoreInSeparateFileAttributeType, true);
 
             settingData.HasStoreInSeparateFileAttribute = storeInSeparateFileAttribute != null;
 
@@ -636,7 +646,7 @@ namespace OpenSettings.Helpers
                 settingData.IgnoreOnFileChange = storeInSeparateFileAttribute.IgnoreOnFileChange;
             }
 
-            var registrationModeAttribute = type.GetCustomAttribute(Constants.RegistrationModeAttributeType, true);
+            var registrationModeAttribute = type.GetCustomAttribute(OpenSettingsDefaults.Types.RegistrationModeAttributeType, true);
 
             if (registrationModeAttribute == null)
             {

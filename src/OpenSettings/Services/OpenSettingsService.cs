@@ -3,7 +3,6 @@ using OpenSettings.Helpers;
 using OpenSettings.Models;
 using OpenSettings.Models.Responses;
 using OpenSettings.Services.Interfaces;
-using OpenSettings.Services.MemoryCache;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,6 +24,8 @@ namespace OpenSettings.Services
 
         private const string CacheControlFormat = "public, max-age={0}";
         private const string GetConfigsKey = "oss:gca:configs";
+        private const string NotificationsConfigName = "notifications";
+
 
         private readonly IMemoryCache _memoryCache;
         private readonly HttpClient _httpClient;
@@ -131,11 +132,11 @@ namespace OpenSettings.Services
 
         public async Task<GetOpenSettingsNotificationsResponse> GetNotificationsAsync(CancellationToken cancellationToken = default)
         {
-            var openSettingsConfigResponse = await GetConfigsDataAsync(Constants.NotificationsConfigName, cancellationToken);
+            var openSettingsConfigResponse = await GetConfigsDataAsync(NotificationsConfigName, cancellationToken);
 
             var idToOpenSettingNotification = openSettingsConfigResponse?.Data == null
                 ? new Dictionary<Guid, GetOpenSettingsNotificationsResponseNotification>()
-                : JsonSerializer.Deserialize<GetOpenSettingsNotificationsResponseNotification[]>(openSettingsConfigResponse.Data, Constants.JsonCaseInsensitiveOptions)
+                : JsonSerializer.Deserialize<GetOpenSettingsNotificationsResponseNotification[]>(openSettingsConfigResponse.Data, OpenSettingsDefaults.Serialization.JsonCaseInsensitiveOptions)
                     .DistinctBy(n => n.Id)
                     .Where(n => n.Id != Guid.Empty)
                     .ToDictionary(n => n.Id);
@@ -144,7 +145,8 @@ namespace OpenSettings.Services
             {
                 IdToNotification = idToOpenSettingNotification,
                 CacheControl = openSettingsConfigResponse?.CacheControl,
-                Expires = openSettingsConfigResponse?.Expires
+                Expires = openSettingsConfigResponse?.Expires,
+                IsFaulted = openSettingsConfigResponse == null
             };
         }
 

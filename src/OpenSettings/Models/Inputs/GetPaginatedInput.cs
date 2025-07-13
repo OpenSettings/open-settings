@@ -8,7 +8,7 @@ namespace OpenSettings.Models.Inputs
         {
             SearchTerm = searchTerm;
             SearchBy = searchBy;
-            PageIndex = Math.Max(Constants.MinPageIndex, pageIndex);
+            PageIndex = Math.Max(1, pageIndex);
             PageSize = Math.Min(Constants.MaxPageSize, Math.Max(Constants.MinPageSize, pageSize));
             SortBy = sortBy;
             SortDirection = sortDirection;

@@ -122,7 +122,7 @@ namespace OpenSettings.Services.Sql
             if (!string.IsNullOrWhiteSpace(input.Ids))
             {
                 var idArray = input.Ids
-                    .Split(Constants.CommaSeparator, StringSplitOptions.RemoveEmptyEntries)
+                    .Split(OpenSettingsDefaults.Separators.CommaSeparator, StringSplitOptions.RemoveEmptyEntries)
                     .Select(i => int.TryParse(i, out var parsedId) ? (int?)parsedId : null)
                     .Where(i => i.HasValue)
                     .Select(i => i.Value)
