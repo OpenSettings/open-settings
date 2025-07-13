@@ -29,6 +29,8 @@ namespace OpenSettings.AspNetCore.Spa
     /// </summary>
     public class OpenSettingsSpaMiddleware
     {
+        private const string IndexHtml = "index.html";
+
         private readonly Assembly _currentAssembly = typeof(OpenSettingsSpaMiddleware).GetTypeInfo().Assembly;
         private readonly IOpenSettingsMemoryCache _openSettingsMemoryCache;
         private readonly OpenSettingsConfiguration _openSettingsConfiguration;
@@ -71,8 +73,8 @@ namespace OpenSettings.AspNetCore.Spa
                 : $"^/{Regex.Escape(openSettingsConfiguration.Spa.RoutePrefix)}/?$";
 
             _routePrefixWithIndexHtmlPattern = string.IsNullOrWhiteSpace(openSettingsConfiguration.Spa.RoutePrefix)
-                ? "^/index.html$"
-                : $"^/{Regex.Escape(openSettingsConfiguration.Spa.RoutePrefix)}/index.html$";
+                ? $"^/{IndexHtml}$"
+                : $"^/{Regex.Escape(openSettingsConfiguration.Spa.RoutePrefix)}/{IndexHtml}$";
 
             _jsonSerializerOptions = new JsonSerializerOptions
             {
@@ -92,20 +94,20 @@ namespace OpenSettings.AspNetCore.Spa
 
             _indexArguments = new Dictionary<string, string>
             {
-                { "%(Controller)", JsonSerializer.Serialize(cloneController, _jsonSerializerOptions) },
-                { "%(ProviderInfo)", JsonSerializer.Serialize(providerInfo, _jsonSerializerOptions) },
-                { "%(DocumentTitle)", openSettingsConfiguration.Spa.DocumentTitle },
-                { "%(ServiceType)", $"{openSettingsConfiguration.Selection}" },
-                { "%(DataAccessType)", openSettingsConfiguration.IsConsumerSelected ? string.Empty : $"{openSettingsConfiguration.Provider.Selection}" },
-                { "%(DbProviderName)", openSettingsConfiguration.IsProviderSelected && openSettingsConfiguration.Provider.IsOrmSelected ? $"{openSettingsConfiguration.Provider.Orm.DbProviderName}" : string.Empty },
-                { "%(PackVersion)", openSettingsAssemblyInfo.PackVersion },
-                { "%(PackVersionScore)", $"{openSettingsAssemblyInfo.PackVersionScore}" },
-                { "%(Version)", openSettingsConfiguration.Client.Version },
-                { "%(ClientName)", openSettingsConfiguration.Client.Name },
-                { "%(ClientId)", $"{openSettingsConfiguration.Client.Id}" },
+                { IndexArguments.Controller, JsonSerializer.Serialize(cloneController, _jsonSerializerOptions) },
+                { IndexArguments.ProviderInfo, JsonSerializer.Serialize(providerInfo, _jsonSerializerOptions) },
+                { IndexArguments.DocumentTitle, openSettingsConfiguration.Spa.DocumentTitle },
+                { IndexArguments.ServiceType, $"{openSettingsConfiguration.Selection}" },
+                { IndexArguments.DataAccessType, openSettingsConfiguration.IsConsumerSelected ? string.Empty : $"{openSettingsConfiguration.Provider.Selection}" },
+                { IndexArguments.DbProviderName, openSettingsConfiguration.IsProviderSelected && openSettingsConfiguration.Provider.IsOrmSelected ? $"{openSettingsConfiguration.Provider.Orm.DbProviderName}" : string.Empty },
+                { IndexArguments.PackVersion, openSettingsAssemblyInfo.PackVersion },
+                { IndexArguments.PackVersionScore, $"{openSettingsAssemblyInfo.PackVersionScore}" },
+                { IndexArguments.Version, openSettingsConfiguration.Client.Version },
+                { IndexArguments.ClientName, openSettingsConfiguration.Client.Name },
+                { IndexArguments.ClientId, $"{openSettingsConfiguration.Client.Id}" },
             };
 
-            _staticFileMiddleware = requestDelegate.CreateStaticFileMiddleware(hostingEnv, loggerFactory, openSettingsConfiguration.Spa.RoutePrefix, Constants.EmbeddedFileNamespace, typeof(OpenSettingsSpaMiddleware));
+            _staticFileMiddleware = requestDelegate.CreateStaticFileMiddleware(hostingEnv, loggerFactory, openSettingsConfiguration.Spa.RoutePrefix, OpenSettingsDefaults.Spa.EmbeddedFileNamespace, typeof(OpenSettingsSpaMiddleware));
         }
 
         public async Task Invoke(HttpContext httpContext)
@@ -118,8 +120,8 @@ namespace OpenSettings.AspNetCore.Spa
                 case "GET" when Regex.IsMatch(path, _routePrefixPattern, RegexOptions.IgnoreCase):
 
                     var relativeIndexUrl = string.IsNullOrEmpty(path) || path.EndsWith("/")
-                        ? Constants.IndexHtmlName
-                        : $"{path.Split('/').Last()}/index.html";
+                        ? IndexHtml
+                        : $"{path.Split('/').Last()}/{IndexHtml}";
                     httpContext.Response.RespondWithRedirect(relativeIndexUrl);
                     return;
 
@@ -127,7 +129,7 @@ namespace OpenSettings.AspNetCore.Spa
 
                     var text = await MemoryCacheKeys.OpenSettingsSpaMiddlewareHtml.GetOrCreateAsync(_openSettingsMemoryCache, c =>
                     {
-                        _indexArguments["%(License)"] = JsonSerializer.Serialize(LicenseProvider.Instance.CurrentLicense, _jsonSerializerOptions);
+                        _indexArguments[IndexArguments.License] = JsonSerializer.Serialize(LicenseProvider.Instance.CurrentLicense, _jsonSerializerOptions);
 
                         return BuildHtmlAsync(_openSettingsConfiguration.Spa.IndexStream, _indexArguments);
                     }).ConfigureAwait(false);
@@ -157,6 +159,22 @@ namespace OpenSettings.AspNetCore.Spa
                     return htmlBuilder.ToString();
                 }
             }
+        }
+
+        private static class IndexArguments
+        {
+            public const string Controller = "%(Controller)";
+            public const string ProviderInfo = "%(ProviderInfo)";
+            public const string DocumentTitle = "%(DocumentTitle)";
+            public const string ServiceType = "%(ServiceType)";
+            public const string DataAccessType = "%(DataAccessType)";
+            public const string DbProviderName = "%(DbProviderName)";
+            public const string PackVersion = "%(PackVersion)";
+            public const string PackVersionScore = "%(PackVersionScore)";
+            public const string Version = "%(Version)";
+            public const string ClientName = "%(ClientName)";
+            public const string ClientId = "%(ClientId)";
+            public const string License = "%(License)";
         }
     }
 }

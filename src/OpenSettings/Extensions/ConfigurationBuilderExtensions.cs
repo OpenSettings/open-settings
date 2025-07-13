@@ -131,7 +131,7 @@ namespace OpenSettings.Extensions
                             : !openSettingsConfiguration.IgnoreOnFileChange);
                 }
 
-                configurationBuilder.AddJsonFile(Constants.GeneratedOpenSettingsFilePath, false, reloadOnChange: false);
+                configurationBuilder.AddJsonFile(OpenSettingsDefaults.Files.GeneratedOpenSettingsFilePath, false, reloadOnChange: false);
 
             }, openSettingsConfiguration, cancellationToken);
 
@@ -186,7 +186,7 @@ namespace OpenSettings.Extensions
                 configurationBuilder.AddJsonFile(settingData.GeneratedFilePath, optional: true, reloadOnChange: settingData.StoreInSeparateFile ? !settingData.IgnoreOnFileChange ?? true : !openSettingsConfiguration.IgnoreOnFileChange);
             }
 
-            configurationBuilder.AddJsonFile(Constants.GeneratedOpenSettingsFilePath, false, reloadOnChange: false);
+            configurationBuilder.AddJsonFile(OpenSettingsDefaults.Files.GeneratedOpenSettingsFilePath, false, reloadOnChange: false);
 
             return configurationBuilder;
         }

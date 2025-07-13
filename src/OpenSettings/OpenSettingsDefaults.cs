@@ -2,6 +2,7 @@
 using OpenSettings.Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 
@@ -12,6 +13,25 @@ namespace OpenSettings
     /// </summary>
     public static class OpenSettingsDefaults
     {
+        internal const string DefaultVersion = "1.0.0";
+        internal const string DefaultLowercase = "default";
+        internal const string DefaultInstanceName = "Default";
+
+        internal const int SortOrderGap = 10;
+
+        public static class Files
+        {
+            internal const string SettingsFileNameWithoutExtension = "settings";
+            internal const string SettingsFileNameTag = "*settings*";
+            internal const string SettingsFileExtension = "json";
+            internal const string SettingsFileNameWithExtension = "settings.json";
+
+            internal const string GeneratedSettingsFileNameWithoutExtension = "settings-generated";
+            internal const string GeneratedSettingsFileNameWithExtension = "settings-generated.json";
+
+            internal static readonly string GeneratedOpenSettingsFilePath = Path.Combine(AppContext.BaseDirectory, "settings-generated.open-settings.json");
+        }
+
         public static class Spa
         {
             /// <summary>
@@ -19,9 +39,17 @@ namespace OpenSettings
             /// </summary>
             public const string EmbeddedIndexHtmlFileNamespace = "OpenSettings.AspNetCore.Spa.open_settings_spa_dist.browser.index.html";
 
+            public const string EmbeddedFileNamespace = "OpenSettings.AspNetCore.Spa.open_settings_spa_dist.browser";
+
             internal const string DefaultRoutePrefix = "settings";
 
             internal const string DefaultDocumentTitle = "OpenSettings Spa";
+        }
+
+        public static class Paging
+        {
+            internal const int MaxPageSize = 64;
+            internal const int MinPageSize = 8;
         }
 
         public static class Names
@@ -32,12 +60,16 @@ namespace OpenSettings
             public const string HttpClientName = "OpenSettingsHttpClient";
 
             public const string BasicSchemeName = "Basic";
+
+            internal const string RedisSubscriber = "OpenSettings";
         }
 
         public static class ContentTypes
         {
-            internal const string ApplicationJson = "application/json";
             public const string ApplicationOctetStream = "application/octet-stream";
+            public const string TextHtml = "text/html;charset=utf-8";
+
+            internal const string ApplicationJson = "application/json";
         }
 
         public static class Headers
@@ -45,6 +77,7 @@ namespace OpenSettings
             public const string CacheControl = "Cache-Control";
             public const string Expires = "Expires";
             public const string Referer = "Referer";
+            public const string Location = "Location";
         }
 
         public static class Format

@@ -9,7 +9,7 @@ namespace OpenSettings.Models.Inputs
             SearchTerm = searchTerm;
             SearchBy = searchBy;
             PageIndex = Math.Max(1, pageIndex);
-            PageSize = Math.Min(Constants.MaxPageSize, Math.Max(Constants.MinPageSize, pageSize));
+            PageSize = Math.Min(OpenSettingsDefaults.Paging.MaxPageSize, Math.Max(OpenSettingsDefaults.Paging.MinPageSize, pageSize));
             SortBy = sortBy;
             SortDirection = sortDirection;
         }

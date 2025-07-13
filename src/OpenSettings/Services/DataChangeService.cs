@@ -92,7 +92,7 @@ namespace OpenSettings.Services
             {
                 await _redisContext.ConnectAsync();
 
-                _subscriber = _redisContext.GetSubscriber(Constants.RedisSubscriberName);
+                _subscriber = _redisContext.GetSubscriber(OpenSettingsDefaults.Names.RedisSubscriber);
             }
 
             await _subscriber.PublishAsync(channel, message);

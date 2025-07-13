@@ -6,7 +6,7 @@ namespace OpenSettings.Models.Inputs
 {
     public class SyncAppDataInputInstance
     {
-        private string _instanceName = Constants.DefaultInstanceName;
+        private string _instanceName = OpenSettingsDefaults.DefaultInstanceName;
 
         public string InstanceName
         {

@@ -34,7 +34,7 @@ namespace OpenSettings.Models
             }
             else
             {
-                version = Regex.Replace(version, "[^0-9.]", "").Trim('.');
+                version = Regex.Replace(version, "[^0-9.]", string.Empty).Trim(OpenSettingsDefaults.Format.DotChar);
 
                 Version = version == string.Empty ? GetVersion(assemblyName) : version;
             }
@@ -70,7 +70,7 @@ namespace OpenSettings.Models
 
         private static string GetVersion(AssemblyName entryAssembly)
         {
-            return entryAssembly?.Version.ToVersion() ?? Constants.DefaultVersion;
+            return entryAssembly?.Version.ToVersion() ?? OpenSettingsDefaults.DefaultVersion;
         }
     }
 }

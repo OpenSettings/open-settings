@@ -32,7 +32,7 @@ namespace OpenSettings.Services.Redis
             _instanceDynamicId = openSettingsConfiguration.InstanceDynamicId;
             _localSettingService = localSettingService;
             _channel = Helper.ConstructChannelName(providerInfo.Redis.Channel, openSettingsConfiguration.Client.Id, openSettingsConfiguration.IdentifierNameLowercase);
-            _subscriber = redisContext.GetSubscriber(Constants.RedisSubscriberName);
+            _subscriber = redisContext.GetSubscriber(OpenSettingsDefaults.Names.RedisSubscriber);
         }
 
         public Task StartAsync(CancellationToken cancellationToken)

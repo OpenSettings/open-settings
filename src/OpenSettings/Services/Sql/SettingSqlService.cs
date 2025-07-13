@@ -329,7 +329,7 @@ namespace OpenSettings.Services.Sql
                     identifierMappingSortOrder =
                         await _context.AppIdentifierMappings.AsNoTracking()
                             .Where(a => a.AppId == targetAppId)
-                            .MaxAsync(s => s.SortOrder, cancellationToken) + Constants.SortOrderGap;
+                            .MaxAsync(s => s.SortOrder, cancellationToken) + OpenSettingsDefaults.SortOrderGap;
                 }
                 catch (InvalidOperationException)
                 {

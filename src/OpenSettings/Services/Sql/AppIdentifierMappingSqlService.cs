@@ -139,10 +139,10 @@ namespace OpenSettings.Services.Sql
                 mappingSortOrder = input.SetSortOrderPosition == SetSortOrderPosition.Bottom
                     ? await _context.AppIdentifierMappings.AsNoTracking()
                         .Where(a => a.AppId == appId)
-                        .MaxAsync(s => s.SortOrder, cancellationToken) + Constants.SortOrderGap
+                        .MaxAsync(s => s.SortOrder, cancellationToken) + OpenSettingsDefaults.SortOrderGap
                     : await _context.AppIdentifierMappings.AsNoTracking()
                         .Where(a => a.AppId == appId)
-                        .MinAsync(s => s.SortOrder, cancellationToken) - Constants.SortOrderGap;
+                        .MinAsync(s => s.SortOrder, cancellationToken) - OpenSettingsDefaults.SortOrderGap;
             }
             catch (InvalidOperationException)
             {

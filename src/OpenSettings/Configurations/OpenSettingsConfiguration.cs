@@ -47,7 +47,7 @@ namespace OpenSettings.Configurations
         /// </summary>
         public string InstanceDynamicId { get; set; } = Guid.NewGuid().ToString();
 
-        private string _instanceName = Constants.DefaultInstanceName;
+        private string _instanceName = OpenSettingsDefaults.DefaultInstanceName;
 
         /// <summary>
         /// Gets or sets the case-insensitive name of the instance.
@@ -72,7 +72,7 @@ namespace OpenSettings.Configurations
             }
         }
 
-        internal string InstanceNameLowercase { get; private set; } = Constants.DefaultLowercase;
+        internal string InstanceNameLowercase { get; private set; } = OpenSettingsDefaults.DefaultLowercase;
 
         private string _identifierName;
 

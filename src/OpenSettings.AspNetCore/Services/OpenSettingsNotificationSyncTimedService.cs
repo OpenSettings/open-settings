@@ -83,7 +83,10 @@ namespace OpenSettings.AspNetCore.Services
                         notification.ExpiredOn = expiredOn;
                         notification.CreatorName = openSettingNotification.CreatedBy;
 
-                        // If updated, currently we're not updating the property UpdatedOn!
+                        if (context.ChangeTracker.HasChanges())
+                        {
+                            notification.UpdatedOn = currentTime;
+                        }
                     }
                     else
                     {

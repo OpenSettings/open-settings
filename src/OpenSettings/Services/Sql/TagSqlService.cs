@@ -169,8 +169,8 @@ namespace OpenSettings.Services.Sql
                 try
                 {
                     input.SortOrder = input.SetSortOrderPosition == SetSortOrderPosition.Bottom
-                        ? await _context.Tags.AsNoTracking().MaxAsync(s => s.SortOrder, cancellationToken) + Constants.SortOrderGap
-                        : await _context.Tags.AsNoTracking().MinAsync(s => s.SortOrder, cancellationToken) - Constants.SortOrderGap;
+                        ? await _context.Tags.AsNoTracking().MaxAsync(s => s.SortOrder, cancellationToken) + OpenSettingsDefaults.SortOrderGap
+                        : await _context.Tags.AsNoTracking().MinAsync(s => s.SortOrder, cancellationToken) - OpenSettingsDefaults.SortOrderGap;
                 }
                 catch (InvalidOperationException)
                 {
@@ -263,13 +263,13 @@ namespace OpenSettings.Services.Sql
                     {
                         var maxOrder = await _context.Tags.AsNoTracking().Where(s => s.Id != tagId).MaxAsync(s => s.SortOrder, cancellationToken);
 
-                        input.SortOrder = input.SortOrder > maxOrder ? input.SortOrder : maxOrder + Constants.SortOrderGap;
+                        input.SortOrder = input.SortOrder > maxOrder ? input.SortOrder : maxOrder + OpenSettingsDefaults.SortOrderGap;
                     }
                     else
                     {
                         var minOrder = await _context.Tags.AsNoTracking().Where(s => s.Id != tagId).MinAsync(s => s.SortOrder, cancellationToken);
 
-                        input.SortOrder = input.SortOrder < minOrder ? input.SortOrder : minOrder - Constants.SortOrderGap;
+                        input.SortOrder = input.SortOrder < minOrder ? input.SortOrder : minOrder - OpenSettingsDefaults.SortOrderGap;
                     }
                 }
                 catch(InvalidOperationException)
@@ -504,7 +504,7 @@ namespace OpenSettings.Services.Sql
                 targetNeighbour = new
                 {
                     Id = 0,
-                    Order = input.Ascent ? targetEntity.SortOrder + Constants.SortOrderGap : targetEntity.SortOrder - Constants.SortOrderGap
+                    Order = input.Ascent ? targetEntity.SortOrder + OpenSettingsDefaults.SortOrderGap : targetEntity.SortOrder - OpenSettingsDefaults.SortOrderGap
                 };
             }
             else if (targetNeighbour.Id == sourceEntity.Id)
@@ -594,8 +594,8 @@ namespace OpenSettings.Services.Sql
             try
             {
                 sortOrder = setSortOrderPosition == SetSortOrderPosition.Bottom
-                    ? await _context.Tags.AsNoTracking().MaxAsync(s => s.SortOrder, cancellationToken) + Constants.SortOrderGap
-                    : await _context.Tags.AsNoTracking().MinAsync(s => s.SortOrder, cancellationToken) - Constants.SortOrderGap;
+                    ? await _context.Tags.AsNoTracking().MaxAsync(s => s.SortOrder, cancellationToken) + OpenSettingsDefaults.SortOrderGap
+                    : await _context.Tags.AsNoTracking().MinAsync(s => s.SortOrder, cancellationToken) - OpenSettingsDefaults.SortOrderGap;
             }
             catch(InvalidOperationException)
             {

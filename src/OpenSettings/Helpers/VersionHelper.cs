@@ -68,7 +68,7 @@ namespace OpenSettings.Helpers
         /// <exception cref="ArgumentException">Thrown if the version format is invalid or no version is found.</exception>
         public static (string PackVersion, long Score, bool IsPreview) GetPackInfo(this Assembly assembly)
         {
-            var informationalVersion = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? Constants.DefaultVersion;
+            var informationalVersion = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? OpenSettingsDefaults.DefaultVersion;
 
             var packVersion = informationalVersion.Split('+')[0];
 

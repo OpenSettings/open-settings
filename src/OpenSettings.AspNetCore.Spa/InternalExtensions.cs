@@ -20,14 +20,14 @@ namespace OpenSettings.AspNetCore.Spa
     {
         internal static void RespondWithRedirect(this HttpResponse response, string location)
         {
-            response.StatusCode = 301;
-            response.Headers[Constants.LocationHeaderName] = location;
+            response.StatusCode = StatusCodes.Status301MovedPermanently;
+            response.Headers[OpenSettingsDefaults.Headers.Location] = location;
         }
 
         internal static Task RespondWithIndexHtmlAsync(this HttpResponse response, string text)
         {
-            response.StatusCode = 200;
-            response.ContentType = Constants.TextHtmlContentType;
+            response.StatusCode = StatusCodes.Status200OK;
+            response.ContentType = OpenSettingsDefaults.ContentTypes.TextHtml;
 
             return response.WriteAsync(text, Encoding.UTF8, response.HttpContext.RequestAborted);
         }

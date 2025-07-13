@@ -29,12 +29,12 @@ namespace OpenSettings.Models.Responses
 
         public static async Task<SyncAppDataResponse> GetAsync(CancellationToken cancellationToken = default)
         {
-            if (!File.Exists(Constants.GeneratedOpenSettingsFilePath))
+            if (!File.Exists(OpenSettingsDefaults.Files.GeneratedOpenSettingsFilePath))
             {
                 return null;
             }
 
-            var jsonFile = await JsonHelper.GetJsonFileAsync(Constants.GeneratedOpenSettingsFilePath, cancellationToken);
+            var jsonFile = await JsonHelper.GetJsonFileAsync(OpenSettingsDefaults.Files.GeneratedOpenSettingsFilePath, cancellationToken);
 
             if (!jsonFile.TryGetValue(InstanceFullName, out var localSyncDataResponseObj) ||
                 !(localSyncDataResponseObj is JsonElement localSyncDataResponseJsonElement))
@@ -49,7 +49,7 @@ namespace OpenSettings.Models.Responses
         {
             var fullPathToInstanceFullNameToObjectInstance = new Dictionary<string, Dictionary<string, object>>();
 
-            var dictionary = fullPathToInstanceFullNameToObjectInstance.GetOrCreateDictionary(Constants.GeneratedOpenSettingsFilePath);
+            var dictionary = fullPathToInstanceFullNameToObjectInstance.GetOrCreateDictionary(OpenSettingsDefaults.Files.GeneratedOpenSettingsFilePath);
 
             dictionary[InstanceFullName] = new
             {

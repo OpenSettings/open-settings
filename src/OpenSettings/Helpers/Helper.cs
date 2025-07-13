@@ -132,9 +132,9 @@ namespace OpenSettings.Helpers
         internal static async Task<Dictionary<string, FileMergeResult>> GetPreSettingsFilesAsync(string environmentName, CancellationToken cancellationToken = default)
         {
             var environmentSuffix = $"-{environmentName}";
-            var environmentSpecificSettingStartsWith = string.Concat(Constants.SettingsFileNameWithoutExtension, environmentSuffix);
+            var environmentSpecificSettingStartsWith = string.Concat(OpenSettingsDefaults.Files.SettingsFileNameWithoutExtension, environmentSuffix);
 
-            var baseNameToFileModel = Directory.GetFiles(AppContext.BaseDirectory, string.Concat(Constants.SettingsFileNameWithoutExtension, ".*", Constants.SettingsFileExtension))
+            var baseNameToFileModel = Directory.GetFiles(AppContext.BaseDirectory, string.Concat(OpenSettingsDefaults.Files.SettingsFileNameWithoutExtension, ".*", OpenSettingsDefaults.Files.SettingsFileExtension))
                 .Select(f =>
                 {
                     var fileName = Path.GetFileNameWithoutExtension(f);
@@ -142,14 +142,14 @@ namespace OpenSettings.Helpers
                     bool storedInSeparateFile;
                     string name;
 
-                    if (fileName == Constants.SettingsFileNameWithoutExtension)
+                    if (fileName == OpenSettingsDefaults.Files.SettingsFileNameWithoutExtension)
                     {
-                        name = Constants.SettingsFileNameTag;
+                        name = OpenSettingsDefaults.Files.SettingsFileNameTag;
                         storedInSeparateFile = false;
                     }
                     else
                     {
-                        name = fileName.Remove(0, Constants.SettingsFileNameWithoutExtension.Length + 1);
+                        name = fileName.Remove(0, OpenSettingsDefaults.Files.SettingsFileNameWithoutExtension.Length + 1);
                         storedInSeparateFile = true;
                     }
 
@@ -159,17 +159,17 @@ namespace OpenSettings.Helpers
                         FilePath = f,
                         FileName = fileName,
                         StoredInSeparateFile = storedInSeparateFile
-                        //EnvironmentSpecificFileName = fileName.Insert(Constants.SettingsFileNameWithoutExtension.Length, environmentSuffix)
+                        //EnvironmentSpecificFileName = fileName.Insert(OpenSettingsDefaults.Files.SettingsFileNameWithoutExtension.Length, environmentSuffix)
                     };
                 })
-                .Where(f => !f.FileName.StartsWith(Constants.GeneratedSettingsFileNameWithoutExtension))
+                .Where(f => !f.FileName.StartsWith(OpenSettingsDefaults.Files.GeneratedSettingsFileNameWithoutExtension))
                 .ToDictionary(f => f.Name);
 
             var environmentNameToFileModel =
 #if NETSTANDARD2_0
-            Directory.GetFiles(AppContext.BaseDirectory, string.Concat(environmentSpecificSettingStartsWith, ".*", Constants.SettingsFileExtension))
+            Directory.GetFiles(AppContext.BaseDirectory, string.Concat(environmentSpecificSettingStartsWith, ".*", OpenSettingsDefaults.Files.SettingsFileExtension))
 #else
-            Directory.GetFiles(AppContext.BaseDirectory, string.Concat(environmentSpecificSettingStartsWith, ".*", Constants.SettingsFileExtension), new EnumerationOptions { MatchCasing = MatchCasing.CaseInsensitive })
+            Directory.GetFiles(AppContext.BaseDirectory, string.Concat(environmentSpecificSettingStartsWith, ".*", OpenSettingsDefaults.Files.SettingsFileExtension), new EnumerationOptions { MatchCasing = MatchCasing.CaseInsensitive })
 #endif
                     .Select(f =>
                     {
@@ -180,7 +180,7 @@ namespace OpenSettings.Helpers
 
                         if (environmentSpecificFileName == environmentSpecificSettingStartsWith)
                         {
-                            name = Constants.SettingsFileNameTag;
+                            name = OpenSettingsDefaults.Files.SettingsFileNameTag;
                             storedInSeparateFile = false;
                         }
                         else
@@ -307,7 +307,7 @@ namespace OpenSettings.Helpers
 
         internal static async Task<Dictionary<string, FileMergeResult>> GetGeneratedSettingsFilesAsync(CancellationToken cancellationToken = default)
         {
-            var baseNameToFileModel = Directory.GetFiles(AppContext.BaseDirectory, string.Concat(Constants.GeneratedSettingsFileNameWithoutExtension, ".*", Constants.SettingsFileExtension))
+            var baseNameToFileModel = Directory.GetFiles(AppContext.BaseDirectory, string.Concat(OpenSettingsDefaults.Files.GeneratedSettingsFileNameWithoutExtension, ".*", OpenSettingsDefaults.Files.SettingsFileExtension))
                 .Select(f =>
                 {
                     var fileName = Path.GetFileNameWithoutExtension(f);
@@ -315,15 +315,15 @@ namespace OpenSettings.Helpers
                     bool storedInSeparateFile;
                     string name;
 
-                    if (fileName == Constants.GeneratedSettingsFileNameWithoutExtension)
+                    if (fileName == OpenSettingsDefaults.Files.GeneratedSettingsFileNameWithoutExtension)
                     {
-                        name = Constants.SettingsFileNameTag;
+                        name = OpenSettingsDefaults.Files.SettingsFileNameTag;
                         storedInSeparateFile = false;
-                        fileName = Constants.SettingsFileNameWithoutExtension;
+                        fileName = OpenSettingsDefaults.Files.SettingsFileNameWithoutExtension;
                     }
                     else
                     {
-                        name = fileName.Remove(0, Constants.GeneratedSettingsFileNameWithoutExtension.Length + 1);
+                        name = fileName.Remove(0, OpenSettingsDefaults.Files.GeneratedSettingsFileNameWithoutExtension.Length + 1);
                         storedInSeparateFile = true;
                     }
 
@@ -390,8 +390,8 @@ namespace OpenSettings.Helpers
             {
                 var stringBuilder = new StringBuilder();
 
-                var settingsFilePath = Path.Combine(AppContext.BaseDirectory, Constants.SettingsFileNameWithExtension);
-                var generatedSettingsFilePath = Path.Combine(AppContext.BaseDirectory, Constants.GeneratedSettingsFileNameWithExtension);
+                var settingsFilePath = Path.Combine(AppContext.BaseDirectory, OpenSettingsDefaults.Files.SettingsFileNameWithExtension);
+                var generatedSettingsFilePath = Path.Combine(AppContext.BaseDirectory, OpenSettingsDefaults.Files.GeneratedSettingsFileNameWithExtension);
 
                 return enumeratedTypes
                     .DistinctBy(t => t.FullName)
@@ -427,8 +427,8 @@ namespace OpenSettings.Helpers
             {
                 var stringBuilder = new StringBuilder();
 
-                var settingsFilePath = Path.Combine(AppContext.BaseDirectory, Constants.SettingsFileNameWithExtension);
-                var generatedSettingsFilePath = Path.Combine(AppContext.BaseDirectory, Constants.GeneratedSettingsFileNameWithExtension);
+                var settingsFilePath = Path.Combine(AppContext.BaseDirectory, OpenSettingsDefaults.Files.SettingsFileNameWithExtension);
+                var generatedSettingsFilePath = Path.Combine(AppContext.BaseDirectory, OpenSettingsDefaults.Files.GeneratedSettingsFileNameWithExtension);
 
                 return enumeratedTypes
                     .DistinctBy(t => t.FullName)
@@ -456,35 +456,35 @@ namespace OpenSettings.Helpers
         internal static string GetSettingFilePathWithExtension(string className, StringBuilder stringBuilder)
         {
             stringBuilder.Clear();
-            stringBuilder.Append(Constants.SettingsFileNameWithoutExtension)
+            stringBuilder.Append(OpenSettingsDefaults.Files.SettingsFileNameWithoutExtension)
                 .Append(OpenSettingsDefaults.Format.DotChar)
                 .Append(className)
                 .Append(OpenSettingsDefaults.Format.DotChar)
-                .Append(Constants.SettingsFileExtension);
+                .Append(OpenSettingsDefaults.Files.SettingsFileExtension);
 
             return Path.Combine(AppContext.BaseDirectory, stringBuilder.ToString());
         }
 
         internal static string GetSettingFileNameWithExtension(string className)
         {
-            return $"{Constants.SettingsFileNameWithoutExtension}.{className}.{Constants.SettingsFileExtension}";
+            return $"{OpenSettingsDefaults.Files.SettingsFileNameWithoutExtension}.{className}.{OpenSettingsDefaults.Files.SettingsFileExtension}";
         }
 
         internal static string GetGeneratedSettingFilePathWithExtension(string className, StringBuilder stringBuilder)
         {
             stringBuilder.Clear();
-            stringBuilder.Append(Constants.GeneratedSettingsFileNameWithoutExtension)
+            stringBuilder.Append(OpenSettingsDefaults.Files.GeneratedSettingsFileNameWithoutExtension)
                 .Append(OpenSettingsDefaults.Format.DotChar)
                 .Append(className)
                 .Append(OpenSettingsDefaults.Format.DotChar)
-                .Append(Constants.SettingsFileExtension);
+                .Append(OpenSettingsDefaults.Files.SettingsFileExtension);
 
             return Path.Combine(AppContext.BaseDirectory, stringBuilder.ToString());
         }
 
         internal static string GetGeneratedSettingFileNameWithExtension(string className)
         {
-            return $"{Constants.GeneratedSettingsFileNameWithoutExtension}.{className}.{Constants.SettingsFileExtension}";
+            return $"{OpenSettingsDefaults.Files.GeneratedSettingsFileNameWithoutExtension}.{className}.{OpenSettingsDefaults.Files.SettingsFileExtension}";
         }
 
         /// <summary>
@@ -505,8 +505,8 @@ namespace OpenSettings.Helpers
             {
                 var stringBuilder = new StringBuilder();
 
-                var settingsFilePath = Path.Combine(AppContext.BaseDirectory, Constants.SettingsFileNameWithExtension);
-                var generatedSettingsFilePath = Path.Combine(AppContext.BaseDirectory, Constants.GeneratedSettingsFileNameWithExtension);
+                var settingsFilePath = Path.Combine(AppContext.BaseDirectory, OpenSettingsDefaults.Files.SettingsFileNameWithExtension);
+                var generatedSettingsFilePath = Path.Combine(AppContext.BaseDirectory, OpenSettingsDefaults.Files.GeneratedSettingsFileNameWithExtension);
 
                 return enumeratedTypes
                     .DistinctBy(t => t.FullName)

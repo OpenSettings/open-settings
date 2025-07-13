@@ -715,8 +715,8 @@ namespace OpenSettings.Services
         {
             var fullPathToInstanceFullNameToObjectInstance = new Dictionary<string, Dictionary<string, object>>();
 
-            var singleSettingFilePath = Path.Combine(AppContext.BaseDirectory, Constants.SettingsFileNameWithExtension);
-            var singleGeneratedSettingFilePath = Path.Combine(AppContext.BaseDirectory, Constants.GeneratedSettingsFileNameWithExtension);
+            var singleSettingFilePath = Path.Combine(AppContext.BaseDirectory, OpenSettingsDefaults.Files.SettingsFileNameWithExtension);
+            var singleGeneratedSettingFilePath = Path.Combine(AppContext.BaseDirectory, OpenSettingsDefaults.Files.GeneratedSettingsFileNameWithExtension);
 
             var stringBuilder = new StringBuilder();
 

@@ -686,7 +686,7 @@ namespace OpenSettings.Services.Sql
 
                 try
                 {
-                    newTagSortOrderStartingPoint = await _context.Tags.AsNoTracking().MaxAsync(s => s.SortOrder, cancellationToken) + Constants.SortOrderGap;
+                    newTagSortOrderStartingPoint = await _context.Tags.AsNoTracking().MaxAsync(s => s.SortOrder, cancellationToken) + OpenSettingsDefaults.SortOrderGap;
                 }
                 catch (InvalidOperationException)
                 {
@@ -699,7 +699,7 @@ namespace OpenSettings.Services.Sql
 
                     _context.Tags.Add(tag);
 
-                    newTagSortOrderStartingPoint += Constants.SortOrderGap;
+                    newTagSortOrderStartingPoint += OpenSettingsDefaults.SortOrderGap;
                 }
 
                 await _context.SaveChangesAsync(cancellationToken);
@@ -1464,7 +1464,7 @@ namespace OpenSettings.Services.Sql
                     mappingSortOrder = await _context.AppIdentifierMappings
                         .AsNoTracking()
                         .Where(a => a.AppId == appId)
-                        .MaxAsync(s => s.SortOrder, cancellationToken) + Constants.SortOrderGap;
+                        .MaxAsync(s => s.SortOrder, cancellationToken) + OpenSettingsDefaults.SortOrderGap;
                 }
                 catch (InvalidOperationException)
                 {

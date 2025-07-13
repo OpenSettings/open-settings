@@ -123,7 +123,7 @@ namespace OpenSettings.AspNetCore.Extensions
                 typeof(UsersController),
             };
 
-            return mvcBuilder.AddApplicationPart(typeof(Constants).Assembly).AddMvcOptions(mvcOpts =>
+            return mvcBuilder.AddApplicationPart(typeof(MvcBuilderExtensions).Assembly).AddMvcOptions(mvcOpts =>
             {
                 mvcOpts.Conventions.AddControllerRoutePrefixConvention(controllerTypes, controllerConfiguration.Route,
                     opts =>
