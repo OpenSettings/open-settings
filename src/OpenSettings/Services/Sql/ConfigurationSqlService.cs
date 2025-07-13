@@ -200,7 +200,7 @@ namespace OpenSettings.Services.Sql
                 {
                     entity.Spa = JsonSerializer.Deserialize<ConfigurationSpa>($"{spaObject}", OpenSettingsDefaults.Serialization.JsonCaseInsensitiveOptions);
 
-                    if (entity.Spa.RoutePrefix == null || entity.Spa.RoutePrefix == Constants.Space)
+                    if (entity.Spa.RoutePrefix == null || entity.Spa.RoutePrefix == OpenSettingsDefaults.Format.Space)
                     {
                         return HttpStatusCode.BadRequest.ToFailureResponse(Errors.InvalidRoutePrefix);
                     }

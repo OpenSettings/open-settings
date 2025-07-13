@@ -6,8 +6,7 @@ using OpenSettings.Models.Responses;
 using OpenSettings.Services.Rest.Interfaces;
 using System;
 using System.Net.Http;
-using System.Text;
-using System.Text.Json;
+using System.Net.Http.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -56,9 +55,9 @@ namespace OpenSettings.Services.Rest
                 input.SetSortOrderPosition
             };
 
-            using (var stringContent = new StringContent(JsonSerializer.Serialize(body), Encoding.UTF8, Constants.ApplicationJson))
+            using (var jsonContent = JsonContent.Create(body))
             {
-                using (var response = await HttpClient.PostAsync(relativeUri, stringContent, cancellationToken))
+                using (var response = await HttpClient.PostAsync(relativeUri, jsonContent, cancellationToken))
                 {
                     return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
                 }
@@ -142,9 +141,9 @@ namespace OpenSettings.Services.Rest
                 input.RowVersion
             };
 
-            using (var stringContent = new StringContent(JsonSerializer.Serialize(body), Encoding.UTF8, Constants.ApplicationJson))
+            using (var jsonContent = JsonContent.Create(body))
             {
-                using (var response = await HttpClient.PutAsync(relativeUri, stringContent, cancellationToken))
+                using (var response = await HttpClient.PutAsync(relativeUri, jsonContent, cancellationToken))
                 {
                     return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
 

@@ -6,7 +6,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Ogu.AspNetCore.Conventions;
-using Ogu.Compressions.Abstractions;
 using OpenSettings.AspNetCore.Controllers.v1;
 using OpenSettings.AspNetCore.Handlers;
 using OpenSettings.AspNetCore.Services;
@@ -16,8 +15,6 @@ using OpenSettings.Models;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Models.Responses;
 using OpenSettings.Services.Interfaces;
-using OpenSettings.Services.Rest;
-using OpenSettings.Services.Rest.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Security.Claims;
@@ -76,7 +73,11 @@ namespace OpenSettings.AspNetCore.Extensions
             }
             else
             {
-                mvcBuilder.Services.RegisterConsumerServices(providerInfo);
+                mvcBuilder.Services.AddTransient<OpenSettingsRestServiceAuthHandler>();
+
+                mvcBuilder.Services.AddHttpClient(OpenSettingsDefaults.Names.HttpClientName).AddHttpMessageHandler<OpenSettingsRestServiceAuthHandler>();
+
+                mvcBuilder.Services.AddSingleton<ProviderInfo>(providerInfo);
             }
 
             mvcBuilder.Services.AddSingleton<IOpenSettingsTokenService, OpenSettingsTokenService>();
@@ -238,46 +239,11 @@ namespace OpenSettings.AspNetCore.Extensions
                 return providerInfo;
             });
 
-            services.AddSingleton<ProviderCoordinationTimedService>();
+            services.AddSingleton<IProviderCoordinationTimedService, ProviderCoordinationTimedService>();
             services.AddSingleton<IOpenSettingsNotificationSyncTimedService, OpenSettingsNotificationSyncTimedService>();
             services.AddSingleton<IProviderRegistryCleanupTimedService, ProviderRegistryCleanupTimedService>();
 
-            services.AddSingleton<IHostedService>(sp => sp.GetRequiredService<ProviderCoordinationTimedService>());
-        }
-
-        private static void RegisterConsumerServices(this IServiceCollection services, ProviderInfo providerInfo)
-        {
-            services.AddTransient<OpenSettingsRestServiceAuthHandler>();
-            services.AddTransient<DecompressionHandler>();
-
-            services
-                .AddHttpClient(OpenSettingsDefaults.Names.HttpClientName, (sp, httpClient) =>
-                {
-                    var openSettingsConfiguration = sp.GetRequiredService<OpenSettingsConfiguration>();
-
-                    openSettingsConfiguration.Consumer.ConfigureHttpClient(httpClient, openSettingsConfiguration.Client);
-                })
-                .AddHttpMessageHandler<OpenSettingsRestServiceAuthHandler>()
-                .AddHttpMessageHandler<DecompressionHandler>();
-            
-            services.AddSingleton<IAppGroupsRestService, AppGroupsRestService>();
-            services.AddSingleton<IAppIdentifierMappingsRestService, AppIdentifierMappingsRestService>();
-            services.AddSingleton<IAppsRestService, AppsRestService>();
-            services.AddSingleton<IAppTagMappingsRestService, AppTagMappingsRestService>();
-            services.AddSingleton<IConfigurationsRestService, ConfigurationsRestService>();
-            services.AddSingleton<IIdentifiersRestService, IdentifiersRestService>();
-            services.AddSingleton<IInstancesRestService, InstancesRestService>();
-            services.AddSingleton<ILicensesRestService, LicensesRestService>();
-            services.AddSingleton<INotificationsRestService, NotificationsRestService>();
-            services.AddSingleton<IOpenSettingsRestService, OpenSettingsRestService>();
-            services.AddSingleton<IProviderRestService, ProviderRestService>();
-            services.AddSingleton<ISettingClassesRestService, SettingClassesRestService>();
-            services.AddSingleton<ISettingHistoriesRestService, SettingHistoriesRestService>();
-            services.AddSingleton<ISettingsRestService, SettingsRestService>();
-            services.AddSingleton<ITagsRestService, TagsRestService>();
-            services.AddSingleton<IUsersRestService, UsersRestService>();
-
-            services.AddSingleton<ProviderInfo>(providerInfo);
+            services.AddSingleton<IHostedService>(sp => sp.GetRequiredService<IProviderCoordinationTimedService>());
         }
 
         private static void ApplyConventionOptions(ControllerAuthorizeConventionOptions conventionOptions, ProviderInfo providerInfo, bool isServiceTypeProvider)

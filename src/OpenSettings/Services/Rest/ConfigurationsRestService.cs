@@ -3,8 +3,7 @@ using OpenSettings.Extensions;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Services.Rest.Interfaces;
 using System.Net.Http;
-using System.Text;
-using System.Text.Json;
+using System.Net.Http.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -35,12 +34,12 @@ namespace OpenSettings.Services.Rest
         {
             var relativeUri = $"v1/apps/{input.AppId}/identifiers/{input.IdentifierId}/configuration";
 
-            using (var stringContent = new StringContent(JsonSerializer.Serialize(input.Body), Encoding.UTF8, Constants.ApplicationJson))
+            using (var jsonContent = JsonContent.Create(input.Body))
             {
 #if NETSTANDARD2_0
-                using (var response = await HttpClient.SendAsync(new HttpRequestMessage(new HttpMethod("PATCH"), relativeUri) { Content = stringContent }, cancellationToken))
+                using (var response = await HttpClient.SendAsync(new HttpRequestMessage(new HttpMethod("PATCH"), relativeUri) { Content = jsonContent }, cancellationToken))
 #else
-                using (var response = await HttpClient.PatchAsync(relativeUri, stringContent, cancellationToken))
+                using (var response = await HttpClient.PatchAsync(relativeUri, jsonContent, cancellationToken))
 #endif
                 {
                     return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);

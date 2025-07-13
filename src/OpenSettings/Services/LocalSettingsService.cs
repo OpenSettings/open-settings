@@ -27,7 +27,10 @@ using System.Threading.Tasks;
 
 namespace OpenSettings.Services
 {
-    internal sealed class LocalSettingsService : ILocalSettingsService
+    /// <summary>
+    /// Service for managing local settings.
+    /// </summary>
+    internal sealed class LocalSettingService : ILocalSettingService
     {
         private static readonly Type GenericOptionsType = typeof(IOptions<>);
         private static readonly Type GenericOptionsSnapshot = typeof(IOptionsSnapshot<>);
@@ -35,18 +38,16 @@ namespace OpenSettings.Services
         private static readonly MethodInfo GetServiceMethodInfo = typeof(IServiceProvider).GetMethod("GetService");
         private static readonly ConcurrentDictionary<string, CurrentSettingsData> IdentifierNameToCurrentSettingsData = new ConcurrentDictionary<string, CurrentSettingsData>();
 
-        private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
-        
         private readonly IAppsService _appsService;
         private readonly ISettingsService _settingsService;
         private readonly ILogger _logger;
         private readonly OpenSettingsConfiguration _openSettingsConfiguration;
 
-        public LocalSettingsService(IAppsService appsService, ISettingsService settingsService, OpenSettingsConfiguration openSettingsConfiguration)
+        public LocalSettingService(IAppsService appsService, ISettingsService settingsService, OpenSettingsConfiguration openSettingsConfiguration)
         {
             _appsService = appsService;
             _settingsService = settingsService;
-            _logger = openSettingsConfiguration.LoggerFactory.CreateLogger<LocalSettingsService>();
+            _logger = openSettingsConfiguration.LoggerFactory.CreateLogger<LocalSettingService>();
             _openSettingsConfiguration = openSettingsConfiguration;
         }
 

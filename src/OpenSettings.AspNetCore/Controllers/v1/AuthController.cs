@@ -123,7 +123,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             if (string.IsNullOrWhiteSpace(claimTypes))
             {
                 var claimTypeToValue = claims.GroupBy(c => c.Type)
-                    .ToDictionary(c => c.Key, c => string.Join(",", c.Select(claim => claim.Value)));
+                    .ToDictionary(c => c.Key, c => string.Join(OpenSettingsDefaults.Format.Comma, c.Select(claim => claim.Value)));
 
                 return Ok(claimTypeToValue);
             }
@@ -137,7 +137,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
 
             var filteredClaimTypeToValue = claims
                 .GroupBy(c => c.Type)
-                .Select(c => new { Type = c.Key, Value = string.Join(",", c.Select(claim => claim.Value)) })
+                .Select(c => new { Type = c.Key, Value = string.Join(OpenSettingsDefaults.Format.Comma, c.Select(claim => claim.Value)) })
                 .Where(claim => claimArray.Contains(claim.Type))
                 .OrderBy(claim => Array.IndexOf(claimArray, claim.Type))
                 .ToDictionary(c => c.Type, c => c.Value);
@@ -169,25 +169,22 @@ namespace OpenSettings.AspNetCore.Controllers.v1
 
             if (string.IsNullOrWhiteSpace(returnUrl))
             {
-                returnUrl = HttpContext.Request.Headers["Referer"].ToString().TrimEnd('/');
+                returnUrl = HttpContext.Request.Headers[OpenSettingsDefaults.Headers.Referer].ToString().TrimEnd('/');
             }
 
             if (authenticateResult.Succeeded)
             {
-                if (authenticateResult.Properties.Items.TryGetValue("ReturnUrl", out var returnUrlFromItem) &&
-                    string.IsNullOrWhiteSpace(returnUrl))
+                if (authenticateResult.Properties.Items.TryGetValue(Keys.ReturnUrl, out var returnUrlFromItem) && string.IsNullOrWhiteSpace(returnUrl))
                 {
                     returnUrl = returnUrlFromItem;
                 }
 
-                if (authenticateResult.Properties.Items.TryGetValue("ApiUrl", out var apiUrlFromItem) &&
-                    string.IsNullOrWhiteSpace(apiUrl))
+                if (authenticateResult.Properties.Items.TryGetValue(Keys.ApiUrl, out var apiUrlFromItem) && string.IsNullOrWhiteSpace(apiUrl))
                 {
                     apiUrl = apiUrlFromItem;
                 }
 
-                if (authenticateResult.Properties.Items.TryGetValue("uuid", out var uuidFromItem) &&
-                    string.IsNullOrWhiteSpace(uuid))
+                if (authenticateResult.Properties.Items.TryGetValue(Keys.Uuid, out var uuidFromItem) && string.IsNullOrWhiteSpace(uuid))
                 {
                     uuid = uuidFromItem;
                 }
@@ -228,11 +225,11 @@ namespace OpenSettings.AspNetCore.Controllers.v1
 
             try
             {
-                return Challenge(new AuthenticationProperties(new Dictionary<string, string>()
+                return Challenge(new AuthenticationProperties(new Dictionary<string, string>
                 {
-                    { "ReturnUrl", returnUrl },
-                    { "ApiUrl", apiUrl },
-                    { "uuid", uuid }
+                    { Keys.ReturnUrl, returnUrl },
+                    { Keys.ApiUrl, apiUrl },
+                    { Keys.Uuid, uuid }
                 }), OpenSettingsDefaults.AuthSchemes.OAuth2);
             }
             catch
@@ -247,7 +244,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             if (string.IsNullOrWhiteSpace(returnUrl))
             {
-                returnUrl = HttpContext.Request.Headers["Referer"].ToString().TrimEnd('/');
+                returnUrl = HttpContext.Request.Headers[OpenSettingsDefaults.Headers.Referer].ToString().TrimEnd('/');
             }
 
             if (_openSettingsConfiguration.IsProviderSelected)
@@ -306,5 +303,12 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         }
 
         private string GetBaseUrl() => $"{Request.Scheme}://{Request.Host}";
+
+        private static class Keys
+        {
+            public const string ReturnUrl = "ReturnUrl";
+            public const string ApiUrl = "ApiUrl";
+            public const string Uuid = "uuid";
+        }
     }
 }

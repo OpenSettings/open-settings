@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Ogu.Compressions.Abstractions;
+using Ogu.Extensions.Hosting.HostedServices;
 using Ogu.Response;
 using Ogu.Response.Abstractions;
 using OpenSettings.Models;
@@ -15,7 +16,6 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Ogu.Extensions.Hosting.HostedServices;
 using ClientInfo = OpenSettings.Models.ClientInfo;
 
 namespace OpenSettings.Extensions
@@ -71,17 +71,17 @@ namespace OpenSettings.Extensions
                 return string.Empty;
             }
 
-            value = PascalCaseRegex.Replace(value, Constants.SlugReplacement);
+            value = PascalCaseRegex.Replace(value, OpenSettingsDefaults.Format.SlugReplacement);
 
             value = value
                 .ToLowerInvariant()
-                .Replace(Constants.Space, Constants.Hyphen);
+                .Replace(OpenSettingsDefaults.Format.Space, OpenSettingsDefaults.Format.Hyphen);
 
-            value = InvalidCharactersRegex.Replace(value, Constants.Hyphen);
+            value = InvalidCharactersRegex.Replace(value, OpenSettingsDefaults.Format.Hyphen);
 
-            value = MultipleDashesRegex.Replace(value, Constants.Hyphen);
+            value = MultipleDashesRegex.Replace(value, OpenSettingsDefaults.Format.Hyphen);
 
-            value = value.Trim(Constants.HyphenChar);
+            value = value.Trim(OpenSettingsDefaults.Format.HyphenChar);
 
             return value;
         }

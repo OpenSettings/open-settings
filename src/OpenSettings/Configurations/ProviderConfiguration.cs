@@ -159,7 +159,7 @@ namespace OpenSettings.Configurations
                 IsDbMigrated = true;
             }
 
-            Orm.DbProviderName = context.Database.ProviderName?.Split(Constants.DotChar).LastOrDefault() ?? "Unknown";
+            Orm.DbProviderName = context.Database.ProviderName?.Split(OpenSettingsDefaults.Format.DotChar).LastOrDefault() ?? "Unknown"; // Todo : unknown to Defaults
         }
     }
 }

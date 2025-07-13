@@ -10,14 +10,14 @@ namespace OpenSettings.Configurations
     /// </summary>
     public class SpaConfiguration
     {
-        private string _routePrefix = Constants.DefaultSpaRoutePrefix;
+        private string _routePrefix = OpenSettingsDefaults.Spa.DefaultRoutePrefix;
 
         /// <summary>
         /// Specifies the prefix used to access the open settings Spa page.  
         /// <para>With this prefix, the open settings Spa page can be accessed through the defined route.</para>
         /// </summary>
         /// <remarks>
-        /// The default value is '<c>settings</c>'.
+        /// The default value is '<c><see cref="OpenSettingsDefaults.Spa.DefaultRoutePrefix"/></c>'.
         /// </remarks>
         public string RoutePrefix
         {
@@ -50,9 +50,9 @@ namespace OpenSettings.Configurations
         /// <para>This title is used in the HTML document's title element and will be displayed in the browser's title bar.</para>
         /// </summary>
         /// <remarks>
-        /// The default value is '<c>OpenSettings Spa</c>'.
+        /// The default value is '<c><see cref="OpenSettingsDefaults.Spa.DefaultDocumentTitle"/></c>'.
         /// </remarks>
-        public string DocumentTitle { get; set; } = Constants.DefaultDocumentTitle;
+        public string DocumentTitle { get; set; } = OpenSettingsDefaults.Spa.DefaultDocumentTitle;
 
         /// <summary>
         /// Gets or sets a value indicating whether the open settings Spa (Single Page Application) is active.

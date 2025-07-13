@@ -22,11 +22,11 @@ namespace OpenSettings.AspNetCore.Services
     /// <summary>
     /// Responsible to become master and heartbeat check.
     /// </summary>
-    internal sealed class ProviderCoordinationTimedService : TimedHostedService
+    internal sealed class ProviderCoordinationTimedService : TimedHostedService, IProviderCoordinationTimedService
     {
         public static Guid InstanceId { get; } = Guid.NewGuid();
 
-        private bool? _isMaster = null;
+        private bool? _isMaster;
 
         private readonly IServiceProvider _serviceProvider;
         private readonly OpenSettingsConfiguration _openSettingsConfiguration;
@@ -145,12 +145,12 @@ namespace OpenSettings.AspNetCore.Services
 
                     if (task.IsFaulted)
                     {
-                        Logger.LogError(task.Exception, "Failed to start service: {serviceName}",
+                        Logger.LogError(task.Exception, "Failed to start service: '{serviceName}'.",
                             serviceName);
                     }
                     else
                     {
-                        Logger.LogInformation("Service started successfully: {serviceName}", serviceName);
+                        Logger.LogInformation("Service started successfully: '{serviceName}'.", serviceName);
                     }
                 }, cancellationToken));
 
@@ -171,11 +171,11 @@ namespace OpenSettings.AspNetCore.Services
 
                     if (task.IsFaulted)
                     {
-                        Logger.LogError(task.Exception, "Failed to stop service: {serviceName}", serviceName);
+                        Logger.LogError(task.Exception, "Failed to stop service: '{serviceName}'", serviceName);
                     }
                     else
                     {
-                        Logger.LogInformation("Service stopped successfully: {serviceName}", serviceName);
+                        Logger.LogInformation("Service stopped successfully: '{serviceName}'", serviceName);
                     }
                 }, cancellationToken));
 
@@ -316,12 +316,12 @@ namespace OpenSettings.AspNetCore.Services
 
             if (threshold > masterProviderRegistry.LastHeartbeatOn)
             {
-                Logger.LogWarning("Master is stale. Last heartbeat: {lastHeartbeatOn}, Threshold: {threshold}", masterProviderRegistry.LastHeartbeatOn, threshold);
+                Logger.LogWarning("Master is stale. Last heartbeat: '{lastHeartbeatOn}', Threshold: '{threshold}'", masterProviderRegistry.LastHeartbeatOn, threshold);
 
                 return true;
             }
 
-            Logger.LogDebug("Master is healthy. Last heartbeat: {lastHeartbeatOn}, Threshold: {threshold}", masterProviderRegistry.LastHeartbeatOn, threshold);
+            Logger.LogDebug("Master is healthy. Last heartbeat: '{lastHeartbeatOn}', Threshold: '{threshold}'.", masterProviderRegistry.LastHeartbeatOn, threshold);
 
             return false;
         }

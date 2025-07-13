@@ -12,6 +12,18 @@ namespace OpenSettings
     /// </summary>
     public static class OpenSettingsDefaults
     {
+        public static class Spa
+        {
+            /// <summary>
+            /// The current embedded index html file namespace for the OpenSettings Spa.
+            /// </summary>
+            public const string EmbeddedIndexHtmlFileNamespace = "OpenSettings.AspNetCore.Spa.open_settings_spa_dist.browser.index.html";
+
+            internal const string DefaultRoutePrefix = "settings";
+
+            internal const string DefaultDocumentTitle = "OpenSettings Spa";
+        }
+
         public static class Names
         {
             /// <summary>
@@ -20,6 +32,31 @@ namespace OpenSettings
             public const string HttpClientName = "OpenSettingsHttpClient";
 
             public const string BasicSchemeName = "Basic";
+        }
+
+        public static class ContentTypes
+        {
+            internal const string ApplicationJson = "application/json";
+            public const string ApplicationOctetStream = "application/octet-stream";
+        }
+
+        public static class Headers
+        {
+            public const string CacheControl = "Cache-Control";
+            public const string Expires = "Expires";
+            public const string Referer = "Referer";
+        }
+
+        public static class Format
+        {
+            public const string Comma = ",";
+
+            internal const string SlugReplacement = "$1-$2";
+            internal const string Space = " ";
+            internal const string Hyphen = "-";
+            internal const string Dot = ".";
+            internal const char DotChar = '.';
+            internal const char HyphenChar = '-';
         }
 
         public static class Serialization

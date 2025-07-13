@@ -69,7 +69,7 @@ namespace OpenSettings.Services.Rest
         {
             const string relativeUri = "v1/licenses";
 
-            using (var stringContent = new StringContent($"\"{licenseKey}\"", Encoding.UTF8, Constants.ApplicationJson))
+            using (var stringContent = new StringContent($"\"{licenseKey}\"", Encoding.UTF8, OpenSettingsDefaults.ContentTypes.ApplicationJson))
             {
                 using (var response = await HttpClient.PostAsync(relativeUri, stringContent, cancellationToken))
                 {

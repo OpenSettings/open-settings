@@ -61,7 +61,7 @@ namespace OpenSettings.AspNetCore.Spa
 
             if (openSettingsConfiguration.Spa.IndexStream == null)
             {
-                openSettingsConfiguration.Spa.IndexStream = () => _currentAssembly.GetManifestResourceStream(OpenSettings.Constants.EmbeddedIndexHtmlFileNamespace);
+                openSettingsConfiguration.Spa.IndexStream = () => _currentAssembly.GetManifestResourceStream(OpenSettingsDefaults.Spa.EmbeddedIndexHtmlFileNamespace);
             }
 
             _openSettingsMemoryCache = openSettingsMemoryCache;

@@ -369,11 +369,6 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 ClientSecret = request.ClientSecret
             }, cancellationToken);
 
-            if (result == null)
-            {
-                return NotFound();
-            }
-
             return result.ToAction();
         }
 

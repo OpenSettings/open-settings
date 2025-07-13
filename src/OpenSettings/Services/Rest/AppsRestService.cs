@@ -8,9 +8,8 @@ using System;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Security.Authentication;
-using System.Text;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -125,9 +124,9 @@ namespace OpenSettings.Services.Rest
                 }
             };
 
-            using (var stringContent = new StringContent(JsonSerializer.Serialize(body), Encoding.UTF8, Constants.ApplicationJson))
+            using (var jsonContent = JsonContent.Create(body))
             {
-                using (var response = await HttpClient.PostAsync(relativeUri, stringContent, cancellationToken))
+                using (var response = await HttpClient.PostAsync(relativeUri, jsonContent, cancellationToken))
                 {
                     if (response.IsSuccessStatusCode)
                     {
@@ -176,9 +175,9 @@ namespace OpenSettings.Services.Rest
                 input.StoreInSeparateFile
             };
 
-            using (var stringContent = new StringContent(JsonSerializer.Serialize(body), Encoding.UTF8, Constants.ApplicationJson))
+            using (var jsonContent = JsonContent.Create(body))
             {
-                using (var response = await HttpClient.PostAsync(relativeUri, stringContent, cancellationToken))
+                using (var response = await HttpClient.PostAsync(relativeUri, jsonContent, cancellationToken))
                 {
                     return await response.Content.ToResponseAsync<FetchAppDataResponse>(cancellationToken: cancellationToken);
                 }
@@ -251,9 +250,9 @@ namespace OpenSettings.Services.Rest
                 input.RowVersion
             };
 
-            using (var stringContent = new StringContent(JsonSerializer.Serialize(body), Encoding.UTF8, Constants.ApplicationJson))
+            using (var jsonContent = JsonContent.Create(body))
             {
-                using (var response = await HttpClient.PutAsync(pathAndQueryBuilder, stringContent, cancellationToken))
+                using (var response = await HttpClient.PutAsync(pathAndQueryBuilder, jsonContent, cancellationToken))
                 {
                     return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
                 }
@@ -264,9 +263,14 @@ namespace OpenSettings.Services.Rest
         {
             var relativeUri = $"v1/apps/{input.ClientId}/registered";
 
-            using (var stringContent = new StringContent(JsonSerializer.Serialize(input.ClientSecret), Encoding.UTF8, Constants.ApplicationJson))
+            var body = new
             {
-                using (var response = await HttpClient.PostAsync(relativeUri, stringContent, cancellationToken))
+                input.ClientSecret
+            };
+
+            using (var jsonContent = JsonContent.Create(body))
+            {
+                using (var response = await HttpClient.PostAsync(relativeUri, jsonContent, cancellationToken))
                 {
                     return await response.Content.ToResponseAsync<GetRegisteredAppResponse>(cancellationToken: cancellationToken);
                 }
@@ -306,9 +310,9 @@ namespace OpenSettings.Services.Rest
                 }).ToArray()
             };
 
-            using (var stringContent = new StringContent(JsonSerializer.Serialize(body), Encoding.UTF8, Constants.ApplicationJson))
+            using (var jsonContent = JsonContent.Create(body))
             {
-                using (var response = await HttpClient.PostAsync(relativeUri, stringContent, cancellationToken))
+                using (var response = await HttpClient.PostAsync(relativeUri, jsonContent, cancellationToken))
                 {
                     return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
                 }

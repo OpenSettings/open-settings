@@ -31,7 +31,7 @@ namespace OpenSettings.Helpers
         /// <returns>A string containing the uppercase initials of the name. Returns an empty string if the input is empty.</returns>
         public static string GetInitials(string name)
         {
-            var parts = name.Replace(Constants.Dot, Constants.Space).Split(OpenSettingsDefaults.Separators.SpaceSeparator, StringSplitOptions.RemoveEmptyEntries);
+            var parts = name.Replace(OpenSettingsDefaults.Format.Dot, OpenSettingsDefaults.Format.Space).Split(OpenSettingsDefaults.Separators.SpaceSeparator, StringSplitOptions.RemoveEmptyEntries);
 
             return parts.Length == 0 ? string.Empty : string.Join(string.Empty, parts.Select(p => p[0])).ToUpper();
         }
@@ -457,9 +457,9 @@ namespace OpenSettings.Helpers
         {
             stringBuilder.Clear();
             stringBuilder.Append(Constants.SettingsFileNameWithoutExtension)
-                .Append(Constants.DotChar)
+                .Append(OpenSettingsDefaults.Format.DotChar)
                 .Append(className)
-                .Append(Constants.DotChar)
+                .Append(OpenSettingsDefaults.Format.DotChar)
                 .Append(Constants.SettingsFileExtension);
 
             return Path.Combine(AppContext.BaseDirectory, stringBuilder.ToString());
@@ -474,9 +474,9 @@ namespace OpenSettings.Helpers
         {
             stringBuilder.Clear();
             stringBuilder.Append(Constants.GeneratedSettingsFileNameWithoutExtension)
-                .Append(Constants.DotChar)
+                .Append(OpenSettingsDefaults.Format.DotChar)
                 .Append(className)
-                .Append(Constants.DotChar)
+                .Append(OpenSettingsDefaults.Format.DotChar)
                 .Append(Constants.SettingsFileExtension);
 
             return Path.Combine(AppContext.BaseDirectory, stringBuilder.ToString());

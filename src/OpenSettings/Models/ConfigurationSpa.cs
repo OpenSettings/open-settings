@@ -2,9 +2,9 @@
 {
     public class ConfigurationSpa
     {
-        public string RoutePrefix { get; set; } = Constants.DefaultSpaRoutePrefix;
+        public string RoutePrefix { get; set; } = OpenSettingsDefaults.Spa.DefaultRoutePrefix;
 
-        public string DocumentTitle { get; set; } = Constants.DefaultDocumentTitle;
+        public string DocumentTitle { get; set; } = OpenSettingsDefaults.Spa.DefaultDocumentTitle;
 
         public bool IsActive { get; set; } = true;
     }

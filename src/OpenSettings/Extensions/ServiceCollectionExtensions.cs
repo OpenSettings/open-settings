@@ -7,6 +7,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.IdentityModel.JsonWebTokens;
+using Ogu.Compressions.Abstractions;
 using Ogu.Extensions.Hosting.HostedServices;
 using OpenSettings.Configurations;
 using OpenSettings.Domains.Redis.DataContext;
@@ -23,7 +24,6 @@ using OpenSettings.Services.Sql;
 using OpenSettings.Services.Sql.Interfaces;
 using StackExchange.Redis;
 using System;
-using System.Net.Http;
 using System.Threading.Channels;
 
 namespace OpenSettings.Extensions
@@ -96,142 +96,11 @@ namespace OpenSettings.Extensions
 
             if (openSettingsConfiguration.IsConsumerSelected)
             {
-                if (openSettingsConfiguration.Consumer.IsRedisActive && providerInfo.Redis.IsActive)
-                {
-                    var configuration = ConfigurationOptions.Parse(providerInfo.Redis.Configuration, true);
-
-                    configuration.ClientName = openSettingsConfiguration.Client.Name;
-                    configuration.AllowAdmin = false;
-
-                    providerInfo.Redis.Configuration = configuration.ToString();
-
-                    services.RegisterRedisServiceCollection(providerInfo.Redis.Configuration);
-                }
-
-                if (openSettingsConfiguration.Consumer.PollingSettingsWorker.IsActive)
-                {
-                    services.AddSingleton<IHostedService>(sp =>
-                    {
-                        var logger = sp.GetRequiredService<ILogger<TimedHostedService>>();
-                        var localSettingsService = sp.GetRequiredService<ILocalSettingsService>();
-
-                        return new TimedHostedService(logger, "PollingSettingsWorker", async (cancellationToken) =>
-                        {
-                            await localSettingsService.ReloadSettingsAsync(cancellationToken);
-                        }, opts =>
-                        {
-                            opts.StartsIn = openSettingsConfiguration.Consumer.PollingSettingsWorker.StartsIn;
-                            opts.Period = openSettingsConfiguration.Consumer.PollingSettingsWorker.Period;
-                        });
-                    });
-                }
-
-                Action<HttpClient> configureHttpClient = httpClient =>
-                {
-                    httpClient.BaseAddress = new Uri(openSettingsConfiguration.Consumer.ProviderUrl);
-
-                    httpClient.DefaultRequestHeaders.Authorization = openSettingsConfiguration.Client.CreateBasicAuthenticationHeaderValue();
-                };
-
-                services.AddHttpClient<IAppGroupsRestService, AppGroupsRestService>(configureHttpClient);
-                services.AddHttpClient<IAppIdentifierMappingsRestService, AppIdentifierMappingsRestService>(configureHttpClient);
-                services.AddHttpClient<IAppsRestService, AppsRestService>(configureHttpClient);
-                services.AddHttpClient<IAppTagMappingsRestService, AppTagMappingsRestService>(configureHttpClient);
-                services.AddHttpClient<IConfigurationsRestService, ConfigurationsRestService>(configureHttpClient);
-                services.AddHttpClient<IIdentifiersRestService, IdentifiersRestService>(configureHttpClient);
-                services.AddHttpClient<IInstancesRestService, InstancesRestService>(configureHttpClient);
-                services.AddHttpClient<ILicensesRestService, LicensesRestService>(configureHttpClient);
-                services.AddHttpClient<INotificationsRestService, NotificationsRestService>(configureHttpClient);
-                services.AddHttpClient<IOpenSettingsRestService, OpenSettingsRestService>(configureHttpClient);
-                services.AddHttpClient<IProviderRestService, ProviderRestService>(configureHttpClient);
-                services.AddHttpClient<ISettingClassesRestService, SettingClassesRestService>(configureHttpClient);
-                services.AddHttpClient<ISettingHistoriesRestService, SettingHistoriesRestService>(configureHttpClient);
-                services.AddHttpClient<ISettingsRestService, SettingsRestService>(configureHttpClient);
-                services.AddHttpClient<ITagsRestService, TagsRestService>(configureHttpClient);
-                services.AddHttpClient<IUsersRestService, UsersRestService>(configureHttpClient);
-
-                services.AddSingleton<IAppGroupsService>(sp => sp.GetRequiredService<IAppGroupsRestService>());
-                services.AddSingleton<IAppIdentifierMappingsService>(sp => sp.GetRequiredService<IAppIdentifierMappingsRestService>());
-                services.AddSingleton<IAppsService>(sp => sp.GetRequiredService<IAppsRestService>());
-                services.AddSingleton<IAppTagMappingsService>(sp => sp.GetRequiredService<IAppTagMappingsRestService>());
-                services.AddSingleton<IConfigurationsService>(sp => sp.GetRequiredService<IConfigurationsRestService>());
-                services.AddSingleton<IIdentifiersService>(sp => sp.GetRequiredService<IIdentifiersRestService>());
-                services.AddSingleton<IInstancesService>(sp => sp.GetRequiredService<IInstancesRestService>());
-                services.AddSingleton<ILicensesService>(sp => sp.GetRequiredService<ILicensesRestService>());
-                services.AddSingleton<INotificationsService>(sp => sp.GetRequiredService<INotificationsRestService>());
-                services.AddSingleton<IOpenSettingsService>(sp => sp.GetRequiredService<IOpenSettingsRestService>());
-                services.AddSingleton<IProviderService>(sp => sp.GetRequiredService<IProviderRestService>());
-                services.AddSingleton<ISettingClassesService>(sp => sp.GetRequiredService<ISettingClassesRestService>());
-                services.AddSingleton<ISettingHistoriesService>(sp => sp.GetRequiredService<ISettingHistoriesRestService>());
-                services.AddSingleton<ISettingsService>(sp => sp.GetRequiredService<ISettingsRestService>());
-                services.AddSingleton<ITagsService>(sp => sp.GetRequiredService<ITagsRestService>());
-                services.AddSingleton<IUsersService>(sp => sp.GetRequiredService<IUsersRestService>());
-
-                services.AddSingleton<ILocalSettingsService, LocalSettingsService>();
+                services.RegisterConsumerServices(openSettingsConfiguration, providerInfo);
             }
             else
             {
-                if (openSettingsConfiguration.Provider.Redis.IsActive)
-                {
-                    services.RegisterRedisServiceCollection(openSettingsConfiguration.Provider.Redis.Configuration);
-                }
-
-                services.AddSingleton<IDataValidationService, DataValidationService>();
-
-                services.AddSingleton<IPasswordHasher<AppSqlModel>, PasswordHasher<AppSqlModel>>();
-
-                services.AddOpenSettingsDbContext<OpenSettingsDbContext>(openSettingsConfiguration.Provider.Orm);
-
-                services.AddSingleton<IHostedService>(sp =>
-                {
-                    var taskQueueFactory = sp.GetRequiredService<ITaskQueueFactory>();
-
-                    var taskQueue = taskQueueFactory.GetNotificationQueue();
-
-                    return new TaskQueueHostedService(sp.GetRequiredService<ILogger<TaskQueueHostedService>>(), "NotificationQueueWorker", taskQueue);
-                });
-
-                services.AddScoped<JsonWebTokenHandler>();
-
-                services.AddScoped<IAppGroupsSqlService, AppGroupSqlService>();
-                services.AddScoped<IAppIdentifierMappingsSqlService, AppIdentifierMappingSqlService>();
-                services.AddScoped<IAppsSqlService, AppsSqlService>();
-                services.AddScoped<IAppTagMappingsSqlService, AppTagMappingSqlService>();
-                services.AddScoped<IConfigurationsSqlService, ConfigurationSqlService>();
-                services.AddScoped<IIdentifiersSqlService, IdentifierSqlService>();
-                services.AddScoped<IInstancesSqlService, InstancesSqlService>();
-                services.AddScoped<ILicensesSqlService, LicensesSqlService>();
-                services.AddScoped<ILocksSqlService, LocksSqlService>();
-                services.AddScoped<INotificationsSqlService, NotificationsSqlService>();
-                services.AddScoped<IProviderSqlService, ProviderSqlService>();
-                services.AddScoped<ISettingClassesSqlService, SettingClassSqlService>();
-                services.AddScoped<ISettingHistoriesSqlService, SettingHistoriesSqlService>();
-                services.AddScoped<ISettingsSqlService, SettingSqlService>();
-                services.AddScoped<ISortOrderSqlService, SortOrderSqlService>();
-                services.AddScoped<ITagsSqlService, TagSqlService>();
-                services.AddScoped<IUserNotificationMappingsSqlService, UserNotificationMappingSqlService>();
-                services.AddScoped<IUsersSqlService, UserSqlService>();
-                services.AddSingleton<IOpenSettingsService, OpenSettingsService>();
-
-                services.AddScoped<IAppGroupsService>(sp => sp.GetRequiredService<IAppGroupsSqlService>());
-                services.AddScoped<IAppIdentifierMappingsService>(sp => sp.GetRequiredService<IAppIdentifierMappingsSqlService>());
-                services.AddScoped<IAppsService>(sp => sp.GetRequiredService<IAppsSqlService>());
-                services.AddScoped<IAppTagMappingsService>(sp => sp.GetRequiredService<IAppTagMappingsSqlService>());
-                services.AddScoped<IConfigurationsService>(sp => sp.GetRequiredService<IConfigurationsSqlService>());
-                services.AddScoped<IIdentifiersService>(sp => sp.GetRequiredService<IIdentifiersSqlService>());
-                services.AddScoped<IInstancesService>(sp => sp.GetRequiredService<IInstancesSqlService>());
-                services.AddScoped<ILicensesService>(sp => sp.GetRequiredService<ILicensesSqlService>());
-                services.AddScoped<ILocksService>(sp => sp.GetRequiredService<ILocksSqlService>());
-                services.AddScoped<INotificationsService>(sp => sp.GetRequiredService<INotificationsSqlService>());
-                services.AddScoped<IProviderService>(sp => sp.GetRequiredService<IProviderSqlService>());
-                services.AddScoped<ISettingClassesService>(sp => sp.GetRequiredService<ISettingClassesSqlService>());
-                services.AddScoped<ISettingHistoriesService>(sp => sp.GetRequiredService<ISettingHistoriesSqlService>());
-                services.AddScoped<ISettingsService>(sp => sp.GetRequiredService<ISettingsSqlService>());
-                services.AddScoped<ITagsService>(sp => sp.GetRequiredService<ITagsSqlService>());
-                services.AddScoped<IUserNotificationMappingsService>(sp => sp.GetRequiredService<IUserNotificationMappingsSqlService>());
-                services.AddScoped<IUsersService>(sp => sp.GetRequiredService<IUsersSqlService>());
-
-                services.AddScoped<ILocalSettingsService, LocalSettingsService>();
+                services.RegisterProviderServices(openSettingsConfiguration);
             }
 
             services.AddSingleton<ITaskQueueFactory>(sp =>
@@ -257,6 +126,138 @@ namespace OpenSettings.Extensions
             services.AddSingleton<IOpenSettingsMemoryCache, OpenSettingsMemoryCache>();
 
             return services;
+        }
+
+        private static void RegisterProviderServices(this IServiceCollection services, OpenSettingsConfiguration openSettingsConfiguration)
+        {
+            if (openSettingsConfiguration.Provider.Redis.IsActive)
+            {
+                services.RegisterRedisServiceCollection(openSettingsConfiguration.Provider.Redis.Configuration);
+            }
+
+            services.AddSingleton<IDataValidationService, DataValidationService>();
+
+            services.AddSingleton<IPasswordHasher<AppSqlModel>, PasswordHasher<AppSqlModel>>();
+
+            services.AddOpenSettingsDbContext<OpenSettingsDbContext>(openSettingsConfiguration.Provider.Orm);
+
+            services.AddSingleton<IHostedService>(sp =>
+            {
+                var taskQueueFactory = sp.GetRequiredService<ITaskQueueFactory>();
+
+                var taskQueue = taskQueueFactory.GetNotificationQueue();
+
+                return new TaskQueueHostedService(sp.GetRequiredService<ILogger<TaskQueueHostedService>>(), "NotificationQueueWorker", taskQueue);
+            });
+
+            services.AddScoped<JsonWebTokenHandler>();
+
+            services.AddScoped<IAppGroupsSqlService, AppGroupSqlService>();
+            services.AddScoped<IAppIdentifierMappingsSqlService, AppIdentifierMappingSqlService>();
+            services.AddScoped<IAppsSqlService, AppsSqlService>();
+            services.AddScoped<IAppTagMappingsSqlService, AppTagMappingSqlService>();
+            services.AddScoped<IConfigurationsSqlService, ConfigurationSqlService>();
+            services.AddScoped<IIdentifiersSqlService, IdentifierSqlService>();
+            services.AddScoped<IInstancesSqlService, InstancesSqlService>();
+            services.AddScoped<ILicensesSqlService, LicensesSqlService>();
+            services.AddScoped<ILocksSqlService, LocksSqlService>();
+            services.AddScoped<INotificationsSqlService, NotificationsSqlService>();
+            services.AddScoped<IProviderSqlService, ProviderSqlService>();
+            services.AddScoped<ISettingClassesSqlService, SettingClassSqlService>();
+            services.AddScoped<ISettingHistoriesSqlService, SettingHistoriesSqlService>();
+            services.AddScoped<ISettingsSqlService, SettingSqlService>();
+            services.AddScoped<ISortOrderSqlService, SortOrderSqlService>();
+            services.AddScoped<ITagsSqlService, TagSqlService>();
+            services.AddScoped<IUserNotificationMappingsSqlService, UserNotificationMappingSqlService>();
+            services.AddScoped<IUsersSqlService, UserSqlService>();
+            services.AddSingleton<IOpenSettingsService, OpenSettingsService>();
+
+            services.AddScoped<IAppGroupsService>(sp => sp.GetRequiredService<IAppGroupsSqlService>());
+            services.AddScoped<IAppIdentifierMappingsService>(sp => sp.GetRequiredService<IAppIdentifierMappingsSqlService>());
+            services.AddScoped<IAppsService>(sp => sp.GetRequiredService<IAppsSqlService>());
+            services.AddScoped<IAppTagMappingsService>(sp => sp.GetRequiredService<IAppTagMappingsSqlService>());
+            services.AddScoped<IConfigurationsService>(sp => sp.GetRequiredService<IConfigurationsSqlService>());
+            services.AddScoped<IIdentifiersService>(sp => sp.GetRequiredService<IIdentifiersSqlService>());
+            services.AddScoped<IInstancesService>(sp => sp.GetRequiredService<IInstancesSqlService>());
+            services.AddScoped<ILicensesService>(sp => sp.GetRequiredService<ILicensesSqlService>());
+            services.AddScoped<ILocksService>(sp => sp.GetRequiredService<ILocksSqlService>());
+            services.AddScoped<INotificationsService>(sp => sp.GetRequiredService<INotificationsSqlService>());
+            services.AddScoped<IProviderService>(sp => sp.GetRequiredService<IProviderSqlService>());
+            services.AddScoped<ISettingClassesService>(sp => sp.GetRequiredService<ISettingClassesSqlService>());
+            services.AddScoped<ISettingHistoriesService>(sp => sp.GetRequiredService<ISettingHistoriesSqlService>());
+            services.AddScoped<ISettingsService>(sp => sp.GetRequiredService<ISettingsSqlService>());
+            services.AddScoped<ITagsService>(sp => sp.GetRequiredService<ITagsSqlService>());
+            services.AddScoped<IUserNotificationMappingsService>(sp => sp.GetRequiredService<IUserNotificationMappingsSqlService>());
+            services.AddScoped<IUsersService>(sp => sp.GetRequiredService<IUsersSqlService>());
+
+            services.AddScoped<ILocalSettingService, LocalSettingService>();
+        }
+
+        private static void RegisterConsumerServices(this IServiceCollection services, OpenSettingsConfiguration openSettingsConfiguration, ProviderInfo providerInfo)
+        {
+            if (openSettingsConfiguration.Consumer.IsRedisActive && providerInfo.Redis.IsActive)
+            {
+                var configuration = ConfigurationOptions.Parse(providerInfo.Redis.Configuration, true);
+
+                configuration.ClientName = openSettingsConfiguration.Client.Name;
+                configuration.AllowAdmin = false;
+
+                providerInfo.Redis.Configuration = configuration.ToString();
+
+                services.RegisterRedisServiceCollection(providerInfo.Redis.Configuration);
+            }
+
+            if (openSettingsConfiguration.Consumer.PollingSettingsWorker.IsActive)
+            {
+                services.AddSingleton<IPollingSettingTimedService, PollingSettingTimedService>();
+
+                services.AddSingleton<IHostedService>(sp => sp.GetRequiredService<IPollingSettingTimedService>());
+            }
+
+            services.AddTransient<DecompressionHandler>();
+
+            services
+                .AddHttpClient(OpenSettingsDefaults.Names.HttpClientName, (sp, httpClient) =>
+                {
+                    openSettingsConfiguration.Consumer.ConfigureHttpClient(httpClient, openSettingsConfiguration.Client);
+                })
+                .AddHttpMessageHandler<DecompressionHandler>();
+
+            services.AddSingleton<IAppGroupsRestService, AppGroupsRestService>();
+            services.AddSingleton<IAppIdentifierMappingsRestService, AppIdentifierMappingsRestService>();
+            services.AddSingleton<IAppsRestService, AppsRestService>();
+            services.AddSingleton<IAppTagMappingsRestService, AppTagMappingsRestService>();
+            services.AddSingleton<IConfigurationsRestService, ConfigurationsRestService>();
+            services.AddSingleton<IIdentifiersRestService, IdentifiersRestService>();
+            services.AddSingleton<IInstancesRestService, InstancesRestService>();
+            services.AddSingleton<ILicensesRestService, LicensesRestService>();
+            services.AddSingleton<INotificationsRestService, NotificationsRestService>();
+            services.AddSingleton<IOpenSettingsRestService, OpenSettingsRestService>();
+            services.AddSingleton<IProviderRestService, ProviderRestService>();
+            services.AddSingleton<ISettingClassesRestService, SettingClassesRestService>();
+            services.AddSingleton<ISettingHistoriesRestService, SettingHistoriesRestService>();
+            services.AddSingleton<ISettingsRestService, SettingsRestService>();
+            services.AddSingleton<ITagsRestService, TagsRestService>();
+            services.AddSingleton<IUsersRestService, UsersRestService>();
+
+            services.AddSingleton<IAppGroupsService>(sp => sp.GetRequiredService<IAppGroupsRestService>());
+            services.AddSingleton<IAppIdentifierMappingsService>(sp => sp.GetRequiredService<IAppIdentifierMappingsRestService>());
+            services.AddSingleton<IAppsService>(sp => sp.GetRequiredService<IAppsRestService>());
+            services.AddSingleton<IAppTagMappingsService>(sp => sp.GetRequiredService<IAppTagMappingsRestService>());
+            services.AddSingleton<IConfigurationsService>(sp => sp.GetRequiredService<IConfigurationsRestService>());
+            services.AddSingleton<IIdentifiersService>(sp => sp.GetRequiredService<IIdentifiersRestService>());
+            services.AddSingleton<IInstancesService>(sp => sp.GetRequiredService<IInstancesRestService>());
+            services.AddSingleton<ILicensesService>(sp => sp.GetRequiredService<ILicensesRestService>());
+            services.AddSingleton<INotificationsService>(sp => sp.GetRequiredService<INotificationsRestService>());
+            services.AddSingleton<IOpenSettingsService>(sp => sp.GetRequiredService<IOpenSettingsRestService>());
+            services.AddSingleton<IProviderService>(sp => sp.GetRequiredService<IProviderRestService>());
+            services.AddSingleton<ISettingClassesService>(sp => sp.GetRequiredService<ISettingClassesRestService>());
+            services.AddSingleton<ISettingHistoriesService>(sp => sp.GetRequiredService<ISettingHistoriesRestService>());
+            services.AddSingleton<ISettingsService>(sp => sp.GetRequiredService<ISettingsRestService>());
+            services.AddSingleton<ITagsService>(sp => sp.GetRequiredService<ITagsRestService>());
+            services.AddSingleton<IUsersService>(sp => sp.GetRequiredService<IUsersRestService>());
+
+            services.AddSingleton<ILocalSettingService, LocalSettingService>();
         }
 
         private static IServiceCollection AddOpenSettingsDbContext<TContext>(this IServiceCollection services, OrmConfiguration orm) where TContext : DbContext
@@ -292,7 +293,7 @@ namespace OpenSettings.Extensions
             return services;
         }
 
-        public static IServiceCollection Configure(this IServiceCollection services, IConfigurationSection section, Type optionsType)
+        private static IServiceCollection Configure(this IServiceCollection services, IConfigurationSection section, Type optionsType)
         {
             var configureMethod = typeof(ServiceCollectionExtensions)
                 .GetMethod(nameof(ConfigureDynamic), System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)

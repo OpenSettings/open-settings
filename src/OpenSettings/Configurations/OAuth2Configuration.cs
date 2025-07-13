@@ -34,7 +34,7 @@
         /// </summary>
         public string ClientSecret { get; set; }
 
-        private string _signedOutRedirectUri = $"/{Constants.DefaultSpaRoutePrefix}";
+        private string _signedOutRedirectUri = $"/{OpenSettingsDefaults.Spa.DefaultRoutePrefix}";
 
         /// <summary>
         /// Gets or sets the URI to redirect to after the user is signed out.

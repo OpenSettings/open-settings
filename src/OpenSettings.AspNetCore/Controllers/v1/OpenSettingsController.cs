@@ -8,8 +8,6 @@ namespace OpenSettings.AspNetCore.Controllers.v1
     [Route(OpenSettingsDefaults.Routes.V1.OpenSettings)]
     public class OpenSettingsController : ControllerBase
     {
-        private const string OctetStreamContentType = "application/octet-stream";
-
         private readonly IOpenSettingsService _openSettingsService;
 
         public OpenSettingsController(IOpenSettingsService openSettingsService)
@@ -27,8 +25,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return NotFound();
             }
 
-            Response.Headers["Cache-Control"] = configs.CacheControl;
-            Response.Headers["Expires"] = configs.Expires;
+            ApplyHeaders(configs.CacheControl, configs.Expires);
 
             return Ok(configs.Data);
         }
@@ -43,10 +40,15 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return NotFound();
             }
 
-            Response.Headers["Cache-Control"] = config.CacheControl;
-            Response.Headers["Expires"] = config.Expires;
+            ApplyHeaders(config.CacheControl, config.Expires);
 
-            return File(config.Data, OctetStreamContentType);
+            return File(config.Data, OpenSettingsDefaults.ContentTypes.ApplicationOctetStream);
+        }
+
+        private void ApplyHeaders(string cacheControl, string expires)
+        {
+            Response.Headers[OpenSettingsDefaults.Headers.CacheControl] = cacheControl;
+            Response.Headers[OpenSettingsDefaults.Headers.Expires] = expires;
         }
     }
 }
