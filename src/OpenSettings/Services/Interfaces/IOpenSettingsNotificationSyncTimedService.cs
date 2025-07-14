@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Hosting;
 
-namespace OpenSettings.AspNetCore.Services.Interfaces
+namespace OpenSettings.Services.Interfaces
 {
     public interface IOpenSettingsNotificationSyncTimedService : IHostedService
     {

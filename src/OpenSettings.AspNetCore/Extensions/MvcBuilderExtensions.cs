@@ -3,14 +3,12 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Ogu.AspNetCore.Conventions;
 using OpenSettings.AspNetCore.Controllers.v1;
 using OpenSettings.AspNetCore.Handlers;
 using OpenSettings.AspNetCore.Services;
 using OpenSettings.AspNetCore.Services.Interfaces;
-using OpenSettings.Configurations;
 using OpenSettings.Models;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Models.Responses;
@@ -49,35 +47,15 @@ namespace OpenSettings.AspNetCore.Extensions
             var providerInfo = syncAppDataResponse.ProviderInfo;
             var controllerConfiguration = syncAppDataResponse.Configuration.Controller;
 
-            var isProvider = providerInfo == null;
-
-            if (isProvider)
+            if (syncAppDataResponse.IsProvider)
             {
-                var openSettingsAssemblyInfo = OpenSettingsAssemblyInfo.Instance;
-
-                providerInfo = new ProviderInfo
-                {
-                    Authorize = controllerConfiguration.Authorize,
-                    PackVersion = openSettingsAssemblyInfo.PackVersion,
-                    PackVersionScore = openSettingsAssemblyInfo.PackVersionScore,
-                    IsPreviewVersion = openSettingsAssemblyInfo.IsPreviewVersion,
-                    OAuth2 = new OAuth2Info
-                    {
-                        Authority = controllerConfiguration.OAuth2.Authority,
-                        AllowOfflineAccess = controllerConfiguration.OAuth2.AllowOfflineAccess,
-                        IsActive = controllerConfiguration.OAuth2.IsActive
-                    }
-                };
-
-                mvcBuilder.Services.RegisterProviderServices(providerInfo, controllerConfiguration, authenticationBuilder);
+                RegisterProviderServices(providerInfo, controllerConfiguration, authenticationBuilder);
             }
             else
             {
                 mvcBuilder.Services.AddTransient<OpenSettingsRestServiceAuthHandler>();
 
                 mvcBuilder.Services.AddHttpClient(OpenSettingsDefaults.Names.HttpClientName).AddHttpMessageHandler<OpenSettingsRestServiceAuthHandler>();
-
-                mvcBuilder.Services.AddSingleton<ProviderInfo>(providerInfo);
             }
 
             mvcBuilder.Services.AddSingleton<IOpenSettingsTokenService, OpenSettingsTokenService>();
@@ -87,7 +65,7 @@ namespace OpenSettings.AspNetCore.Extensions
 
             mvcBuilder.Services.AddHttpClient();
 
-            var authorize = providerInfo.Authorize || controllerConfiguration.Authorize;
+            var authorize = syncAppDataResponse.Authorize;
 
             if (authorize && providerInfo.OAuth2.IsActive)
             {
@@ -136,7 +114,7 @@ namespace OpenSettings.AspNetCore.Extensions
                     mvcOpts.Conventions.AddControllerHideFromExploringConvention(controllerTypes);
                 }
 
-                if (!isProvider)
+                if (!syncAppDataResponse.IsProvider)
                 {
                     mvcOpts.Conventions.AddControllerDisableConvention(providerControllerType);
                 }
@@ -145,105 +123,87 @@ namespace OpenSettings.AspNetCore.Extensions
                 {
                     mvcOpts.Conventions.AddControllerAuthorizeConvention(controllerTypes,
                         conventionOpts =>
-                            ApplyConventionOptions(conventionOpts, providerInfo, isProvider));
+                            ApplyConventionOptions(conventionOpts, providerInfo, syncAppDataResponse.IsProvider));
                 }
 
             }).AddControllersAsServices();
         }
 
-        private static void RegisterProviderServices(this IServiceCollection services, ProviderInfo providerInfo, ConfigurationController controllerConfiguration, AuthenticationBuilder authenticationBuilder)
+        private static void RegisterProviderServices(ProviderInfo providerInfo, ConfigurationController controllerConfiguration, AuthenticationBuilder authenticationBuilder)
         {
-            if (providerInfo.OAuth2.IsActive)
+            if (!providerInfo.OAuth2.IsActive)
             {
-                var apiLoginRoute = $"/{controllerConfiguration.Route}/v1/auth/login";
+                return;
+            }
 
-                authenticationBuilder.AddCookie(OpenSettingsDefaults.AuthSchemes.Cookie).AddOpenIdConnect(OpenSettingsDefaults.AuthSchemes.OAuth2, openIdOpts =>
+            var apiLoginRoute = $"/{controllerConfiguration.Route}/v1/auth/login";
+
+            authenticationBuilder.AddCookie(OpenSettingsDefaults.AuthSchemes.Cookie).AddOpenIdConnect(OpenSettingsDefaults.AuthSchemes.OAuth2, openIdOpts =>
+            {
+                openIdOpts.Authority = controllerConfiguration.OAuth2.Authority;
+                openIdOpts.SignInScheme = OpenSettingsDefaults.AuthSchemes.Cookie;
+                openIdOpts.SignedOutRedirectUri = controllerConfiguration.OAuth2.SignedOutRedirectUri;
+                openIdOpts.ClientId = controllerConfiguration.OAuth2.ClientId;
+                openIdOpts.ClientSecret = controllerConfiguration.OAuth2.ClientSecret;
+                openIdOpts.ResponseType = "code";
+                openIdOpts.Scope.Clear();
+                openIdOpts.Scope.Add("openid");
+                openIdOpts.Scope.Add("profile");
+
+                if (controllerConfiguration.OAuth2.AllowOfflineAccess)
                 {
-                    openIdOpts.Authority = controllerConfiguration.OAuth2.Authority;
-                    openIdOpts.SignInScheme = OpenSettingsDefaults.AuthSchemes.Cookie;
-                    openIdOpts.SignedOutRedirectUri = controllerConfiguration.OAuth2.SignedOutRedirectUri;
-                    openIdOpts.ClientId = controllerConfiguration.OAuth2.ClientId;
-                    openIdOpts.ClientSecret = controllerConfiguration.OAuth2.ClientSecret;
-                    openIdOpts.ResponseType = "code";
-                    openIdOpts.Scope.Clear();
-                    openIdOpts.Scope.Add("openid");
-                    openIdOpts.Scope.Add("profile");
+                    openIdOpts.Scope.Add("offline_access");
+                }
 
-                    if (controllerConfiguration.OAuth2.AllowOfflineAccess)
+                openIdOpts.SaveTokens = true;
+                openIdOpts.GetClaimsFromUserInfoEndpoint = true;
+
+                var route = $"/{controllerConfiguration.Route}";
+
+                openIdOpts.Events = new OpenIdConnectEvents
+                {
+                    OnRedirectToIdentityProvider = context =>
                     {
-                        openIdOpts.Scope.Add("offline_access");
-                    }
+                        if (context.Request.Path.StartsWithSegments(route) && context.Request.Path.Value != apiLoginRoute)
+                        {
+                            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                            context.HandleResponse();
+                        }
 
-                    openIdOpts.SaveTokens = true;
-                    openIdOpts.GetClaimsFromUserInfoEndpoint = true;
-
-                    var route = $"/{controllerConfiguration.Route}";
-
-                    openIdOpts.Events = new OpenIdConnectEvents
+                        return Task.CompletedTask;
+                    },
+                    OnTokenValidated = async context =>
                     {
-                        OnRedirectToIdentityProvider = context =>
+                        var usersService = context.HttpContext.RequestServices.GetRequiredService<IUsersService>();
+
+                        var user = await usersService.GetOrCreateUserAsync(new GetOrCreateUserInput(context.Principal, OpenSettingsDefaults.AuthSchemes.OAuth2), CancellationToken.None);
+
+                        if (user == null)
                         {
-                            if (context.Request.Path.StartsWithSegments(route) && context.Request.Path.Value != apiLoginRoute)
-                            {
-                                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                                context.HandleResponse();
-                            }
+                            context.Fail("ProviderId couldn't be obtain");
+                            return;
+                        }
 
-                            return Task.CompletedTask;
-                        },
-                        OnTokenValidated = async context =>
+                        if (!user.IsActive)
                         {
-                            var usersService = context.HttpContext.RequestServices.GetRequiredService<IUsersService>();
+                            context.Fail("User access disabled");
+                            return;
+                        }
 
-                            var user = await usersService.GetOrCreateUserAsync(new GetOrCreateUserInput(context.Principal, OpenSettingsDefaults.AuthSchemes.OAuth2), CancellationToken.None);
-
-                            if (user == null)
-                            {
-                                context.Fail("ProviderId couldn't be obtain");
-                                return;
-                            }
-
-                            if (!user.IsActive)
-                            {
-                                context.Fail("User access disabled");
-                                return;
-                            }
-
-                            context.Principal?.AddIdentity(new ClaimsIdentity(new Claim[]
-                            {
+                        context.Principal?.AddIdentity(new ClaimsIdentity(new Claim[]
+                        {
                                 new Claim(OpenSettingsDefaults.Claims.DbUserId, $"{user.Id}"),
                                 new Claim(OpenSettingsDefaults.Claims.DbUserDisplayName, user.DisplayName),
                                 new Claim(OpenSettingsDefaults.Claims.DbUserInitials, user.Initials)
-                            }));
-                        },
-                        OnRemoteFailure = context =>
-                        {
-                            Console.WriteLine($"OIDC Error: {context.Failure?.Message}");
-                            return Task.CompletedTask;
-                        }
-                    };
-                });
-            }
-
-            services.AddSingleton<ProviderInfo>(sp =>
-            {
-                var settingsConfiguration = sp.GetService<OpenSettingsConfiguration>();
-
-                providerInfo.Client.Id = settingsConfiguration.Client.Id;
-                providerInfo.Client.Name = settingsConfiguration.Client.Name;
-                providerInfo.Version = settingsConfiguration.Client.Version;
-                providerInfo.Redis.Channel = settingsConfiguration.Provider.Redis.Channel;
-                providerInfo.Redis.IsActive = settingsConfiguration.Provider.Redis.IsActive;
-                providerInfo.Redis.Configuration = settingsConfiguration.Provider.Redis.Configuration;
-
-                return providerInfo;
+                        }));
+                    },
+                    OnRemoteFailure = context =>
+                    {
+                        Console.WriteLine($"OIDC Error: {context.Failure?.Message}");
+                        return Task.CompletedTask;
+                    }
+                };
             });
-
-            services.AddSingleton<IProviderCoordinationTimedService, ProviderCoordinationTimedService>();
-            services.AddSingleton<IOpenSettingsNotificationSyncTimedService, OpenSettingsNotificationSyncTimedService>();
-            services.AddSingleton<IProviderRegistryCleanupTimedService, ProviderRegistryCleanupTimedService>();
-
-            services.AddSingleton<IHostedService>(sp => sp.GetRequiredService<IProviderCoordinationTimedService>());
         }
 
         private static void ApplyConventionOptions(ControllerAuthorizeConventionOptions conventionOptions, ProviderInfo providerInfo, bool isServiceTypeProvider)
@@ -260,7 +220,7 @@ namespace OpenSettings.AspNetCore.Extensions
                 authSchemes.Add(OpenSettingsDefaults.AuthSchemes.OAuth2JwtBearer);
             }
 
-            conventionOptions.AuthenticationSchemes = string.Join(",", authSchemes);
+            conventionOptions.AuthenticationSchemes = string.Join(OpenSettingsDefaults.Format.Comma, authSchemes);
         }
     }
 }

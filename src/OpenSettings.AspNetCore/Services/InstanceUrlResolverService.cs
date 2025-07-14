@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
-using OpenSettings.AspNetCore.Services.Interfaces;
+using OpenSettings.Services.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;

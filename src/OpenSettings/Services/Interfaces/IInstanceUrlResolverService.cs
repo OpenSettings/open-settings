@@ -1,4 +1,4 @@
-﻿namespace OpenSettings.AspNetCore.Services.Interfaces
+﻿namespace OpenSettings.Services.Interfaces
 {
     /// <summary>
     /// Provides functionality to resolve the Urls for the current instance of the application.

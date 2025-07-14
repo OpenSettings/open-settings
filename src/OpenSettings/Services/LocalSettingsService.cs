@@ -667,7 +667,7 @@ namespace OpenSettings.Services
                 fullPathToInstanceFullNameToObjectInstance = UpdateLocalData(syncAppDataResponse.Settings.ToDictionary(d => d.ComputedIdentifier, d => d));
             }
 
-            await syncAppDataResponse.WriteToFileAsync(cancellationToken);
+            await syncAppDataResponse.WriteToFileAsync(_openSettingsConfiguration, cancellationToken);
 
             FileHelper.DeleteSettingsFiles();
 

@@ -5,6 +5,7 @@ using OpenSettings.Models;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using OpenSettings.Models.Responses;
 
 namespace OpenSettings.Extensions
 {
@@ -76,9 +77,10 @@ namespace OpenSettings.Extensions
 
             hostBuilder.ConfigureServices((context, collection) =>
             {
-                var providerInfo = context.Configuration.GetSection(nameof(ProviderInfo)).Get<ProviderInfo>();
-
                 collection.ConfigureOpenSettings(context.Configuration);
+
+                var providerInfo = SyncAppDataResponse.GetProviderInfo(context.Configuration);
+
                 collection.AddOpenSettings(openSettingsConfiguration, providerInfo);
             });
 

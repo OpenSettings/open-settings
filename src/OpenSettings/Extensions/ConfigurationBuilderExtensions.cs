@@ -158,11 +158,11 @@ namespace OpenSettings.Extensions
 
             var logger = openSettingsConfiguration.LoggerFactory.CreateLogger("OpenSettings");
 
-            var missingSettings = string.Join(",", localSettings.Where(s => !s.IsPreDataExists).Select(s => s.Type.FullName));
+            var missingSettings = string.Join(OpenSettingsDefaults.Format.Comma, localSettings.Where(s => !s.IsPreDataExists).Select(s => s.Type.FullName));
 
             if (!string.IsNullOrWhiteSpace(missingSettings))
             {
-                logger.LogWarning("SkipInitialSyncAppData property is set to true, which triggered the injection of generated settings files. However, the following settings were not found: {missingSettings}.", missingSettings);
+                logger.LogWarning("SkipInitialSyncAppData property is set to true, which triggered the injection of generated settings files. However, the following settings were not found: '{missingSettings}'.", missingSettings);
             }
 
             await ExecuteWithLocalSettingsServiceAsync(

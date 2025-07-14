@@ -1,6 +1,6 @@
 ﻿using Ogu.Extensions.Hosting.HostedServices;
 
-namespace OpenSettings.AspNetCore.Services.Interfaces
+namespace OpenSettings.Services.Interfaces
 {
     public interface IProviderCoordinationTimedService : ITimedHostedService
     {

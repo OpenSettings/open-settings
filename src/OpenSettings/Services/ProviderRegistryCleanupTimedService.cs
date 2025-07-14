@@ -4,15 +4,15 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Ogu.Extensions.Hosting.HostedServices;
 using OpenSettings.AspNetCore.Models;
-using OpenSettings.AspNetCore.Services.Interfaces;
 using OpenSettings.Domains.Sql.DataContext;
 using OpenSettings.Domains.Sql.Entities;
+using OpenSettings.Services.Interfaces;
 using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace OpenSettings.AspNetCore.Services
+namespace OpenSettings.Services
 {
     /// <summary>
     /// Timed service that periodically cleans up stale provider registry entries from the database.

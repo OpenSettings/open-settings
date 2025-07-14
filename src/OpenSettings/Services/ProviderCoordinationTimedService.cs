@@ -4,7 +4,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Ogu.Extensions.Hosting.HostedServices;
-using OpenSettings.AspNetCore.Services.Interfaces;
 using OpenSettings.Configurations;
 using OpenSettings.Domains.Sql.DataContext;
 using OpenSettings.Domains.Sql.Entities;
@@ -17,7 +16,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using ProviderCoordinationTimedServiceOptions = OpenSettings.AspNetCore.Models.ProviderCoordinationTimedServiceOptions;
 
-namespace OpenSettings.AspNetCore.Services
+namespace OpenSettings.Services
 {
     /// <summary>
     /// Responsible to become master and heartbeat check.
@@ -184,8 +183,6 @@ namespace OpenSettings.AspNetCore.Services
 
         private async Task RegisterProviderAsync(OpenSettingsDbContext context, CancellationToken cancellationToken)
         {
-            var instanceUrlResolver = _serviceProvider.GetRequiredService<IInstanceUrlResolverService>();
-
             var clientId = _openSettingsConfiguration.Client.Id;
             var clientIdLowercase = $"{clientId}".ToLowerInvariant();
             var currentTime = DateTime.UtcNow;
@@ -204,7 +201,9 @@ namespace OpenSettings.AspNetCore.Services
                 LastHeartbeatOn = currentTime
             };
 
-            if (Uri.TryCreate(instanceUrlResolver.ResolveUrls().FirstOrDefault(), UriKind.RelativeOrAbsolute, out var uri))
+            var instanceUrlResolver = _serviceProvider.GetService<IInstanceUrlResolverService>();
+
+            if (instanceUrlResolver != null && Uri.TryCreate(instanceUrlResolver.ResolveUrls().FirstOrDefault(), UriKind.RelativeOrAbsolute, out var uri))
             {
                 switch (uri.Scheme.ToLowerInvariant())
                 {
@@ -235,11 +234,11 @@ namespace OpenSettings.AspNetCore.Services
                 providerRegistry.Port = uri.Port;
             }
 
-            context.ProviderRegistries.Add(providerRegistry);
+            var entry = context.ProviderRegistries.Add(providerRegistry);
 
             await context.SaveChangesAsync(cancellationToken);
 
-            context.Entry(providerRegistry).State = EntityState.Detached;
+            entry.State = EntityState.Detached;
         }
 
         private static async Task UpdateHeartbeatOnAsync(OpenSettingsDbContext context, CancellationToken cancellationToken)

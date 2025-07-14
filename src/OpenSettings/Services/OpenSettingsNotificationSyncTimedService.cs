@@ -3,7 +3,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Ogu.Extensions.Hosting.HostedServices;
 using OpenSettings.AspNetCore.Models;
-using OpenSettings.AspNetCore.Services.Interfaces;
 using OpenSettings.Configurations;
 using OpenSettings.Domains.Sql.DataContext;
 using OpenSettings.Domains.Sql.Entities;
@@ -16,7 +15,7 @@ using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace OpenSettings.AspNetCore.Services
+namespace OpenSettings.Services
 {
     /// <summary>
     /// A timed service that synchronizes OpenSettings notifications with the local database.

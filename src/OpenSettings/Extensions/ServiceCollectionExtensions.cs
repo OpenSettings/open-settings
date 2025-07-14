@@ -103,6 +103,8 @@ namespace OpenSettings.Extensions
                 services.RegisterProviderServices(openSettingsConfiguration);
             }
 
+            services.AddSingleton<ProviderInfo>(providerInfo);
+
             services.AddSingleton<ITaskQueueFactory>(sp =>
             {
                 var taskQueueFactory = new TaskQueueFactory();
@@ -191,6 +193,12 @@ namespace OpenSettings.Extensions
             services.AddScoped<IUsersService>(sp => sp.GetRequiredService<IUsersSqlService>());
 
             services.AddScoped<ILocalSettingService, LocalSettingService>();
+
+            services.AddSingleton<IProviderCoordinationTimedService, ProviderCoordinationTimedService>();
+            services.AddSingleton<IOpenSettingsNotificationSyncTimedService, OpenSettingsNotificationSyncTimedService>();
+            services.AddSingleton<IProviderRegistryCleanupTimedService, ProviderRegistryCleanupTimedService>();
+
+            services.AddSingleton<IHostedService>(sp => sp.GetRequiredService<IProviderCoordinationTimedService>());
         }
 
         private static void RegisterConsumerServices(this IServiceCollection services, OpenSettingsConfiguration openSettingsConfiguration, ProviderInfo providerInfo)
