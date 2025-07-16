@@ -18,24 +18,6 @@ namespace OpenSettings.AspNetCore.Extensions
             return (Guid.Parse(username), Guid.Parse(password));
         }
 
-        internal static bool IsAdmin(this HttpContext httpContext)
-        {
-            return httpContext.GetRole() == RoleType.Admin;
-        }
-
-        internal static bool IsSameAppOrAdmin(this HttpContext httpContext, Guid clientId)
-        {
-            if (httpContext.IsAdmin())
-            {
-                return true;
-            }
-
-            var clientCredentials = httpContext.GetClientCredentials();
-
-            return clientCredentials.clientId == clientId;
-
-        }
-
         internal static RoleType GetRole(this HttpContext httpContext)
         {
             _ = Enum.TryParse(httpContext.User.Claims.FirstOrDefault(x => x.Type.Equals(ClaimTypes.Role))?.Value, out RoleType role);
