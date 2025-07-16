@@ -4,7 +4,6 @@ using Ogu.Response.Abstractions;
 using OpenSettings.Domains.Sql.DataContext;
 using OpenSettings.Domains.Sql.Entities;
 using OpenSettings.Extensions;
-using OpenSettings.Helpers;
 using OpenSettings.Models;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Models.Responses;
@@ -18,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace OpenSettings.Services.Sql
 {
-    internal sealed class TagSqlService : ITagsSqlService
+    internal sealed class TagSqlService : ITagSqlService
     {
         private readonly OpenSettingsDbContext _context;
         private readonly ISortOrderSqlService _sortOrderService;

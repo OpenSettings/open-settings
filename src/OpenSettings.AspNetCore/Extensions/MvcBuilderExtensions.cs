@@ -174,7 +174,7 @@ namespace OpenSettings.AspNetCore.Extensions
                     },
                     OnTokenValidated = async context =>
                     {
-                        var usersService = context.HttpContext.RequestServices.GetRequiredService<IUsersService>();
+                        var usersService = context.HttpContext.RequestServices.GetRequiredService<IUserService>();
 
                         var user = await usersService.GetOrCreateUserAsync(new GetOrCreateUserInput(context.Principal, OpenSettingsDefaults.AuthSchemes.OAuth2), CancellationToken.None);
 

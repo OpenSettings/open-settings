@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using OpenSettings.Configurations;
 using OpenSettings.Extensions;
 using OpenSettings.Helpers;
 using System;
@@ -7,7 +8,6 @@ using System.IO;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using OpenSettings.Configurations;
 
 namespace OpenSettings.Models.Responses
 {
@@ -94,8 +94,8 @@ namespace OpenSettings.Models.Responses
                 {
                     Id = openSettingsConfiguration.Client.Id,
                     Name = openSettingsConfiguration.Client.Name,
+                    Version = openSettingsConfiguration.Client.Version,
                 },
-                Version = openSettingsConfiguration.Client.Version,
                 Redis = new RedisInfo
                 {
                     Channel = openSettingsConfiguration.Provider.Redis.Channel,

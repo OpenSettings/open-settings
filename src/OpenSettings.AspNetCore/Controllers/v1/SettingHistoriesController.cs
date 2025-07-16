@@ -11,11 +11,11 @@ namespace OpenSettings.AspNetCore.Controllers.v1
     [Route(OpenSettingsDefaults.Routes.V1.SettingHistories)]
     public class SettingHistoriesController : ControllerBase
     {
-        private readonly ISettingHistoriesService _settingHistoriesService;
+        private readonly ISettingHistoryService _settingHistoryService;
 
-        public SettingHistoriesController(ISettingHistoriesService settingHistoriesService)
+        public SettingHistoriesController(ISettingHistoryService settingHistoryService)
         {
-            _settingHistoriesService = settingHistoriesService;
+            _settingHistoryService = settingHistoryService;
         }
 
         [HttpGet("{HistoryId}/data")]
@@ -26,7 +26,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return ModelState.ToAction();
             }
 
-            var result = await _settingHistoriesService.GetSettingHistoryDataAsync(new GetSettingHistoryDataInput
+            var result = await _settingHistoryService.GetSettingHistoryDataAsync(new GetSettingHistoryDataInput
             {
                 HistoryId = request.HistoryId
             }, cancellationToken);
@@ -42,7 +42,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return ModelState.ToAction();
             }
 
-            var result = await _settingHistoriesService.GetSettingHistoryByIdAsync(new GetSettingHistoryInput
+            var result = await _settingHistoryService.GetSettingHistoryByIdAsync(new GetSettingHistoryInput
             {
                 HistoryIdOrSlug = request.HistoryIdOrSlug
             }, cancellationToken);
@@ -58,7 +58,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return ModelState.ToAction();
             }
 
-            var result = await _settingHistoriesService.GetSettingHistoryBySlugAsync(new GetSettingHistoryInput
+            var result = await _settingHistoryService.GetSettingHistoryBySlugAsync(new GetSettingHistoryInput
             {
                 HistoryIdOrSlug = request.HistoryIdOrSlug
             }, cancellationToken);
@@ -74,7 +74,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return ModelState.ToAction();
             }
 
-            var result = await _settingHistoriesService.RestoreSettingHistoryAsync(new RestoreSettingHistoryInput
+            var result = await _settingHistoryService.RestoreSettingHistoryAsync(new RestoreSettingHistoryInput
             {
                 HistoryId = request.HistoryId,
                 HistoryRowVersion = request.Body.HistoryRowVersion,

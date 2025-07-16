@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace OpenSettings.Services.Rest
 {
-    public class AppIdentifierMappingsRestService : IAppIdentifierMappingsRestService
+    public class AppIdentifierMappingsRestService : IAppIdentifierMappingRestService
     {
         private HttpClient HttpClient => _httpClientFactory.CreateOpenSettingsHttpClient();
 

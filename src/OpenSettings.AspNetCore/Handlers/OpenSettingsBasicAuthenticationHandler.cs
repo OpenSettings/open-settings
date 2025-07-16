@@ -18,7 +18,7 @@ namespace OpenSettings.AspNetCore.Handlers
 {
     internal class OpenSettingsBasicAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
     {
-        private readonly IAppsService _appsService;
+        private readonly IAppService _appsService;
         private readonly OpenSettingsConfiguration _openSettingsConfiguration;
         private readonly ProviderInfo _providerInfo;
 
@@ -27,7 +27,7 @@ namespace OpenSettings.AspNetCore.Handlers
             ILoggerFactory logger,
             UrlEncoder encoder,
             ISystemClock clock,
-            IAppsService appsService,
+            IAppService appsService,
             OpenSettingsConfiguration openSettingsConfiguration,
             ProviderInfo providerInfo) : base(options, logger, encoder, clock)
         {

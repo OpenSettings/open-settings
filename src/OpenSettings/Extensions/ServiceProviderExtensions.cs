@@ -38,7 +38,7 @@ namespace OpenSettings.Extensions
             var settingsServiceConfiguration = serviceProvider.GetRequiredService<OpenSettingsConfiguration>();
 
             var scope = serviceProvider.CreateScope();
-            var instancesService = scope.ServiceProvider.GetRequiredService<IInstancesService>();
+            var instancesService = scope.ServiceProvider.GetRequiredService<IInstanceService>();
 
             var updateInstanceRequest = new UpdateInstanceInput
             {

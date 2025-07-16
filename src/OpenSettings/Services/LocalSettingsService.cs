@@ -30,7 +30,7 @@ namespace OpenSettings.Services
     /// <summary>
     /// Service for managing local settings.
     /// </summary>
-    internal sealed class LocalSettingService : ILocalSettingService
+    internal sealed class LocalSettingsService : ILocalSettingsService
     {
         private static readonly Type GenericOptionsType = typeof(IOptions<>);
         private static readonly Type GenericOptionsSnapshot = typeof(IOptionsSnapshot<>);
@@ -38,16 +38,16 @@ namespace OpenSettings.Services
         private static readonly MethodInfo GetServiceMethodInfo = typeof(IServiceProvider).GetMethod("GetService");
         private static readonly ConcurrentDictionary<string, CurrentSettingsData> IdentifierNameToCurrentSettingsData = new ConcurrentDictionary<string, CurrentSettingsData>();
 
-        private readonly IAppsService _appsService;
-        private readonly ISettingsService _settingsService;
+        private readonly IAppService _appsService;
+        private readonly ISettingsService _settingService;
         private readonly ILogger _logger;
         private readonly OpenSettingsConfiguration _openSettingsConfiguration;
 
-        public LocalSettingService(IAppsService appsService, ISettingsService settingsService, OpenSettingsConfiguration openSettingsConfiguration)
+        public LocalSettingsService(IAppService appsService, ISettingsService settingService, OpenSettingsConfiguration openSettingsConfiguration)
         {
             _appsService = appsService;
-            _settingsService = settingsService;
-            _logger = openSettingsConfiguration.LoggerFactory.CreateLogger<LocalSettingService>();
+            _settingService = settingService;
+            _logger = openSettingsConfiguration.LoggerFactory.CreateLogger<LocalSettingsService>();
             _openSettingsConfiguration = openSettingsConfiguration;
         }
 
@@ -297,7 +297,7 @@ namespace OpenSettings.Services
                 return false;
             }
 
-            var settingsLastUpdatedClassComputedIdentifiers = await _settingsService.GetSettingsLastUpdatedComputedIdentifiersAsync(
+            var settingsLastUpdatedClassComputedIdentifiers = await _settingService.GetSettingsLastUpdatedComputedIdentifiersAsync(
                 new GetSettingsLastUpdatedComputedIdentifiersInput
                 {
                     ClientId = _openSettingsConfiguration.Client.Id,
@@ -371,7 +371,7 @@ namespace OpenSettings.Services
 #else
             var settingsData = IdentifierNameToCurrentSettingsData.GetValueOrDefault(_openSettingsConfiguration.IdentifierNameLowercase);
 #endif
-            var settingsLastUpdatedClassComputedIdentifiers = await _settingsService.GetSettingsLastUpdatedComputedIdentifiersAsync(
+            var settingsLastUpdatedClassComputedIdentifiers = await _settingService.GetSettingsLastUpdatedComputedIdentifiersAsync(
                 new GetSettingsLastUpdatedComputedIdentifiersInput
                 {
                     ClientId = _openSettingsConfiguration.Client.Id,
@@ -455,7 +455,7 @@ namespace OpenSettings.Services
             }
         }
 
-        public async Task<IResponse> GetLocalSettingAsync(IServiceProvider serviceProvider, Guid computedIdentifier, ConfigSource configSource, CancellationToken cancellationToken)
+        public async Task<IResponse> GetLocalSettingsAsync(IServiceProvider serviceProvider, Guid computedIdentifier, ConfigSource configSource, CancellationToken cancellationToken)
         {
             if (!OpenSettingsDefaults.Caches.ComputedIdentifierToLocalSetting.TryGetValue(computedIdentifier, out var localSetting))
             {

@@ -2,5 +2,5 @@
 
 namespace OpenSettings.Services.Sql.Interfaces
 {
-    public interface IUserNotificationMappingsSqlService : IUserNotificationMappingsService { }
+    public interface IUserNotificationMappingSqlService : IUserNotificationMappingService { }
 }

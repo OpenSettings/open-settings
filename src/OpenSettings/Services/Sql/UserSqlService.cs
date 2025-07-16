@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace OpenSettings.Services.Sql
 {
-    internal sealed class UserSqlService : IUsersSqlService
+    internal sealed class UserSqlService : IUserSqlService
     {
         private const string IdentityProviderClaimTypeName = "http://schemas.microsoft.com/identity/claims/identityprovider";
 

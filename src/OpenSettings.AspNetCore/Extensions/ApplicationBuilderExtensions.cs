@@ -43,7 +43,7 @@ namespace OpenSettings.AspNetCore.Extensions
 
             var instanceUrlResolverService = scope.ServiceProvider.GetRequiredService<IInstanceUrlResolverService>();
 
-            var instancesService = scope.ServiceProvider.GetRequiredService<IInstancesService>();
+            var instancesService = scope.ServiceProvider.GetRequiredService<IInstanceService>();
 
             var updateInstanceRequest = new UpdateInstanceInput
             {

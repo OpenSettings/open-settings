@@ -11,11 +11,11 @@ namespace OpenSettings.AspNetCore.Controllers.v1
     [Route(OpenSettingsDefaults.Routes.V1.Users)]
     public class UsersController : ControllerBase
     {
-        private readonly IUsersService _usersService;
+        private readonly IUserService _userService;
 
-        public UsersController(IUsersService usersService)
+        public UsersController(IUserService userService)
         {
-            _usersService = usersService;
+            _userService = userService;
         }
 
         [HttpPost]
@@ -26,7 +26,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return ModelState.ToAction();
             }
 
-            var result = await _usersService.CreateUserAsync(new CreateUserInput
+            var result = await _userService.CreateUserAsync(new CreateUserInput
             {
                 Email = request.Body.Email,
                 Username = request.Body.Username,
@@ -46,7 +46,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return ModelState.ToAction();
             }
 
-            var result = await _usersService.GetPaginatedUsersAsync(
+            var result = await _userService.GetPaginatedUsersAsync(
                 new GetPaginatedInput(request.SearchTerm, request.SearchBy, request.PageIndex, request.PageSize,
                     request.SortBy, request.SortDirection), cancellationToken);
 
@@ -61,7 +61,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return ModelState.ToAction();
             }
 
-            var result = await _usersService.GetUserByIdAsync(new GetUserInput { UserIdOrSlug = request.UserIdOrSlug }, cancellationToken);
+            var result = await _userService.GetUserByIdAsync(new GetUserInput { UserIdOrSlug = request.UserIdOrSlug }, cancellationToken);
 
             return result.ToAction();
         }
@@ -74,7 +74,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return ModelState.ToAction();
             }
 
-            var result = await _usersService.GetUserBySlugAsync(new GetUserInput { UserIdOrSlug = request.UserIdOrSlug }, cancellationToken);
+            var result = await _userService.GetUserBySlugAsync(new GetUserInput { UserIdOrSlug = request.UserIdOrSlug }, cancellationToken);
 
             return result.ToAction();
         }
@@ -87,7 +87,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return ModelState.ToAction();
             }
 
-            var result = await _usersService.UpdateUserAsync(new UpdateUserInput
+            var result = await _userService.UpdateUserAsync(new UpdateUserInput
             {
 
             }, cancellationToken);
@@ -104,7 +104,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return ModelState.ToAction();
             }
 
-            var result = await _usersService.DeleteUserAsync(new DeleteUserInput { UserId = request.UserId }, cancellationToken);
+            var result = await _userService.DeleteUserAsync(new DeleteUserInput { UserId = request.UserId }, cancellationToken);
 
             return result.ToAction();
         }

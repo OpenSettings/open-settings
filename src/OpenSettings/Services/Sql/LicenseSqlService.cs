@@ -11,6 +11,7 @@ using OpenSettings.Extensions;
 using OpenSettings.Models;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Models.Responses;
+using OpenSettings.Services.Interfaces;
 using OpenSettings.Services.MemoryCache;
 using OpenSettings.Services.Sql.Interfaces;
 using System;
@@ -22,11 +23,10 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
-using OpenSettings.Services.Interfaces;
 
 namespace OpenSettings.Services.Sql
 {
-    internal sealed class LicensesSqlService : ILicensesSqlService
+    internal sealed class LicenseSqlService : ILicenseSqlService
     {
         private const string LicenseFileName = "OpenSettings-License.key";
 
@@ -36,13 +36,13 @@ namespace OpenSettings.Services.Sql
         private readonly IOpenSettingsMemoryCache _openSettingsMemoryCache;
         private readonly ILogger _logger;
 
-        public LicensesSqlService(JsonWebTokenHandler jsonWebTokenHandler, OpenSettingsConfiguration openSettingsConfiguration, OpenSettingsDbContext context, IOpenSettingsMemoryCache openSettingsMemoryCache)
+        public LicenseSqlService(JsonWebTokenHandler jsonWebTokenHandler, OpenSettingsConfiguration openSettingsConfiguration, OpenSettingsDbContext context, IOpenSettingsMemoryCache openSettingsMemoryCache)
         {
             _jsonWebTokenHandler = jsonWebTokenHandler;
             _licenseKeyFromProviderConfiguration = openSettingsConfiguration.Provider.LicenseKey;
             _context = context;
             _openSettingsMemoryCache = openSettingsMemoryCache;
-            _logger = openSettingsConfiguration.LoggerFactory.CreateLogger<LicensesSqlService>();
+            _logger = openSettingsConfiguration.LoggerFactory.CreateLogger<LicenseSqlService>();
         }
 
         public async Task<IResponse> GetPaginatedLicensesAsync(GetPaginatedLicensesInput input, CancellationToken cancellationToken)

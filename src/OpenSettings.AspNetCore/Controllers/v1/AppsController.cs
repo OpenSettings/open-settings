@@ -12,16 +12,16 @@ namespace OpenSettings.AspNetCore.Controllers.v1
     [Route(OpenSettingsDefaults.Routes.V1.Apps)]
     public class AppsController : ControllerBase
     {
-        private readonly IAppsService _appsService;
-        private readonly ISettingsService _settingsService;
-        private readonly IInstancesService _instancesService;
-        private readonly IAppIdentifierMappingsService _appIdentifierMappingsService;
-        private readonly IConfigurationsService _configurationsService;
+        private readonly IAppService _appsService;
+        private readonly ISettingsService _settingService;
+        private readonly IInstanceService _instancesService;
+        private readonly IAppIdentifierMappingService _appIdentifierMappingsService;
+        private readonly IConfigurationService _configurationsService;
 
-        public AppsController(IAppsService appsService, ISettingsService settingsService, IInstancesService instancesService, IAppIdentifierMappingsService appIdentifierMappingsService, IConfigurationsService configurationsService)
+        public AppsController(IAppService appsService, ISettingsService settingService, IInstanceService instancesService, IAppIdentifierMappingService appIdentifierMappingsService, IConfigurationService configurationsService)
         {
             _appsService = appsService;
-            _settingsService = settingsService;
+            _settingService = settingService;
             _instancesService = instancesService;
             _appIdentifierMappingsService = appIdentifierMappingsService;
             _configurationsService = configurationsService;
@@ -558,7 +558,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return ModelState.ToAction();
             }
 
-            var result = await _settingsService.GetSettingsByAppIdAndIdentifierIdAsync(
+            var result = await _settingService.GetSettingsByAppIdAndIdentifierIdAsync(
                 new GetSettingsByAppAndIdentifierInput
                 {
                     AppIdOrSlug = request.AppIdOrAppSlug,
@@ -576,7 +576,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return ModelState.ToAction();
             }
 
-            var result = await _settingsService.GetSettingsByAppSlugAndIdentifierSlugAsync(
+            var result = await _settingService.GetSettingsByAppSlugAndIdentifierSlugAsync(
                 new GetSettingsByAppAndIdentifierInput
                 {
                     AppIdOrSlug = request.AppIdOrAppSlug,
@@ -641,7 +641,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return ModelState.ToAction();
             }
 
-            var result = await _settingsService.GetSettingsDataAsync(new GetSettingsDataInput
+            var result = await _settingService.GetSettingsDataAsync(new GetSettingsDataInput
             {
                 AppId = request.AppId,
                 IdentifierId = request.IdentifierId,

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace OpenSettings.Services.Rest
 {
-    public sealed class UsersRestService : IUsersRestService
+    public sealed class UsersRestService : IUserRestService
     {
         public Task<GetOrCreateUserResponse> GetOrCreateUserAsync(GetOrCreateUserInput input, CancellationToken cancellationToken = default)
         {

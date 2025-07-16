@@ -12,21 +12,21 @@ namespace OpenSettings.Services
     /// </summary>
     internal sealed class PollingSettingTimedService : TimedHostedService, IPollingSettingTimedService
     {
-        private readonly ILocalSettingService _localSettingService;
+        private readonly ILocalSettingsService _localSettingsService;
 
-        public PollingSettingTimedService(ILogger<PollingSettingTimedService> logger, ILocalSettingService localSettingService, OpenSettingsConfiguration openSettingsConfiguration) : base(logger, nameof(PollingSettingTimedService),
+        public PollingSettingTimedService(ILogger<PollingSettingTimedService> logger, ILocalSettingsService localSettingsService, OpenSettingsConfiguration openSettingsConfiguration) : base(logger, nameof(PollingSettingTimedService),
             opts =>
             {
                 opts.StartsIn = openSettingsConfiguration.Consumer.PollingSettingsWorker.StartsIn;
                 opts.Period = openSettingsConfiguration.Consumer.PollingSettingsWorker.Period;
             })
         {
-            _localSettingService = localSettingService;
+            _localSettingsService = localSettingsService;
         }
 
         protected override async ValueTask DoWorkAsync(CancellationToken cancellationToken)
         {
-            await _localSettingService.ReloadSettingsAsync(cancellationToken);
+            await _localSettingsService.ReloadSettingsAsync(cancellationToken);
         }
     }
 }

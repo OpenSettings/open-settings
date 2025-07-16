@@ -11,11 +11,11 @@ namespace OpenSettings.AspNetCore.Controllers.v1
     [Route(OpenSettingsDefaults.Routes.V1.Identifiers)]
     public class IdentifiersController : ControllerBase
     {
-        private readonly IIdentifiersService _identifiersService;
+        private readonly IIdentifierService _identifierService;
 
-        public IdentifiersController(IIdentifiersService identifiersService)
+        public IdentifiersController(IIdentifierService identifierService)
         {
-            _identifiersService = identifiersService;
+            _identifierService = identifierService;
         }
 
         [HttpGet]
@@ -26,7 +26,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return ModelState.ToAction();
             }
 
-            var result = await _identifiersService.GetIdentifiersAsync(new GetIdentifiersInput
+            var result = await _identifierService.GetIdentifiersAsync(new GetIdentifiersInput
             {
                 SearchTerm = request.SearchTerm,
                 AppId = request.AppId,
@@ -44,7 +44,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return ModelState.ToAction();
             }
 
-            var result = await _identifiersService.CreateIdentifierAsync(new CreateIdentifierInput
+            var result = await _identifierService.CreateIdentifierAsync(new CreateIdentifierInput
             {
                 Name = request.Body.Name,
                 SortOrder = request.Body.SortOrder,
@@ -63,7 +63,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return ModelState.ToAction();
             }
 
-            var result = await _identifiersService.GetPaginatedIdentifiersAsync(new GetPaginatedInput(request.SearchTerm, request.SearchBy, request.PageIndex, request.PageSize, request.SortBy, request.SortDirection), cancellationToken);
+            var result = await _identifierService.GetPaginatedIdentifiersAsync(new GetPaginatedInput(request.SearchTerm, request.SearchBy, request.PageIndex, request.PageSize, request.SortBy, request.SortDirection), cancellationToken);
 
             return result.ToAction();
         }
@@ -76,7 +76,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return ModelState.ToAction();
             }
 
-            var result = await _identifiersService.DeleteUnmappedIdentifiersAsync(cancellationToken);
+            var result = await _identifierService.DeleteUnmappedIdentifiersAsync(cancellationToken);
 
             return result.ToAction();
         }
@@ -89,7 +89,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return ModelState.ToAction();
             }
 
-            var result = await _identifiersService.GetIdentifierByIdAsync(new GetIdentifierInput { IdentifierIdOrSlug = request.IdentifierIdOrSlug }, cancellationToken);
+            var result = await _identifierService.GetIdentifierByIdAsync(new GetIdentifierInput { IdentifierIdOrSlug = request.IdentifierIdOrSlug }, cancellationToken);
 
             return result.ToAction();
         }
@@ -102,7 +102,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return ModelState.ToAction();
             }
 
-            var result = await _identifiersService.GetIdentifierBySlugAsync(new GetIdentifierInput { IdentifierIdOrSlug = request.IdentifierIdOrSlug }, cancellationToken);
+            var result = await _identifierService.GetIdentifierBySlugAsync(new GetIdentifierInput { IdentifierIdOrSlug = request.IdentifierIdOrSlug }, cancellationToken);
 
             return result.ToAction();
         }
@@ -115,7 +115,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return ModelState.ToAction();
             }
 
-            var result = await _identifiersService.UpdateIdentifierAsync(new UpdateIdentifierInput
+            var result = await _identifierService.UpdateIdentifierAsync(new UpdateIdentifierInput
             {
                 IdentifierId = request.IdentifierId,
                 Name = request.Body.Name,
@@ -136,7 +136,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return ModelState.ToAction();
             }
 
-            var result = await _identifiersService.DeleteIdentifierAsync(new DeleteIdentifierInput
+            var result = await _identifierService.DeleteIdentifierAsync(new DeleteIdentifierInput
             {
                 IdentifierId = request.IdentifierId,
                 RowVersion = request.RowVersion
@@ -153,7 +153,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return ModelState.ToAction();
             }
 
-            var result = await _identifiersService.UpdateIdentifierSortOrderAsync(new UpdateIdentifierSortOrderInput
+            var result = await _identifierService.UpdateIdentifierSortOrderAsync(new UpdateIdentifierSortOrderInput
             {
                 IdentifierId = request.IdentifierId,
                 Ascent = request.Ascent,
@@ -172,7 +172,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return ModelState.ToAction();
             }
 
-            var result = await _identifiersService.DragIdentifierAsync(new DragItemSortOrderInput
+            var result = await _identifierService.DragIdentifierAsync(new DragItemSortOrderInput
             {
                 SourceId = request.SourceId,
                 TargetId = request.TargetId,
@@ -187,7 +187,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         [HttpPost("reorder")]
         public async Task<IActionResult> ReorderIdentifiers()
         {
-            var result = await _identifiersService.ReorderAsync();
+            var result = await _identifierService.ReorderAsync();
 
             return result.ToAction();
         }

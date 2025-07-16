@@ -17,18 +17,10 @@
         public bool Authorize { get; set; }
 
         /// <summary>
-        /// Gets or sets the client's version.
-        /// </summary>
-        /// <remarks>
-        /// e.g. "1.0.0"
-        /// </remarks>
-        public string Version { get; set; }
-
-        /// <summary>
         /// Gets or sets the version of the OpenSettings.
         /// </summary>
         /// <remarks>
-        ///e.g. "1.0.0"
+        /// e.g. "1.0.0"
         /// </remarks>
         public string PackVersion { get; set; }
 

@@ -2,7 +2,7 @@
 
 namespace OpenSettings.Services.Rest.Interfaces
 {
-    public interface ILicensesRestService : ILicensesService
+    public interface ILicenseRestService : ILicenseService
     {
     }
 }

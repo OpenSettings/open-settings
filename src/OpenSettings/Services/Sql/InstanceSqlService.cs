@@ -5,7 +5,6 @@ using Ogu.Response.Abstractions;
 using OpenSettings.Domains.Sql.DataContext;
 using OpenSettings.Domains.Sql.Entities;
 using OpenSettings.Extensions;
-using OpenSettings.Helpers;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Models.Responses;
 using OpenSettings.Services.Sql.Interfaces;
@@ -18,12 +17,12 @@ using System.Threading.Tasks;
 
 namespace OpenSettings.Services.Sql
 {
-    internal sealed class InstancesSqlService : IInstancesSqlService
+    internal sealed class InstanceSqlService : IInstanceSqlService
     {
         private readonly OpenSettingsDbContext _context;
         private readonly IPasswordHasher<AppSqlModel> _passwordHasher;
 
-        public InstancesSqlService(OpenSettingsDbContext context, IPasswordHasher<AppSqlModel> passwordHasher)
+        public InstanceSqlService(OpenSettingsDbContext context, IPasswordHasher<AppSqlModel> passwordHasher)
         {
             _context = context;
             _passwordHasher = passwordHasher;

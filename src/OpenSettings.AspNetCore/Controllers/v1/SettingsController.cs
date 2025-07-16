@@ -15,12 +15,12 @@ namespace OpenSettings.AspNetCore.Controllers.v1
     public class SettingsController : ControllerBase
     {
         private readonly ISettingsService _settingsService;
-        private readonly ISettingHistoriesService _settingHistoriesService;
+        private readonly ISettingHistoryService _settingHistoryService;
 
-        public SettingsController(ISettingsService settingsService, ISettingHistoriesService settingHistoriesService)
+        public SettingsController(ISettingsService settingsService, ISettingHistoryService settingHistoryService)
         {
             _settingsService = settingsService;
-            _settingHistoriesService = settingHistoriesService;
+            _settingHistoryService = settingHistoryService;
         }
 
         [HttpPost]
@@ -138,7 +138,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return ModelState.ToAction();
             }
 
-            var result = await _settingHistoriesService.GetSettingHistoriesAsync(new GetSettingHistoriesInput(request.SettingId, request.Excludes), cancellationToken);
+            var result = await _settingHistoryService.GetSettingHistoriesAsync(new GetSettingHistoriesInput(request.SettingId, request.Excludes), cancellationToken);
 
             return result.ToAction();
         }

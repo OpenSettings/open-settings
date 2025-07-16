@@ -23,20 +23,19 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
-using UserNotificationMappingSqlModel = OpenSettings.Domains.Sql.Entities.UserNotificationMappingSqlModel;
 
 namespace OpenSettings.Services.Sql
 {
-    internal sealed class NotificationsSqlService : INotificationsSqlService
+    internal sealed class NotificationSqlService : INotificationSqlService
     {
         private readonly OpenSettingsDbContext _context;
         private readonly IMemoryCache _memoryCache;
         private readonly IOpenSettingsService _openSettingsService;
-        private readonly ILocksService _locksService;
+        private readonly ILockService _locksService;
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly ITaskQueue _taskQueue;
 
-        public NotificationsSqlService(OpenSettingsDbContext context, IOpenSettingsMemoryCache openSettingsMemoryCache, IOpenSettingsService openSettingsService, ILocksService locksService, IServiceScopeFactory serviceScopeFactory, ITaskQueueFactory taskQueueFactory)
+        public NotificationSqlService(OpenSettingsDbContext context, IOpenSettingsMemoryCache openSettingsMemoryCache, IOpenSettingsService openSettingsService, ILockService locksService, IServiceScopeFactory serviceScopeFactory, ITaskQueueFactory taskQueueFactory)
         {
             _context = context;
             _memoryCache = openSettingsMemoryCache;

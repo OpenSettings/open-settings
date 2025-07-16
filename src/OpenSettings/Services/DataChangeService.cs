@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Ogu.Extensions.Hosting.HostedServices;
 using OpenSettings.Configurations;
+using OpenSettings.Extensions;
 using OpenSettings.Helpers;
 using OpenSettings.Models;
 using OpenSettings.Services.Interfaces;
@@ -8,7 +9,6 @@ using StackExchange.Redis;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using OpenSettings.Extensions;
 
 namespace OpenSettings.Services
 {
@@ -19,7 +19,7 @@ namespace OpenSettings.Services
         private readonly OpenSettingsConfiguration _openSettingsConfiguration;
         private readonly Domains.Redis.DataContext.Context _redisContext;
         private ISubscriber _subscriber;
-        private ILocalSettingService _localSettingService;
+        private ILocalSettingsService _localSettingsService;
 
         public DataChangeService(ITaskQueueFactory taskQueueFactory, IServiceProvider serviceProvider, OpenSettingsConfiguration openSettingsConfiguration, Domains.Redis.DataContext.Context redisContext = null)
         {
@@ -35,21 +35,21 @@ namespace OpenSettings.Services
             {
                 if (_openSettingsConfiguration.IsConsumerSelected)
                 {
-                    _localSettingService = _localSettingService ?? (_localSettingService = _serviceProvider.GetRequiredService<ILocalSettingService>());
-                    await InternalNotifyChangeAsync(_localSettingService, clientId, identifierName, classComputedIdentifier, ct);
+                    _localSettingsService = _localSettingsService ?? (_localSettingsService = _serviceProvider.GetRequiredService<ILocalSettingsService>());
+                    await InternalNotifyChangeAsync(_localSettingsService, clientId, identifierName, classComputedIdentifier, ct);
                 }
                 else
                 {
                     using (var scope = _serviceProvider.CreateScope())
                     {
-                        var localSettingsService = scope.ServiceProvider.GetRequiredService<ILocalSettingService>();
+                        var localSettingsService = scope.ServiceProvider.GetRequiredService<ILocalSettingsService>();
                         await InternalNotifyChangeAsync(localSettingsService, clientId, identifierName, classComputedIdentifier, ct);
                     }
                 }
             }, cancellationToken);
         }
 
-        private async ValueTask InternalNotifyChangeAsync(ILocalSettingService localSettingService, Guid clientId, string identifierName, Guid classComputedIdentifier, CancellationToken cancellationToken)
+        private async ValueTask InternalNotifyChangeAsync(ILocalSettingsService localSettingsService, Guid clientId, string identifierName, Guid classComputedIdentifier, CancellationToken cancellationToken)
         {
             if (string.IsNullOrWhiteSpace(identifierName))
             {
@@ -71,11 +71,11 @@ namespace OpenSettings.Services
             {
                 if (_openSettingsConfiguration.IdentifierNameLowercase == identifierNameLowercase)
                 {
-                    await localSettingService.SettingDataChangeNotifiedAsync(classComputedIdentifier, cancellationToken);
+                    await localSettingsService.SettingDataChangeNotifiedAsync(classComputedIdentifier, cancellationToken);
                 }
                 else
                 {
-                    await localSettingService.ReloadSettingsAsync(identifierNameLowercase, cancellationToken);
+                    await localSettingsService.ReloadSettingsAsync(identifierNameLowercase, cancellationToken);
                 }
             }
         }

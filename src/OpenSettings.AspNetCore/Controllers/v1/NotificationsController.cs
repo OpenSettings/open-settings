@@ -13,11 +13,11 @@ namespace OpenSettings.AspNetCore.Controllers.v1
     [Route(OpenSettingsDefaults.Routes.V1.Notifications)]
     public class NotificationsController : ControllerBase
     {
-        private readonly INotificationsService _notificationsService;
+        private readonly INotificationService _notificationService;
 
-        public NotificationsController(INotificationsService notificationsService)
+        public NotificationsController(INotificationService notificationService)
         {
-            _notificationsService = notificationsService;
+            _notificationService = notificationService;
         }
 
         [HttpGet]
@@ -28,7 +28,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return ModelState.ToAction();
             }
 
-            var result = await _notificationsService.GetNotificationsAsync(new GetNotificationsInput
+            var result = await _notificationService.GetNotificationsAsync(new GetNotificationsInput
             {
                 IsExpired = request.IsExpired,
                 Type = request.Type,
@@ -54,7 +54,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 HttpStatusCode.BadRequest.ToFailureResponse(Errors.UserNotMatched);
             }
 
-            var result = await _notificationsService.GetUserNotificationsAsync(new GetUserNotificationsInput
+            var result = await _notificationService.GetUserNotificationsAsync(new GetUserNotificationsInput
             {
                 UserId = request.UserId,
                 IsOpened = request.IsOpened,
@@ -78,7 +78,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return ModelState.ToAction();
             }
 
-            var result = await _notificationsService.CreateNotificationAsync(new CreateNotificationInput
+            var result = await _notificationService.CreateNotificationAsync(new CreateNotificationInput
             {
                 Id = request.Body.Id,
                 Title = request.Body.Title,
@@ -106,7 +106,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 HttpStatusCode.BadRequest.ToFailureResponse(Errors.UserNotMatched);
             }
 
-            var result = await _notificationsService.MarkNotificationsAsOpenedAsync(new MarkNotificationsAsOpenedInput
+            var result = await _notificationService.MarkNotificationsAsOpenedAsync(new MarkNotificationsAsOpenedInput
             {
                 UserId = request.UserId
             }, cancellationToken);
@@ -129,7 +129,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 HttpStatusCode.BadRequest.ToFailureResponse(Errors.UserNotMatched);
             }
 
-            var result = await _notificationsService.MarkNotificationAsViewedAsync(new MarkNotificationAsInput
+            var result = await _notificationService.MarkNotificationAsViewedAsync(new MarkNotificationAsInput
             {
                 NotificationId = request.NotificationId,
                 UserId = request.UserId
@@ -153,7 +153,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 HttpStatusCode.BadRequest.ToFailureResponse(Errors.UserNotMatched);
             }
 
-            var result = await _notificationsService.MarkNotificationAsDismissedAsync(new MarkNotificationAsInput
+            var result = await _notificationService.MarkNotificationAsDismissedAsync(new MarkNotificationAsInput
             {
                 NotificationId = request.NotificationId,
                 UserId = request.UserId
@@ -170,7 +170,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return ModelState.ToAction();
             }
 
-            var result = await _notificationsService.DispatchNotificationsToUsersAsync(new DispatchNotificationsToUsersInput
+            var result = await _notificationService.DispatchNotificationsToUsersAsync(new DispatchNotificationsToUsersInput
             {
                 NotificationId = request.NotificationId
             }, cancellationToken);

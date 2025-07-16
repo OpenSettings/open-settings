@@ -18,11 +18,11 @@ namespace OpenSettings.Services.Sql
 {
     internal sealed class SortOrderSqlService : ISortOrderSqlService
     {
-        private readonly ILocksSqlService _locksSqlService;
+        private readonly ILockSqlService _locksSqlService;
         private readonly OpenSettingsDbContext _context;
         private readonly Guid _clientId;
 
-        public SortOrderSqlService(ILocksSqlService locksSqlService, OpenSettingsDbContext context, OpenSettingsConfiguration openSettingsConfiguration)
+        public SortOrderSqlService(ILockSqlService locksSqlService, OpenSettingsDbContext context, OpenSettingsConfiguration openSettingsConfiguration)
         {
             _locksSqlService = locksSqlService;
             _context = context;

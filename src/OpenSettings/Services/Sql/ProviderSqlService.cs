@@ -4,12 +4,12 @@ using Ogu.Response.Abstractions;
 using OpenSettings.Configurations;
 using OpenSettings.Domains.Sql.DataContext;
 using OpenSettings.Models;
+using OpenSettings.Models.Responses;
 using OpenSettings.Services.Sql.Interfaces;
 using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using OpenSettings.Models.Responses;
 
 namespace OpenSettings.Services.Sql
 {

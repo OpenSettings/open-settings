@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using OpenSettings.Helpers;
 using OpenSettings.Models;
 using OpenSettings.Models.Responses;
@@ -26,12 +27,13 @@ namespace OpenSettings.Services
         private const string GetConfigsKey = "oss:gca:configs";
         private const string NotificationsConfigName = "notifications";
 
-
+        private readonly ILogger _logger;
         private readonly IMemoryCache _memoryCache;
         private readonly HttpClient _httpClient;
 
-        public OpenSettingsService(IOpenSettingsMemoryCache memoryCache, HttpClient httpClient)
+        public OpenSettingsService(ILogger<OpenSettingsService> logger, IOpenSettingsMemoryCache memoryCache, HttpClient httpClient)
         {
+            _logger = logger;
             _memoryCache = memoryCache;
             _httpClient = httpClient;
         }
@@ -97,7 +99,7 @@ namespace OpenSettings.Services
 #endif
                             );
 
-                        var absoluteExpiration = DateTimeOffset.UtcNow.AddSeconds(data.ExpiresInSeconds);
+                        var absoluteExpiration = DateTimeOffset.UtcNow.AddSeconds(Math.Max(0, data.ExpiresInSeconds));
 
                         c.AbsoluteExpiration = absoluteExpiration;
                         c.AbsoluteExpirationRelativeToNow = null;
@@ -111,6 +113,8 @@ namespace OpenSettings.Services
                 }
                 catch (Exception ex)
                 {
+                    _logger.LogError(ex, "Exception occurred while getting specific config data. Config name: '{configName}'.", configName);
+
                     return null;
                 }
             });
@@ -172,7 +176,7 @@ namespace OpenSettings.Services
                             return null;
                         }
 
-                        var absoluteExpiration = DateTimeOffset.UtcNow.AddSeconds(content.ExpiresInSeconds);
+                        var absoluteExpiration = DateTimeOffset.UtcNow.AddSeconds(Math.Max(0, content.ExpiresInSeconds));
 
                         c.AbsoluteExpiration = absoluteExpiration;
                         c.AbsoluteExpirationRelativeToNow = null;
@@ -186,6 +190,8 @@ namespace OpenSettings.Services
                 }
                 catch (Exception ex)
                 {
+                    _logger.LogError(ex, "Exception occurred while getting configs.");
+
                     return null;
                 }
             });

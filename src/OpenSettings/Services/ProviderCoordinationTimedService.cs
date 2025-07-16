@@ -97,7 +97,7 @@ namespace OpenSettings.Services
 
                     if (await IsMasterStaleAsync(context, cancellationToken))
                     {
-                        var lockService = scope.ServiceProvider.GetRequiredService<ILocksService>();
+                        var lockService = scope.ServiceProvider.GetRequiredService<ILockService>();
 
                         if (await lockService.AcquireLockAsync(_masterAcquireLockInput, cancellationToken))
                         {

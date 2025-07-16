@@ -61,7 +61,7 @@ namespace OpenSettings
         {
             using (var openSettingsHttpClientFactory = new OpenSettingsHttpClientFactory(openSettingsConfiguration))
             {
-                var licensesRestService = new LicensesRestService(openSettingsHttpClientFactory);
+                var licensesRestService = new LicenseRestService(openSettingsHttpClientFactory);
 
                 try
                 {
@@ -95,7 +95,7 @@ namespace OpenSettings
                 {
                     await openSettingsConfiguration.Provider.InitializeDbAsync(context, cancellationToken);
 
-                    var licensesSqlService = new LicensesSqlService(new JsonWebTokenHandler(), openSettingsConfiguration, context, null);
+                    var licensesSqlService = new LicenseSqlService(new JsonWebTokenHandler(), openSettingsConfiguration, context, null);
 
                     var response = await licensesSqlService.GetCurrentLicenseAsync(cancellationToken);
 

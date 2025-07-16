@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace OpenSettings.AspNetCore.Models.Requests
 {
-    public class GetLocalSettingRequest
+    public class GetLocalSettingsRequest
     {
         [FromRoute]
         public Guid ComputedIdentifier { get; set; }

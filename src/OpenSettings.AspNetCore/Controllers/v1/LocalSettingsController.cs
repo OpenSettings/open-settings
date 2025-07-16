@@ -10,21 +10,21 @@ namespace OpenSettings.AspNetCore.Controllers.v1
     [Route(OpenSettingsDefaults.Routes.V1.LocalSettings)]
     public class LocalSettingsController : ControllerBase
     {
-        private readonly ILocalSettingService _localSettingService;
-        public LocalSettingsController(ILocalSettingService localSettingService)
+        private readonly ILocalSettingsService _localSettingsService;
+        public LocalSettingsController(ILocalSettingsService localSettingsService)
         {
-            _localSettingService = localSettingService;
+            _localSettingsService = localSettingsService;
         }
 
         [HttpGet("{ComputedIdentifier:guid}")]
-        public async Task<IActionResult> GetLocalSetting(GetLocalSettingRequest request, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetLocalSettings(GetLocalSettingsRequest request, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {
                 return ModelState.ToAction();
             }
 
-            var result = await _localSettingService.GetLocalSettingAsync(HttpContext.RequestServices, request.ComputedIdentifier, request.ConfigSource, cancellationToken);
+            var result = await _localSettingsService.GetLocalSettingsAsync(HttpContext.RequestServices, request.ComputedIdentifier, request.ConfigSource, cancellationToken);
 
             return result.ToAction();
         }

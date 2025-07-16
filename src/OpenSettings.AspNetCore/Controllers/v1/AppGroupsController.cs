@@ -11,9 +11,9 @@ namespace OpenSettings.AspNetCore.Controllers.v1
     [Route(OpenSettingsDefaults.Routes.V1.AppGroups)]
     public class AppGroupsController : ControllerBase
     {
-        private readonly IAppGroupsService _appGroupsService;
+        private readonly IAppGroupService _appGroupsService;
 
-        public AppGroupsController(IAppGroupsService appGroupsService)
+        public AppGroupsController(IAppGroupService appGroupsService)
         {
             _appGroupsService = appGroupsService;
         }

@@ -12,9 +12,9 @@ namespace OpenSettings.AspNetCore.Controllers.v1
     [Route(OpenSettingsDefaults.Routes.V1.Licenses)]
     public class LicensesController : ControllerBase
     {
-        private readonly ILicensesService _licenseService;
+        private readonly ILicenseService _licenseService;
 
-        public LicensesController(ILicensesService licenseService)
+        public LicensesController(ILicenseService licenseService)
         {
             _licenseService = licenseService;
         }

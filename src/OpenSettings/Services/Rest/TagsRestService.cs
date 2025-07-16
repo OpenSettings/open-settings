@@ -12,13 +12,13 @@ using System.Threading.Tasks;
 
 namespace OpenSettings.Services.Rest
 {
-    public sealed class TagsRestService : ITagsRestService
+    public sealed class TagRestService : ITagRestService
     {
         private HttpClient HttpClient => _httpClientFactory.CreateOpenSettingsHttpClient();
 
         private readonly IHttpClientFactory _httpClientFactory;
 
-        public TagsRestService(IHttpClientFactory httpClientFactory)
+        public TagRestService(IHttpClientFactory httpClientFactory)
         {
             _httpClientFactory = httpClientFactory;
         }

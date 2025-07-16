@@ -21,18 +21,17 @@ using System.Net;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using ConfigurationSqlModel = OpenSettings.Domains.Sql.Entities.ConfigurationSqlModel;
 
 namespace OpenSettings.Services.Sql
 {
-    internal sealed class AppsSqlService : IAppsSqlService
+    internal sealed class AppsSqlService : IAppSqlService
     {
         private const string InitialSettingVersion = "0";
 
         private readonly ILogger _logger;
-        private readonly IIdentifiersSqlService _identifiersSqlService;
-        private readonly IAppGroupsSqlService _appGroupsSqlService;
-        private readonly ITagsSqlService _tagsSqlService;
+        private readonly IIdentifierSqlService _identifierSqlService;
+        private readonly IAppGroupSqlService _appGroupSqlService;
+        private readonly ITagSqlService _tagsSqlService;
         private readonly ICompressionProvider _compressionProvider;
         private readonly IPasswordHasher<AppSqlModel> _passwordHasher;
         private readonly OpenSettingsDbContext _context;
@@ -41,9 +40,9 @@ namespace OpenSettings.Services.Sql
 
         public AppsSqlService(
             ILogger<AppsSqlService> logger,
-            IIdentifiersSqlService identifiersSqlService,
-            IAppGroupsSqlService appGroupsSqlService,
-            ITagsSqlService tagsSqlService,
+            IIdentifierSqlService identifierSqlService,
+            IAppGroupSqlService appGroupSqlService,
+            ITagSqlService tagsSqlService,
             ICompressionProvider compressionProvider,
             IPasswordHasher<AppSqlModel> passwordHasher,
             OpenSettingsDbContext context,
@@ -51,8 +50,8 @@ namespace OpenSettings.Services.Sql
             ProviderInfo providerInfo)
         {
             _logger = logger;
-            _identifiersSqlService = identifiersSqlService;
-            _appGroupsSqlService = appGroupsSqlService;
+            _identifierSqlService = identifierSqlService;
+            _appGroupSqlService = appGroupSqlService;
             _tagsSqlService = tagsSqlService;
             _compressionProvider = compressionProvider;
             _passwordHasher = passwordHasher;
@@ -67,7 +66,7 @@ namespace OpenSettings.Services.Sql
             {
                 input.UserId = input.UserId ?? await GetOrCreateUserAsync(input.Client.Id, input.Client.Secret, input.Client.Name, cancellationToken);
 
-                var identifier = await _identifiersSqlService.GetOrCreateAsync(input.IdentifierName, SetSortOrderPosition.Bottom, input.UserId, cancellationToken);
+                var identifier = await _identifierSqlService.GetOrCreateAsync(input.IdentifierName, SetSortOrderPosition.Bottom, input.UserId, cancellationToken);
 
                 if (!identifier.Success)
                 {
@@ -283,7 +282,7 @@ namespace OpenSettings.Services.Sql
             }
             else
             {
-                var groupJsonResponse = await _appGroupsSqlService.GetOrCreateAsync(input.Group.Name, SetSortOrderPosition.Bottom, input.UpdatedById, cancellationToken);
+                var groupJsonResponse = await _appGroupSqlService.GetOrCreateAsync(input.Group.Name, SetSortOrderPosition.Bottom, input.UpdatedById, cancellationToken);
 
                 if (!groupJsonResponse.Success)
                 {
@@ -615,7 +614,7 @@ namespace OpenSettings.Services.Sql
 
             if (input.Group != null)
             {
-                var groupJsonResponse = await _appGroupsSqlService.GetOrCreateAsync(input.Group.Name, SetSortOrderPosition.Bottom, input.CreatedById, cancellationToken);
+                var groupJsonResponse = await _appGroupSqlService.GetOrCreateAsync(input.Group.Name, SetSortOrderPosition.Bottom, input.CreatedById, cancellationToken);
 
                 if (!groupJsonResponse.Success)
                 {

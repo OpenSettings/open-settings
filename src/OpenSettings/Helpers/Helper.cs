@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using OpenSettings.Attributes;
+﻿using OpenSettings.Attributes;
 using OpenSettings.Exceptions;
 using OpenSettings.Models;
 using OpenSettings.Services.Interfaces;
@@ -9,7 +8,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
@@ -60,26 +58,6 @@ namespace OpenSettings.Helpers
             }
         }
 #endif
-
-        internal static void MarkAsModified<TEntity>(this DbContext context, TEntity entity, params Expression<Func<TEntity, object>>[] properties) where TEntity : class
-        {
-            var entry = context.Entry(entity);
-
-            foreach (var property in properties)
-            {
-                entry.Property(property).IsModified = true;
-            }
-        }
-
-        internal static void MarkAsModified<TEntity>(this DbContext context, TEntity entity, ICollection<Expression<Func<TEntity, object>>> properties) where TEntity : class
-        {
-            var entry = context.Entry(entity);
-
-            foreach (var property in properties)
-            {
-                entry.Property(property).IsModified = true;
-            }
-        }
 
         /// <summary>
         /// Indicates whether the application is running in "Migration" mode.
@@ -384,14 +362,14 @@ namespace OpenSettings.Helpers
 
             var preSettingsData = preSettingsFiles.Values.SelectMany(v => v.Data).ToDictionary(k => k.Key, k => k.Value);
 
-            var enumeratedTypes = settingsTypes?.Length > 0 ? settingsTypes : GetSettingsTypesFromAssemblies();
-
             using (var md5 = MD5.Create())
             {
                 var stringBuilder = new StringBuilder();
 
                 var settingsFilePath = Path.Combine(AppContext.BaseDirectory, OpenSettingsDefaults.Files.SettingsFileNameWithExtension);
                 var generatedSettingsFilePath = Path.Combine(AppContext.BaseDirectory, OpenSettingsDefaults.Files.GeneratedSettingsFileNameWithExtension);
+
+                var enumeratedTypes = settingsTypes?.Length > 0 ? settingsTypes : GetSettingsTypesFromAssemblies();
 
                 return enumeratedTypes
                     .DistinctBy(t => t.FullName)
@@ -421,14 +399,14 @@ namespace OpenSettings.Helpers
                     }
                 );
 
-            var enumeratedTypes = settingsTypes?.Length > 0 ? settingsTypes : GetSettingsTypesFromAssemblies();
-
             using (var md5 = MD5.Create())
             {
                 var stringBuilder = new StringBuilder();
 
                 var settingsFilePath = Path.Combine(AppContext.BaseDirectory, OpenSettingsDefaults.Files.SettingsFileNameWithExtension);
                 var generatedSettingsFilePath = Path.Combine(AppContext.BaseDirectory, OpenSettingsDefaults.Files.GeneratedSettingsFileNameWithExtension);
+
+                var enumeratedTypes = settingsTypes?.Length > 0 ? settingsTypes : GetSettingsTypesFromAssemblies();
 
                 return enumeratedTypes
                     .DistinctBy(t => t.FullName)
@@ -465,11 +443,6 @@ namespace OpenSettings.Helpers
             return Path.Combine(AppContext.BaseDirectory, stringBuilder.ToString());
         }
 
-        internal static string GetSettingFileNameWithExtension(string className)
-        {
-            return $"{OpenSettingsDefaults.Files.SettingsFileNameWithoutExtension}.{className}.{OpenSettingsDefaults.Files.SettingsFileExtension}";
-        }
-
         internal static string GetGeneratedSettingFilePathWithExtension(string className, StringBuilder stringBuilder)
         {
             stringBuilder.Clear();
@@ -482,11 +455,6 @@ namespace OpenSettings.Helpers
             return Path.Combine(AppContext.BaseDirectory, stringBuilder.ToString());
         }
 
-        internal static string GetGeneratedSettingFileNameWithExtension(string className)
-        {
-            return $"{OpenSettingsDefaults.Files.GeneratedSettingsFileNameWithoutExtension}.{className}.{OpenSettingsDefaults.Files.SettingsFileExtension}";
-        }
-
         /// <summary>
         /// Parses an HTTP-date formatted expiration string (RFC1123 format) into a UTC <see cref="DateTime"/>.
         /// </summary>
@@ -495,25 +463,6 @@ namespace OpenSettings.Helpers
         internal static DateTime GetExpiryTime(string expires)
         {
             return DateTime.ParseExact(expires, "R", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
-        }
-
-        private static LocalSetting[] ProcessSettingsTypes(IReadOnlyCollection<Type> settingsTypes, Dictionary<string, object> preSettingsData, bool createInstances, RegistrationMode registrationMode)
-        {
-            var enumeratedTypes = settingsTypes?.Count > 0 ? settingsTypes : GetSettingsTypesFromAssemblies();
-
-            using (var md5 = MD5.Create())
-            {
-                var stringBuilder = new StringBuilder();
-
-                var settingsFilePath = Path.Combine(AppContext.BaseDirectory, OpenSettingsDefaults.Files.SettingsFileNameWithExtension);
-                var generatedSettingsFilePath = Path.Combine(AppContext.BaseDirectory, OpenSettingsDefaults.Files.GeneratedSettingsFileNameWithExtension);
-
-                return enumeratedTypes
-                    .DistinctBy(t => t.FullName)
-                    .Where(t => !t.IsGenericType && t.GetInterface(nameof(ISettings)) != null && t.GetConstructor(Type.EmptyTypes) != null && !t.IsAbstract)
-                    .Select(t => CreateSettingDataFromPreData(md5, t, preSettingsData, settingsFilePath, generatedSettingsFilePath, createInstances, stringBuilder, registrationMode))
-                    .ToArray();
-            }
         }
 
         private static IEnumerable<Type> GetSettingsTypesFromAssemblies()

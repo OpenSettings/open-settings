@@ -3,7 +3,7 @@ using OpenSettings.Services.Sql.Interfaces;
 
 namespace OpenSettings.Services.Sql
 {
-    internal sealed class SettingClassSqlService : ISettingClassesSqlService
+    internal sealed class SettingClassSqlService : ISettingClassSqlService
     {
         private readonly OpenSettingsDbContext _context;
 

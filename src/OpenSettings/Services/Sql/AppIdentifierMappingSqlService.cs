@@ -18,14 +18,14 @@ using System.Threading.Tasks;
 
 namespace OpenSettings.Services.Sql
 {
-    internal sealed class AppIdentifierMappingSqlService : IAppIdentifierMappingsSqlService
+    internal sealed class AppIdentifierMappingSqlService : IAppIdentifierMappingSqlService
     {
         private readonly OpenSettingsDbContext _context;
         private readonly Guid _clientId;
-        private readonly ILocksSqlService _locksSqlService;
-        private readonly IIdentifiersSqlService _identifiersSqlService;
+        private readonly ILockSqlService _locksSqlService;
+        private readonly IIdentifierSqlService _identifiersSqlService;
 
-        public AppIdentifierMappingSqlService(OpenSettingsDbContext context, OpenSettingsConfiguration openSettingsConfiguration, ILocksSqlService locksSqlService, IIdentifiersSqlService identifiersSqlService)
+        public AppIdentifierMappingSqlService(OpenSettingsDbContext context, OpenSettingsConfiguration openSettingsConfiguration, ILockSqlService locksSqlService, IIdentifierSqlService identifiersSqlService)
         {
             _context = context;
             _clientId = openSettingsConfiguration.Client.Id;

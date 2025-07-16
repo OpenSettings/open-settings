@@ -18,14 +18,14 @@ using System.Threading.Tasks;
 
 namespace OpenSettings.Services.Sql
 {
-    internal sealed class SettingHistoriesSqlService : ISettingHistoriesSqlService
+    internal sealed class SettingHistorySqlService : ISettingHistorySqlService
     {
         private readonly IDataChangeService _dataChangeService;
         private readonly IDataValidationService _dataValidationService;
         private readonly ICompressionProvider _compressionProvider;
         private readonly OpenSettingsDbContext _context;
 
-        public SettingHistoriesSqlService(
+        public SettingHistorySqlService(
             IDataChangeService dataChangeService,
             IDataValidationService dataValidationService,
             ICompressionProvider compressionProvider,

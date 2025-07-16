@@ -3,7 +3,7 @@ using OpenSettings.Services.Sql.Interfaces;
 
 namespace OpenSettings.Services.Sql
 {
-    internal sealed class UserNotificationMappingSqlService : IUserNotificationMappingsSqlService
+    internal sealed class UserNotificationMappingSqlService : IUserNotificationMappingSqlService
     {
         private readonly OpenSettingsDbContext _context;
 

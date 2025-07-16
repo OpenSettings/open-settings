@@ -162,7 +162,7 @@ namespace OpenSettings.Extensions
 
             if (!string.IsNullOrWhiteSpace(missingSettings))
             {
-                logger.LogWarning("SkipInitialSyncAppData property is set to true, which triggered the injection of generated settings files. However, the following settings were not found: '{missingSettings}'.", missingSettings);
+                logger.LogWarning("SkipInitialSyncAppData property is set to 'true', which triggered the injection of generated settings files. However, the following settings were not found: '{missingSettings}'.", missingSettings);
             }
 
             await ExecuteWithLocalSettingsServiceAsync(
@@ -202,16 +202,16 @@ namespace OpenSettings.Extensions
             }
         }
 
-        private static async Task ExecuteWithLocalSettingsServiceAsync(Func<LocalSettingService, Task> func,
+        private static async Task ExecuteWithLocalSettingsServiceAsync(Func<LocalSettingsService, Task> func,
          OpenSettingsConfiguration openSettingsConfiguration, CancellationToken cancellationToken)
         {
             if (openSettingsConfiguration.IsConsumerSelected)
             {
                 using (var openSettingsHttpClientFactory = new OpenSettingsHttpClientFactory(openSettingsConfiguration))
                 {
-                    var appsService = new AppsRestService(openSettingsHttpClientFactory, openSettingsConfiguration);
+                    var appsService = new AppRestService(openSettingsHttpClientFactory, openSettingsConfiguration);
                     var settingsService = new SettingsRestService(dataChangeService: null, openSettingsHttpClientFactory, openSettingsConfiguration, providerInfo: null);
-                    var localSettingsService = new LocalSettingService(appsService, settingsService, openSettingsConfiguration);
+                    var localSettingsService = new LocalSettingsService(appsService, settingsService, openSettingsConfiguration);
 
                     await func(localSettingsService);
                 }
@@ -232,26 +232,26 @@ namespace OpenSettings.Extensions
 
                 await openSettingsConfiguration.Provider.InitializeDbAsync(context, cancellationToken);
 
-                var sortOrderSqlService = new SortOrderSqlService(new LocksSqlService(context), context, openSettingsConfiguration);
+                var sortOrderSqlService = new SortOrderSqlService(new LockSqlService(context), context, openSettingsConfiguration);
                 var appGroupsSqlService = new AppGroupSqlService(context, sortOrderSqlService);
                 var tagsSqlService = new TagSqlService(context, sortOrderSqlService);
-                var identifiersSqlService = new IdentifierSqlService(context, sortOrderSqlService);
+                var identifierSqlService = new IdentifierSqlService(context, sortOrderSqlService);
                 var passwordHasher = new PasswordHasher<AppSqlModel>();
 
                 var appsService = new AppsSqlService(
-                    openSettingsConfiguration.LoggerFactory.CreateLogger<AppsSqlService>(), identifiersSqlService,
+                    openSettingsConfiguration.LoggerFactory.CreateLogger<AppsSqlService>(), identifierSqlService,
                     appGroupsSqlService, tagsSqlService, compressionProvider, passwordHasher, context,
                     openSettingsConfiguration, null);
 
-                var settingsService = new SettingSqlService(
+                var settingsService = new SettingsSqlService(
                     dataChangeService: null,
-                    identifiersSqlService,
+                    identifierSqlService,
                     compressionProvider,
                     context,
                     new DataValidationService(openSettingsConfiguration.LoggerFactory.CreateLogger<DataValidationService>()),
                     openSettingsConfiguration);
 
-                var localSettingsService = new LocalSettingService(appsService, settingsService, openSettingsConfiguration);
+                var localSettingsService = new LocalSettingsService(appsService, settingsService, openSettingsConfiguration);
 
                 await func(localSettingsService);
 

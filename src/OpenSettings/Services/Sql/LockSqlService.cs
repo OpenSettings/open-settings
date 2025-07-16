@@ -1,19 +1,19 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OpenSettings.Domains.Sql.DataContext;
+using OpenSettings.Domains.Sql.Entities;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Services.Sql.Interfaces;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using LockSqlModel = OpenSettings.Domains.Sql.Entities.LockSqlModel;
 
 namespace OpenSettings.Services.Sql
 {
-    internal sealed class LocksSqlService : ILocksSqlService
+    internal sealed class LockSqlService : ILockSqlService
     {
         private readonly OpenSettingsDbContext _context;
 
-        public LocksSqlService(OpenSettingsDbContext context)
+        public LockSqlService(OpenSettingsDbContext context)
         {
             _context = context;
         }
