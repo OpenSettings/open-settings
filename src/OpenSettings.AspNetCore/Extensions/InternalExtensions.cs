@@ -1,10 +1,10 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using OpenSettings.AspNetCore.Models;
+using System;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text;
-using Microsoft.AspNetCore.Http;
-using OpenSettings.AspNetCore.Models;
 
 namespace OpenSettings.AspNetCore.Extensions
 {
@@ -45,7 +45,7 @@ namespace OpenSettings.AspNetCore.Extensions
 
         internal static AuthenticationHeaderValue GetAuthenticationHeaderValueFromAuthorizationHeader(this IHeaderDictionary headerDictionary)
         {
-            var authorizationHeader = headerDictionary["Authorization"];
+            var authorizationHeader = headerDictionary[OpenSettingsDefaults.Headers.Authorization];
 
             _ = AuthenticationHeaderValue.TryParse(authorizationHeader, out var authorizationHeaderValue);
 
@@ -54,12 +54,12 @@ namespace OpenSettings.AspNetCore.Extensions
 
         internal static string GetPackVersionHeaderValueOrDefault(this IHeaderDictionary headerDictionary)
         {
-            return headerDictionary.TryGetValue(OpenSettingsDefaults.HeaderNames.PackVersion, out var values) ? values.ToString() : null;
+            return headerDictionary.TryGetValue(OpenSettingsDefaults.Headers.PackVersion, out var values) ? values.ToString() : null;
         }
 
         internal static (string username, string password) GetBasicCredentialsFromAuthHeader(this AuthenticationHeaderValue authenticationHeaderValue)
         {
-            if (authenticationHeaderValue?.Scheme != "Basic")
+            if (authenticationHeaderValue?.Scheme != OpenSettingsDefaults.Names.BasicSchemeName)
             {
                 return default;
             }

@@ -146,7 +146,7 @@ namespace OpenSettings.Services.Sql
         /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
         /// <returns>
         /// A task that represents the asynchronous operation. If successful, it returns an <see cref="IResponse"/> with the license data.
-        /// See data type: <see cref="OpenSettings.Models.License"/>.
+        /// See data type: <see cref="License"/>.
         /// </returns>
         private async Task<IResponse> SaveLicenseAsync(string licenseKey, string licenseKeyObtainedFrom, CancellationToken cancellationToken)
         {

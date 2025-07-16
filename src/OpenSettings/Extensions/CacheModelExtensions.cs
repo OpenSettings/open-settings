@@ -91,7 +91,7 @@ namespace OpenSettings.Extensions
         /// <param name="model">The <see cref="CacheModel"/> representing the cache settings.</param>
         /// <param name="cache">The distributed cache instance to store the value.</param>
         /// <param name="value">The item to store in the cache.</param>
-        /// <param name="cancellationToken">A cancellation token to monitor for cancellation requests.</param>
+        /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
         /// <returns>A task that represents the asynchronous set operation.</returns>
         public static Task SetAsync<TItem>(this CacheModel model, IDistributedCache cache, TItem value, CancellationToken cancellationToken = default)
         {
@@ -134,7 +134,7 @@ namespace OpenSettings.Extensions
         /// <param name="model">The <see cref="CacheModel"/> representing the cache settings.</param>
         /// <param name="cache">The distributed cache instance to store the value.</param>
         /// <param name="factory">The factory function to generate the value if it does not exist in the cache.</param>
-        /// <param name="cancellationToken">A cancellation token to monitor for cancellation requests.</param>
+        /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
         /// <returns>A task that represents the asynchronous get or create operation.</returns>
         public static async Task<TItem> GetOrCreateAsync<TItem>(this CacheModel model, IDistributedCache cache, Func<CacheModel, Task<TItem>> factory, CancellationToken cancellationToken = default)
         {

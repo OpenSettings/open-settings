@@ -72,12 +72,31 @@ namespace OpenSettings
             internal const string ApplicationJson = "application/json";
         }
 
+        /// <summary>
+        /// Provides constant values for header names used in OpenSettings.
+        /// </summary>
         public static class Headers
         {
+            public const string Authorization = "Authorization";
             public const string CacheControl = "Cache-Control";
             public const string Expires = "Expires";
             public const string Referer = "Referer";
             public const string Location = "Location";
+
+            /// <summary>
+            /// The header name used to represent the client id in OpenSettings.
+            /// </summary>
+            public const string ClientId = "x-os-client-id";
+
+            /// <summary>
+            /// The header name used to represent the pack version in OpenSettings.
+            /// </summary>
+            public const string PackVersion = "x-os-pack-version";
+
+            /// <summary>
+            /// The header name used to represent the pack version score in OpenSettings.
+            /// </summary>
+            public const string PackVersionScore = "x-os-pack-version-score";
         }
 
         public static class Format
@@ -235,22 +254,6 @@ namespace OpenSettings
             public const string DbUserDisplayName = "db_user_displayName";
             public const string DbUserInitials = "db_user_initials";
             public const string DbUserImage = "db_user_image";
-        }
-
-        /// <summary>
-        /// Provides constant values for header names used in OpenSettings.
-        /// </summary>
-        public static class HeaderNames
-        {
-            /// <summary>
-            /// The header name used to represent the pack version in OpenSettings.
-            /// </summary>
-            public const string PackVersion = "x-os-pack-version";
-
-            /// <summary>
-            /// The header name used to represent the pack version score in OpenSettings.
-            /// </summary>
-            public const string PackVersionScore = "x-os-pack-version-score";
         }
 
         /// <summary>

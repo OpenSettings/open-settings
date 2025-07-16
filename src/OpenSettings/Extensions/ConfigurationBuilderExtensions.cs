@@ -91,7 +91,7 @@ namespace OpenSettings.Extensions
         /// <param name="configurationBuilder">The configuration builder used to add the settings to the application's configuration.</param>
         /// <param name="openSettingsConfiguration">The settings service configuration determining the behavior (Provider or Consumer).</param>
         /// <param name="environmentName">An optional environment name to customize settings per environment.</param>
-        /// <param name="cancellationToken">A cancellation token to allow cancelling the operation if needed.</param>
+        /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
         /// <param name="settingsTypes">The types of settings to build and configure. Only classes inheriting from <see cref="ISettings"/> will be treated as settings.</param>
         /// <returns>The <see cref="IConfigurationBuilder"/></returns>
         /// <exception cref="MissingConfigurationWhenSkipInitialSyncAppDataException"></exception>

@@ -79,7 +79,7 @@ namespace OpenSettings
                 }
                 catch (Exception ex)
                 {
-                    logger.LogError(ex, "Exception occurred while license initialization for consumer. ProviderUrl: '{providerUrl}'. The fallback license edition is '{license}'.", openSettingsConfiguration.Consumer.ProviderUrl, nameof(License.Community));
+                    logger.LogError(ex, "An exception occurred while license initialization for consumer. ProviderUrl: '{providerUrl}'. The fallback license edition is '{license}'.", openSettingsConfiguration.Consumer.ProviderUrl, nameof(License.Community));
 
                     CurrentLicense = License.Community;
                     CurrentLicense.FailureReasons.Add(LicenseFailureReason.RestException);
@@ -104,7 +104,7 @@ namespace OpenSettings
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Exception occurred while license initialization for provider. The fallback license edition is '{license}'.", nameof(License.Community));
+                logger.LogError(ex, "An exception occurred while license initialization for provider. The fallback license edition is '{license}'.", nameof(License.Community));
 
                 CurrentLicense = License.Community;
                 CurrentLicense.FailureReasons.Add(LicenseFailureReason.SqlException);

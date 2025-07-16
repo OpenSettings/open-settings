@@ -81,9 +81,6 @@ namespace OpenSettings.Helpers
 
         internal static async Task<Dictionary<string, FileMergeResult>> GetPreSettingsFilesAsync(string environmentName, CancellationToken cancellationToken = default)
         {
-            var environmentSuffix = $"-{environmentName}";
-            var environmentSpecificSettingStartsWith = string.Concat(OpenSettingsDefaults.Files.SettingsFileNameWithoutExtension, environmentSuffix);
-
             var baseNameToFileModel = Directory.GetFiles(AppContext.BaseDirectory, string.Concat(OpenSettingsDefaults.Files.SettingsFileNameWithoutExtension, ".*", OpenSettingsDefaults.Files.SettingsFileExtension))
                 .Select(f =>
                 {
@@ -114,6 +111,9 @@ namespace OpenSettings.Helpers
                 })
                 .Where(f => !f.FileName.StartsWith(OpenSettingsDefaults.Files.GeneratedSettingsFileNameWithoutExtension))
                 .ToDictionary(f => f.Name);
+
+            var environmentSuffix = $"-{environmentName}";
+            var environmentSpecificSettingStartsWith = string.Concat(OpenSettingsDefaults.Files.SettingsFileNameWithoutExtension, environmentSuffix);
 
             var environmentNameToFileModel =
 #if NETSTANDARD2_0
@@ -254,6 +254,12 @@ namespace OpenSettings.Helpers
             return nameToFileMergeResult;
         }
 
+        /// <summary>
+        /// Retrieves all generated settings files from the application base directory.
+        /// </summary>
+        /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
+        /// <returns></returns>
+        /// <exception cref="DuplicateSettingsNameException"></exception>
         internal static async Task<Dictionary<string, FileMergeResult>> GetGeneratedSettingsFilesAsync(CancellationToken cancellationToken = default)
         {
             var settingsFullName = new ConcurrentDictionary<string, byte>();

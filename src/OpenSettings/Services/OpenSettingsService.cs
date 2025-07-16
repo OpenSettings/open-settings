@@ -113,7 +113,7 @@ namespace OpenSettings.Services
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Exception occurred while getting specific config data. Config name: '{configName}'.", configName);
+                    _logger.LogError(ex, "An exception occurred while getting specific config data. Config name: '{configName}'.", configName);
 
                     return null;
                 }
@@ -190,7 +190,7 @@ namespace OpenSettings.Services
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Exception occurred while getting configs.");
+                    _logger.LogError(ex, "An exception occurred while getting configs.");
 
                     return null;
                 }

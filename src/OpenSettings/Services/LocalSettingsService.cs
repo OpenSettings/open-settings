@@ -344,7 +344,7 @@ namespace OpenSettings.Services
                 }
                 catch (Exception ex)
                 {
-                    // ignored
+                    _logger.LogError(ex, "An exception occurred while reloading settings: failed to deserialize into the target type. Type: '{typeFullName}'.", settingData.Type.FullName);
                 }
             }
 

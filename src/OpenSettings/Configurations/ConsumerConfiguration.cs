@@ -82,20 +82,17 @@ namespace OpenSettings.Configurations
         /// Configures the provided <paramref name="httpClient"/> with the settings for the consumer.
         /// This method sets the base address, authorization headers, and encodings for the HTTP client.
         /// </summary>
-        /// <param name="httpClient">
-        /// The <see cref="HttpClient"/> to configure with the consumer's settings.
-        /// </param>
-        /// <param name="clientInfo">
-        /// The <see cref="ClientInfo"/> object containing the information for creating authentication headers.
-        /// </param>
+        /// <param name="httpClient">The <see cref="HttpClient"/> to configure with the consumer's settings.</param>
+        /// <param name="clientInfo">The <see cref="ClientInfo"/> object containing the information for creating authentication headers.</param>
         public void ConfigureHttpClient(HttpClient httpClient, ClientInfo clientInfo)
         {
             httpClient.BaseAddress = new Uri(ProviderUrl);
 
             httpClient.DefaultRequestHeaders.Authorization = clientInfo.CreateBasicAuthenticationHeaderValue();
 
-            httpClient.DefaultRequestHeaders.TryAddWithoutValidation(OpenSettingsDefaults.HeaderNames.PackVersion, OpenSettingsAssemblyInfo.Instance.PackVersion);
-            httpClient.DefaultRequestHeaders.TryAddWithoutValidation(OpenSettingsDefaults.HeaderNames.PackVersionScore, $"{OpenSettingsAssemblyInfo.Instance.PackVersionScore}");
+            httpClient.DefaultRequestHeaders.TryAddWithoutValidation(OpenSettingsDefaults.Headers.ClientId, $"{clientInfo.Id}");
+            httpClient.DefaultRequestHeaders.TryAddWithoutValidation(OpenSettingsDefaults.Headers.PackVersion, OpenSettingsAssemblyInfo.Instance.PackVersion);
+            httpClient.DefaultRequestHeaders.TryAddWithoutValidation(OpenSettingsDefaults.Headers.PackVersionScore, $"{OpenSettingsAssemblyInfo.Instance.PackVersionScore}");
             
             RequestEncodings.AddToRequestHeaders(httpClient.DefaultRequestHeaders);
         }
