@@ -94,6 +94,7 @@ namespace OpenSettings.Extensions
         /// <param name="cancellationToken">A cancellation token to allow cancelling the operation if needed.</param>
         /// <param name="settingsTypes">The types of settings to build and configure. Only classes inheriting from <see cref="ISettings"/> will be treated as settings.</param>
         /// <returns>The <see cref="IConfigurationBuilder"/></returns>
+        /// <exception cref="MissingConfigurationWhenSkipInitialSyncAppDataException"></exception>
         public static async Task<IConfigurationBuilder> BuildSettingsAsync(
             this ConfigurationBuilder configurationBuilder,
             OpenSettingsConfiguration openSettingsConfiguration,

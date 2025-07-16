@@ -4,6 +4,7 @@ using OpenSettings.Extensions;
 using OpenSettings.Models;
 using OpenSettings.Services.Interfaces;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -26,7 +27,6 @@ namespace OpenSettings.Helpers
 
             using (var md5 = MD5.Create())
             {
-
                 var settingsFilePath = Path.Combine(AppContext.BaseDirectory, OpenSettingsDefaults.Files.SettingsFileNameWithExtension);
                 var generatedSettingsFilePath = Path.Combine(AppContext.BaseDirectory, OpenSettingsDefaults.Files.GeneratedSettingsFileNameWithExtension);
 
@@ -36,7 +36,7 @@ namespace OpenSettings.Helpers
 
                 return enumeratedTypes
                     .DistinctBy(t => t.FullName)
-                    .Where(t => !t.IsGenericType && t.GetInterface(nameof(ISettings)) != null && t.GetConstructor(Type.EmptyTypes) != null && !t.IsAbstract)
+                    .Where(IsSettingsType)
                     .Select(t => CreateSettingDataFromPreData(md5, t, preSettingsData, settingsFilePath, generatedSettingsFilePath, operation == Operation.ReadOrInitialize, stringBuilder, registrationMode))
                     .ToArray();
             }
@@ -64,7 +64,6 @@ namespace OpenSettings.Helpers
 
             using (var md5 = MD5.Create())
             {
-
                 var settingsFilePath = Path.Combine(AppContext.BaseDirectory, OpenSettingsDefaults.Files.SettingsFileNameWithExtension);
                 var generatedSettingsFilePath = Path.Combine(AppContext.BaseDirectory, OpenSettingsDefaults.Files.GeneratedSettingsFileNameWithExtension);
 
@@ -74,7 +73,7 @@ namespace OpenSettings.Helpers
 
                 return enumeratedTypes
                     .DistinctBy(t => t.FullName)
-                    .Where(t => !t.IsGenericType && t.GetInterface(nameof(ISettings)) != null && t.GetConstructor(Type.EmptyTypes) != null && !t.IsAbstract)
+                    .Where(IsSettingsType)
                     .Select(t => CreateSettingDataFromGeneratedData(md5, t, fullNameToGeneratedSettingData, settingsFilePath, generatedSettingsFilePath, operation == Operation.ReadOrInitialize, stringBuilder, registrationMode))
                     .ToArray();
             }
@@ -163,8 +162,7 @@ namespace OpenSettings.Helpers
                     var jsonMergeResult =
                         await JsonHelper.MergeFileAsync(baseFile.Value.FilePath, environmentFile.FilePath, cancellationToken);
 
-                    foreach (var duplicate in jsonMergeResult.Data.Keys.Select(k => k.ToLower())
-                                 .Where(k => !settingsFullName.Add(k)))
+                    foreach (var duplicate in jsonMergeResult.Data.Keys.Select(k => k.ToLower()).Where(k => !settingsFullName.Add(k)))
                     {
                         duplicateSettingsFullName.Add(duplicate);
                     }
@@ -258,49 +256,36 @@ namespace OpenSettings.Helpers
 
         internal static async Task<Dictionary<string, FileMergeResult>> GetGeneratedSettingsFilesAsync(CancellationToken cancellationToken = default)
         {
-            var baseNameToFileModel = Directory.GetFiles(AppContext.BaseDirectory, string.Concat(OpenSettingsDefaults.Files.GeneratedSettingsFileNameWithoutExtension, ".*", OpenSettingsDefaults.Files.SettingsFileExtension))
-                .Select(f =>
-                {
-                    var fileName = Path.GetFileNameWithoutExtension(f);
+            var settingsFullName = new ConcurrentDictionary<string, byte>();
 
-                    bool storedInSeparateFile;
-                    string name;
+            var duplicateSettingsFullName = new ConcurrentDictionary<string, byte>();
 
-                    if (fileName == OpenSettingsDefaults.Files.GeneratedSettingsFileNameWithoutExtension)
-                    {
-                        name = OpenSettingsDefaults.Files.SettingsFileNameTag;
-                        storedInSeparateFile = false;
-                        fileName = OpenSettingsDefaults.Files.SettingsFileNameWithoutExtension;
-                    }
-                    else
-                    {
-                        name = fileName.Remove(0, OpenSettingsDefaults.Files.GeneratedSettingsFileNameWithoutExtension.Length + 1);
-                        storedInSeparateFile = true;
-                    }
-
-                    return new
-                    {
-                        Name = name,
-                        FilePath = f,
-                        FileName = fileName,
-                        StoredInSeparateFile = storedInSeparateFile
-                    };
-                })
-                .ToDictionary(f => f.Name);
-
-            var settingsFullName = new HashSet<string>();
-
-            var duplicateSettingsFullName = new HashSet<string>();
-
-            var fileMergeResultsTasks = baseNameToFileModel.Select(async baseFile =>
+            var fileMergeResultsTasks = Directory.GetFiles(AppContext.BaseDirectory,
+                string.Concat(OpenSettingsDefaults.Files.GeneratedSettingsFileNameWithoutExtension, ".*",
+                    OpenSettingsDefaults.Files.SettingsFileExtension)).Select(async filePath =>
             {
-                var name = baseFile.Key;
+                var fileName = Path.GetFileNameWithoutExtension(filePath);
 
-                var data = await JsonHelper.GetJsonFileAsync(baseFile.Value.FilePath, cancellationToken);
+                bool storedInSeparateFile;
+                string name;
 
-                foreach (var duplicate in data.Keys.Select(k => k.ToLower()).Where(k => !settingsFullName.Add(k)))
+                if (fileName == OpenSettingsDefaults.Files.GeneratedSettingsFileNameWithoutExtension)
                 {
-                    duplicateSettingsFullName.Add(duplicate);
+                    name = OpenSettingsDefaults.Files.SettingsFileNameTag;
+                    storedInSeparateFile = false;
+                    fileName = OpenSettingsDefaults.Files.SettingsFileNameWithoutExtension;
+                }
+                else
+                {
+                    name = fileName.Remove(0, OpenSettingsDefaults.Files.GeneratedSettingsFileNameWithoutExtension.Length + 1);
+                    storedInSeparateFile = true;
+                }
+
+                var data = await JsonHelper.GetJsonFileAsync(filePath, cancellationToken);
+
+                foreach (var duplicate in data.Keys.Select(k => k.ToLower()).Where(k => !settingsFullName.TryAdd(k, 0)))
+                {
+                    duplicateSettingsFullName.AddOrUpdate(duplicate, 0, (_, __) => 0);
                 }
 
                 return new FileMergeResult
@@ -310,23 +295,23 @@ namespace OpenSettings.Helpers
                     {
                         new FileModel // Base file
                         {
-                            FilePath = baseFile.Value.FilePath,
-                            FileName = baseFile.Value.FileName
+                            FilePath = filePath,
+                            FileName = fileName
                         }
                     },
                     Name = name,
-                    StoredInSeparateFile = baseFile.Value.StoredInSeparateFile
+                    StoredInSeparateFile = storedInSeparateFile
                 };
             });
 
-            var nameToFileMergeResult = (await Task.WhenAll(fileMergeResultsTasks)).ToDictionary(f => f.Name);
+            var fileMergeResults = await Task.WhenAll(fileMergeResultsTasks);
 
-            if (duplicateSettingsFullName.Count > 0)
+            if (!duplicateSettingsFullName.IsEmpty)
             {
-                throw new DuplicateSettingsNameException(duplicateSettingsFullName);
+                throw new DuplicateSettingsNameException(duplicateSettingsFullName.Keys);
             }
 
-            return nameToFileMergeResult;
+            return fileMergeResults.ToDictionary(f => f.Name);
         }
 
         internal static string GetSettingFilePathWithExtension(string className, StringBuilder stringBuilder)
@@ -353,31 +338,27 @@ namespace OpenSettings.Helpers
 
         private static LocalSetting CreateSettingDataFromPreData(MD5 md5, Type type, Dictionary<string, object> preSettingsData, string settingsFilePath, string generatedSettingsFilePath, bool createInstance, StringBuilder stringBuilder, RegistrationMode registrationMode)
         {
-            ISettings instance = null;
-
-            if (preSettingsData.TryGetValue(type.FullName, out var jsonSettings))
-            {
-                instance = JsonSerializer.Deserialize($"{jsonSettings}", type) as ISettings;
-            }
-            else if (createInstance)
-            {
-                instance = Activator.CreateInstance(type) as ISettings;
-            }
-
             var settingData = new LocalSetting
             {
                 Type = type,
-                ComputedIdentifier = ((ComputedIdentifierAttribute)type.GetCustomAttribute(OpenSettingsDefaults.Types.ComputedIdentifierAttributeType, true))?.ComputedIdentifier ?? Helper.ComputeIdentifier(md5, type.FullName),
-                Instance = instance
+                ComputedIdentifier = ((ComputedIdentifierAttribute)type.GetCustomAttribute(OpenSettingsDefaults.Types.ComputedIdentifierAttributeType, true))?.ComputedIdentifier ?? Helper.ComputeIdentifier(md5, type.FullName)
             };
 
             var storeInSeparateFileAttribute = (StoreInSeparateFileAttribute)type.GetCustomAttribute(OpenSettingsDefaults.Types.StoreInSeparateFileAttributeType, true);
+
+            if (preSettingsData.TryGetValue(type.FullName, out var jsonSettings))
+            {
+                settingData.Instance = JsonSerializer.Deserialize($"{jsonSettings}", type) as ISettings;
+            }
+            else if (createInstance)
+            {
+                settingData.Instance = Activator.CreateInstance(type) as ISettings;
+            }
 
             if (storeInSeparateFileAttribute == null)
             {
                 settingData.FilePath = settingsFilePath;
                 settingData.GeneratedFilePath = generatedSettingsFilePath;
-                settingData.HasStoreInSeparateFileAttribute = false;
             }
             else
             {
@@ -405,69 +386,47 @@ namespace OpenSettings.Helpers
 
         private static LocalSetting CreateSettingDataFromGeneratedData(MD5 md5, Type type, Dictionary<string, GeneratedSettingData> generatedSettingsData, string settingsFilePath, string generatedSettingsFilePath, bool createInstance, StringBuilder stringBuilder, RegistrationMode registrationMode)
         {
-            ISettings instance = null;
-
             var settingData = new LocalSetting
             {
                 Type = type,
-                ComputedIdentifier = ((ComputedIdentifierAttribute)type.GetCustomAttribute(OpenSettingsDefaults.Types.ComputedIdentifierAttributeType, true))?.ComputedIdentifier ?? Helper.ComputeIdentifier(md5, type.FullName)
+                ComputedIdentifier = ((ComputedIdentifierAttribute)type.GetCustomAttribute(OpenSettingsDefaults.Types.ComputedIdentifierAttributeType, true))?.ComputedIdentifier ?? Helper.ComputeIdentifier(md5, type.FullName),
             };
 
             var storeInSeparateFileAttribute = (StoreInSeparateFileAttribute)type.GetCustomAttribute(OpenSettingsDefaults.Types.StoreInSeparateFileAttributeType, true);
 
-            settingData.HasStoreInSeparateFileAttribute = storeInSeparateFileAttribute != null;
+            if (storeInSeparateFileAttribute != null)
+            {
+                settingData.HasStoreInSeparateFileAttribute = true;
+                settingData.IgnoreOnFileChange = storeInSeparateFileAttribute.IgnoreOnFileChange;
+            }
+
+            bool shouldStoreSeparately;
 
             if (generatedSettingsData.TryGetValue(type.Name, out var generatedSettingData))
             {
-                instance = JsonSerializer.Deserialize($"{generatedSettingData.Value}", type) as ISettings;
+                settingData.Instance = JsonSerializer.Deserialize($"{generatedSettingData.Value}", type) as ISettings;
                 settingData.IsPreDataExists = true;
-                settingData.StoreInSeparateFile = generatedSettingData.StoredInSeparateFile;
-
-                if (generatedSettingData.StoredInSeparateFile)
-                {
-                    settingData.FilePath = GetSettingFilePathWithExtension(type.Name, stringBuilder);
-                    settingData.GeneratedFilePath = GetGeneratedSettingFilePathWithExtension(type.Name, stringBuilder);
-                }
-                else
-                {
-                    settingData.FilePath = settingsFilePath;
-                    settingData.GeneratedFilePath = generatedSettingsFilePath;
-                }
-            }
-            else if (createInstance)
-            {
-                instance = Activator.CreateInstance(type) as ISettings;
-
-                if (settingData.HasStoreInSeparateFileAttribute)
-                {
-                    settingData.FilePath = GetSettingFilePathWithExtension(type.Name, stringBuilder);
-                    settingData.GeneratedFilePath = GetGeneratedSettingFilePathWithExtension(type.Name, stringBuilder);
-                }
-                else
-                {
-                    settingData.FilePath = settingsFilePath;
-                    settingData.GeneratedFilePath = generatedSettingsFilePath;
-                }
+                settingData.StoreInSeparateFile = shouldStoreSeparately = generatedSettingData.StoredInSeparateFile;
             }
             else
             {
-                if (settingData.HasStoreInSeparateFileAttribute)
+                if (createInstance)
                 {
-                    settingData.FilePath = GetSettingFilePathWithExtension(type.Name, stringBuilder);
-                    settingData.GeneratedFilePath = GetGeneratedSettingFilePathWithExtension(type.Name, stringBuilder);
+                    settingData.Instance = Activator.CreateInstance(type) as ISettings;
                 }
-                else
-                {
-                    settingData.FilePath = settingsFilePath;
-                    settingData.GeneratedFilePath = generatedSettingsFilePath;
-                }
+
+                shouldStoreSeparately = settingData.HasStoreInSeparateFileAttribute;
             }
 
-            settingData.Instance = instance;
-
-            if (storeInSeparateFileAttribute != null)
+            if (shouldStoreSeparately)
             {
-                settingData.IgnoreOnFileChange = storeInSeparateFileAttribute.IgnoreOnFileChange;
+                settingData.FilePath = GetSettingFilePathWithExtension(type.Name, stringBuilder);
+                settingData.GeneratedFilePath = GetGeneratedSettingFilePathWithExtension(type.Name, stringBuilder);
+            }
+            else
+            {
+                settingData.FilePath = settingsFilePath;
+                settingData.GeneratedFilePath = generatedSettingsFilePath;
             }
 
             var registrationModeAttribute = type.GetCustomAttribute(OpenSettingsDefaults.Types.RegistrationModeAttributeType, true);
@@ -483,6 +442,12 @@ namespace OpenSettings.Helpers
             }
 
             return settingData;
+        }
+
+        private static bool IsSettingsType(Type type)
+        {
+            return !type.IsGenericType && type.GetInterface(nameof(ISettings)) != null &&
+                   type.GetConstructor(Type.EmptyTypes) != null && !type.IsAbstract;
         }
     }
 }
