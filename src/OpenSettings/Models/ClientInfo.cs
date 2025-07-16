@@ -30,13 +30,13 @@ namespace OpenSettings.Models
 
             if (string.IsNullOrWhiteSpace(version))
             {
-                Version = GetVersion(assemblyName);
+                Version = VersionHelper.GetVersion(assemblyName);
             }
             else
             {
                 version = Regex.Replace(version, "[^0-9.]", string.Empty).Trim(OpenSettingsDefaults.Format.DotChar);
 
-                Version = version == string.Empty ? GetVersion(assemblyName) : version;
+                Version = version == string.Empty ? VersionHelper.GetVersion(assemblyName) : version;
             }
         }
 
@@ -66,11 +66,6 @@ namespace OpenSettings.Models
         {
             return entryAssembly?.Name ??
                    Path.GetFileNameWithoutExtension(Environment.GetCommandLineArgs()[0]);
-        }
-
-        private static string GetVersion(AssemblyName entryAssembly)
-        {
-            return entryAssembly?.Version.ToVersion() ?? OpenSettingsDefaults.DefaultVersion;
         }
     }
 }

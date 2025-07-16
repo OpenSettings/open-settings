@@ -1,5 +1,4 @@
 ﻿using OpenSettings.Helpers;
-using System;
 
 namespace OpenSettings.Models
 {
@@ -25,9 +24,7 @@ namespace OpenSettings.Models
             FullName = assemblyName.FullName;
             Name = assemblyName.Name;
 
-            var version = assemblyName.Version ?? new Version(1, 0, 0);
-
-            Version = version.ToVersion();
+            Version = VersionHelper.GetVersion(assemblyName);
 
             var packInfo = assembly.GetPackInfo();
 

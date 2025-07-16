@@ -747,8 +747,8 @@ namespace OpenSettings.Services
 
                     if (localSetting.StoreInSeparateFile)
                     {
-                        filePath = Helper.GetSettingFilePathWithExtension(localSetting.Type.Name, stringBuilder);
-                        generatedFilePath = Helper.GetGeneratedSettingFilePathWithExtension(localSetting.Type.Name, stringBuilder);
+                        filePath = SettingsFileHelper.GetSettingFilePathWithExtension(localSetting.Type.Name, stringBuilder);
+                        generatedFilePath = SettingsFileHelper.GetGeneratedSettingFilePathWithExtension(localSetting.Type.Name, stringBuilder);
                     }
                     else
                     {

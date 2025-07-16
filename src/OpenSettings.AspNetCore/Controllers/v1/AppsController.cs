@@ -6,6 +6,7 @@ using OpenSettings.Services.Interfaces;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using OpenSettings.AspNetCore.Extensions;
 
 namespace OpenSettings.AspNetCore.Controllers.v1
 {

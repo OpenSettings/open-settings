@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
-using OpenSettings.Helpers;
+using OpenSettings.Extensions;
 using OpenSettings.Models;
 using OpenSettings.Models.Responses;
 using OpenSettings.Services.Interfaces;

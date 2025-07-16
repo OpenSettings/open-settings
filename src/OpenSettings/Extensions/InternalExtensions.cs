@@ -22,6 +22,31 @@ namespace OpenSettings.Extensions
 {
     internal static class InternalExtensions
     {
+#if !NET6_0_OR_GREATER
+        /// <summary>
+        /// Returns distinct elements from a sequence based on a specified key selector.
+        /// </summary>
+        /// <typeparam name="TSource">The type of elements in the source sequence.</typeparam>
+        /// <typeparam name="TKey">The type of the key used for distinct comparisons.</typeparam>
+        /// <param name="source">The sequence to remove duplicates from.</param>
+        /// <param name="keySelector">A function that extracts the key for each element.</param>
+        /// <returns>
+        /// An <see cref="IEnumerable{T}"/> containing distinct elements from the source sequence.
+        /// </returns>
+        public static IEnumerable<TSource> DistinctBy<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector)
+        {
+            var seenKeys = new HashSet<TKey>();
+
+            foreach (var element in source)
+            {
+                if (seenKeys.Add(keySelector(element)))
+                {
+                    yield return element;
+                }
+            }
+        }
+#endif
+
         internal static ITaskQueue GetNotificationQueue(this ITaskQueueFactory taskQueueFactory)
         {
             return taskQueueFactory.Get(OpenSettingsDefaults.TaskQueues.Notification);

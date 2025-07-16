@@ -1711,7 +1711,7 @@ namespace OpenSettings.Services.Sql
                     existingSetting.CompressionType = _openSettingsConfiguration.Provider.CompressionType;
                     existingSetting.CompressionLevel = _openSettingsConfiguration.Provider.CompressionLevel;
                     existingSetting.Data = await _compressionProvider.CompressAsync(_openSettingsConfiguration.Provider.CompressionType, data, _openSettingsConfiguration.Provider.CompressionLevel, cancellationToken);
-                    existingSetting.Version = Helper.CalculateVersion(currentTime, existingSetting.CreatedOn);
+                    existingSetting.Version = Helper.GenerateSettingVersion(currentTime, existingSetting.CreatedOn);
                     existingSetting.DataRestored = false;
                     existingSetting.UpdatedOn = currentTime;
                     existingSetting.UpdatedById = userId;

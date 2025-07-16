@@ -115,7 +115,7 @@ namespace OpenSettings.Extensions
 
         private static async Task<ConfigurationBuilder> GenerateConfigurationWithSyncAsync(ConfigurationBuilder configurationBuilder, string environmentName, OpenSettingsConfiguration openSettingsConfiguration, Type[] settingsTypes, CancellationToken cancellationToken)
         {
-            var localSettings = await Helper.CreateLocalSettingsFromFiles(environmentName, openSettingsConfiguration.RegistrationMode, openSettingsConfiguration.Operation, cancellationToken, settingsTypes);
+            var localSettings = await SettingsFileHelper.CreateLocalSettingsFromFiles(environmentName, openSettingsConfiguration.RegistrationMode, openSettingsConfiguration.Operation, cancellationToken, settingsTypes);
 
             InitializeConstants(localSettings);
 
@@ -150,7 +150,7 @@ namespace OpenSettings.Extensions
 
             openSettingsConfiguration.Update(syncAppDataResponse.Configuration);
 
-            var localSettings = await Helper.CreateLocalSettingsFromGeneratedFilesAsync(
+            var localSettings = await SettingsFileHelper.CreateLocalSettingsFromGeneratedFilesAsync(
                 openSettingsConfiguration.RegistrationMode, openSettingsConfiguration.Operation,
                 cancellationToken, settingsTypes);
 

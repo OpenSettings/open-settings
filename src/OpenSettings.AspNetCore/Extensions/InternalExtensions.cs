@@ -1,12 +1,12 @@
-﻿using Microsoft.AspNetCore.Http;
-using OpenSettings.AspNetCore.Models;
-using System;
+﻿using System;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Http;
+using OpenSettings.AspNetCore.Models;
 
-namespace OpenSettings.AspNetCore
+namespace OpenSettings.AspNetCore.Extensions
 {
     internal static class InternalExtensions
     {
