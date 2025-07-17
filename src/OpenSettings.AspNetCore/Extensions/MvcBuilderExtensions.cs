@@ -192,9 +192,9 @@ namespace OpenSettings.AspNetCore.Extensions
 
                         context.Principal?.AddIdentity(new ClaimsIdentity(new Claim[]
                         {
-                                new Claim(OpenSettingsDefaults.Claims.DbUserId, $"{user.Id}"),
-                                new Claim(OpenSettingsDefaults.Claims.DbUserDisplayName, user.DisplayName),
-                                new Claim(OpenSettingsDefaults.Claims.DbUserInitials, user.Initials)
+                            new Claim(OpenSettingsDefaults.Claims.DbUserId, $"{user.Id}"),
+                            new Claim(OpenSettingsDefaults.Claims.DbUserDisplayName, user.DisplayName),
+                            new Claim(OpenSettingsDefaults.Claims.DbUserInitials, user.Initials)
                         }));
                     },
                     OnRemoteFailure = context =>

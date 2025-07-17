@@ -2,7 +2,7 @@
 {
     public enum AppType
     {
-        Unknown = 0,
+        Unset = 0,
 
         Dotnet = 1,
 

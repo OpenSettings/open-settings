@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
+using OpenSettings.AspNetCore.Extensions;
 using OpenSettings.AspNetCore.Models.Requests;
 using OpenSettings.AspNetCore.Services.Interfaces;
 using OpenSettings.Configurations;
@@ -14,7 +15,6 @@ using System.Net.Http;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-using OpenSettings.AspNetCore.Extensions;
 
 namespace OpenSettings.AspNetCore.Controllers.v1
 {
@@ -66,7 +66,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
 
             var authHeader = Request.Headers.GetAuthenticationHeaderValueFromAuthorizationHeader();
 
-            if (authHeader?.Parameter != "Basic")
+            if (authHeader?.Parameter != OpenSettingsDefaults.Names.BasicSchemeName)
             {
                 return Ok(new AuthenticatedResponse
                 {

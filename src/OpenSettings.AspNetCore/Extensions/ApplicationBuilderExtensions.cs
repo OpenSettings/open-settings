@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using OpenSettings.AspNetCore.Services.Interfaces;
 using OpenSettings.AspNetCore.Spa;
 using OpenSettings.Configurations;
 using OpenSettings.Models.Inputs;

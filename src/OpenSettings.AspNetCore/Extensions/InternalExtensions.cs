@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http;
-using OpenSettings.AspNetCore.Models;
 using System;
 using System.Linq;
 using System.Net.Http.Headers;
@@ -10,28 +9,11 @@ namespace OpenSettings.AspNetCore.Extensions
 {
     internal static class InternalExtensions
     {
-        internal static (Guid clientId, Guid clientSecret) GetClientCredentials(this HttpContext httpContext)
-        {
-            var (username, password) = httpContext.Request.Headers.GetAuthenticationHeaderValueFromAuthorizationHeader()
-                .GetBasicCredentialsFromAuthHeader();
-
-            return (Guid.Parse(username), Guid.Parse(password));
-        }
-
-        internal static RoleType GetRole(this HttpContext httpContext)
-        {
-            _ = Enum.TryParse(httpContext.User.Claims.FirstOrDefault(x => x.Type.Equals(ClaimTypes.Role))?.Value, out RoleType role);
-
-            return role;
-        }
-
         internal static AuthenticationHeaderValue GetAuthenticationHeaderValueFromAuthorizationHeader(this IHeaderDictionary headerDictionary)
         {
             var authorizationHeader = headerDictionary[OpenSettingsDefaults.Headers.Authorization];
 
-            _ = AuthenticationHeaderValue.TryParse(authorizationHeader, out var authorizationHeaderValue);
-
-            return authorizationHeaderValue;
+            return AuthenticationHeaderValue.TryParse(authorizationHeader, out var authorizationHeaderValue) ? authorizationHeaderValue : null;
         }
 
         internal static string GetPackVersionHeaderValueOrDefault(this IHeaderDictionary headerDictionary)
@@ -68,9 +50,7 @@ namespace OpenSettings.AspNetCore.Extensions
 
         internal static string GetUserDisplayName(this ClaimsPrincipal claimsPrincipal)
         {
-            var claim = claimsPrincipal.GetClaim(OpenSettingsDefaults.Claims.DbUserDisplayName);
-
-            return claim?.Value;
+            return claimsPrincipal.GetClaim(OpenSettingsDefaults.Claims.DbUserDisplayName)?.Value;
         }
 
         private static Claim GetClaim(this ClaimsPrincipal claimsPrincipal, string claimType)

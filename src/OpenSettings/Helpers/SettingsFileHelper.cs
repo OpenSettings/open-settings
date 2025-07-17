@@ -81,37 +81,6 @@ namespace OpenSettings.Helpers
 
         internal static async Task<Dictionary<string, FileMergeResult>> GetPreSettingsFilesAsync(string environmentName, CancellationToken cancellationToken = default)
         {
-            var baseNameToFileModel = Directory.GetFiles(AppContext.BaseDirectory, string.Concat(OpenSettingsDefaults.Files.SettingsFileNameWithoutExtension, ".*", OpenSettingsDefaults.Files.SettingsFileExtension))
-                .Select(f =>
-                {
-                    var fileName = Path.GetFileNameWithoutExtension(f);
-
-                    bool storedInSeparateFile;
-                    string name;
-
-                    if (fileName == OpenSettingsDefaults.Files.SettingsFileNameWithoutExtension)
-                    {
-                        name = OpenSettingsDefaults.Files.SettingsFileNameTag;
-                        storedInSeparateFile = false;
-                    }
-                    else
-                    {
-                        name = fileName.Remove(0, OpenSettingsDefaults.Files.SettingsFileNameWithoutExtension.Length + 1);
-                        storedInSeparateFile = true;
-                    }
-
-                    return new
-                    {
-                        Name = name,
-                        FilePath = f,
-                        FileName = fileName,
-                        StoredInSeparateFile = storedInSeparateFile
-                        //EnvironmentSpecificFileName = fileName.Insert(OpenSettingsDefaults.Files.SettingsFileNameWithoutExtension.Length, environmentSuffix)
-                    };
-                })
-                .Where(f => !f.FileName.StartsWith(OpenSettingsDefaults.Files.GeneratedSettingsFileNameWithoutExtension))
-                .ToDictionary(f => f.Name);
-
             var environmentSuffix = $"-{environmentName}";
             var environmentSpecificSettingStartsWith = string.Concat(OpenSettingsDefaults.Files.SettingsFileNameWithoutExtension, environmentSuffix);
 
@@ -148,79 +117,102 @@ namespace OpenSettings.Helpers
                         };
                     }).ToDictionary(f => f.Name);
 
-            var settingsFullName = new HashSet<string>();
+            var settingsFullName = new ConcurrentDictionary<string, byte>();
 
-            var duplicateSettingsFullName = new HashSet<string>();
+            var duplicateSettingsFullName = new ConcurrentDictionary<string, byte>();
 
-            var fileMergeResultsTasks = baseNameToFileModel.Select(async baseFile =>
-            {
-                var name = baseFile.Key;
-                //var environmentSpecificFileName = baseFile.Value.EnvironmentSpecificFileName;
-
-                if (environmentNameToFileModel.TryGetValue(name, out var environmentFile))
+            var fileMergeResultsTasks = Directory.GetFiles(AppContext.BaseDirectory, string.Concat(OpenSettingsDefaults.Files.SettingsFileNameWithoutExtension, ".*", OpenSettingsDefaults.Files.SettingsFileExtension))
+                .Select(async filePath =>
                 {
-                    var jsonMergeResult =
-                        await JsonHelper.MergeFileAsync(baseFile.Value.FilePath, environmentFile.FilePath, cancellationToken);
+                    var fileName = Path.GetFileNameWithoutExtension(filePath);
 
-                    foreach (var duplicate in jsonMergeResult.Data.Keys.Select(k => k.ToLower()).Where(k => !settingsFullName.Add(k)))
+                    if (fileName.StartsWith(OpenSettingsDefaults.Files.GeneratedSettingsFileNameWithoutExtension))
                     {
-                        duplicateSettingsFullName.Add(duplicate);
+                        return null;
+                    }
+
+                    bool storedInSeparateFile;
+                    string name;
+
+                    if (fileName == OpenSettingsDefaults.Files.SettingsFileNameWithoutExtension)
+                    {
+                        name = OpenSettingsDefaults.Files.SettingsFileNameTag;
+                        storedInSeparateFile = false;
+                    }
+                    else
+                    {
+                        name = fileName.Remove(0, OpenSettingsDefaults.Files.SettingsFileNameWithoutExtension.Length + 1);
+                        storedInSeparateFile = true;
+                    }
+
+                    //EnvironmentSpecificFileName = fileName.Insert(OpenSettingsDefaults.Files.SettingsFileNameWithoutExtension.Length, environmentSuffix)
+
+                    if (environmentNameToFileModel.TryGetValue(name, out var environmentFile))
+                    {
+                        var jsonMergeResult = await JsonHelper.MergeFileAsync(filePath, environmentFile.FilePath, cancellationToken);
+
+                        foreach (var duplicate in jsonMergeResult.Data.Keys.Select(settingFullName => settingFullName.ToLower()).Where(k => !settingsFullName.TryAdd(k, 0)))
+                        {
+                            duplicateSettingsFullName.AddOrUpdate(duplicate, 0, (_, __) => 0);
+                        }
+
+                        return new FileMergeResult
+                        {
+                            Data = jsonMergeResult.Data,
+                            Files = new FileModel[]
+                            {
+                                new FileModel // Base file
+                                {
+                                    FilePath = filePath,
+                                    FileName = fileName
+                                },
+                                new FileModel // Environment file
+                                {
+                                    FilePath = environmentFile.FilePath,
+                                    FileName = environmentFile.FileName
+                                }
+                            },
+                            Name = name,
+                            StoredInSeparateFile = storedInSeparateFile
+                        };
+                    }
+
+                    var data = await JsonHelper.GetJsonFileAsync(filePath, cancellationToken);
+
+                    foreach (var duplicate in data.Keys.Select(settingFullName => settingFullName.ToLower()).Where(settingFullName => !settingsFullName.TryAdd(settingFullName, 0)))
+                    {
+                        duplicateSettingsFullName.AddOrUpdate(duplicate, 0, (_, __) => 0);
                     }
 
                     return new FileMergeResult
                     {
-                        Data = jsonMergeResult.Data,
+                        Data = data,
                         Files = new FileModel[]
                         {
                             new FileModel // Base file
                             {
-                                FilePath = baseFile.Value.FilePath,
-                                FileName = baseFile.Value.FileName
-                            },
-                            new FileModel // Environment file
-                            {
-                                FilePath = environmentFile.FilePath,
-                                FileName = environmentFile.FileName
+                                FilePath = filePath,
+                                FileName = fileName
                             }
                         },
                         Name = name,
-                        StoredInSeparateFile = baseFile.Value.StoredInSeparateFile,
+                        StoredInSeparateFile = storedInSeparateFile,
                     };
-                }
+                })
+                .Where(f => f != null);
 
-                var data = await JsonHelper.GetJsonFileAsync(baseFile.Value.FilePath, cancellationToken);
+            var fileMergeResults = await Task.WhenAll(fileMergeResultsTasks);
 
-                foreach (var duplicate in data.Keys.Select(k => k.ToLower()).Where(k => !settingsFullName.Add(k)))
-                {
-                    duplicateSettingsFullName.Add(duplicate);
-                }
-
-                return new FileMergeResult
-                {
-                    Data = data,
-                    Files = new FileModel[]
-                    {
-                        new FileModel // Base file
-                        {
-                            FilePath = baseFile.Value.FilePath,
-                            FileName = baseFile.Value.FileName
-                        }
-                    },
-                    Name = name,
-                    StoredInSeparateFile = baseFile.Value.StoredInSeparateFile,
-                };
-            });
-
-            var nameToFileMergeResult = (await Task.WhenAll(fileMergeResultsTasks)).ToDictionary(f => f.Name);
+            var nameToFileMergeResult = fileMergeResults.ToDictionary(f => f.Name);
 
             var onlyEnvFileMergeResultsTasks = environmentNameToFileModel.Where(e => !nameToFileMergeResult.ContainsKey(e.Key)).Select(
                 async envFile =>
                 {
                     var data = await JsonHelper.GetJsonFileAsync(envFile.Value.FilePath, cancellationToken);
 
-                    foreach (var duplicate in data.Keys.Select(k => k.ToLower()).Where(k => !settingsFullName.Add(k)))
+                    foreach (var duplicate in data.Keys.Select(k => k.ToLower()).Where(k => !settingsFullName.TryAdd(k, 0)))
                     {
-                        duplicateSettingsFullName.Add(duplicate);
+                        duplicateSettingsFullName.AddOrUpdate(duplicate, 0, (_, __) => 0);
                     }
 
                     return new FileMergeResult
@@ -243,7 +235,7 @@ namespace OpenSettings.Helpers
 
             if (duplicateSettingsFullName.Count > 0)
             {
-                throw new DuplicateSettingsNameException(duplicateSettingsFullName);
+                throw new DuplicateSettingsNameException(duplicateSettingsFullName.Keys);
             }
 
             foreach (var onlyEnvFileMergeResult in onlyEnvFileMergeResults)

@@ -29,13 +29,13 @@ namespace OpenSettings.Services
 
         private readonly ILogger _logger;
         private readonly IMemoryCache _memoryCache;
-        private readonly HttpClient _httpClient;
+        private readonly IHttpClientFactory _httpClientFactory;
 
-        public OpenSettingsService(ILogger<OpenSettingsService> logger, IOpenSettingsMemoryCache memoryCache, HttpClient httpClient)
+        public OpenSettingsService(ILogger<OpenSettingsService> logger, IOpenSettingsMemoryCache memoryCache, IHttpClientFactory httpClientFactory)
         {
             _logger = logger;
             _memoryCache = memoryCache;
-            _httpClient = httpClient;
+            _httpClientFactory = httpClientFactory;
         }
 
         public async Task<GetConfigsResponse> GetConfigsAsync(CancellationToken cancellationToken = default)
@@ -86,7 +86,7 @@ namespace OpenSettings.Services
 
                 try
                 {
-                    using (var response = await _httpClient.GetAsync(data.Path, cancellationToken))
+                    using (var response = await HttpClient.GetAsync(data.Path, cancellationToken))
                     {
                         if (!response.IsSuccessStatusCode)
                         {
@@ -162,7 +162,7 @@ namespace OpenSettings.Services
 
                 try
                 {
-                    using (var response = await _httpClient.GetAsync(Url, cancellationToken))
+                    using (var response = await HttpClient.GetAsync(Url, cancellationToken))
                     {
                         if (!response.IsSuccessStatusCode)
                         {
@@ -203,5 +203,7 @@ namespace OpenSettings.Services
         {
             return $"{GetConfigsKey}:{configName}";
         }
+
+        private HttpClient HttpClient => _httpClientFactory.CreateClient();
     }
 }
