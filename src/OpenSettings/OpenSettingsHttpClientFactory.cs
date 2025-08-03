@@ -21,7 +21,7 @@ namespace OpenSettings
 
         public HttpClient CreateClient(string name)
         {
-            if (name != OpenSettingsDefaults.Names.HttpClientName)
+            if (name != OpenSettingsDefaults.Names.ProviderHttpClientName)
             {
                 throw new NotImplementedException();
             }

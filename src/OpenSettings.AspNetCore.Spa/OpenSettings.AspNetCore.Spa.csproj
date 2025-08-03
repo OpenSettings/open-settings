@@ -61,10 +61,16 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<InternalsVisibleTo Include="OpenSettings.AspNetCore, PublicKey=0024000004800000940000000602000000240000525341310004000001000100093d0ef22e355dc8add31c3034c7a769867d054575f99cea5166718935138d059f5528b1f1bc31e1dd5ec9cc22c932dd0a034d095a4fbe0339bb6707ca871f0455f75a2ce8b3496183b06c00eced0dbb1a4d77024aa7f5bc66906e3f98591e1a0726b9a010b9b090ad0a8785a5467e4ff205d17cc45e3a46ec3a5a50cbe87a96" />
+		<InternalsVisibleTo Include="OpenSettings.AspNetCore.Tests, PublicKey=00240000048000009400000006020000002400005253413100040000010001009ddd5bd4c30d442c5c0c220fce4be51b161527fae02dc556dfac5b7620937d6faceb9c902d8412512b61ace006714d9652295725cde5084a4766feea12c2482faf4736e9088f20ee1659501cd28cf7c76dbde4d745b2380e151a6d508592be2ab39c9fff55b47a9c48e5efd1a4f49a6db6c48649e3380f129a87515eb30634ce" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<None Include="..\..\logo\open-settings-logo.png" Pack="true" PackagePath="\" Visible="false" />
 		<None Include="README.md" Pack="true" PackagePath="\" Visible="false" />
 		<None Include="..\..\LICENSE.md" Pack="true" PackagePath="\" Visible="false" />
         <None Include="OpenSettings.AspNetCore.Spa.snk" Visible="false" />
+		<None Include="OpenSettings.AspNetCore.Spa.publickey" Visible="false" />
 	</ItemGroup>
 
 	<ItemGroup>

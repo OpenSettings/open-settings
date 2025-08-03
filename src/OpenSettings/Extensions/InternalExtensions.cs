@@ -57,9 +57,9 @@ namespace OpenSettings.Extensions
             return taskQueueFactory.Get(OpenSettingsDefaults.TaskQueues.DataChange);
         }
 
-        internal static HttpClient CreateOpenSettingsHttpClient(this IHttpClientFactory httpClientFactory)
+        internal static HttpClient CreateOpenSettingsProviderHttpClient(this IHttpClientFactory httpClientFactory)
         {
-            return httpClientFactory.CreateClient(OpenSettingsDefaults.Names.HttpClientName);
+            return httpClientFactory.CreateClient(OpenSettingsDefaults.Names.ProviderHttpClientName);
         }
 
         internal static Task<T[]> ToPaginatedArrayAsync<T>(this IQueryable<T> entities, int pageIndex, int pageSize,

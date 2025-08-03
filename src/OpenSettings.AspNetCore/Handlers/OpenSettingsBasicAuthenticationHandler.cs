@@ -41,7 +41,7 @@ namespace OpenSettings.AspNetCore.Handlers
         {
             try
             {
-                if (!Request.Headers.TryGetValue("Authorization", out var headerValue))
+                if (!Request.Headers.TryGetValue(OpenSettingsDefaults.Headers.Authorization, out var headerValue))
                 {
                     return AuthenticateResult.NoResult();
                 }
@@ -98,9 +98,9 @@ namespace OpenSettings.AspNetCore.Handlers
                     new Claim(ClaimTypes.NameIdentifier, clientIdAsString),
                     new Claim(ClaimTypes.Name, registeredApp.ClientName),
                     new Claim(ClaimTypes.Role, roleType.ToString()),
-                    new Claim(OpenSettingsDefaults.Claims.DbUserId, clientIdAsString),
-                    new Claim(OpenSettingsDefaults.Claims.DbUserDisplayName, registeredApp.ClientName),
-                    new Claim(OpenSettingsDefaults.Claims.DbUserInitials, Helper.GetInitials(registeredApp.ClientName))
+                    new Claim(OpenSettingsDefaults.ClaimTypes.DbUserId, clientIdAsString),
+                    new Claim(OpenSettingsDefaults.ClaimTypes.DbUserDisplayName, registeredApp.ClientName),
+                    new Claim(OpenSettingsDefaults.ClaimTypes.DbUserInitials, Helper.GetInitials(registeredApp.ClientName))
                 };
 
                 var identity = new ClaimsIdentity(claims, Scheme.Name);

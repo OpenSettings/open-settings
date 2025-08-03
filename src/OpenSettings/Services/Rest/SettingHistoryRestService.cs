@@ -15,7 +15,7 @@ namespace OpenSettings.Services.Rest
 {
     public sealed class SettingHistoryRestService : ISettingHistoryRestService
     {
-        private HttpClient HttpClient => _httpClientFactory.CreateOpenSettingsHttpClient();
+        private HttpClient HttpClient => _httpClientFactory.CreateOpenSettingsProviderHttpClient();
 
         private readonly IDataChangeService _dataChangeService;
         private readonly IHttpClientFactory _httpClientFactory;

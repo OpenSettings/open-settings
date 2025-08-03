@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.Json.Serialization;
 
 namespace OpenSettings.Models
 {
@@ -11,6 +12,13 @@ namespace OpenSettings.Models
         /// Gets or sets the unique identifier for the client.
         /// </summary>
         public Guid Id { get; set; }
+
+        /// <summary>
+        /// Gets or sets the unique secret for the client.
+        /// </summary>
+        /// <remarks>Only set if the application is acting as the provider.</remarks>
+        [JsonIgnore]
+        public Guid? Secret { get; set; }
 
         /// <summary>
         /// Gets or sets the client's name.

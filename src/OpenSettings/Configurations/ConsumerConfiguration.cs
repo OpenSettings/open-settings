@@ -27,7 +27,7 @@ namespace OpenSettings.Configurations
         public string ProviderUrl
         {
             get => _providerUrl;
-            set => _providerUrl = value.EndsWith("/") ? value : $"{value}/";
+            set => _providerUrl = $"{value.TrimEnd('/')}/";
         }
 
         /// <summary>

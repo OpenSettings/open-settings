@@ -1,11 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using OpenSettings.AspNetCore.Extensions;
 using OpenSettings.AspNetCore.Models.Requests;
-using OpenSettings.AspNetCore.Services.Interfaces;
 using OpenSettings.Configurations;
+using OpenSettings.Extensions;
 using OpenSettings.Models;
 using OpenSettings.Services.Interfaces;
 using System;
@@ -25,14 +26,14 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         private readonly OpenSettingsConfiguration _openSettingsConfiguration;
         private readonly IOpenSettingsMemoryCache _openSettingsMemoryCache;
         private readonly ProviderInfo _providerInfo;
-        private readonly IOpenSettingsTokenService _tokenService;
+        private readonly ITokenService _tokenService;
         private readonly IHttpClientFactory _httpClientFactory;
 
         public AuthController(
             IOpenSettingsMemoryCache openSettingsMemoryCache,
             OpenSettingsConfiguration openSettingsConfiguration,
             ProviderInfo providerInfo,
-            IOpenSettingsTokenService tokenService,
+            ITokenService tokenService,
             IHttpClientFactory httpClientFactory)
         {
             _openSettingsMemoryCache = openSettingsMemoryCache;
@@ -94,11 +95,13 @@ namespace OpenSettings.AspNetCore.Controllers.v1
 
             if (_openSettingsConfiguration.IsConsumerSelected)
             {
-                var httpClient = _httpClientFactory.CreateClient();
+                var httpClient = _httpClientFactory.CreateOpenSettingsProviderHttpClient();
 
-                httpClient.DefaultRequestHeaders.Authorization = authorizationHeader;
+                var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, $"{OpenSettingsDefaults.Routes.V1.Auth}/who-am-i");
 
-                var response = await httpClient.GetAsync($"{_openSettingsConfiguration.Consumer.ProviderUrl}v1/auth/who-am-i", HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+                httpRequestMessage.Headers.Authorization = authorizationHeader;
+
+                var response = await httpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -130,7 +133,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             }
 
             var claimArray = claimTypes
-                .Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                .Split(OpenSettingsDefaults.Separators.CommaSeparator, StringSplitOptions.RemoveEmptyEntries)
                 .Select(claimType => claimType.Trim())
                 .Where(claimType => claimType != string.Empty)
                 .Distinct()
@@ -199,7 +202,11 @@ namespace OpenSettings.AspNetCore.Controllers.v1
 
                 _openSettingsMemoryCache.Set(accessToken, User.Claims.ToArray(), new MemoryCacheEntryOptions { SlidingExpiration = TimeSpan.FromHours(1)} );
 
-                if (!await _tokenService.IsTokenExpiredAsync(HttpContext, accessToken))
+                var isUserTokenExpired = await _tokenService.IsUserTokenExpiredAsync(accessToken,
+                    () => HttpContext.GetTokenAsync(OpenSettingsDefaults.AuthSchemes.Cookie,
+                        OpenSettingsDefaults.ClaimTypes.RefreshToken));
+
+                if (!isUserTokenExpired)
                 {
                     var returnToUrl = $"{apiUrl}/v1/auth/return-to?returnUrl={returnUrl}&accessToken={accessToken}&uuid={uuid}";
 
@@ -289,19 +296,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             return Redirect($"{_openSettingsConfiguration.Consumer.ProviderUrl}v1/auth/logout?returnUrl={returnUrl}&apiUrl={apiUrl}");
         }
 
-        [HttpPost("refresh-token")]
-        [Authorize(AuthenticationSchemes = OpenSettingsDefaults.AuthSchemes.OAuth2JwtBearer)]
-        public async Task<IActionResult> RefreshToken(CancellationToken cancellationToken = default)
-        {
-            var refreshToken = await _tokenService.RefreshTokenAsync(HttpContext, cancellationToken);
-
-            if (refreshToken == null)
-            {
-                return Forbid();
-            }
-
-            return Ok(refreshToken);
-        }
+      
 
         private string GetBaseUrl() => $"{Request.Scheme}://{Request.Host}";
 

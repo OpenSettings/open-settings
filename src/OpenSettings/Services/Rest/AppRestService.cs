@@ -17,7 +17,7 @@ namespace OpenSettings.Services.Rest
 {
     public class AppRestService : IAppRestService
     {
-        private HttpClient HttpClient => _httpClientFactory.CreateOpenSettingsHttpClient();
+        private HttpClient HttpClient => _httpClientFactory.CreateOpenSettingsProviderHttpClient();
 
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly Guid _clientId;

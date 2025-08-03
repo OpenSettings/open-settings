@@ -12,7 +12,7 @@ namespace OpenSettings.Services.Rest
 {
     public class AppIdentifierMappingsRestService : IAppIdentifierMappingRestService
     {
-        private HttpClient HttpClient => _httpClientFactory.CreateOpenSettingsHttpClient();
+        private HttpClient HttpClient => _httpClientFactory.CreateOpenSettingsProviderHttpClient();
 
         private readonly IHttpClientFactory _httpClientFactory;
 

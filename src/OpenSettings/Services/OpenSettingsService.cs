@@ -23,18 +23,16 @@ namespace OpenSettings.Services
 
                                    + "/configs.json";
 
-        private const string CacheControlFormat = "public, max-age={0}";
-        private const string GetConfigsKey = "oss:gca:configs";
         private const string NotificationsConfigName = "notifications";
 
         private readonly ILogger _logger;
-        private readonly IMemoryCache _memoryCache;
+        private readonly IMemoryCache _openSettingsMemoryCache;
         private readonly IHttpClientFactory _httpClientFactory;
 
-        public OpenSettingsService(ILogger<OpenSettingsService> logger, IOpenSettingsMemoryCache memoryCache, IHttpClientFactory httpClientFactory)
+        public OpenSettingsService(ILogger<OpenSettingsService> logger, IOpenSettingsMemoryCache openSettingsMemoryCache, IHttpClientFactory httpClientFactory)
         {
             _logger = logger;
-            _memoryCache = memoryCache;
+            _openSettingsMemoryCache = openSettingsMemoryCache;
             _httpClientFactory = httpClientFactory;
         }
 
@@ -51,7 +49,7 @@ namespace OpenSettings.Services
 
             return new GetConfigsResponse
             {
-                CacheControl = string.Format(CacheControlFormat, expiresInSeconds),
+                CacheControl = OpenSettings.Helpers.Helper.GetPublicCacheControlValue(expiresInSeconds),
                 Expires = configs.AbsoluteExpiration.ToString("R"),
                 Data = JsonSerializer.SerializeToUtf8Bytes(configs.Data)
             };
@@ -78,15 +76,15 @@ namespace OpenSettings.Services
                 return null;
             }
 
-            var specificConfigKey = GetSpecificConfigKeyByName(configName);
-
-            var configsData = await _memoryCache.GetOrCreateAsync(specificConfigKey, async c =>
+            var specificConfigCacheKey = OpenSettingsDefaults.Caches.OpenSettingsConfigsCacheEntry.GetKey(configName);
+            
+            var configsData = await specificConfigCacheKey.GetOrCreateAsync(_openSettingsMemoryCache, async c =>
             {
                 c.AbsoluteExpirationRelativeToNow = TimeSpan.FromMilliseconds(1);
 
                 try
                 {
-                    using (var response = await HttpClient.GetAsync(data.Path, cancellationToken))
+                    using (var response = await GetHttpClient().GetAsync(data.Path, cancellationToken))
                     {
                         if (!response.IsSuccessStatusCode)
                         {
@@ -128,7 +126,7 @@ namespace OpenSettings.Services
 
             return new GetConfigsDataResponse
             {
-                CacheControl = string.Format(CacheControlFormat, expiresInSeconds),
+                CacheControl = Helpers.Helper.GetPublicCacheControlValue(expiresInSeconds),
                 Expires = configsData.AbsoluteExpiration.ToString("R"),
                 Data = configsData.Data
             };
@@ -156,13 +154,13 @@ namespace OpenSettings.Services
 
         private async Task<OpenSettingsConfigsDataCacheModel<Dictionary<string, OpenSettingsConfigsDataModel>>> GetConfigsDataCacheModelAsync(CancellationToken cancellationToken)
         {
-            var configs = await _memoryCache.GetOrCreateAsync(GetConfigsKey, async c =>
+            var configs = await OpenSettingsDefaults.Caches.OpenSettingsConfigsCacheEntryKey.GetOrCreateAsync(_openSettingsMemoryCache, async cacheModel =>
             {
-                c.AbsoluteExpirationRelativeToNow = TimeSpan.FromMilliseconds(1); // Must be greater than 0!
+                cacheModel.AbsoluteExpirationRelativeToNow = TimeSpan.FromMilliseconds(1); // Must be greater than 0!
 
                 try
                 {
-                    using (var response = await HttpClient.GetAsync(Url, cancellationToken))
+                    using (var response = await GetHttpClient().GetAsync(Url, cancellationToken))
                     {
                         if (!response.IsSuccessStatusCode)
                         {
@@ -178,8 +176,8 @@ namespace OpenSettings.Services
 
                         var absoluteExpiration = DateTimeOffset.UtcNow.AddSeconds(Math.Max(0, content.ExpiresInSeconds));
 
-                        c.AbsoluteExpiration = absoluteExpiration;
-                        c.AbsoluteExpirationRelativeToNow = null;
+                        cacheModel.AbsoluteExpiration = absoluteExpiration;
+                        cacheModel.AbsoluteExpirationRelativeToNow = null;
 
                         return new OpenSettingsConfigsDataCacheModel<Dictionary<string, OpenSettingsConfigsDataModel>>
                         {
@@ -199,11 +197,9 @@ namespace OpenSettings.Services
             return configs;
         }
 
-        private static string GetSpecificConfigKeyByName(string configName)
+        private HttpClient GetHttpClient()
         {
-            return $"{GetConfigsKey}:{configName}";
+            return _httpClientFactory.CreateClient();
         }
-
-        private HttpClient HttpClient => _httpClientFactory.CreateClient();
     }
 }

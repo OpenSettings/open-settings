@@ -61,10 +61,16 @@ namespace OpenSettings
         [Description("RoutePrefix can not be null or whitespace.")]
         InvalidRoutePrefix = 40016,
 
+        [Description("Token is still valid and too early to refresh.")]
+        TokenRefreshNotAllowedYet = 40301,
+
         // NotAuthorized Errors (40100-40199)
 
         [Description("The provided credentials are invalid.")]
         InvalidCredentials = 40100,
+
+        // Forbidden Errors (40300-40399)
+        TokenExpired = 40300,
 
 
         // NotFound Errors (40400-40499)
@@ -138,6 +144,9 @@ namespace OpenSettings
         [Description("Primary provider not found.")]
         PrimaryProviderNotFound = 40422,
 
+        [Description("Refresh token not found.")]
+        RefreshTokenNotFound = 40423,
+
         // NotSupported Errors (40500-40599)
 
         [Description("Config source not supported.")]
@@ -205,6 +214,15 @@ namespace OpenSettings
         ContentFetchFailed = 50001,
 
         [Description("Data change notification failed.")]
-        DataChangeNotificationFailed = 50002
+        DataChangeNotificationFailed = 50002,
+
+        [Description("GenerateToken is not supported while running in 'Consumer' mode.")]
+        GenerateTokenNotSupportedWhileRunningInConsumerMode = 50003,
+
+        [Description("RefreshToken is not supported while running in 'Consumer' mode.")]
+        RefreshTokenNotSupportedWhileRunningInConsumerMode = 50003,
+
+        [Description("Missing OAuth2 authority configuration.")]
+        MissingOAuth2Authority = 50005,
     }
 }

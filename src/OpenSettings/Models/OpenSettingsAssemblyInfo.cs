@@ -28,7 +28,7 @@ namespace OpenSettings.Models
 
             var packInfo = assembly.GetPackInfo();
 
-            PackVersion = packInfo.PackVersion;
+            PackVersion = packInfo.Version;
             IsPreviewVersion = packInfo.IsPreview;
             PackVersionScore = packInfo.Score;
         }

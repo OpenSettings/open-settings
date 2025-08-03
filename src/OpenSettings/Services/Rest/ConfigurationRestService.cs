@@ -11,7 +11,7 @@ namespace OpenSettings.Services.Rest
 {
     public class ConfigurationRestService : IConfigurationRestService
     {
-        private HttpClient HttpClient => _httpClientFactory.CreateOpenSettingsHttpClient();
+        private HttpClient HttpClient => _httpClientFactory.CreateOpenSettingsProviderHttpClient();
 
         private readonly IHttpClientFactory _httpClientFactory;
 

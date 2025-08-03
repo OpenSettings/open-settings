@@ -16,7 +16,6 @@ using OpenSettings.Domains.Sql.Entities;
 using OpenSettings.Models;
 using OpenSettings.Services;
 using OpenSettings.Services.Interfaces;
-using OpenSettings.Services.MemoryCache;
 using OpenSettings.Services.Redis;
 using OpenSettings.Services.Rest;
 using OpenSettings.Services.Rest.Interfaces;
@@ -152,8 +151,6 @@ namespace OpenSettings.Extensions
                 return new TaskQueueHostedService(sp.GetRequiredService<ILogger<TaskQueueHostedService>>(), "NotificationQueueWorker", taskQueue);
             });
 
-            services.AddScoped<JsonWebTokenHandler>();
-
             services.AddScoped<IAppGroupSqlService, AppGroupSqlService>();
             services.AddScoped<IAppIdentifierMappingSqlService, AppIdentifierMappingSqlService>();
             services.AddScoped<IAppSqlService, AppsSqlService>();
@@ -173,6 +170,7 @@ namespace OpenSettings.Extensions
             services.AddScoped<IUserNotificationMappingSqlService, UserNotificationMappingSqlService>();
             services.AddScoped<IUserSqlService, UserSqlService>();
             services.AddSingleton<IOpenSettingsService, OpenSettingsService>();
+            services.AddSingleton<ITokenSqlService, TokenSqlService>();
 
             services.AddScoped<IAppGroupService>(sp => sp.GetRequiredService<IAppGroupSqlService>());
             services.AddScoped<IAppIdentifierMappingService>(sp => sp.GetRequiredService<IAppIdentifierMappingSqlService>());
@@ -191,6 +189,7 @@ namespace OpenSettings.Extensions
             services.AddScoped<ITagsService>(sp => sp.GetRequiredService<ITagSqlService>());
             services.AddScoped<IUserNotificationMappingService>(sp => sp.GetRequiredService<IUserNotificationMappingSqlService>());
             services.AddScoped<IUserService>(sp => sp.GetRequiredService<IUserSqlService>());
+            services.AddSingleton<ITokenService>(sp => sp.GetRequiredService<ITokenSqlService>());
 
             services.AddScoped<ILocalSettingsService, LocalSettingsService>();
 
@@ -225,7 +224,7 @@ namespace OpenSettings.Extensions
             services.AddTransient<DecompressionHandler>();
 
             services
-                .AddHttpClient(OpenSettingsDefaults.Names.HttpClientName, (sp, httpClient) =>
+                .AddHttpClient(OpenSettingsDefaults.Names.ProviderHttpClientName, (sp, httpClient) =>
                 {
                     openSettingsConfiguration.Consumer.ConfigureHttpClient(httpClient, openSettingsConfiguration.Client);
                 })
@@ -247,6 +246,7 @@ namespace OpenSettings.Extensions
             services.AddSingleton<ISettingsRestService, SettingsRestService>();
             services.AddSingleton<ITagRestService, TagRestService>();
             services.AddSingleton<IUserRestService, UsersRestService>();
+            services.AddSingleton<ITokenRestService, TokenRestService>();
 
             services.AddSingleton<IAppGroupService>(sp => sp.GetRequiredService<IAppGroupRestService>());
             services.AddSingleton<IAppIdentifierMappingService>(sp => sp.GetRequiredService<IAppIdentifierMappingRestService>());
@@ -264,6 +264,7 @@ namespace OpenSettings.Extensions
             services.AddSingleton<ISettingsService>(sp => sp.GetRequiredService<ISettingsRestService>());
             services.AddSingleton<ITagsService>(sp => sp.GetRequiredService<ITagRestService>());
             services.AddSingleton<IUserService>(sp => sp.GetRequiredService<IUserRestService>());
+            services.AddSingleton<ITokenService>(sp => sp.GetRequiredService<ITokenRestService>());
 
             services.AddSingleton<ILocalSettingsService, LocalSettingsService>();
         }

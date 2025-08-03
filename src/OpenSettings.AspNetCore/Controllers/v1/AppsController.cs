@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Ogu.Response;
+using OpenSettings.AspNetCore.Extensions;
 using OpenSettings.AspNetCore.Models.Requests;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Services.Interfaces;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using OpenSettings.AspNetCore.Extensions;
 
 namespace OpenSettings.AspNetCore.Controllers.v1
 {
@@ -127,8 +127,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         }
 
         [HttpPost("{ClientId:guid}/identifiers/{IdentifierName}/sync-data")]
-        public async Task<IActionResult> SyncAppData(SyncAppDataRequest request,
-            CancellationToken cancellationToken = default)
+        public async Task<IActionResult> SyncAppData(SyncAppDataRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
             {

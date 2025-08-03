@@ -29,14 +29,14 @@ namespace OpenSettings.AspNetCore.Extensions
             }
 
             var credentialBytes = Convert.FromBase64String(authenticationHeaderValue.Parameter);
-            var credentials = Encoding.UTF8.GetString(credentialBytes).Split(new[] { ':' }, 2);
+            var credentials = Encoding.UTF8.GetString(credentialBytes).Split(OpenSettingsDefaults.Separators.ColumnSeparator, 2);
 
             return (credentials[0], credentials[1]);
         }
 
         internal static Guid? GetUserId(this ClaimsPrincipal claimsPrincipal)
         {
-            var claim = claimsPrincipal.GetClaim(OpenSettingsDefaults.Claims.DbUserId);
+            var claim = claimsPrincipal.GetClaim(OpenSettingsDefaults.ClaimTypes.DbUserId);
 
             return Guid.TryParse(claim?.Value, out var userId)
                 ? userId == Guid.Empty ? (Guid?)null : userId
@@ -50,7 +50,7 @@ namespace OpenSettings.AspNetCore.Extensions
 
         internal static string GetUserDisplayName(this ClaimsPrincipal claimsPrincipal)
         {
-            return claimsPrincipal.GetClaim(OpenSettingsDefaults.Claims.DbUserDisplayName)?.Value;
+            return claimsPrincipal.GetClaim(OpenSettingsDefaults.ClaimTypes.DbUserDisplayName)?.Value;
         }
 
         private static Claim GetClaim(this ClaimsPrincipal claimsPrincipal, string claimType)

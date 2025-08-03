@@ -672,7 +672,7 @@ namespace OpenSettings.Services.Sql
                 .Select(t => new TagSqlModel { Id = t.Id, Name = t.Name, SortOrder = t.SortOrder })
                 .ToDictionaryAsync(t => t.Id, cancellationToken);
 
-            var missingTags = string.Join(",", existingTags.Except(tagIdToTag.Keys));
+            var missingTags = string.Join(OpenSettingsDefaults.Format.Comma, existingTags.Except(tagIdToTag.Keys));
 
             if (missingTags.Length > 0)
             {

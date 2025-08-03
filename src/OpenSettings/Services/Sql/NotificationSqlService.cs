@@ -12,7 +12,6 @@ using OpenSettings.Models;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Models.Responses;
 using OpenSettings.Services.Interfaces;
-using OpenSettings.Services.MemoryCache;
 using OpenSettings.Services.Sql.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -625,8 +624,7 @@ namespace OpenSettings.Services.Sql
 
                 if (!notificationsResponse.IsFaulted)
                 {
-                    var cacheControl =
-                        CacheControlHeaderValue.Parse(notificationsResponse.CacheControl);
+                    var cacheControl = CacheControlHeaderValue.Parse(notificationsResponse.CacheControl);
 
                     if (cacheControl.MaxAge.HasValue)
                     {
@@ -733,7 +731,9 @@ namespace OpenSettings.Services.Sql
 
         private async Task<GetAvailableNotificationsResponse> GetAvailableNotificationsAsync(string inputPackVersion, CancellationToken cancellationToken)
         {
-            if (MemoryCacheKeys.GetAvailableNotificationIds(inputPackVersion).TryGetValue(_memoryCache, out GetAvailableNotificationsResponse response))
+            var cacheKey = OpenSettingsDefaults.Caches.AvailableNotificationIdsCacheEntry.GetKey(inputPackVersion);
+
+            if (cacheKey.TryGetValue(_memoryCache, out GetAvailableNotificationsResponse response))
             {
                 await IncludeLicenseExpiryNotificationIfAnyAsync(response, cancellationToken);
                 await IncludeVersionMismatchNotificationIfAnyAsync(response, inputPackVersion, cancellationToken);
@@ -812,7 +812,7 @@ namespace OpenSettings.Services.Sql
 
             await _context.SaveChangesAsync(cancellationToken);
 
-            MemoryCacheKeys.GetAvailableNotificationIds(inputPackVersion).Set(_memoryCache, response);
+            cacheKey.Set(_memoryCache, response);
 
             await IncludeLicenseExpiryNotificationIfAnyAsync(response, cancellationToken);
             await IncludeVersionMismatchNotificationIfAnyAsync(response, inputPackVersion, cancellationToken);

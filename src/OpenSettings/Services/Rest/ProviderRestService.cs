@@ -10,7 +10,7 @@ namespace OpenSettings.Services.Rest
 {
     public sealed class ProviderRestService : IProviderRestService
     {
-        private HttpClient HttpClient => _httpClientFactory.CreateOpenSettingsHttpClient();
+        private HttpClient HttpClient => _httpClientFactory.CreateOpenSettingsProviderHttpClient();
 
         private readonly IHttpClientFactory _httpClientFactory;
 

@@ -93,6 +93,7 @@ namespace OpenSettings.Models.Responses
                 Client = new ProviderInfoClient
                 {
                     Id = openSettingsConfiguration.Client.Id,
+                    Secret = openSettingsConfiguration.Client.Secret,
                     Name = openSettingsConfiguration.Client.Name,
                     Version = openSettingsConfiguration.Client.Version,
                 },

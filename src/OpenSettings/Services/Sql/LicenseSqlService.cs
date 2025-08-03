@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using Ogu.Response;
 using Ogu.Response.Abstractions;
@@ -12,7 +11,6 @@ using OpenSettings.Models;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Models.Responses;
 using OpenSettings.Services.Interfaces;
-using OpenSettings.Services.MemoryCache;
 using OpenSettings.Services.Sql.Interfaces;
 using System;
 using System.IO;
@@ -23,6 +21,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
+using JsonWebTokenHandler = Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler;
 
 namespace OpenSettings.Services.Sql
 {
@@ -36,13 +35,13 @@ namespace OpenSettings.Services.Sql
         private readonly IOpenSettingsMemoryCache _openSettingsMemoryCache;
         private readonly ILogger _logger;
 
-        public LicenseSqlService(JsonWebTokenHandler jsonWebTokenHandler, OpenSettingsConfiguration openSettingsConfiguration, OpenSettingsDbContext context, IOpenSettingsMemoryCache openSettingsMemoryCache)
+        public LicenseSqlService(IOpenSettingsMemoryCache openSettingsMemoryCache,  OpenSettingsConfiguration openSettingsConfiguration, OpenSettingsDbContext context)
         {
-            _jsonWebTokenHandler = jsonWebTokenHandler;
-            _licenseKeyFromProviderConfiguration = openSettingsConfiguration.Provider.LicenseKey;
-            _context = context;
             _openSettingsMemoryCache = openSettingsMemoryCache;
             _logger = openSettingsConfiguration.LoggerFactory.CreateLogger<LicenseSqlService>();
+            _jsonWebTokenHandler = new JsonWebTokenHandler();
+            _licenseKeyFromProviderConfiguration = openSettingsConfiguration.Provider.LicenseKey;
+            _context = context;
         }
 
         public async Task<IResponse> GetPaginatedLicensesAsync(GetPaginatedLicensesInput input, CancellationToken cancellationToken)
@@ -89,7 +88,7 @@ namespace OpenSettings.Services.Sql
 
             if (previousLicenseReferenceId != LicenseProvider.Instance.CurrentLicense.ReferenceId)
             {
-                MemoryCacheKeys.OpenSettingsSpaMiddlewareHtml.Delete(_openSettingsMemoryCache);
+                OpenSettingsDefaults.Caches.OpenSettingsSpaMiddlewareHtmlCacheEntryKey.Remove(_openSettingsMemoryCache);
             }
 
             return response;
@@ -126,7 +125,7 @@ namespace OpenSettings.Services.Sql
 
             LicenseProvider.Instance.CurrentLicense = await InitializeAsync(CancellationToken.None) ?? License.Community;
 
-            MemoryCacheKeys.OpenSettingsSpaMiddlewareHtml.Delete(_openSettingsMemoryCache);
+            OpenSettingsDefaults.Caches.OpenSettingsSpaMiddlewareHtmlCacheEntryKey.Remove(_openSettingsMemoryCache);
 
             return HttpStatusCode.OK.ToSuccessResponse();
         }
@@ -265,7 +264,7 @@ namespace OpenSettings.Services.Sql
                 ValidateLifetime = false // expired license key will still pass validation!
             };
 
-            var tokenValidationResult = await _jsonWebTokenHandler.ValidateTokenAsync(licenseKey, tokenValidationParameters);
+            var tokenValidationResult = _jsonWebTokenHandler.ValidateToken(licenseKey, tokenValidationParameters);
 
             return tokenValidationResult.IsValid
                 ? new License(new ClaimsPrincipal(tokenValidationResult.ClaimsIdentity))

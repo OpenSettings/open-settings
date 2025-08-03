@@ -1,8 +1,8 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace OpenSettings.AspNetCore.Models.Responses
+namespace OpenSettings.Models.Responses
 {
-    public class RefreshTokenResponse
+    public class ConnectTokenResponse
     {
         [JsonPropertyName("id_token")]
         public string IdToken { get; set; }

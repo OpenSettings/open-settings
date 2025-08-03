@@ -6,7 +6,7 @@ namespace OpenSettings.Services.Rest
 {
     public class AppTagMappingRestService : IAppTagMappingRestService
     {
-        private HttpClient HttpClient => _httpClientFactory.CreateOpenSettingsHttpClient();
+        private HttpClient HttpClient => _httpClientFactory.CreateOpenSettingsProviderHttpClient();
 
         private readonly IHttpClientFactory _httpClientFactory;
 

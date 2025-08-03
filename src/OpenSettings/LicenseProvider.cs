@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.JsonWebTokens;
 using OpenSettings.Configurations;
 using OpenSettings.Domains.Sql.DataContext;
 using OpenSettings.Models;
@@ -95,7 +94,7 @@ namespace OpenSettings
                 {
                     await openSettingsConfiguration.Provider.InitializeDbAsync(context, cancellationToken);
 
-                    var licensesSqlService = new LicenseSqlService(new JsonWebTokenHandler(), openSettingsConfiguration, context, null);
+                    var licensesSqlService = new LicenseSqlService(null, openSettingsConfiguration, context);
 
                     var response = await licensesSqlService.GetCurrentLicenseAsync(cancellationToken);
 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OpenSettings.Models;
+using System;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
@@ -21,15 +22,13 @@ namespace OpenSettings.Helpers
         /// <param name="assembly">The assembly from which to retrieve the version information.</param>
         /// <returns>A tuple containing the pack version string, the pack version's score (long), and a boolean indicating if it's a preview version.</returns>
         /// <exception cref="ArgumentException">Thrown if the version format is invalid or no version is found.</exception>
-        public static (string PackVersion, long Score, bool IsPreview) GetPackInfo(this Assembly assembly)
+        public static PackInfo GetPackInfo(this Assembly assembly)
         {
             var informationalVersion = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? OpenSettingsDefaults.DefaultVersion;
 
             var packVersion = informationalVersion.Split('+')[0];
 
-            var packInfo = GetPackInfo(packVersion);
-
-            return (packVersion, packInfo.Score, packInfo.IsPreview);
+            return GetPackInfo(packVersion);
         }
 
         /// <summary>
@@ -38,9 +37,9 @@ namespace OpenSettings.Helpers
         /// </summary>
         /// <param name="packVersion">The version string to parse. Can be in the format 'major.minor.patch' for stable versions 
         /// or 'major.minor.patch-preview.previewNo.runNo.runAttempt' for preview versions.</param>
-        /// <returns>A tuple with the pack version score (long) and a boolean indicating if it's a preview version.</returns>
+        /// <returns>A <see cref="PackInfo"/> info which contains the pack version score (long) and a boolean indicating if it's a preview version.</returns>
         /// <exception cref="ArgumentException">Thrown if the version format is invalid.</exception>
-        private static (long Score, bool IsPreview) GetPackInfo(string packVersion)
+        private static PackInfo GetPackInfo(string packVersion)
         {
             var match = PackVersionRegex.Match(packVersion);
 
@@ -74,10 +73,13 @@ namespace OpenSettings.Helpers
                 score = baseScore - StableBoost + previewWeight;
             }
 
-            return (score, isPreview);
+            return new PackInfo
+            {
+                Version = packVersion,
+                Score = score,
+                IsPreview = isPreview
+            };
         }
-
-
 
         internal static string GetVersion(AssemblyName entryAssembly)
         {

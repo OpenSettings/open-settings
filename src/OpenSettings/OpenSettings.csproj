@@ -48,13 +48,21 @@
 		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="3.1.1" />
 		<PackageReference Include="Microsoft.Extensions.Http" Version="3.1.0" />
 		<PackageReference Include="Microsoft.Extensions.Identity.Core" Version="2.1.0" />
-		<PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="7.1.2" />
+		<PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="5.7.0" />
 		<PackageReference Include="Ogu.Compressions" Version="2.1.1" />
 		<PackageReference Include="Ogu.Extensions.Hosting.HostedServices" Version="2.0.6" />
 		<PackageReference Include="Ogu.Response" Version="3.0.8" />
 		<PackageReference Include="StackExchange.Redis" Version="2.8.24" />
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="5.7.0" />
 		<PackageReference Include="System.Net.Http.Json" Version="6.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="3.1.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<InternalsVisibleTo Include="OpenSettings.AspNetCore, PublicKey=0024000004800000940000000602000000240000525341310004000001000100093d0ef22e355dc8add31c3034c7a769867d054575f99cea5166718935138d059f5528b1f1bc31e1dd5ec9cc22c932dd0a034d095a4fbe0339bb6707ca871f0455f75a2ce8b3496183b06c00eced0dbb1a4d77024aa7f5bc66906e3f98591e1a0726b9a010b9b090ad0a8785a5467e4ff205d17cc45e3a46ec3a5a50cbe87a96" />
+		<InternalsVisibleTo Include="OpenSettings.AspNetCore.Spa, PublicKey=0024000004800000940000000602000000240000525341310004000001000100c9494213288348583fa1af386bc6a04926141acd766a7b6b3635441f7b6f1ed63398b35f87a9a4bbe8c2df74e10fcb7e2e252cd7799ee38b171412725bb88b0abfc0c44e2598833c1e16f2777bd88855724d9614660eafba47f50b82a1154612262aae5021cc93d14e4b6dc1a39ee258026ad1a9fc64660fc51ef53fed6c74a7" />
+		<InternalsVisibleTo Include="OpenSettings.AspNetCore.Tests, PublicKey=00240000048000009400000006020000002400005253413100040000010001009ddd5bd4c30d442c5c0c220fce4be51b161527fae02dc556dfac5b7620937d6faceb9c902d8412512b61ace006714d9652295725cde5084a4766feea12c2482faf4736e9088f20ee1659501cd28cf7c76dbde4d745b2380e151a6d508592be2ab39c9fff55b47a9c48e5efd1a4f49a6db6c48649e3380f129a87515eb30634ce" />
+		<InternalsVisibleTo Include="OpenSettings.Tests, PublicKey=00240000048000009400000006020000002400005253413100040000010001003d49dc1c44add446374738b46c26270df47489795c0a555312116268101df8ce17b0c10f44641c5671bb2043d66204a328f67b9c554869ae43489b156b2c0023d35836e5d990b9ac6070891c663a041d13deaa717d4050616ab6164755b8b33135e357456ffdbacc944d4e49eb7f3dd65bfa41a60703f66aba08876d24861e9c" />
 	</ItemGroup>
 
 	<ItemGroup>

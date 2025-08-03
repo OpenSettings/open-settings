@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
@@ -14,6 +15,29 @@ namespace OpenSettings.Helpers
     /// </summary>
     public static class Helper
     {
+        /// <summary>
+        /// Checks if the provided JWT security token has expired based on its ValidTo property.
+        /// </summary>
+        /// <param name="securityToken">The JwtSecurityToken.</param>
+        /// <param name="referenceDate">An optional reference date to compare against. If null, the current UTC time is used.</param>
+        /// <returns></returns>
+        public static bool IsTokenExpired(JwtSecurityToken securityToken, DateTime? referenceDate = null)
+        {
+            return securityToken.ValidTo < (referenceDate ?? DateTime.UtcNow);
+        }
+
+        /// <summary>
+        /// Checks if the expiration time of the provided JWT security token is less than the specified time span.
+        /// </summary>
+        /// <param name="securityToken">The JwtSecurityToken.</param>
+        /// <param name="timeSpan">The time span.</param>
+        /// <param name="referenceDate">An optional reference date to compare against. If null, the current UTC time is used.</param>
+        /// <returns></returns>
+        public static bool IsTokenExpirationTimeLessThan(JwtSecurityToken securityToken, TimeSpan timeSpan, DateTime? referenceDate = null)
+        {
+            return securityToken.ValidTo - (referenceDate ?? DateTime.UtcNow) < timeSpan;
+        }
+
         /// <summary>
         /// Extracts and returns the initials from a given name.
         /// </summary>
@@ -31,6 +55,11 @@ namespace OpenSettings.Helpers
         /// Used to determine if Entity Framework Core migration should be generated.
         /// </summary>
         public static bool IsMigrationEnabled => Environment.GetCommandLineArgs().FirstOrDefault()?.Contains("ef.dll") ?? false;
+
+        public static string GetPublicCacheControlValue(int expiresInSeconds)
+        {
+            return string.Format(OpenSettingsDefaults.Format.PublicCacheControlValue, expiresInSeconds);
+        }
 
         /// <summary>
         /// Retrieves the current environment name from environment variables. 
@@ -89,9 +118,14 @@ namespace OpenSettings.Helpers
         /// </summary>
         /// <param name="expires">The expiration time as a string in RFC1123 ("R") format.</param>
         /// <returns>A <see cref="DateTime"/> object representing the expiration time in UTC.</returns>
-        internal static DateTime GetExpiryTime(string expires)
+        public static DateTime GetExpiryTime(string expires)
         {
             return DateTime.ParseExact(expires, "R", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
+        }
+
+        public static DateTimeOffset GetExpiryTimeOffset(string expires)
+        {
+            return DateTimeOffset.ParseExact(expires, "R", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
         }
 
         internal static IEnumerable<Type> GetTypesFromAssemblies()

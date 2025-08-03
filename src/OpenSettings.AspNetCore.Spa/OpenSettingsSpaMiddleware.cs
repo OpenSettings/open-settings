@@ -15,7 +15,6 @@ using OpenSettings.Configurations;
 using OpenSettings.Extensions;
 using OpenSettings.Models;
 using OpenSettings.Services.Interfaces;
-using OpenSettings.Services.MemoryCache;
 #if NETSTANDARD2_0 || NETSTANDARD2_1
 using IWebHostEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 #else
@@ -40,7 +39,7 @@ namespace OpenSettings.AspNetCore.Spa
         private readonly string _routePrefixPattern;
         private readonly string _routePrefixWithIndexHtmlPattern;
 
-        private readonly IDictionary<string, string> _indexArguments;
+        private readonly Dictionary<string, string> _indexArguments;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OpenSettingsSpaMiddleware"/> class.
@@ -59,14 +58,13 @@ namespace OpenSettings.AspNetCore.Spa
             IWebHostEnvironment hostingEnv,
             ILoggerFactory loggerFactory)
         {
+            _openSettingsMemoryCache = openSettingsMemoryCache;
             _openSettingsConfiguration = openSettingsConfiguration;
 
             if (openSettingsConfiguration.Spa.IndexStream == null)
             {
                 openSettingsConfiguration.Spa.IndexStream = () => _currentAssembly.GetManifestResourceStream(OpenSettingsDefaults.Spa.EmbeddedIndexHtmlFileNamespace);
             }
-
-            _openSettingsMemoryCache = openSettingsMemoryCache;
 
             _routePrefixPattern = string.IsNullOrWhiteSpace(openSettingsConfiguration.Spa.RoutePrefix)
                 ? "^/$"
@@ -127,7 +125,7 @@ namespace OpenSettings.AspNetCore.Spa
 
                 case "GET" when Regex.IsMatch(path, _routePrefixWithIndexHtmlPattern, RegexOptions.IgnoreCase):
 
-                    var text = await MemoryCacheKeys.OpenSettingsSpaMiddlewareHtml.GetOrCreateAsync(_openSettingsMemoryCache, c =>
+                    var text = await OpenSettingsDefaults.Caches.OpenSettingsSpaMiddlewareHtmlCacheEntryKey.GetOrCreateAsync(_openSettingsMemoryCache, c =>
                     {
                         _indexArguments[IndexArguments.License] = JsonSerializer.Serialize(LicenseProvider.Instance.CurrentLicense, _jsonSerializerOptions);
 
