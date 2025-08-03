@@ -138,6 +138,8 @@ namespace OpenSettings
 
             internal const char HyphenChar = '-';
 
+            internal const char SlashChar = '/';
+
             internal const string PublicCacheControlValue = "public, max-age={0}";
         }
 
@@ -371,6 +373,8 @@ namespace OpenSettings
             public static CacheEntry TokenServiceRefreshTokenCacheEntry { get; } = new CacheEntry("ts:rt");
 
             public static CacheEntry TokenServiceAccessTokenCacheEntry { get; } = new CacheEntry("ts:at");
+
+            public static CacheEntry AuthServiceUuidCacheEntry { get; } = new CacheEntry("asu:rt:at", TimeSpan.FromMinutes(5));
 
             public static CacheEntry OpenSettingsConfigsCacheEntry { get; } = new CacheEntry("oss:gca:configs");
 

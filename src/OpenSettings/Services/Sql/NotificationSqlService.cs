@@ -28,7 +28,7 @@ namespace OpenSettings.Services.Sql
     internal sealed class NotificationSqlService : INotificationSqlService
     {
         private readonly OpenSettingsDbContext _context;
-        private readonly IMemoryCache _memoryCache;
+        private readonly IOpenSettingsMemoryCache _openSettingsMemoryCache;
         private readonly IOpenSettingsService _openSettingsService;
         private readonly ILockService _locksService;
         private readonly IServiceScopeFactory _serviceScopeFactory;
@@ -37,7 +37,7 @@ namespace OpenSettings.Services.Sql
         public NotificationSqlService(OpenSettingsDbContext context, IOpenSettingsMemoryCache openSettingsMemoryCache, IOpenSettingsService openSettingsService, ILockService locksService, IServiceScopeFactory serviceScopeFactory, ITaskQueueFactory taskQueueFactory)
         {
             _context = context;
-            _memoryCache = openSettingsMemoryCache;
+            _openSettingsMemoryCache = openSettingsMemoryCache;
             _openSettingsService = openSettingsService;
             _locksService = locksService;
             _serviceScopeFactory = serviceScopeFactory;
@@ -733,7 +733,7 @@ namespace OpenSettings.Services.Sql
         {
             var cacheKey = OpenSettingsDefaults.Caches.AvailableNotificationIdsCacheEntry.GetKey(inputPackVersion);
 
-            if (cacheKey.TryGetValue(_memoryCache, out GetAvailableNotificationsResponse response))
+            if (cacheKey.TryGetValue(_openSettingsMemoryCache, out GetAvailableNotificationsResponse response))
             {
                 await IncludeLicenseExpiryNotificationIfAnyAsync(response, cancellationToken);
                 await IncludeVersionMismatchNotificationIfAnyAsync(response, inputPackVersion, cancellationToken);
@@ -812,7 +812,7 @@ namespace OpenSettings.Services.Sql
 
             await _context.SaveChangesAsync(cancellationToken);
 
-            cacheKey.Set(_memoryCache, response);
+            cacheKey.Set(_openSettingsMemoryCache, response);
 
             await IncludeLicenseExpiryNotificationIfAnyAsync(response, cancellationToken);
             await IncludeVersionMismatchNotificationIfAnyAsync(response, inputPackVersion, cancellationToken);

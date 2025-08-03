@@ -18,6 +18,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using OpenSettings.Services.Rest.Interfaces;
 
 namespace OpenSettings.AspNetCore.Extensions
 {
@@ -49,13 +50,11 @@ namespace OpenSettings.AspNetCore.Extensions
 
             if (syncAppDataResponse.IsProvider)
             {
-                RegisterProviderServices(providerInfo, controllerConfiguration, authenticationBuilder);
+                RegisterProviderServices(mvcBuilder.Services, providerInfo, controllerConfiguration, authenticationBuilder);
             }
             else
             {
-                mvcBuilder.Services.AddTransient<OpenSettingsRestServiceAuthHandler>();
-
-                mvcBuilder.Services.AddHttpClient(OpenSettingsDefaults.Names.ProviderHttpClientName).AddHttpMessageHandler<OpenSettingsRestServiceAuthHandler>();
+                RegisterConsumerServices(mvcBuilder.Services);
             }
 
             mvcBuilder.Services.AddSingleton<IInstanceUrlResolverService, InstanceUrlResolverService>();
@@ -128,8 +127,10 @@ namespace OpenSettings.AspNetCore.Extensions
             }).AddControllersAsServices();
         }
 
-        private static void RegisterProviderServices(ProviderInfo providerInfo, ConfigurationController controllerConfiguration, AuthenticationBuilder authenticationBuilder)
+        private static void RegisterProviderServices(IServiceCollection services, ProviderInfo providerInfo, ConfigurationController controllerConfiguration, AuthenticationBuilder authenticationBuilder)
         {
+            services.AddSingleton<IAuthService, AuthService>();
+
             authenticationBuilder.AddMachineToMachineJwtBearer(providerInfo);
 
             if (!providerInfo.OAuth2.IsActive)
@@ -140,6 +141,17 @@ namespace OpenSettings.AspNetCore.Extensions
             authenticationBuilder
                 .AddCookie(OpenSettingsDefaults.AuthSchemes.Cookie)
                 .AddOAuth2(controllerConfiguration);
+        }
+
+        private static void RegisterConsumerServices(IServiceCollection services)
+        {
+            services.AddTransient<OpenSettingsRestServiceAuthHandler>();
+
+            services.AddHttpClient(OpenSettingsDefaults.Names.ProviderHttpClientName).AddHttpMessageHandler<OpenSettingsRestServiceAuthHandler>();
+
+            services.AddSingleton<IAuthRestService, AuthRestService>();
+            services.AddSingleton<IAuthService>(sp => sp.GetRequiredService<IAuthRestService>());
+
         }
 
         private static AuthenticationBuilder AddMachineToMachineJwtBearer(this AuthenticationBuilder authenticationBuilder, ProviderInfo providerInfo)

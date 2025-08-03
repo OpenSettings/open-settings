@@ -18,6 +18,7 @@ namespace OpenSettings
         /// <typeparam name="T">The type of the setting to retrieve. The type must implement <see cref="ISettings"/>.</typeparam>
         /// <returns>The local setting data associated with the setting, or <c>null</c> if no data is found.</returns>
         /// <exception cref="ArgumentNullException">Thrown if <typeparamref name="T"/> is null.</exception>
+        /// <exception cref="InvalidCastException">Thrown if <typeparamref name="T"/> is not actual type.</exception>
         public static T GetLocalSettingOrDefault<T>() where T : ISettings
         {
             return (T)GetLocalSettingOrDefault(typeof(T));

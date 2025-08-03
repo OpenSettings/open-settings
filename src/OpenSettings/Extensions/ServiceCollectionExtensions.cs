@@ -6,7 +6,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.IdentityModel.JsonWebTokens;
 using Ogu.Compressions.Abstractions;
 using Ogu.Extensions.Hosting.HostedServices;
 using OpenSettings.Configurations;
