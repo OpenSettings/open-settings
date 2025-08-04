@@ -12,13 +12,13 @@ using OpenSettings.Models;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Models.Responses;
 using OpenSettings.Services.Interfaces;
+using OpenSettings.Services.Rest.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using OpenSettings.Services.Rest.Interfaces;
 
 namespace OpenSettings.AspNetCore.Extensions
 {
@@ -123,7 +123,6 @@ namespace OpenSettings.AspNetCore.Extensions
                         conventionOpts =>
                             ApplyConventionOptions(conventionOpts, providerInfo, syncAppDataResponse.IsProvider));
                 }
-
             }).AddControllersAsServices();
         }
 
@@ -133,14 +132,12 @@ namespace OpenSettings.AspNetCore.Extensions
 
             authenticationBuilder.AddMachineToMachineJwtBearer(providerInfo);
 
-            if (!providerInfo.OAuth2.IsActive)
+            if (providerInfo.Authorize && providerInfo.OAuth2.IsActive)
             {
-                return;
+                authenticationBuilder
+                    .AddCookie(OpenSettingsDefaults.AuthSchemes.Cookie)
+                    .AddOAuth2(controllerConfiguration);
             }
-
-            authenticationBuilder
-                .AddCookie(OpenSettingsDefaults.AuthSchemes.Cookie)
-                .AddOAuth2(controllerConfiguration);
         }
 
         private static void RegisterConsumerServices(IServiceCollection services)
@@ -241,11 +238,18 @@ namespace OpenSettings.AspNetCore.Extensions
               });
         }
 
+        /// <summary>
+        /// Applies the convention options for the controller authorization convention.
+        /// </summary>
+        /// <param name="conventionOptions">The controller authorize convention options.</param>
+        /// <param name="providerInfo">The provider info.</param>
+        /// <param name="isServiceTypeProvider">Specifies whether the app running as provider.</param>
+        /// <remarks>Only called if Authorize is true. (Line : 120)</remarks>
         private static void ApplyConventionOptions(ControllerAuthorizeConventionOptions conventionOptions, ProviderInfo providerInfo, bool isServiceTypeProvider)
         {
             var authSchemes = new List<string>(4) { OpenSettingsDefaults.AuthSchemes.Basic, OpenSettingsDefaults.AuthSchemes.MachineToMachineJwtBearer };
 
-            if (providerInfo.OAuth2.IsActive)
+            if (providerInfo.OAuth2.IsActive) 
             {
                 if (isServiceTypeProvider)
                 {

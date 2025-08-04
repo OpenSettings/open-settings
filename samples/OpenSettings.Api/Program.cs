@@ -18,7 +18,8 @@ var openSettingsProviderConfiguration = new OpenSettingsConfiguration(ServiceTyp
             AllowOfflineAccess = true,
             Authority = "https://localhost:5001",
             SignedOutRedirectUri = "settings"
-        }
+        },
+        Authorize = true
     },
     Client = new ClientInfo(
         new Guid("adbdf741-bb4d-4673-b2a8-23e677fcf454"), // The unique identifier for the client. 
@@ -44,6 +45,8 @@ builder.Services
 var app = builder.Build();
 
 app.UseRouting();
+app.UseAuthentication();
+app.UseAuthorization();
 app.UseOpenSettings(); // Updates instance status when the application is starting or stopping.
 app.MapControllers();
 

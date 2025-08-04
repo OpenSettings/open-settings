@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using OpenSettings.AspNetCore.Extensions;
 using OpenSettings.Configurations;
@@ -49,7 +48,7 @@ namespace OpenSettings.AspNetCore.Handlers
                 return await base.SendAsync(request, cancellationToken);
             }
 
-            var isRefreshableOAuth2 = authHeader.Scheme == JwtBearerDefaults.AuthenticationScheme && _providerInfo.OAuth2.IsActive && _providerInfo.OAuth2.AllowOfflineAccess;
+            var isRefreshableOAuth2 = authHeader.Scheme == JwtBearerDefaults.AuthenticationScheme && _providerInfo.Authorize && _providerInfo.OAuth2.IsActive && _providerInfo.OAuth2.AllowOfflineAccess;
 
             if (isRefreshableOAuth2)
             {
