@@ -14,6 +14,12 @@ namespace OpenSettings.Models.Responses
         /// </summary>
         public string Expires { get; set; }
 
+        /// <summary>
+        /// A non-negative integer that represents the time in seconds for which the object was in a proxy cache.
+        /// e.g. 0
+        /// </summary>
+        public int Age { get; set; }
+
         public byte[] Data { get; set; } = Array.Empty<byte>();
     }
 }

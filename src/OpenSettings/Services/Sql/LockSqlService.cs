@@ -24,7 +24,7 @@ namespace OpenSettings.Services.Sql
 
             if (entity == null)
             {
-                HandleAcquireNewLock(input);
+                entity = HandleAcquireNewLock(input);
             }
             else if (!HandleAcquireExistingLock(entity, input))
             {
@@ -32,6 +32,8 @@ namespace OpenSettings.Services.Sql
             }
 
             await _context.SaveChangesAsync(cancellationToken);
+
+            _context.Entry(entity).State = EntityState.Detached;
 
             return true;
         }
@@ -48,6 +50,8 @@ namespace OpenSettings.Services.Sql
             entity.ExpiryTime = input.ExpiryTime;
 
             await _context.SaveChangesAsync(cancellationToken);
+
+            _context.Entry(entity).State = EntityState.Detached;
         }
 
         public async Task<bool> ReleaseLockAsync(ReleaseLockInput input, CancellationToken cancellationToken = default)
@@ -60,14 +64,16 @@ namespace OpenSettings.Services.Sql
                 return false;
             }
 
-            _context.Locks.Remove(entity);
+            var entry = _context.Locks.Remove(entity);
 
             await _context.SaveChangesAsync(cancellationToken);
+
+            entry.State = EntityState.Detached;
 
             return true;
         }
 
-        private void HandleAcquireNewLock(AcquireLockInput input)
+        private LockSqlModel HandleAcquireNewLock(AcquireLockInput input)
         {
             var entity = new LockSqlModel
             {
@@ -77,6 +83,8 @@ namespace OpenSettings.Services.Sql
             };
 
             _context.Locks.Add(entity);
+
+            return entity;
         }
 
         private static bool HandleAcquireExistingLock(LockSqlModel entity, AcquireLockInput input)

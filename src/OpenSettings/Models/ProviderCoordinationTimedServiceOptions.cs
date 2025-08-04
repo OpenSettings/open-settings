@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 
-namespace OpenSettings.AspNetCore.Models
+namespace OpenSettings.Models
 {
     /// <summary>
     /// Configuration options for the <see cref="ProviderCoordinationTimedServiceOptions"/>.

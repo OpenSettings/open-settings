@@ -87,14 +87,5 @@ namespace OpenSettings.AspNetCore.Controllers.v1
 
             return new EmptyResult();
         }
-
-        private string GetBaseUrl() => $"{Request.Scheme}://{Request.Host}";
-
-        private static class Keys
-        {
-            public const string ReturnUrl = "ReturnUrl";
-            public const string ApiUrl = "ApiUrl";
-            public const string Uuid = "uuid";
-        }
     }
 }

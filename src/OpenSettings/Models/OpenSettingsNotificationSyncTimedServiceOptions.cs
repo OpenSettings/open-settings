@@ -1,7 +1,7 @@
-﻿using Microsoft.Extensions.Options;
-using System;
+﻿using System;
+using Microsoft.Extensions.Options;
 
-namespace OpenSettings.AspNetCore.Models
+namespace OpenSettings.Models
 {
     /// <summary>
     /// Configuration options for the <see cref="OpenSettingsNotificationSyncTimedServiceOptions"/>.

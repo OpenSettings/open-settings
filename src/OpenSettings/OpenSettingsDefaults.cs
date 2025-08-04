@@ -97,6 +97,8 @@ namespace OpenSettings
 
             public const string Expires = "Expires";
 
+            public const string Age = "Age";
+
             public const string Referer = "Referer";
 
             public const string Location = "Location";

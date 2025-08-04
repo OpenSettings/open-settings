@@ -71,9 +71,24 @@ namespace OpenSettings.Services.Rest
 
                 var cacheControl = response.Headers.CacheControl ?? new CacheControlHeaderValue();
 
-                var expires = response.Headers.TryGetValues("Expires", out var expiresValues)
+                DateTimeOffset? utcNow = null;
+
+                var expires = response.Headers.TryGetValues(OpenSettingsDefaults.Headers.Expires, out var expiresValues)
                     ? expiresValues.FirstOrDefault()
-                    : DateTimeOffset.UtcNow.Add(cacheControl.MaxAge.GetValueOrDefault(TimeSpan.Zero)).ToString("R");
+                    : (utcNow = DateTimeOffset.UtcNow).Value.Add(cacheControl.MaxAge.GetValueOrDefault(TimeSpan.Zero)).ToString("R");
+
+                var age = 0;
+
+                if (response.Headers.TryGetValues(OpenSettingsDefaults.Headers.Age, out var ageValues) && int.TryParse(ageValues.FirstOrDefault(), out var parsedAge))
+                {
+                    age = parsedAge;
+                }
+                else if (response.Headers.Date.HasValue)
+                {
+                    var responseDate = response.Headers.Date.Value;
+
+                    age = (int)Math.Max(0, ((utcNow = utcNow ?? DateTimeOffset.UtcNow).Value - responseDate).TotalSeconds);
+                }
 
                 var data = await response.Content.ReadAsByteArrayAsync(
 #if NET5_0_OR_GREATER
@@ -85,6 +100,7 @@ namespace OpenSettings.Services.Rest
                 {
                     CacheControl = $"{cacheControl}",
                     Expires = expires,
+                    Age = age,
                     Data = data
                 };
             }

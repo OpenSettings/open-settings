@@ -3,11 +3,13 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Ogu.AspNetCore.Conventions;
 using OpenSettings.AspNetCore.Controllers.v1;
 using OpenSettings.AspNetCore.Handlers;
 using OpenSettings.AspNetCore.Services;
+using OpenSettings.Configurations;
 using OpenSettings.Models;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Models.Responses;
@@ -170,6 +172,8 @@ namespace OpenSettings.AspNetCore.Extensions
         {
             var apiLoginRoute = $"/{controllerConfiguration.Route}/v1/auth/login";
 
+            ILogger oAuth2Logger = null;
+
             return authenticationBuilder.AddOpenIdConnect(OpenSettingsDefaults.AuthSchemes.OAuth2, opts =>
               {
                   opts.Authority = controllerConfiguration.OAuth2.Authority;
@@ -231,7 +235,15 @@ namespace OpenSettings.AspNetCore.Extensions
                       },
                       OnRemoteFailure = context =>
                       {
-                          Console.WriteLine($"OIDC Error: {context.Failure?.Message}");
+                          if (oAuth2Logger == null)
+                          {
+                              var openSettingsConfiguration = context.HttpContext.RequestServices.GetService<OpenSettingsConfiguration>();
+
+                              oAuth2Logger = openSettingsConfiguration.LoggerFactory.CreateLogger("OAuth2");
+                          }
+
+                          oAuth2Logger.LogError(context.Failure, "OIDC Error: {message}", context.Failure?.Message);
+
                           return Task.CompletedTask;
                       }
                   };

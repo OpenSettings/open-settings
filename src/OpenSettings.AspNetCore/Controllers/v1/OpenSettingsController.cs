@@ -25,7 +25,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return NotFound();
             }
 
-            ApplyHeaders(configs.CacheControl, configs.Expires);
+            ApplyHeaders(configs.CacheControl, configs.Expires, configs.Age);
 
             return Ok(configs.Data);
         }
@@ -40,15 +40,16 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return NotFound();
             }
 
-            ApplyHeaders(config.CacheControl, config.Expires);
+            ApplyHeaders(config.CacheControl, config.Expires, config.Age);
 
             return File(config.Data, OpenSettingsDefaults.ContentTypes.ApplicationOctetStream);
         }
 
-        private void ApplyHeaders(string cacheControl, string expires)
+        private void ApplyHeaders(string cacheControl, string expires, int age)
         {
             Response.Headers[OpenSettingsDefaults.Headers.CacheControl] = cacheControl;
             Response.Headers[OpenSettingsDefaults.Headers.Expires] = expires;
+            Response.Headers[OpenSettingsDefaults.Headers.Age] = $"{age}";
         }
     }
 }

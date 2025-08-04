@@ -6,6 +6,8 @@ namespace OpenSettings.Models
     {
         public T Data { get; set; }
 
+        public int ExpiresInSeconds { get; set; }
+
         public DateTimeOffset AbsoluteExpiration { get; set; }
     }
 }

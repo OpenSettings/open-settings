@@ -14,7 +14,6 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using ProviderCoordinationTimedServiceOptions = OpenSettings.AspNetCore.Models.ProviderCoordinationTimedServiceOptions;
 
 namespace OpenSettings.Services
 {
@@ -243,7 +242,7 @@ namespace OpenSettings.Services
 
         private static async Task UpdateHeartbeatOnAsync(OpenSettingsDbContext context, CancellationToken cancellationToken)
         {
-            var providerRegistry = new ProviderRegistrySqlModel { Id = InstanceId };
+            var providerRegistry = new ProviderRegistrySqlModel { Id = InstanceId }; // Todo: Can InstanceId not found in the provider registry when this get called?
 
             var entry = context.ProviderRegistries.Attach(providerRegistry);
 

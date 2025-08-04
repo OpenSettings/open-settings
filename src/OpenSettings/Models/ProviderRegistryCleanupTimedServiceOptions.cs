@@ -1,7 +1,7 @@
-﻿using Microsoft.Extensions.Options;
-using System;
+﻿using System;
+using Microsoft.Extensions.Options;
 
-namespace OpenSettings.AspNetCore.Models
+namespace OpenSettings.Models
 {
     /// <summary>
     /// Configuration options for the <see cref="ProviderRegistryCleanupTimedServiceOptions"/>.
@@ -12,16 +12,16 @@ namespace OpenSettings.AspNetCore.Models
         /// <summary>
         /// Interval between cleanup checks.
         /// </summary>
-        /// <remarks>Default is <c>15000</c> ms.</remarks>
-        public TimeSpan CleanupCheckInterval { get; set; } = TimeSpan.FromSeconds(15);
+        /// <remarks>Default is <c>16000</c> ms.</remarks>
+        public TimeSpan CleanupCheckInterval { get; set; } = TimeSpan.FromSeconds(16);
 
         /// <summary>
         /// The age threshold for determining when a provider registry entry is considered outdated and eligible for cleanup.
         /// </summary>
         /// <remarks>
-        /// Entries with a <c>LastHeartbeat</c> older than this value will be removed during cleanup. Default is <c>15000</c> ms.
+        /// Entries with a <c>LastHeartbeat</c> older than this value will be removed during cleanup. Default is <c>21000</c> ms.
         /// </remarks>
-        public TimeSpan CleanupOlderThan { get; set; } = TimeSpan.FromSeconds(15);
+        public TimeSpan CleanupOlderThan { get; set; } = TimeSpan.FromSeconds(21);
 
         ProviderRegistryCleanupTimedServiceOptions IOptions<ProviderRegistryCleanupTimedServiceOptions>.Value => this;
     }

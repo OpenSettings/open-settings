@@ -47,10 +47,13 @@ namespace OpenSettings.Services
 
             var expiresInSeconds = (int)(configs.AbsoluteExpiration - DateTimeOffset.UtcNow).TotalSeconds;
 
+            var age = configs.ExpiresInSeconds - expiresInSeconds;
+
             return new GetConfigsResponse
             {
-                CacheControl = OpenSettings.Helpers.Helper.GetPublicCacheControlValue(expiresInSeconds),
+                CacheControl = Helpers.Helper.GetPublicCacheControlValue(expiresInSeconds),
                 Expires = configs.AbsoluteExpiration.ToString("R"),
+                Age = age,
                 Data = JsonSerializer.SerializeToUtf8Bytes(configs.Data)
             };
         }
@@ -105,6 +108,7 @@ namespace OpenSettings.Services
                         return new OpenSettingsConfigsDataCacheModel<byte[]>
                         {
                             Data = content,
+                            ExpiresInSeconds = data.ExpiresInSeconds,
                             AbsoluteExpiration = absoluteExpiration
                         };
                     }
@@ -121,13 +125,16 @@ namespace OpenSettings.Services
             {
                 return null;
             }
-
+            
             var expiresInSeconds = (int)(configsData.AbsoluteExpiration - DateTimeOffset.UtcNow).TotalSeconds;
+
+            var age = configsData.ExpiresInSeconds - expiresInSeconds;
 
             return new GetConfigsDataResponse
             {
                 CacheControl = Helpers.Helper.GetPublicCacheControlValue(expiresInSeconds),
                 Expires = configsData.AbsoluteExpiration.ToString("R"),
+                Age = age,
                 Data = configsData.Data
             };
         }
@@ -182,6 +189,7 @@ namespace OpenSettings.Services
                         return new OpenSettingsConfigsDataCacheModel<Dictionary<string, OpenSettingsConfigsDataModel>>
                         {
                             Data = content.Data,
+                            ExpiresInSeconds = content.ExpiresInSeconds,
                             AbsoluteExpiration = absoluteExpiration
                         };
                     }
