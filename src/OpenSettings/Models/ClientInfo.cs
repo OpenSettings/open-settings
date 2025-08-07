@@ -24,9 +24,9 @@ namespace OpenSettings.Models
         {
             var assemblyName = Assembly.GetEntryAssembly()?.GetName();
 
-            Name = string.IsNullOrWhiteSpace(name) ? GetClientName(assemblyName) : name;
             Id = id == Guid.Empty ? Guid.NewGuid() : id ?? Guid.NewGuid();
             Secret = secret == Guid.Empty ? Guid.NewGuid() : secret ?? Guid.NewGuid();
+            Name = string.IsNullOrWhiteSpace(name) ? GetClientName(assemblyName) : name;
 
             if (string.IsNullOrWhiteSpace(version))
             {
@@ -41,11 +41,6 @@ namespace OpenSettings.Models
         }
 
         /// <summary>
-        /// Gets or sets the name of the client.
-        /// </summary>
-        public string Name { get; }
-
-        /// <summary>
         /// Gets or sets the id for the client.
         /// </summary>
         public Guid Id { get; }
@@ -56,10 +51,14 @@ namespace OpenSettings.Models
         public Guid Secret { get; }
 
         /// <summary>
+        /// Gets or sets the name of the client.
+        /// </summary>
+        public string Name { get; }
+
+        /// <summary>
         /// Gets the version information without the '<c>v</c>' prefix. 
         /// e.g. '<c>1.0.0</c>'.
         /// </summary>
-        [JsonIgnore]
         public string Version { get; }
 
         private static string GetClientName(AssemblyName entryAssembly)

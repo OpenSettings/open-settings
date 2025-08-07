@@ -1,6 +1,8 @@
 ﻿using Ogu.Compressions;
 using Ogu.Compressions.Abstractions;
 using OpenSettings.Configurations;
+using OpenSettings.Services;
+using OpenSettings.Services.Rest;
 using System;
 using System.Net.Http;
 
@@ -10,6 +12,7 @@ namespace OpenSettings
     {
         private HttpClient _httpClient;
         private DecompressionHandler _decompressionHandler;
+        private MachineToMachineTokenHandler _machineToMachineTokenHandler;
         private HttpClientHandler _httpClientHandler;
 
         private readonly OpenSettingsConfiguration _openSettingsConfiguration;
@@ -43,9 +46,14 @@ namespace OpenSettings
 
             _httpClientHandler = new HttpClientHandler();
 
-            _decompressionHandler = new DecompressionHandler(compressionProvider)
+            _machineToMachineTokenHandler = new MachineToMachineTokenHandler(OpenSettingsDefaults.Caches.GetOpenSettingsMemoryCache(_openSettingsConfiguration.LoggerFactory), new TokenRestService(this), _openSettingsConfiguration)
             {
                 InnerHandler = _httpClientHandler
+            };
+
+            _decompressionHandler = new DecompressionHandler(compressionProvider)
+            {
+                InnerHandler = _machineToMachineTokenHandler
             };
 
             _httpClient = new HttpClient(_decompressionHandler);

@@ -87,13 +87,12 @@ namespace OpenSettings.Models.Responses
         private static ProviderInfo ConstructProviderInfo(OpenSettingsConfiguration openSettingsConfiguration, ConfigurationController controllerConfiguration)
         {
             var openSettingsAssemblyInfo = OpenSettingsAssemblyInfo.Instance;
-            
+
             return new ProviderInfo
             {
                 Client = new ProviderInfoClient
                 {
                     Id = openSettingsConfiguration.Client.Id,
-                    Secret = openSettingsConfiguration.Client.Secret,
                     Name = openSettingsConfiguration.Client.Name,
                     Version = openSettingsConfiguration.Client.Version,
                 },
@@ -104,9 +103,12 @@ namespace OpenSettings.Models.Responses
                     Configuration = openSettingsConfiguration.Provider.Redis.Configuration,
                 },
                 Authorize = controllerConfiguration.Authorize,
-                PackVersion = openSettingsAssemblyInfo.PackVersion,
-                PackVersionScore = openSettingsAssemblyInfo.PackVersionScore,
-                IsPreviewVersion = openSettingsAssemblyInfo.IsPreviewVersion,
+                PackInfo = new PackInfo
+                {
+                    Version = openSettingsAssemblyInfo.PackInfo.Version,
+                    Score = openSettingsAssemblyInfo.PackInfo.Score,
+                    IsPreview = openSettingsAssemblyInfo.PackInfo.IsPreview
+                },
                 OAuth2 = new OAuth2Info
                 {
                     Authority = controllerConfiguration.OAuth2.Authority,

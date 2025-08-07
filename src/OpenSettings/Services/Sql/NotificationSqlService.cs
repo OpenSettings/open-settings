@@ -968,26 +968,24 @@ namespace OpenSettings.Services.Sql
         {
             var openSettingsAssemblyInfo = OpenSettingsAssemblyInfo.Instance;
 
-            if (openSettingsAssemblyInfo.PackVersion == inputPackVersion)
+            if (openSettingsAssemblyInfo.PackInfo.Version == inputPackVersion)
             {
                 return null;
             }
 
-            var notificationId = Helper.ComputeIdentifier($"version-mismatch-{openSettingsAssemblyInfo.PackVersion}-{inputPackVersion}");
+            var notificationId = Helper.ComputeIdentifier($"version-mismatch-{openSettingsAssemblyInfo.PackInfo.Version}-{inputPackVersion}");
             var currentTime = DateTime.UtcNow;
 
             var response = new GetNotificationsResponseNotification
             {
                 Id = notificationId,
                 Title = "Version Mismatch Detected",
-                Message = $"Provider's OpenSettings pack version (v{openSettingsAssemblyInfo.PackVersion}) is different from the current pack version (v{inputPackVersion}). Some UI features may not be functioning as intended.",
+                Message = $"Provider's OpenSettings pack version (v{openSettingsAssemblyInfo.PackInfo.Version}) is different from the current pack version (v{inputPackVersion}). Some UI features may not be functioning as intended.",
                 Type = NotificationType.VersionMismatch,
                 Source = NotificationSource.System,
                 Metadata = new Dictionary<string, object>
                 {
-                    { "version", openSettingsAssemblyInfo.Version },
-                    { "packVersion", openSettingsAssemblyInfo.PackVersion },
-                    { "packVersionScore", openSettingsAssemblyInfo.PackVersionScore },
+                    { "packInfo", openSettingsAssemblyInfo.PackInfo }
                 },
                 CreatedOn = currentTime,
                 CreatorName = openSettingsAssemblyInfo.Name

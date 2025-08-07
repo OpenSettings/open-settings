@@ -1,6 +1,6 @@
-﻿using System;
+﻿using OpenSettings.Configurations;
+using System;
 using System.Collections.Generic;
-using OpenSettings.Configurations;
 
 namespace OpenSettings.Models.Inputs
 {
@@ -19,7 +19,7 @@ namespace OpenSettings.Models.Inputs
             DynamicId = openSettingsConfiguration.InstanceDynamicId;
             Urls = urls ?? Array.Empty<string>();
             Version = openSettingsConfiguration.Client.Version;
-            PackVersion = OpenSettingsAssemblyInfo.Instance.PackVersion;
+            PackVersion = OpenSettingsAssemblyInfo.Instance.PackInfo.Version;
             IsActive = isActive;
             MachineName = System.Environment.MachineName;
             Environment = Helpers.Helper.GetEnvironmentName();

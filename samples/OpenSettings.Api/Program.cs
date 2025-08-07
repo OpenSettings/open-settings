@@ -47,7 +47,7 @@ var app = builder.Build();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseOpenSettings(); // Updates instance status & register spa based on the config.
+app.UseOpenSettings(); // Updates instance status when the application is starting or stopping & enables open-settings spa page for viewing and editing settings based on the selection.
 app.MapControllers();
 
 await app.RunAsync();

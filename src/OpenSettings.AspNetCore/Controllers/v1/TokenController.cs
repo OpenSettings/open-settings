@@ -28,6 +28,11 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         [AllowAnonymous]
         public async Task<IActionResult> GenerateToken(GenerateTokenRequest request, CancellationToken cancellationToken)
         {
+            if (_openSettingsConfiguration.IsConsumerSelected)
+            {
+                return HttpStatusCode.InternalServerError.ToFailureResponse(Errors.GenerateTokenNotSupportedWhileRunningInConsumerMode).ToAction();
+            }
+
             if (!ModelState.IsValid)
             {
                 return ModelState.ToAction();

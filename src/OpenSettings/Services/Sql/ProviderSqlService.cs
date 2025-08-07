@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using Microsoft.EntityFrameworkCore;
 using Ogu.Response;
 using Ogu.Response.Abstractions;
 using OpenSettings.Configurations;
@@ -49,7 +50,36 @@ namespace OpenSettings.Services.Sql
                 _openSettingsConfiguration.Provider.CompressionLevel = entity.Provider.CompressionLevel;
             }
 
-            return HttpStatusCode.OK.ToSuccessResponseOf(_providerInfo);
+            var providerInfo = new ProviderInfo
+            {
+                Client = new ProviderInfoClient
+                {
+                    Id = _providerInfo.Client.Id,
+                    Name = _providerInfo.Client.Name,
+                    Version = _providerInfo.Client.Version,
+                },
+                Authorize = _providerInfo.Authorize,
+                PackInfo = new PackInfo
+                {
+                    Version = _providerInfo.PackInfo.Version,
+                    Score = _providerInfo.PackInfo.Score,
+                    IsPreview = _providerInfo.PackInfo.IsPreview
+                },
+                OAuth2 = new OAuth2Info
+                {
+                    Authority = _providerInfo.OAuth2.Authority,
+                    AllowOfflineAccess = _providerInfo.OAuth2.AllowOfflineAccess,
+                    IsActive = _providerInfo.OAuth2.IsActive
+                },
+                Redis = new RedisInfo
+                {
+                    Channel = _providerInfo.Redis.Channel,
+                    Configuration = _providerInfo.Redis.Configuration,
+                    IsActive = _providerInfo.Redis.IsActive
+                }
+            };
+
+            return HttpStatusCode.OK.ToSuccessResponseOf(providerInfo);
         }
 
         public async Task<IResponse> GetPrimaryProviderAsync(CancellationToken cancellationToken = default)

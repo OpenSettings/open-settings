@@ -44,19 +44,19 @@ namespace OpenSettings.AspNetCore.Spa
         /// <summary>
         /// Initializes a new instance of the <see cref="OpenSettingsSpaMiddleware"/> class.
         /// </summary>
-        /// <param name="requestDelegate">The request delegate.</param>
         /// <param name="openSettingsMemoryCache">In-memory cache for Open Settings.</param>
-        /// <param name="openSettingsConfiguration">Configuration for Open Settings.</param>
-        /// <param name="providerInfo">Provider information.</param>
         /// <param name="hostingEnv">Web hosting environment.</param>
         /// <param name="loggerFactory">Factory for creating loggers.</param>
+        /// <param name="requestDelegate">The request delegate.</param>
+        /// <param name="openSettingsConfiguration">Configuration for Open Settings.</param>
+        /// <param name="providerInfo">Provider information.</param>
         public OpenSettingsSpaMiddleware(
-            RequestDelegate requestDelegate,
             IOpenSettingsMemoryCache openSettingsMemoryCache,
-            OpenSettingsConfiguration openSettingsConfiguration,
-            ProviderInfo providerInfo,
             IWebHostEnvironment hostingEnv,
-            ILoggerFactory loggerFactory)
+            ILoggerFactory loggerFactory,
+            RequestDelegate requestDelegate,
+            OpenSettingsConfiguration openSettingsConfiguration,
+            ProviderInfo providerInfo)
         {
             _openSettingsMemoryCache = openSettingsMemoryCache;
             _openSettingsConfiguration = openSettingsConfiguration;
@@ -88,21 +88,54 @@ namespace OpenSettings.AspNetCore.Spa
                 openSettingsConfiguration.Controller.OAuth2
             };
 
+            var cloneProviderInfo = new
+            {
+                providerInfo.Authorize,
+                Client = new
+                {
+                    providerInfo.Client.Id,
+                    providerInfo.Client.Name,
+                    providerInfo.Client.Version
+                },
+                PackInfo = new
+                {
+                    providerInfo.PackInfo.Version,
+                    providerInfo.PackInfo.Score,
+                    providerInfo.PackInfo.IsPreview,
+                },
+                OAuth2 = new
+                {
+                    providerInfo.OAuth2.Authority,
+                    providerInfo.OAuth2.AllowOfflineAccess,
+                    providerInfo.OAuth2.IsActive
+                },
+                Redis = new
+                {
+                    providerInfo.Redis.Channel,
+                    providerInfo.Redis.Configuration,
+                    providerInfo.Redis.IsActive
+                }
+            };
+
+            var cloneClient = new
+            {
+                openSettingsConfiguration.Client.Id,
+                openSettingsConfiguration.Client.Name,
+                openSettingsConfiguration.Client.Version,
+            };
+
             var openSettingsAssemblyInfo = OpenSettingsAssemblyInfo.Instance;
 
-            _indexArguments = new Dictionary<string, string>
+            _indexArguments = new Dictionary<string, string>(9)
             {
                 { IndexArguments.Controller, JsonSerializer.Serialize(cloneController, _jsonSerializerOptions) },
-                { IndexArguments.ProviderInfo, JsonSerializer.Serialize(providerInfo, _jsonSerializerOptions) },
+                { IndexArguments.ProviderInfo, JsonSerializer.Serialize(cloneProviderInfo, _jsonSerializerOptions) },
+                { IndexArguments.PackInfo, JsonSerializer.Serialize(openSettingsAssemblyInfo.PackInfo, _jsonSerializerOptions) },
+                { IndexArguments.Client, JsonSerializer.Serialize(cloneClient, _jsonSerializerOptions) },
                 { IndexArguments.DocumentTitle, openSettingsConfiguration.Spa.DocumentTitle },
                 { IndexArguments.ServiceType, $"{openSettingsConfiguration.Selection}" },
                 { IndexArguments.DataAccessType, openSettingsConfiguration.IsConsumerSelected ? string.Empty : $"{openSettingsConfiguration.Provider.Selection}" },
-                { IndexArguments.DbProviderName, openSettingsConfiguration.IsProviderSelected && openSettingsConfiguration.Provider.IsOrmSelected ? $"{openSettingsConfiguration.Provider.Orm.DbProviderName}" : string.Empty },
-                { IndexArguments.PackVersion, openSettingsAssemblyInfo.PackVersion },
-                { IndexArguments.PackVersionScore, $"{openSettingsAssemblyInfo.PackVersionScore}" },
-                { IndexArguments.Version, openSettingsConfiguration.Client.Version },
-                { IndexArguments.ClientName, openSettingsConfiguration.Client.Name },
-                { IndexArguments.ClientId, $"{openSettingsConfiguration.Client.Id}" },
+                { IndexArguments.DbProviderName, openSettingsConfiguration.IsProviderSelected && openSettingsConfiguration.Provider.IsOrmSelected ? $"{openSettingsConfiguration.Provider.Orm.DbProviderName}" : string.Empty }
             };
 
             _staticFileMiddleware = requestDelegate.CreateStaticFileMiddleware(hostingEnv, loggerFactory, openSettingsConfiguration.Spa.RoutePrefix, OpenSettingsDefaults.Spa.EmbeddedFileNamespace, typeof(OpenSettingsSpaMiddleware));
@@ -117,9 +150,9 @@ namespace OpenSettings.AspNetCore.Spa
             {
                 case "GET" when Regex.IsMatch(path, _routePrefixPattern, RegexOptions.IgnoreCase):
 
-                    var relativeIndexUrl = string.IsNullOrEmpty(path) || path.EndsWith("/")
+                    var relativeIndexUrl = string.IsNullOrEmpty(path) || path.EndsWith(OpenSettingsDefaults.Format.Hyphen)
                         ? IndexHtml
-                        : $"{path.Split('/').Last()}/{IndexHtml}";
+                        : CalculateRedirectSpaRoute(path, _openSettingsConfiguration.Spa.RoutePrefix);
                     httpContext.Response.RespondWithRedirect(relativeIndexUrl);
                     return;
 
@@ -159,19 +192,23 @@ namespace OpenSettings.AspNetCore.Spa
             }
         }
 
+        private static string CalculateRedirectSpaRoute(string requestPath, string spaRoutePrefix)
+        {
+            var index = requestPath.IndexOf(spaRoutePrefix, StringComparison.InvariantCultureIgnoreCase);
+
+            return requestPath.EndsWith(OpenSettingsDefaults.Format.Slash) ? IndexHtml : $"{requestPath.Substring(index)}/{IndexHtml}";
+        }
+
         private static class IndexArguments
         {
             public const string Controller = "%(Controller)";
             public const string ProviderInfo = "%(ProviderInfo)";
+            public const string PackInfo = "%(PackInfo)";
+            public const string Client = "%(Client)";
             public const string DocumentTitle = "%(DocumentTitle)";
             public const string ServiceType = "%(ServiceType)";
             public const string DataAccessType = "%(DataAccessType)";
             public const string DbProviderName = "%(DbProviderName)";
-            public const string PackVersion = "%(PackVersion)";
-            public const string PackVersionScore = "%(PackVersionScore)";
-            public const string Version = "%(Version)";
-            public const string ClientName = "%(ClientName)";
-            public const string ClientId = "%(ClientId)";
             public const string License = "%(License)";
         }
     }

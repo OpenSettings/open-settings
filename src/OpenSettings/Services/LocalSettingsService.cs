@@ -553,7 +553,7 @@ namespace OpenSettings.Services
                     DynamicId = _openSettingsConfiguration.InstanceDynamicId,
                     Urls = Array.Empty<string>(),
                     Version = _openSettingsConfiguration.Client.Version,
-                    PackVersion = OpenSettingsAssemblyInfo.Instance.PackVersion,
+                    PackVersion = OpenSettingsAssemblyInfo.Instance.PackInfo.Version,
                     IsActive = true,
                     MachineName = Environment.MachineName,
                     Environment = Helper.GetEnvironmentName(),

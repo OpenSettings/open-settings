@@ -2,10 +2,8 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using OpenSettings.AspNetCore.Extensions;
-using OpenSettings.Configurations;
 using OpenSettings.Extensions;
 using OpenSettings.Models;
-using OpenSettings.Models.Inputs;
 using OpenSettings.Services.Interfaces;
 using System;
 using System.Net.Http;
@@ -21,23 +19,19 @@ namespace OpenSettings.AspNetCore.Handlers
         private readonly ITokenService _tokenService;
         private readonly IOpenSettingsMemoryCache _openSettingsMemoryCache;
         private readonly ProviderInfo _providerInfo;
-        private readonly OpenSettingsConfiguration _openSettingsConfiguration;
 
-        public OpenSettingsRestServiceAuthHandler(IHttpContextAccessor httpContextAccessor, ITokenService tokenService, IOpenSettingsMemoryCache openSettingsMemoryCache, ProviderInfo providerInfo, OpenSettingsConfiguration openSettingsConfiguration)
+        public OpenSettingsRestServiceAuthHandler(IHttpContextAccessor httpContextAccessor, ITokenService tokenService, IOpenSettingsMemoryCache openSettingsMemoryCache, ProviderInfo providerInfo)
         {
             _httpContextAccessor = httpContextAccessor;
             _tokenService = tokenService;
             _openSettingsMemoryCache = openSettingsMemoryCache;
             _providerInfo = providerInfo;
-            _openSettingsConfiguration = openSettingsConfiguration;
         }
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             if (_httpContextAccessor.HttpContext == null) // Machine To Machine
             {
-                request.Headers.Authorization = await GetMachineToMachineTokenAsync(cancellationToken);
-
                 return await base.SendAsync(request, cancellationToken);
             }
 
@@ -58,20 +52,6 @@ namespace OpenSettings.AspNetCore.Handlers
             request.Headers.Authorization = authHeader;
 
             return await base.SendAsync(request, cancellationToken);
-        }
-
-        public async ValueTask<AuthenticationHeaderValue> GetMachineToMachineTokenAsync(CancellationToken cancellationToken)
-        {
-            // todo cache retrieval missing etc.
-            var generateTokenResponse = await _tokenService.GenerateTokenAsync(new GenerateTokenInput
-            {
-                ClientId = _openSettingsConfiguration.Client.Id,
-                ClientSecret = _openSettingsConfiguration.Client.Secret,
-            }, cancellationToken);
-
-            return !generateTokenResponse.Success
-                ? null
-                : new AuthenticationHeaderValue(OpenSettingsDefaults.Names.JwtBearerSchemaName, generateTokenResponse.Data.AccessToken);
         }
 
         public async ValueTask<AuthenticationHeaderValue> RefreshUserTokenAsync(AuthenticationHeaderValue authenticationHeaderValue, CancellationToken cancellationToken)

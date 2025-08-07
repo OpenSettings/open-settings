@@ -64,6 +64,7 @@ namespace OpenSettings.Services
         {
             timedHostedServiceOptions.PreservePeriod = true;
             timedHostedServiceOptions.Period = providerRegistryCleanupTimedServiceOptions.CleanupCheckInterval;
+            timedHostedServiceOptions.StartsIn = providerRegistryCleanupTimedServiceOptions.StartsIn;
         }
     }
 }

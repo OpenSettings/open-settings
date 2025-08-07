@@ -24,13 +24,7 @@ namespace OpenSettings.Models
             FullName = assemblyName.FullName;
             Name = assemblyName.Name;
 
-            Version = VersionHelper.GetVersion(assemblyName);
-
-            var packInfo = assembly.GetPackInfo();
-
-            PackVersion = packInfo.Version;
-            IsPreviewVersion = packInfo.IsPreview;
-            PackVersionScore = packInfo.Score;
+            PackInfo = assembly.GetPackInfo();
         }
 
         /// <summary>
@@ -46,26 +40,8 @@ namespace OpenSettings.Models
         public string Name { get; }
 
         /// <summary>
-        /// Gets the OpenSettings version information without the '<c>v</c>' prefix. 
-        /// e.g. '<c>1.0.0</c>'.
+        /// Gets the pack information for OpenSettings, including version, score, and whether it is a preview version.
         /// </summary>
-        public string Version { get; }
-
-        /// <summary>
-        /// Gets the OpenSettings pack version information without the '<c>v</c>' prefix. 
-        /// e.g. '<c>1.0.0</c>', '<c>1.0.0-preview.1.0.1</c>'.
-        /// </summary>
-        public string PackVersion { get; }
-
-        /// <summary>
-        /// Gets the OpenSettings pack version score information.
-        /// e.g. '<c>1000000500000</c>'.
-        /// </summary>
-        public long PackVersionScore { get; }
-
-        /// <summary>
-        /// Specifies whether the OpenSettings version is a preview version.
-        /// </summary>
-        public bool IsPreviewVersion { get; }
+        public PackInfo PackInfo { get; }
     }
 }

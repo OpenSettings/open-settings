@@ -195,7 +195,7 @@ namespace OpenSettings.Services
                 Scheme = ProviderRegistryScheme.Unset,
                 Region = string.Empty,
                 Version = _openSettingsConfiguration.Client.Version,
-                PackVersion = OpenSettingsAssemblyInfo.Instance.PackVersion,
+                PackVersion = OpenSettingsAssemblyInfo.Instance.PackInfo.Version,
                 CreatedOn = currentTime,
                 LastHeartbeatOn = currentTime
             };

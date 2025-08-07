@@ -99,6 +99,7 @@ namespace OpenSettings.AspNetCore.Extensions
                 typeof(SettingsController),
                 typeof(TagsController),
                 typeof(UsersController),
+                typeof(TokenController)
             };
 
             return mvcBuilder.AddApplicationPart(typeof(MvcBuilderExtensions).Assembly).AddMvcOptions(mvcOpts =>
@@ -163,7 +164,7 @@ namespace OpenSettings.AspNetCore.Extensions
                     ValidateAudience = false,
                     ValidateIssuerSigningKey = true,
                     ValidIssuer = providerInfo.Client.Name,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes($"{providerInfo.Client.Secret ?? Guid.Empty}"))
+                    IssuerSigningKey = OpenSettingsDefaults.Caches.SymmetricSecurityKey
                 };
             });
         }

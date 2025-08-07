@@ -19,7 +19,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
 
         [HttpGet]
         [Authorize(AuthenticationSchemes = OpenSettingsDefaults.AuthSchemes.Basic)]
-        public async Task<IActionResult> GetProviderInfo(CancellationToken cancellationToken)
+        public async Task<IActionResult> GetProvider(CancellationToken cancellationToken)
         {
             var response = await _providerService.GetProviderAsync(cancellationToken);
 

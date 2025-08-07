@@ -1,5 +1,4 @@
 ﻿using Ogu.Compressions.Abstractions;
-using OpenSettings.Extensions;
 using OpenSettings.Models;
 using System;
 using System.Collections.Generic;
@@ -88,11 +87,9 @@ namespace OpenSettings.Configurations
         {
             httpClient.BaseAddress = new Uri(ProviderUrl);
 
-            httpClient.DefaultRequestHeaders.Authorization = clientInfo.CreateBasicAuthenticationHeaderValue();
-
             httpClient.DefaultRequestHeaders.TryAddWithoutValidation(OpenSettingsDefaults.Headers.ClientId, $"{clientInfo.Id}");
-            httpClient.DefaultRequestHeaders.TryAddWithoutValidation(OpenSettingsDefaults.Headers.PackVersion, OpenSettingsAssemblyInfo.Instance.PackVersion);
-            httpClient.DefaultRequestHeaders.TryAddWithoutValidation(OpenSettingsDefaults.Headers.PackVersionScore, $"{OpenSettingsAssemblyInfo.Instance.PackVersionScore}");
+            httpClient.DefaultRequestHeaders.TryAddWithoutValidation(OpenSettingsDefaults.Headers.PackVersion, OpenSettingsAssemblyInfo.Instance.PackInfo.Version);
+            httpClient.DefaultRequestHeaders.TryAddWithoutValidation(OpenSettingsDefaults.Headers.PackVersionScore, $"{OpenSettingsAssemblyInfo.Instance.PackInfo.Score}");
             
             RequestEncodings.AddToRequestHeaders(httpClient.DefaultRequestHeaders);
         }

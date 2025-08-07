@@ -1,11 +1,14 @@
-﻿using OpenSettings.Attributes;
+﻿using Microsoft.Extensions.Logging;
+using OpenSettings.Attributes;
 using OpenSettings.Models;
+using OpenSettings.Services;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Encodings.Web;
 using System.Text.Json;
+using Microsoft.IdentityModel.Tokens;
 
 namespace OpenSettings
 {
@@ -133,6 +136,8 @@ namespace OpenSettings
             internal const string Space = " ";
 
             internal const string Hyphen = "-";
+
+            internal const string Slash = "/";
 
             internal const string Dot = ".";
 
@@ -360,6 +365,8 @@ namespace OpenSettings
 
             internal static ConcurrentDictionary<object, byte> CacheKeys { get; } = new ConcurrentDictionary<object, byte>();
 
+            internal static SymmetricSecurityKey SymmetricSecurityKey { get; set; }
+
             /// <summary>
             /// The cache key for the Settings Spa Middleware Html content.
             /// </summary>
@@ -382,6 +389,14 @@ namespace OpenSettings
 
             public static CacheEntryKey OpenSettingsConfigsCacheEntryKey { get; } = OpenSettingsConfigsCacheEntry.GetKey();
 
+            public static CacheEntryKey MachineToMachineTokenCacheEntryKey { get; } = new CacheEntry("m2m:token").GetKey();
+
+            private static OpenSettingsMemoryCache _openSettingsMemoryCache;
+
+            public static OpenSettingsMemoryCache GetOpenSettingsMemoryCache(ILoggerFactory loggerFactory)
+            {
+                return _openSettingsMemoryCache ?? (_openSettingsMemoryCache = new OpenSettingsMemoryCache(loggerFactory));
+            }
         }
     }
 }

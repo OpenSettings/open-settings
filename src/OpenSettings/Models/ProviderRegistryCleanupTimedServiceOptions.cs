@@ -23,6 +23,12 @@ namespace OpenSettings.Models
         /// </remarks>
         public TimeSpan CleanupOlderThan { get; set; } = TimeSpan.FromSeconds(21);
 
+        /// <summary>
+        /// The initial delay before the first cleanup check is performed.
+        /// </summary>
+        /// <remarks>Default is <c>60</c> sec.</remarks>
+        public TimeSpan StartsIn { get; set; } = TimeSpan.FromMinutes(1);
+
         ProviderRegistryCleanupTimedServiceOptions IOptions<ProviderRegistryCleanupTimedServiceOptions>.Value => this;
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Ogu.Response;
 using Ogu.Response.Abstractions;
@@ -18,10 +19,8 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Security.Claims;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 
 namespace OpenSettings.Services.Sql
 {
@@ -46,8 +45,7 @@ namespace OpenSettings.Services.Sql
             _openSettingsConfiguration = openSettingsConfiguration;
             _providerInfo = providerInfo;
 
-            var keys = new SymmetricSecurityKey(Encoding.UTF8.GetBytes($"{openSettingsConfiguration.Client.Secret}"));
-            _signingCredentials = new SigningCredentials(keys, SecurityAlgorithms.HmacSha256);
+            _signingCredentials = new SigningCredentials(OpenSettingsDefaults.Caches.SymmetricSecurityKey, SecurityAlgorithms.HmacSha256);
 
             _isOAuth2AuthorityMissing = string.IsNullOrWhiteSpace(providerInfo.OAuth2.Authority);
         }
@@ -186,7 +184,7 @@ namespace OpenSettings.Services.Sql
                     return HttpStatusCode.Unauthorized.ToFailureResponse<GenerateTokenResponse>();
                 }
 
-                var expires = DateTimeOffset.UtcNow.AddMinutes(30);
+                var expires = DateTimeOffset.UtcNow.AddHours(1);
 
                 var token = new JwtSecurityToken(
                     issuer: _openSettingsConfiguration.Client.Name,

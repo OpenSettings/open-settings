@@ -38,7 +38,7 @@ namespace OpenSettings.Services.Rest
 
             refreshTokenRequest.Headers.Authorization = new AuthenticationHeaderValue(OpenSettingsDefaults.Names.JwtBearerSchemaName, accessToken);
 
-            var httpClient = _httpClientFactory.CreateOpenSettingsProviderHttpClient();
+            var httpClient = GetProviderHttpClient();
 
             using (var response = await httpClient.SendAsync(refreshTokenRequest, cancellationToken))
             {
@@ -59,7 +59,7 @@ namespace OpenSettings.Services.Rest
                 }
             };
 
-            var httpClient = _httpClientFactory.CreateOpenSettingsProviderHttpClient();
+            var httpClient = GetProviderHttpClient();
 
             using (var jsonContent = JsonContent.Create(body))
             {
@@ -68,6 +68,11 @@ namespace OpenSettings.Services.Rest
                     return await response.Content.ToResponseAsync<GenerateTokenResponse>(cancellationToken: cancellationToken);
                 }
             }
+        }
+
+        private HttpClient GetProviderHttpClient()
+        {
+            return _httpClientFactory.CreateOpenSettingsProviderHttpClient();
         }
     }
 }

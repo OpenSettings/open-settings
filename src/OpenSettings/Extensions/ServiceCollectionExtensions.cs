@@ -22,7 +22,9 @@ using OpenSettings.Services.Sql;
 using OpenSettings.Services.Sql.Interfaces;
 using StackExchange.Redis;
 using System;
+using System.Text;
 using System.Threading.Channels;
+using Microsoft.IdentityModel.Tokens;
 
 namespace OpenSettings.Extensions
 {
@@ -123,13 +125,15 @@ namespace OpenSettings.Extensions
             });
 
             services.AddSingleton<IDataChangeService, DataChangeService>();
-            services.AddSingleton<IOpenSettingsMemoryCache, OpenSettingsMemoryCache>();
+            services.AddSingleton<IOpenSettingsMemoryCache>(sp => OpenSettingsDefaults.Caches.GetOpenSettingsMemoryCache(openSettingsConfiguration.LoggerFactory));
 
             return services;
         }
 
         private static void RegisterProviderServices(this IServiceCollection services, OpenSettingsConfiguration openSettingsConfiguration)
         {
+            OpenSettingsDefaults.Caches.SymmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes($"{openSettingsConfiguration.Client.Secret}"));
+
             if (openSettingsConfiguration.Provider.Redis.IsActive)
             {
                 services.RegisterRedisServiceCollection(openSettingsConfiguration.Provider.Redis.Configuration);
@@ -221,13 +225,15 @@ namespace OpenSettings.Extensions
             }
 
             services.AddTransient<DecompressionHandler>();
+            services.AddTransient<MachineToMachineTokenHandler>();
 
             services
                 .AddHttpClient(OpenSettingsDefaults.Names.ProviderHttpClientName, (sp, httpClient) =>
                 {
                     openSettingsConfiguration.Consumer.ConfigureHttpClient(httpClient, openSettingsConfiguration.Client);
                 })
-                .AddHttpMessageHandler<DecompressionHandler>();
+                .AddHttpMessageHandler<DecompressionHandler>()
+                .AddHttpMessageHandler<MachineToMachineTokenHandler>();
 
             services.AddSingleton<IAppGroupRestService, AppGroupRestService>();
             services.AddSingleton<IAppIdentifierMappingRestService, AppIdentifierMappingsRestService>();

@@ -7,36 +7,19 @@
     public class ProviderInfo
     {
         /// <summary>
-        /// Gets or sets the client information associated with the provider.
-        /// </summary>
-        public ProviderInfoClient Client { get; set; } = new ProviderInfoClient();
-
-        /// <summary>
         /// Gets or sets a value indicating whether the provider is authorized.
         /// </summary>
         public bool Authorize { get; set; }
 
         /// <summary>
-        /// Gets or sets the version of the OpenSettings.
+        /// Gets or sets the client information associated with the provider.
         /// </summary>
-        /// <remarks>
-        /// e.g. "1.0.0"
-        /// </remarks>
-        public string PackVersion { get; set; }
+        public ProviderInfoClient Client { get; set; } = new ProviderInfoClient();
 
         /// <summary>
-        /// Gets or sets the numerical score of the OpenSettings version, used for comparing versions.
-        /// A higher score indicates a more recent version.
+        /// Gets or sets the pack information for OpenSettings, including version, score, and whether it is a preview version.
         /// </summary>
-        /// <remarks>
-        /// e.g. "1000000500000"
-        /// </remarks>
-        public long PackVersionScore { get; set; }
-
-        /// <summary>
-        /// Specifies whether the OpenSettings version is a preview version.
-        /// </summary>
-        public bool IsPreviewVersion { get; set; }
+        public PackInfo PackInfo { get; set; } = new PackInfo();
 
         /// <summary>
         /// Gets or sets the OAuth2 configuration for the provider.
