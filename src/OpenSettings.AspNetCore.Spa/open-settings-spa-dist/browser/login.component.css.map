@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/features/login/login.component.css"],
-  "sourcesContent": [".login-container {\r\n    display: flex;\r\n    justify-content: center;\r\n    align-items: center;\r\n    height: 100vh;\r\n  }\r\n  \r\n  .login-card {\r\n    padding: 30px;\r\n    max-width: 450px;\r\n    width: 100%;\r\n    text-align: center;\r\n    border-radius: 10px;\r\n    min-height: 200px;\r\n  }\r\n  \r\n  .login-title {\r\n    font-size: 1.3rem;\r\n    font-weight: 500;\r\n    padding-bottom:15px;\r\n  }\r\n\r\n  button {\r\n    border-radius: 5px;\r\n  }"],
-  "mappings": ";AAAA,CAAC;AACG,WAAS;AACT,mBAAiB;AACjB,eAAa;AACb,UAAQ;AACV;AAEA,CAAC;AACC,WAAS;AACT,aAAW;AACX,SAAO;AACP,cAAY;AACZ,iBAAe;AACf,cAAY;AACd;AAEA,CAAC;AACC,aAAW;AACX,eAAa;AACb,kBAAe;AACjB;AAEA;AACE,iBAAe;AACjB;",
-  "names": []
-}
