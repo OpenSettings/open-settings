@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
+using OpenSettings.Models;
 
 namespace OpenSettings.Services
 {
@@ -29,6 +30,9 @@ namespace OpenSettings.Services
                 request.Headers.Authorization = await GetMachineToMachineTokenAsync(cancellationToken);
             }
 
+            request.Headers.TryAddWithoutValidation(OpenSettingsDefaults.Headers.CallerType, nameof(CallerType.Service));
+            request.Headers.TryAddWithoutValidation(OpenSettingsDefaults.Headers.LoginType, nameof(LoginType.Machine));
+
             return await base.SendAsync(request, cancellationToken);
         }
 
@@ -39,7 +43,7 @@ namespace OpenSettings.Services
                 return authorization;
             }
 
-            var generateTokenResponse = await _tokenService.GenerateTokenAsync(new GenerateTokenInput
+            var generateTokenResponse = await _tokenService.GenerateMachineToMachineTokenAsync(new GenerateMachineToMachineTokenInput
             {
                 ClientId = _openSettingsConfiguration.Client.Id,
                 ClientSecret = _openSettingsConfiguration.Client.Secret,

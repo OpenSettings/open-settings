@@ -49,19 +49,38 @@ namespace OpenSettings.Services.Sql
 
             _isOAuth2AuthorityMissing = string.IsNullOrWhiteSpace(providerInfo.OAuth2.Authority);
         }
-     
-        public ValueTask<bool> IsUserTokenExpiredAsync(string accessToken, Func<Task<string>> refreshTokenRetrieveFunc)
+
+        public async Task<IResponse<GenerateMachineToMachineTokenResponse>> GenerateMachineToMachineTokenAsync(GenerateMachineToMachineTokenInput input, CancellationToken cancellationToken)
+        {
+            var clientId = $"{input.ClientId}";
+            var clientSecret = $"{input.ClientSecret}";
+
+            if (input.CallerType == CallerType.Service)
+            {
+                return await GenerateMachineToMachineTokenForServiceAsync(input, clientId, clientSecret, cancellationToken);
+            }
+
+            var expires = DateTimeOffset.UtcNow + OpenSettingsDefaults.TimeSpans.TokenExpiryTimeSpan;
+
+            var response = await InternalGenerateMachineToMachineTokenAsync(input, clientId, clientSecret, expires, cancellationToken);
+
+            return response == null
+                ? HttpStatusCode.Unauthorized.ToFailureResponse<GenerateMachineToMachineTokenResponse>()
+                : HttpStatusCode.OK.ToSuccessResponseOf(response);
+        }
+
+        public ValueTask<bool> IsOAuth2TokenExpiredAsync(string accessToken, Func<Task<string>> refreshTokenRetrieveFunc)
         {
             var jwtSecurityToken = ReadJwtToken(accessToken);
 
-            return IsUserTokenExpiredAsync(jwtSecurityToken, refreshTokenRetrieveFunc);
+            return IsOAuth2TokenExpiredAsync(jwtSecurityToken, refreshTokenRetrieveFunc);
         }
 
-        public async ValueTask<bool> IsUserTokenExpiredAsync(JwtSecurityToken jwtSecurityToken, Func<Task<string>> refreshTokenRetrieveFunc)
+        public async ValueTask<bool> IsOAuth2TokenExpiredAsync(JwtSecurityToken jwtSecurityToken, Func<Task<string>> refreshTokenRetrieveFunc)
         {
-            var refreshTokenKey = OpenSettingsDefaults.Caches.TokenServiceRefreshTokenCacheEntry.GetKey(jwtSecurityToken.Id);
+            var refreshTokenKey = OpenSettingsDefaults.Caches.TokenServiceRefreshOAuth2TokenCacheEntry.GetKey(jwtSecurityToken.Id);
 
-            if (Helper.IsTokenExpired(jwtSecurityToken))
+            if (TokenHelper.IsTokenExpired(jwtSecurityToken))
             {
                 refreshTokenKey.Remove(_openSettingsMemoryCache);
                 return true;
@@ -85,21 +104,21 @@ namespace OpenSettings.Services.Sql
             return false;
         }
 
-        public async Task<IResponse<RefreshUserTokenResponse>> RefreshUserTokenAsync(string accessToken,
+        public async Task<IResponse<RefreshUserTokenResponse>> RefreshOAuth2TokenAsync(string accessToken,
             CancellationToken cancellationToken = default)
         {
             var jwtSecurityToken = ReadJwtToken(accessToken);
 
-            var refreshTokenKey = OpenSettingsDefaults.Caches.TokenServiceRefreshTokenCacheEntry.GetKey(jwtSecurityToken.Id);
+            var refreshTokenKey = OpenSettingsDefaults.Caches.TokenServiceRefreshOAuth2TokenCacheEntry.GetKey(jwtSecurityToken.Id);
 
             var currentTime = DateTime.UtcNow;
 
-            if (Helper.IsTokenExpired(jwtSecurityToken, currentTime))
+            if (TokenHelper.IsTokenExpired(jwtSecurityToken, currentTime))
             {
                 return HttpStatusCode.Forbidden.ToFailureResponse<RefreshUserTokenResponse, Errors>(Errors.TokenExpired);
             }
-            
-            if (!Helper.IsTokenExpirationTimeLessThan(jwtSecurityToken, TimeSpan.FromMinutes(1), currentTime))
+
+            if (!TokenHelper.IsTokenExpirationTimeLessThan(jwtSecurityToken, TimeSpan.FromMinutes(1), currentTime))
             {
                 return HttpStatusCode.BadRequest.ToFailureResponse<RefreshUserTokenResponse, Errors>(Errors.TokenRefreshNotAllowedYet);
             }
@@ -135,7 +154,7 @@ namespace OpenSettings.Services.Sql
 #endif
                             );
 
-                        _logger.LogError("Failed to refresh user token. Status Code: {statusCode}, Content: {content}", response.StatusCode, content);
+                        _logger.LogError("Failed to refresh oauth2 token. Status Code: {statusCode}, Content: {content}", response.StatusCode, content);
 
                         return response.StatusCode.ToFailureResponse<RefreshUserTokenResponse>(content);
                     }
@@ -144,7 +163,7 @@ namespace OpenSettings.Services.Sql
 
                     var refreshedJwtSecurityToken = ReadJwtToken(connectTokenResponse.AccessToken);
 
-                    refreshTokenKey = OpenSettingsDefaults.Caches.TokenServiceRefreshTokenCacheEntry.GetKey(refreshedJwtSecurityToken.Id);
+                    refreshTokenKey = OpenSettingsDefaults.Caches.TokenServiceRefreshOAuth2TokenCacheEntry.GetKey(refreshedJwtSecurityToken.Id);
 
                     refreshTokenKey.Set(_openSettingsMemoryCache, connectTokenResponse.RefreshToken, cacheEntry =>
                     {
@@ -159,11 +178,37 @@ namespace OpenSettings.Services.Sql
             }
         }
 
-        public async Task<IResponse<GenerateTokenResponse>> GenerateTokenAsync(GenerateTokenInput input, CancellationToken cancellationToken)
+        private async Task<IResponse<GenerateMachineToMachineTokenResponse>> GenerateMachineToMachineTokenForServiceAsync(GenerateMachineToMachineTokenInput input, string clientId, string clientSecret, CancellationToken cancellationToken)
+        {
+            var tokenCacheEntryKey = OpenSettingsDefaults.Caches.TokenServiceGenerateMachineToMachineTokenCacheEntry.GetKey(clientId, clientSecret);
+
+            if (tokenCacheEntryKey.TryGetValue(_openSettingsMemoryCache, out GenerateMachineToMachineTokenResponse response))
+            {
+                return HttpStatusCode.OK.ToSuccessResponseOf(response);
+            }
+
+            var expires = DateTimeOffset.UtcNow + OpenSettingsDefaults.TimeSpans.TokenExpiryTimeSpan;
+
+            response = await InternalGenerateMachineToMachineTokenAsync(input, clientId, clientSecret, expires, cancellationToken);
+
+            if (response == null)
+            {
+                return HttpStatusCode.Unauthorized.ToFailureResponse<GenerateMachineToMachineTokenResponse>();
+            }
+
+            tokenCacheEntryKey.Set(_openSettingsMemoryCache, response, cacheEntry =>
+            {
+                cacheEntry.AbsoluteExpiration = expires - OpenSettingsDefaults.TimeSpans.TokenExpirySafetyMargin;
+            });
+
+            return HttpStatusCode.OK.ToSuccessResponseOf(response);
+        }
+
+        private async Task<GenerateMachineToMachineTokenResponse> InternalGenerateMachineToMachineTokenAsync(GenerateMachineToMachineTokenInput input, string clientId, string clientSecret, DateTimeOffset expires, CancellationToken cancellationToken)
         {
             var claims = new Claim[]
             {
-                new Claim(OpenSettingsDefaults.ClaimTypes.ClientId, $"{input.ClientId}"),
+                new Claim(OpenSettingsDefaults.ClaimTypes.ClientId, clientId),
                 new Claim(OpenSettingsDefaults.ClaimTypes.JsonTokenId, $"{Guid.NewGuid()}")
             };
 
@@ -181,10 +226,11 @@ namespace OpenSettings.Services.Sql
 
                 if (!registeredApp.IsClientSecretMatched)
                 {
-                    return HttpStatusCode.Unauthorized.ToFailureResponse<GenerateTokenResponse>();
+                    return null;
                 }
 
-                var expires = DateTimeOffset.UtcNow.AddHours(1);
+                //var refreshToken = Convert.ToHexString(RandomNumberGenerator.GetBytes(32));
+                //var hashedRefreshToken = SHA256.HashData(refreshToken);
 
                 var token = new JwtSecurityToken(
                     issuer: _openSettingsConfiguration.Client.Name,
@@ -196,7 +242,7 @@ namespace OpenSettings.Services.Sql
 
                 var accessToken = WriteJwtToken(token);
 
-                return HttpStatusCode.OK.ToSuccessResponseOf(new GenerateTokenResponse(accessToken, expires));
+                return new GenerateMachineToMachineTokenResponse(accessToken, expires, OpenSettingsDefaults.TimeSpans.TokenExpiryTimeSpan.TotalSeconds);
             }
         }
 

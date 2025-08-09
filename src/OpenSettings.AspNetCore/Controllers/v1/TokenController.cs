@@ -24,9 +24,9 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             _openSettingsConfiguration = openSettingsConfiguration;
         }
 
-        [HttpPost]
+        [HttpPost("m2m")]
         [AllowAnonymous]
-        public async Task<IActionResult> GenerateToken(GenerateTokenRequest request, CancellationToken cancellationToken)
+        public async Task<IActionResult> GenerateMachineToMachineToken(GenerateMachineToMachineTokenRequest request, CancellationToken cancellationToken)
         {
             if (_openSettingsConfiguration.IsConsumerSelected)
             {
@@ -38,18 +38,19 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return ModelState.ToAction();
             }
 
-            var response = await _tokenService.GenerateTokenAsync(new GenerateTokenInput
+            var response = await _tokenService.GenerateMachineToMachineTokenAsync(new GenerateMachineToMachineTokenInput
             {
                 ClientId = request.Body.Client.Id,
-                ClientSecret = request.Body.Client.Secret
+                ClientSecret = request.Body.Client.Secret,
+                CallerType = Request.Headers.GetCallerTypeHeaderValueOrDefault()
             }, cancellationToken);
 
             return response.ToAction();
         }
 
-        [HttpPost("refresh")]
+        [HttpPost("refresh/oauth2")]
         [Authorize(AuthenticationSchemes = OpenSettingsDefaults.AuthSchemes.OAuth2JwtBearer)]
-        public async Task<IActionResult> RefreshToken(CancellationToken cancellationToken = default)
+        public async Task<IActionResult> RefreshOAuth2Token(CancellationToken cancellationToken = default)
         {
             if (_openSettingsConfiguration.IsConsumerSelected)
             {
@@ -58,7 +59,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
 
             var authHeader = HttpContext.Request.Headers.GetAuthenticationHeaderValueFromAuthorizationHeader();
 
-            var response = await _tokenService.RefreshUserTokenAsync(authHeader.Parameter, cancellationToken);
+            var response = await _tokenService.RefreshOAuth2TokenAsync(authHeader.Parameter, cancellationToken);
 
             return response.ToAction();
         }

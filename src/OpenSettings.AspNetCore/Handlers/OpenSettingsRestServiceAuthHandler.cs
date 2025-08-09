@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using OpenSettings.AspNetCore.Extensions;
 using OpenSettings.Extensions;
+using OpenSettings.Helpers;
 using OpenSettings.Models;
 using OpenSettings.Services.Interfaces;
 using System;
@@ -35,6 +36,10 @@ namespace OpenSettings.AspNetCore.Handlers
                 return await base.SendAsync(request, cancellationToken);
             }
 
+            var callerType = _httpContextAccessor.HttpContext.Request.Headers.GetCallerTypeHeaderValueOrDefault();
+
+            request.Headers.TryAddWithoutValidation(OpenSettingsDefaults.Headers.CallerType, $"{callerType}");
+
             var authHeader = _httpContextAccessor.HttpContext.Request.Headers.GetAuthenticationHeaderValueFromAuthorizationHeader();
 
             if (authHeader == null)
@@ -42,7 +47,14 @@ namespace OpenSettings.AspNetCore.Handlers
                 return await base.SendAsync(request, cancellationToken);
             }
 
-            var isRefreshableOAuth2 = authHeader.Scheme == JwtBearerDefaults.AuthenticationScheme && _providerInfo.Authorize && _providerInfo.OAuth2.IsActive && _providerInfo.OAuth2.AllowOfflineAccess;
+            var loginType = _httpContextAccessor.HttpContext.Request.Headers.GetLoginTypeHeaderValueOrDefault();
+
+            request.Headers.TryAddWithoutValidation(OpenSettingsDefaults.Headers.LoginType, $"{loginType}");
+
+            var isRefreshableOAuth2 = loginType == LoginType.OAuth2 && 
+                                      authHeader.Scheme == JwtBearerDefaults.AuthenticationScheme && 
+                                      _providerInfo.Authorize && _providerInfo.OAuth2.IsActive && 
+                                      _providerInfo.OAuth2.AllowOfflineAccess;
 
             if (isRefreshableOAuth2)
             {
@@ -71,19 +83,19 @@ namespace OpenSettings.AspNetCore.Handlers
 
             var currentTime = DateTime.UtcNow;
 
-            if (Helpers.Helper.IsTokenExpired(jwtSecurityToken, currentTime))
+            if (TokenHelper.IsTokenExpired(jwtSecurityToken, currentTime))
             {
                 accessTokenCacheKey.Remove(_openSettingsMemoryCache);
 
                 return authenticationHeaderValue;
             }
 
-            if (!Helpers.Helper.IsTokenExpirationTimeLessThan(jwtSecurityToken, TimeSpan.FromMinutes(1), currentTime))
+            if (!TokenHelper.IsTokenExpirationTimeLessThan(jwtSecurityToken, TimeSpan.FromMinutes(1), currentTime))
             {
                 return authenticationHeaderValue;
             }
 
-            var refreshUserTokenResponse = await _tokenService.RefreshUserTokenAsync(accessToken, cancellationToken);
+            var refreshUserTokenResponse = await _tokenService.RefreshOAuth2TokenAsync(accessToken, cancellationToken);
 
             if (!refreshUserTokenResponse.Success)
             {
@@ -92,7 +104,7 @@ namespace OpenSettings.AspNetCore.Handlers
 
             accessTokenCacheKey.Set(_openSettingsMemoryCache, refreshUserTokenResponse.Data.AccessToken, new MemoryCacheEntryOptions
             {
-                AbsoluteExpiration = Helpers.Helper.GetExpiryTimeOffset(refreshUserTokenResponse.Data.Expires)
+                AbsoluteExpiration = Helper.GetExpiryTimeOffset(refreshUserTokenResponse.Data.Expires)
             });
 
             return new AuthenticationHeaderValue(OpenSettingsDefaults.Names.JwtBearerSchemaName, refreshUserTokenResponse.Data.AccessToken);

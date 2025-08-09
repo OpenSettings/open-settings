@@ -29,12 +29,20 @@ namespace OpenSettings.Services.Interfaces
         string WriteJwtToken(JwtSecurityToken jwtSecurityToken);
 
         /// <summary>
+        /// Generates a new token based on the provided input parameters.
+        /// </summary>
+        /// <param name="input">The input parameters required to generate the token.</param>
+        /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
+        /// <returns>A task of <see cref="IResponse{TData}"/> that used to generate the token.</returns>
+        Task<IResponse<GenerateMachineToMachineTokenResponse>> GenerateMachineToMachineTokenAsync(GenerateMachineToMachineTokenInput input, CancellationToken cancellationToken);
+
+        /// <summary>
         /// Checks if the specified JWT security token has expired.
         /// </summary>
         /// <param name="accessToken">The access token to check for expiration.</param>
         /// <param name="refreshTokenRetrieveFunc">The func to retrieve refresh token.</param>
         /// <returns>A task that represents the asynchronous operation, with a result indicating whether the token is expired.</returns>
-        ValueTask<bool> IsUserTokenExpiredAsync(string accessToken, Func<Task<string>> refreshTokenRetrieveFunc);
+        ValueTask<bool> IsOAuth2TokenExpiredAsync(string accessToken, Func<Task<string>> refreshTokenRetrieveFunc);
 
         /// <summary>
         /// Checks if the specified JWT security token has expired.
@@ -42,21 +50,23 @@ namespace OpenSettings.Services.Interfaces
         /// <param name="jwtSecurityToken">The <see cref="JwtSecurityToken"/> to check for expiration.</param>
         /// <param name="refreshTokenRetrieveFunc">The func to retrieve refresh token.</param>
         /// <returns>A task that represents the asynchronous operation, with a result indicating whether the token is expired.</returns>
-        ValueTask<bool> IsUserTokenExpiredAsync(JwtSecurityToken jwtSecurityToken, Func<Task<string>> refreshTokenRetrieveFunc);
+        ValueTask<bool> IsOAuth2TokenExpiredAsync(JwtSecurityToken jwtSecurityToken, Func<Task<string>> refreshTokenRetrieveFunc);
 
+        /*
         /// <summary>
         /// Reads the specified access token and returns the corresponding <see cref="JwtSecurityToken"/>.
         /// </summary>
         /// <param name="accessToken">The access token to read.</param>
         /// <returns>The decoded <see cref="JwtSecurityToken"/>.</returns>
-        //JwtSecurityToken ReadJwtToken(string accessToken);
+        JwtSecurityToken ReadJwtToken(string accessToken);
 
         /// <summary>
         /// Writes the jwt security token and returns the corresponding access token.
         /// </summary>
         /// <param name="jwtSecurityToken">The jwt security token.</param>
         /// <returns>The access token.</returns>
-        //string WriteJwtToken(JwtSecurityToken jwtSecurityToken);
+        string WriteJwtToken(JwtSecurityToken jwtSecurityToken);
+        */
 
         /// <summary>
         /// Refreshes the access token asynchronously.
@@ -65,13 +75,6 @@ namespace OpenSettings.Services.Interfaces
         /// <param name="cancellationToken">A token that can be used to cancel the operation (optional).</param>
         /// <returns>A task of <see cref="IResponse{TData}"/> that represents the asynchronous operation, with a result of the refreshed <c>access token</c>.</returns>
         /// <exception cref="NotSupportedException">Thrown when OAuth2 Authority is missing.</exception>
-        Task<IResponse<RefreshUserTokenResponse>> RefreshUserTokenAsync(string accessToken, CancellationToken cancellationToken = default);
-
-        /// <summary>
-        /// Generates a new token based on the provided input parameters.
-        /// </summary>
-        /// <param name="input">The input parameters required to generate the token.</param>
-        /// <returns>A task of <see cref="IResponse{TData}"/> that used to generate the token.</returns>
-        Task<IResponse<GenerateTokenResponse>> GenerateTokenAsync(GenerateTokenInput input, CancellationToken cancellationToken);
+        Task<IResponse<RefreshUserTokenResponse>> RefreshOAuth2TokenAsync(string accessToken, CancellationToken cancellationToken = default);
     }
 }

@@ -45,7 +45,7 @@ namespace OpenSettings.Services
                 return null;
             }
 
-            var expiresInSeconds = (int)(configs.AbsoluteExpiration - DateTimeOffset.UtcNow).TotalSeconds;
+            var expiresInSeconds = (configs.AbsoluteExpiration - DateTimeOffset.UtcNow).TotalSeconds;
 
             var age = configs.ExpiresInSeconds - expiresInSeconds;
 
@@ -53,7 +53,7 @@ namespace OpenSettings.Services
             {
                 CacheControl = Helpers.Helper.GetPublicCacheControlValue(expiresInSeconds),
                 Expires = configs.AbsoluteExpiration.ToString("R"),
-                Age = age,
+                Age = (int)age,
                 Data = JsonSerializer.SerializeToUtf8Bytes(configs.Data)
             };
         }
@@ -134,7 +134,7 @@ namespace OpenSettings.Services
             {
                 CacheControl = Helpers.Helper.GetPublicCacheControlValue(expiresInSeconds),
                 Expires = configsData.AbsoluteExpiration.ToString("R"),
-                Age = age,
+                Age = (int)age,
                 Data = configsData.Data
             };
         }

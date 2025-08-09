@@ -165,8 +165,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         }
 
         [HttpGet("{SettingId}/data")]
-        public async Task<IActionResult> GetSettingData(GetSettingDataRequest request,
-            CancellationToken cancellationToken = default)
+        public async Task<IActionResult> GetSettingData(GetSettingDataRequest request, CancellationToken cancellationToken = default)
         {
             var result = await _settingsService.GetSettingDataAsync(new GetSettingDataInput
             {

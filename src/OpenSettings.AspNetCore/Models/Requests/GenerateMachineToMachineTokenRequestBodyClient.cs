@@ -2,7 +2,7 @@
 
 namespace OpenSettings.AspNetCore.Models.Requests
 {
-    public class GenerateTokenRequestBodyClient
+    public class GenerateMachineToMachineTokenRequestBodyClient
     {
         public Guid Id { get; set; }
 

@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Ogu.Extensions.Hosting.HostedServices;
-using OpenSettings.AspNetCore.Models;
 using OpenSettings.Configurations;
 using OpenSettings.Domains.Sql.DataContext;
 using OpenSettings.Domains.Sql.Entities;
@@ -26,9 +25,9 @@ namespace OpenSettings.Services
         private readonly OpenSettingsConfiguration _openSettingsConfiguration;
 
         public OpenSettingsNotificationSyncTimedService(
-            ILogger<OpenSettingsNotificationSyncTimedService> logger, 
+            ILogger<OpenSettingsNotificationSyncTimedService> logger,
             IOptions<OpenSettingsNotificationSyncTimedServiceOptions> openSettingsNotificationSyncTimedServiceOptions,
-            IOpenSettingsService openSettingsService, 
+            IOpenSettingsService openSettingsService,
             OpenSettingsConfiguration openSettingsConfiguration) : base(logger, nameof(OpenSettingsNotificationSyncTimedService),
             timedHostedServiceOptions => Configure(openSettingsNotificationSyncTimedServiceOptions.Value, timedHostedServiceOptions))
         {
@@ -131,15 +130,17 @@ namespace OpenSettings.Services
 
             var cacheControlHeaderValue = CacheControlHeaderValue.Parse(cacheControl);
 
-            if (cacheControlHeaderValue.MaxAge.HasValue)
+            if (!cacheControlHeaderValue.MaxAge.HasValue)
             {
-                var periodInSeconds = Math.Max(cacheControlHeaderValue.MaxAge.Value.TotalSeconds, 10);
-
-                UpdateOptions(opts =>
-                {
-                    opts.Period = TimeSpan.FromSeconds(periodInSeconds);
-                });
+                return;
             }
+
+            var periodInSeconds = Math.Max(cacheControlHeaderValue.MaxAge.Value.TotalSeconds, 10);
+
+            UpdateOptions(opts =>
+            {
+                opts.Period = TimeSpan.FromSeconds(periodInSeconds);
+            });
         }
 
         private static void Configure(OpenSettingsNotificationSyncTimedServiceOptions openSettingsNotificationSyncTimedServiceOptions, TimedHostedServiceOptions timedHostedServiceOptions)

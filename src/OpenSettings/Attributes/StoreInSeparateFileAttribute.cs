@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OpenSettings.Exceptions;
+using System;
 
 namespace OpenSettings.Attributes
 {
@@ -11,6 +12,7 @@ namespace OpenSettings.Attributes
     /// The <see cref="IgnoreOnFileChange"/> property determines whether changes to the file 
     /// should be ignored when the file is modified.
     /// </remarks>
+    /// <exception cref="InvalidSecretTextAttributeUsageException">Thrown in runtime if attribute not assigned to property of the string type.</exception>
     [AttributeUsage(AttributeTargets.Class)]
     public class StoreInSeparateFileAttribute : Attribute
     {

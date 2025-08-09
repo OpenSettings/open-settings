@@ -1,0 +1,91 @@
+﻿using Ogu.Compressions.Abstractions;
+using OpenSettings.Models;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.IO.Compression;
+
+namespace OpenSettings.Domains.Sql.Entities
+{
+    [Table("GlobalConfigurations")]
+    internal class GlobalConfigurationSqlModel : EntityBase<Guid>
+    {
+        /// <summary>
+        /// The key of the global configuration.
+        /// </summary>
+        public string Key { get; set; }
+
+        /// <summary>
+        /// The lowercase version of the <see cref="Key"/>, typically used for case-insensitive comparisons.
+        /// </summary>
+        public string KeyLowercase { get; set; }
+
+        /// <summary>
+        /// The binary data associated with the global configuration.
+        /// </summary>
+        public byte[] Data { get; set; } = Array.Empty<byte>();
+
+        /// <summary>
+        /// The associated client id with this global configuration if any.
+        /// </summary>
+        public Guid? ClientId { get; set; }
+
+        /// <summary>
+        /// The identifier associated with this global configuration if any.
+        /// </summary>
+        public int? IdentifierId { get; set; }
+
+        /// <summary>
+        /// Defines the serialization type used for data serialization and deserialization.
+        /// Currently, only <see cref="Models.SerializerType.Json"/> is supported.
+        /// Future support for other formats may be added.
+        /// </summary>
+        public SerializerType SerializerType { get; set; }
+
+        /// <summary>
+        /// Specifies the type of compression applied to the data.  
+        /// Determines which decoding method should be used.
+        /// </summary>
+        public CompressionType CompressionType { get; set; }
+
+        /// <summary>
+        /// Defines the level of compression used.
+        /// </summary>
+        public CompressionLevel CompressionLevel { get; set; }
+
+        /// <summary>
+        /// Represents the version of the global configuration.
+        /// </summary>
+        public string Version { get; set; }
+
+        /// <summary>
+        /// The id of the user who created this global configuration.
+        /// </summary>
+        public Guid? CreatedById { get; set; }
+
+        /// <summary>
+        /// The id of the user who last updated this global configuration.
+        /// </summary>
+        public Guid? UpdatedById { get; set; }
+
+        /// <summary>
+        /// A concurrency token used for tracking changes.  
+        /// Helps prevent conflicts during concurrent updates.
+        /// </summary>
+        public byte[] RowVersion { get; set; } = Array.Empty<byte>();
+
+        public virtual List<GlobalConfigurationHistorySqlModel> GlobalConfigurationHistories { get; set; } = new List<GlobalConfigurationHistorySqlModel>();
+
+        /// <summary>
+        /// The user who created this setting.
+        /// </summary>
+        [ForeignKey(nameof(CreatedById))]
+        public virtual UserSqlModel CreatedBy { get; set; }
+
+        /// <summary>
+        /// The user who last updated this setting.
+        /// </summary>
+        [ForeignKey(nameof(UpdatedById))]
+        public virtual UserSqlModel UpdatedBy { get; set; }
+    }
+}

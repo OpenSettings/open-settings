@@ -1,4 +1,6 @@
-﻿using System;
+﻿using OpenSettings.Attributes;
+using OpenSettings.Exceptions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -53,7 +55,14 @@ namespace OpenSettings.Models
 
             foreach (var property in type.GetProperties())
             {
+                var attributes = new HashSet<string>(property.CustomAttributes.Select(a => a.AttributeType.FullName));
                 var propertyType = property.PropertyType;
+
+                if (propertyType != StringType && HasSecretTextAttribute(attributes))
+                {
+                    throw new InvalidSecretTextAttributeUsageException(property.Name, propertyType.Name, type.Name);
+                }
+
                 var isComplexType = !propertyType.IsPrimitive && !BasicTypes.Contains(propertyType);
 
                 var propertyInfoItem = new PropertyInfoHelperModel
@@ -66,7 +75,7 @@ namespace OpenSettings.Models
                     IsGenericType = propertyType.IsGenericType,
                     CanBeNull = CheckIfCanBeNull(propertyType),
                     GenericTypeArguments = propertyType.GetGenericArguments().Select(t => t.FullName).ToArray(),
-                    Attributes = property.CustomAttributes.Select(a => a.AttributeType.FullName).ToArray()
+                    Attributes = attributes
                 };
 
                 if (isComplexType)
@@ -85,9 +94,23 @@ namespace OpenSettings.Models
             return propertyInfo;
         }
 
+        public bool IsStringType()
+        {
+            return StringType.GUID == TypeIdentifier;
+        }
+
+        public bool HasSecretTextAttribute()
+        {
+            return HasSecretTextAttribute(Attributes);
+        }
+
+        private static readonly string SecretTextAttributeFullName = typeof(SecretTextAttribute).FullName;
+
+        private static readonly Type StringType = typeof(string);
+
         private static readonly HashSet<Type> BasicTypes = new HashSet<Type>
         {
-            typeof(string),
+            StringType,
             typeof(DateTime),
             typeof(TimeSpan)
         };
@@ -95,6 +118,11 @@ namespace OpenSettings.Models
         private static bool CheckIfCanBeNull(Type type)
         {
             return !type.IsValueType || Nullable.GetUnderlyingType(type) != null;
+        }
+
+        private static bool HasSecretTextAttribute(ICollection<string> attributes)
+        {
+            return attributes.Contains(SecretTextAttributeFullName);
         }
     }
 }

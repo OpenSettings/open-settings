@@ -181,7 +181,7 @@ namespace OpenSettings.AspNetCore.Services
 
             // previously claims were stored in here!
 
-            var isUserTokenExpired = await _tokenService.IsUserTokenExpiredAsync(accessToken,
+            var isUserTokenExpired = await _tokenService.IsOAuth2TokenExpiredAsync(accessToken,
                 () => httpContext.GetTokenAsync(OpenSettingsDefaults.AuthSchemes.Cookie,
                     OpenSettingsDefaults.ClaimTypes.RefreshToken));
 

@@ -17,7 +17,6 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using NotSupportedException = System.NotSupportedException;
 
 namespace OpenSettings.AspNetCore.Services
 {
@@ -204,7 +203,7 @@ namespace OpenSettings.AspNetCore.Services
 
             // previously claims were stored in here!
 
-            var isUserTokenExpired = await _tokenService.IsUserTokenExpiredAsync(accessToken,
+            var isUserTokenExpired = await _tokenService.IsOAuth2TokenExpiredAsync(accessToken,
                 () => httpContext.GetTokenAsync(OpenSettingsDefaults.AuthSchemes.Cookie,
                     OpenSettingsDefaults.ClaimTypes.RefreshToken));
 

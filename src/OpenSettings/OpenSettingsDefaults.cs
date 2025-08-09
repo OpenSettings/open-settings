@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using OpenSettings.Attributes;
 using OpenSettings.Models;
 using OpenSettings.Services;
@@ -8,7 +9,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.Encodings.Web;
 using System.Text.Json;
-using Microsoft.IdentityModel.Tokens;
 
 namespace OpenSettings
 {
@@ -24,6 +24,8 @@ namespace OpenSettings
         internal const string DefaultInstanceName = "Default";
 
         internal const int SortOrderGap = 10;
+
+        internal const string Password = "********";
 
         public static class Files
         {
@@ -77,6 +79,7 @@ namespace OpenSettings
             internal const string RedisSubscriber = "OpenSettings";
         }
 
+
         /// <summary>
         /// Provides constant values for content types used in OpenSettings.
         /// </summary>
@@ -105,6 +108,16 @@ namespace OpenSettings
             public const string Referer = "Referer";
 
             public const string Location = "Location";
+
+            /// <summary>
+            /// The header name used to represent the login type in OpenSettings.
+            /// </summary>
+            public const string LoginType = "x-os-login-type";
+
+            /// <summary>
+            /// The header name used to represent the caller type in OpenSettings.
+            /// </summary>
+            public const string CallerType = "x-os-caller-type";
 
             /// <summary>
             /// The header name used to represent the client id in OpenSettings.
@@ -335,6 +348,10 @@ namespace OpenSettings
             internal static Type RegistrationModeAttributeType = typeof(RegistrationModeAttribute);
 
             internal static Type StoreInSeparateFileAttributeType = typeof(StoreInSeparateFileAttribute);
+
+            internal static Type CallerType = typeof(CallerType);
+
+            internal static Type LoginType = typeof(LoginType);
         }
 
         /// <summary>
@@ -347,6 +364,16 @@ namespace OpenSettings
             public static readonly char[] SpaceSeparator = { ' ' };
 
             public static readonly char[] ColumnSeparator = { ':' };
+        }
+
+        /// <summary>
+        /// Provides constant values for time spans used in OpenSettings.
+        /// </summary>
+        public static class TimeSpans
+        {
+            public static TimeSpan TokenExpirySafetyMargin { get; } = TimeSpan.FromSeconds(30);
+
+            public static TimeSpan TokenExpiryTimeSpan { get; } = TimeSpan.FromHours(1);
         }
 
         /// <summary>
@@ -365,6 +392,9 @@ namespace OpenSettings
 
             internal static ConcurrentDictionary<object, byte> CacheKeys { get; } = new ConcurrentDictionary<object, byte>();
 
+            /// <summary>
+            /// The security key used in Provider mode to generate & validate machine-to-machine token.
+            /// </summary>
             internal static SymmetricSecurityKey SymmetricSecurityKey { get; set; }
 
             /// <summary>
@@ -379,9 +409,9 @@ namespace OpenSettings
 
             public static CacheEntry RestServiceAuthHandlerAccessTokenCacheEntry { get; } = new CacheEntry("ossrsah:gatk");
 
-            public static CacheEntry TokenServiceRefreshTokenCacheEntry { get; } = new CacheEntry("ts:rt");
+            public static CacheEntry TokenServiceRefreshOAuth2TokenCacheEntry { get; } = new CacheEntry("ts:rt");
 
-            public static CacheEntry TokenServiceAccessTokenCacheEntry { get; } = new CacheEntry("ts:at");
+            public static CacheEntry TokenServiceGenerateMachineToMachineTokenCacheEntry { get; } = new CacheEntry("ts:gmtmt");
 
             public static CacheEntry AuthServiceUuidCacheEntry { get; } = new CacheEntry("asu:rt:at", TimeSpan.FromMinutes(5));
 

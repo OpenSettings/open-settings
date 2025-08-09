@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Ogu.Response;
+using OpenSettings.AspNetCore.Extensions;
 using OpenSettings.AspNetCore.Models.Requests;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Services.Interfaces;
 using System.Threading;
 using System.Threading.Tasks;
-using OpenSettings.AspNetCore.Extensions;
 
 namespace OpenSettings.AspNetCore.Controllers.v1
 {

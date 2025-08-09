@@ -1,4 +1,4 @@
-﻿namespace OpenSettings.AspNetCore.Models.Requests
+﻿namespace OpenSettings.Models.Responses
 {
     public class IsAuthenticatedResponse
     {

@@ -4,6 +4,6 @@
     {
         public string Path { get; set; }
 
-        public int ExpiresInSeconds { get; set; }
+        public double ExpiresInSeconds { get; set; }
     }
 }

@@ -18,6 +18,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Net;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -483,21 +484,54 @@ namespace OpenSettings.Services.Sql
 
             var entity = await _context.Settings
                 .AsNoTracking()
+#if !NETSTANDARD2_0
+                .AsSplitQuery()
+#endif
+                .Include(a => a.SettingClass)
                 .Where(a => a.Id == settingId)
                 .OrderBy(a => a.Id)
                 .Select(a => new
                 {
                     a.CompressionType,
-                    a.Data
+                    a.Data,
+                    a.SettingClass.Properties
                 })
                 .FirstOrDefaultAsync(cancellationToken);
 
-            return entity == null
-                ? HttpStatusCode.NotFound.ToFailureResponse(Errors.SettingNotFound)
-                : HttpStatusCode.OK.ToSuccessResponse(new GetSettingDataResponse
-                {
-                    Data = await _compressionProvider.DecompressToUtf8StringAsync(entity.Data, entity.CompressionType, cancellationToken)
-                });
+            if (entity == null)
+            {
+                return HttpStatusCode.NotFound.ToFailureResponse(Errors.SettingNotFound);
+            }
+
+            var data = await _compressionProvider.DecompressToUtf8StringAsync(entity.Data, entity.CompressionType, cancellationToken);
+
+            return HttpStatusCode.OK.ToSuccessResponse(new GetSettingDataResponse
+            {
+                Data = data
+            });
+
+            //var jsonNode = JsonNode.Parse(data);
+
+            //if (jsonNode == null)
+            //{
+            //    return HttpStatusCode.OK.ToSuccessResponse(new GetSettingDataResponse
+            //    {
+            //        Data = data
+            //    });
+            //}
+
+            //foreach (var property in entity.Properties)
+            //{
+            //    if (property.IsStringType() && jsonNode[property.Name] != null && property.HasSecretTextAttribute())
+            //    {
+            //        jsonNode[property.Name] = OpenSettingsDefaults.Password;
+            //    }
+            //}
+
+            //return HttpStatusCode.OK.ToSuccessResponse(new GetSettingDataResponse
+            //{
+            //    Data = jsonNode.ToJsonString(OpenSettingsDefaults.Serialization.UnsafeRelaxedJsonSerializerOptions)
+            //});
         }
 
         public async Task<IResponse> DeleteSettingAsync(DeleteSettingInput input, CancellationToken cancellationToken = default)
@@ -954,7 +988,7 @@ namespace OpenSettings.Services.Sql
         {
             var settingIdValidationRule = ValidationRules.GreaterThanRule(nameof(input.SettingId), input.SettingId, 0);
             var validJsonRule = InternalExtensions.ValidJsonRule(nameof(input.Data), input.Data, storeParsedValue: true);
-            
+
             var failure = new ValidationRule[] { settingIdValidationRule, validJsonRule }.ValidateFirstOrDefault();
 
             if (failure != null)

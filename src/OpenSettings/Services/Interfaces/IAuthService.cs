@@ -1,5 +1,4 @@
 ﻿using Ogu.Response.Abstractions;
-using OpenSettings.AspNetCore.Models.Requests;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Models.Responses;
 using System.Threading;
