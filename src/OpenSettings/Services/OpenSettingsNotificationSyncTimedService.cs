@@ -147,6 +147,7 @@ namespace OpenSettings.Services
         {
             timedHostedServiceOptions.PreservePeriod = openSettingsNotificationSyncTimedServiceOptions.PreservePeriod;
             timedHostedServiceOptions.TaskTimeout = openSettingsNotificationSyncTimedServiceOptions.TaskTimeout;
+            timedHostedServiceOptions.StartsIn = openSettingsNotificationSyncTimedServiceOptions.StartsIn;
         }
     }
 }

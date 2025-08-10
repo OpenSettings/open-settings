@@ -59,7 +59,7 @@ namespace OpenSettings.Services.Sql
                 entity = new UserSqlModel
                 {
                     Id = id,
-                    AuthScheme = input.AuthScheme,
+                    AuthType = input.AuthType,
                     OAuthProvider = oAuthProvider,
                     ProviderId = providerId,
                     Email = email,

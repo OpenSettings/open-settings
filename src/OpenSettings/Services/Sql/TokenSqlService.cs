@@ -15,6 +15,7 @@ using OpenSettings.Services.Sql.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -206,12 +207,6 @@ namespace OpenSettings.Services.Sql
 
         private async Task<GenerateMachineToMachineTokenResponse> InternalGenerateMachineToMachineTokenAsync(GenerateMachineToMachineTokenInput input, string clientId, string clientSecret, DateTimeOffset expires, CancellationToken cancellationToken)
         {
-            var claims = new Claim[]
-            {
-                new Claim(OpenSettingsDefaults.ClaimTypes.ClientId, clientId),
-                new Claim(OpenSettingsDefaults.ClaimTypes.JsonTokenId, $"{Guid.NewGuid()}")
-            };
-
             using (var scope = _serviceProvider.CreateScope())
             {
                 var appService = scope.ServiceProvider.GetRequiredService<IAppService>();
@@ -231,6 +226,11 @@ namespace OpenSettings.Services.Sql
 
                 //var refreshToken = Convert.ToHexString(RandomNumberGenerator.GetBytes(32));
                 //var hashedRefreshToken = SHA256.HashData(refreshToken);
+
+                var claims = Helper.GetOpenSettingsClaims(clientId, registeredApp.ClientName)
+                    .Concat(new[]
+                        { new Claim(OpenSettingsDefaults.ClaimTypes.JsonTokenId, $"{Guid.NewGuid()}") }
+                    );
 
                 var token = new JwtSecurityToken(
                     issuer: _openSettingsConfiguration.Client.Name,

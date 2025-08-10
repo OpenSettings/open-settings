@@ -27,7 +27,7 @@ namespace OpenSettings.Models
         /// The initial delay before the first cleanup check is performed.
         /// </summary>
         /// <remarks>Default is '<c>1</c>' minute.</remarks>
-        public TimeSpan StartsIn { get; set; } = TimeSpan.FromMinutes(1);
+        public TimeSpan StartsIn { get; set; } = TimeSpan.FromMinutes(5);
 
         ProviderRegistryCleanupTimedServiceOptions IOptions<ProviderRegistryCleanupTimedServiceOptions>.Value => this;
     }

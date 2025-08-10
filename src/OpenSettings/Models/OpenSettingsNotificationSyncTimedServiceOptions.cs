@@ -19,6 +19,12 @@ namespace OpenSettings.Models
         /// </summary>
         public TimeSpan TaskTimeout { get; set; } = TimeSpan.FromMinutes(2);
 
+        /// <summary>
+        /// The initial delay before the first cleanup check is performed.
+        /// </summary>
+        /// <remarks>Default is '<c>1</c>' minute.</remarks>
+        public TimeSpan StartsIn { get; set; } = TimeSpan.FromMinutes(1);
+
         OpenSettingsNotificationSyncTimedServiceOptions IOptions<OpenSettingsNotificationSyncTimedServiceOptions>.Value => this;
     }
 }

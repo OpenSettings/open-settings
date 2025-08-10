@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using OpenSettings.Models;
 
 namespace OpenSettings.Domains.Sql.Entities
 {
@@ -12,12 +13,12 @@ namespace OpenSettings.Domains.Sql.Entities
     public class UserSqlModel : EntityBase<Guid>
     {
         /// <summary>
-        /// The authentication scheme used by the user (e.g., "OAuth", "BasicAuth").
+        /// The authentication type used by the user (e.g., "Machine", "OAuth2").
         /// </summary>
-        public string AuthScheme { get; set; }
+        public AuthType AuthType { get; set; }
 
         /// <summary>
-        /// The OAuth provider name (e.g., "Google", "Facebook") if the user authenticated using OAuth.
+        /// The OAuth provider name (e.g., "Google", "Facebook") if the user authenticated using OAuth2.
         /// </summary>
         public string OAuthProvider { get; set; }
 

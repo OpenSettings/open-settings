@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -24,6 +25,16 @@ namespace OpenSettings.Helpers
             var parts = name.Replace(OpenSettingsDefaults.Format.Dot, OpenSettingsDefaults.Format.Space).Split(OpenSettingsDefaults.Separators.SpaceSeparator, StringSplitOptions.RemoveEmptyEntries);
 
             return parts.Length == 0 ? string.Empty : string.Join(string.Empty, parts.Select(p => p[0])).ToUpper();
+        }
+
+        public static Claim[] GetOpenSettingsClaims(string id, string displayName, string initials = null)
+        {
+            return new Claim[]
+            {
+                new Claim(OpenSettingsDefaults.ClaimTypes.DbUserId, id),
+                new Claim(OpenSettingsDefaults.ClaimTypes.DbUserDisplayName, displayName),
+                new Claim(OpenSettingsDefaults.ClaimTypes.DbUserInitials, initials ?? GetInitials(displayName))
+            };
         }
 
         /// <summary>

@@ -43,7 +43,7 @@ namespace OpenSettings.AspNetCore.Extensions
         {
             var authenticationBuilder = mvcBuilder.Services.AddAuthentication();
 
-            authenticationBuilder.AddScheme<AuthenticationSchemeOptions, OpenSettingsBasicAuthenticationHandler>(OpenSettingsDefaults.AuthSchemes.Basic, null);
+            authenticationBuilder.AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>(OpenSettingsDefaults.AuthSchemes.Basic, null);
 
             var syncAppDataResponse = SyncAppDataResponse.Get(configuration);
 
@@ -213,7 +213,7 @@ namespace OpenSettings.AspNetCore.Extensions
                       {
                           var usersService = context.HttpContext.RequestServices.GetRequiredService<IUserService>();
 
-                          var user = await usersService.GetOrCreateUserAsync(new GetOrCreateUserInput(context.Principal, OpenSettingsDefaults.AuthSchemes.OAuth2), CancellationToken.None);
+                          var user = await usersService.GetOrCreateUserAsync(new GetOrCreateUserInput(context.Principal, AuthType.OAuth2), CancellationToken.None);
 
                           if (user == null)
                           {
@@ -227,12 +227,7 @@ namespace OpenSettings.AspNetCore.Extensions
                               return;
                           }
 
-                          context.Principal?.AddIdentity(new ClaimsIdentity(new Claim[]
-                          {
-                            new Claim(OpenSettingsDefaults.ClaimTypes.DbUserId, $"{user.Id}"),
-                            new Claim(OpenSettingsDefaults.ClaimTypes.DbUserDisplayName, user.DisplayName),
-                            new Claim(OpenSettingsDefaults.ClaimTypes.DbUserInitials, user.Initials)
-                          }));
+                          context.Principal?.AddIdentity(new ClaimsIdentity(Helpers.Helper.GetOpenSettingsClaims($"{user.Id}", user.DisplayName, user.Initials)));
                       },
                       OnRemoteFailure = context =>
                       {

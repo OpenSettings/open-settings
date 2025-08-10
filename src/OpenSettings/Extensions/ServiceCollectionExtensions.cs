@@ -225,7 +225,7 @@ namespace OpenSettings.Extensions
             }
 
             services.AddTransient<DecompressionHandler>();
-            services.AddTransient<MachineToMachineTokenHandler>();
+            services.AddTransient<MachineToMachineRequestHandler>();
 
             services
                 .AddHttpClient(OpenSettingsDefaults.Names.ProviderHttpClientName, (sp, httpClient) =>
@@ -233,7 +233,7 @@ namespace OpenSettings.Extensions
                     openSettingsConfiguration.Consumer.ConfigureHttpClient(httpClient, openSettingsConfiguration.Client);
                 })
                 .AddHttpMessageHandler<DecompressionHandler>()
-                .AddHttpMessageHandler<MachineToMachineTokenHandler>();
+                .AddHttpMessageHandler<MachineToMachineRequestHandler>();
 
             services.AddSingleton<IAppGroupRestService, AppGroupRestService>();
             services.AddSingleton<IAppIdentifierMappingRestService, AppIdentifierMappingsRestService>();

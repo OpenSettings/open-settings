@@ -47,11 +47,11 @@ namespace OpenSettings.AspNetCore.Handlers
                 return await base.SendAsync(request, cancellationToken);
             }
 
-            var loginType = _httpContextAccessor.HttpContext.Request.Headers.GetLoginTypeHeaderValueOrDefault();
+            var authType = _httpContextAccessor.HttpContext.Request.Headers.GetAuthTypeHeaderValueOrDefault();
 
-            request.Headers.TryAddWithoutValidation(OpenSettingsDefaults.Headers.LoginType, $"{loginType}");
+            request.Headers.TryAddWithoutValidation(OpenSettingsDefaults.Headers.AuthType, $"{authType}");
 
-            var isRefreshableOAuth2 = loginType == LoginType.OAuth2 && 
+            var isRefreshableOAuth2 = authType == AuthType.OAuth2 && 
                                       authHeader.Scheme == JwtBearerDefaults.AuthenticationScheme && 
                                       _providerInfo.Authorize && _providerInfo.OAuth2.IsActive && 
                                       _providerInfo.OAuth2.AllowOfflineAccess;

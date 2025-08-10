@@ -4,14 +4,14 @@ namespace OpenSettings.Models.Inputs
 {
     public class GetOrCreateUserInput
     {
-        public GetOrCreateUserInput(ClaimsPrincipal principal, string authScheme)
+        public GetOrCreateUserInput(ClaimsPrincipal principal, AuthType authType)
         {
             Principal = principal;
-            AuthScheme = authScheme;
+            AuthType = authType;
         }
 
         public ClaimsPrincipal Principal { get; }
 
-        public string AuthScheme { get; }
+        public AuthType AuthType { get; }
     }
 }

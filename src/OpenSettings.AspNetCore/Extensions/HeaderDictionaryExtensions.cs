@@ -21,12 +21,20 @@ namespace OpenSettings.AspNetCore.Extensions
                 : CallerType.Unset;
         }
 
-        internal static LoginType GetLoginTypeHeaderValueOrDefault(this IHeaderDictionary headerDictionary)
+        internal static AuthType GetAuthTypeHeaderValueOrDefault(this IHeaderDictionary headerDictionary)
         {
-            return TryGetHeaderValue(headerDictionary, OpenSettingsDefaults.Headers.LoginType, out var loginTypeAsString) &&
-                   TryGetEnumValue<LoginType>(OpenSettingsDefaults.Types.LoginType, loginTypeAsString, out var loginType)
-                ? loginType
-                : LoginType.Unset;
+            return TryGetHeaderValue(headerDictionary, OpenSettingsDefaults.Headers.AuthType, out var authTypeAsString) &&
+                   TryGetEnumValue<AuthType>(OpenSettingsDefaults.Types.LoginType, authTypeAsString, out var authType)
+                ? authType
+                : AuthType.Unset;
+        }
+
+        internal static AuthMethod GetAuthMethodHeaderValueOrDefault(this IHeaderDictionary headerDictionary)
+        {
+            return TryGetHeaderValue(headerDictionary, OpenSettingsDefaults.Headers.AuthMethod, out var authMethodAsString) &&
+                   TryGetEnumValue<AuthMethod>(OpenSettingsDefaults.Types.LoginType, authMethodAsString, out var authMethod)
+                ? authMethod
+                : AuthMethod.Unset;
         }
 
         internal static AuthenticationHeaderValue GetAuthenticationHeaderValueFromAuthorizationHeader(this IHeaderDictionary headerDictionary)

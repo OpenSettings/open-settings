@@ -12,7 +12,7 @@ namespace OpenSettings
     {
         private HttpClient _httpClient;
         private DecompressionHandler _decompressionHandler;
-        private MachineToMachineTokenHandler _machineToMachineTokenHandler;
+        private MachineToMachineRequestHandler _machineToMachineRequestHandler;
         private HttpClientHandler _httpClientHandler;
 
         private readonly OpenSettingsConfiguration _openSettingsConfiguration;
@@ -46,14 +46,14 @@ namespace OpenSettings
 
             _httpClientHandler = new HttpClientHandler();
 
-            _machineToMachineTokenHandler = new MachineToMachineTokenHandler(OpenSettingsDefaults.Caches.GetOpenSettingsMemoryCache(_openSettingsConfiguration.LoggerFactory), new TokenRestService(this), _openSettingsConfiguration)
+            _machineToMachineRequestHandler = new MachineToMachineRequestHandler(OpenSettingsDefaults.Caches.GetOpenSettingsMemoryCache(_openSettingsConfiguration.LoggerFactory), new TokenRestService(this), _openSettingsConfiguration)
             {
                 InnerHandler = _httpClientHandler
             };
 
             _decompressionHandler = new DecompressionHandler(compressionProvider)
             {
-                InnerHandler = _machineToMachineTokenHandler
+                InnerHandler = _machineToMachineRequestHandler
             };
 
             _httpClient = new HttpClient(_decompressionHandler);

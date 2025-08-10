@@ -724,7 +724,7 @@ namespace OpenSettings.Services.Sql
             var appUserModel = new UserSqlModel
             {
                 Id = input.Client.Id,
-                AuthScheme = OpenSettingsDefaults.AuthSchemes.Basic,
+                AuthType = AuthType.Machine,
                 OAuthProvider = null,
                 ProviderId = clientIdAsString,
                 Email = clientIdAsString,
@@ -1416,7 +1416,7 @@ namespace OpenSettings.Services.Sql
             var appUserModel = new UserSqlModel
             {
                 Id = clientId,
-                AuthScheme = OpenSettingsDefaults.AuthSchemes.Basic,
+                AuthType = AuthType.Machine,
                 OAuthProvider = null,
                 ProviderId = clientIdAsString,
                 Email = clientIdAsString,

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OpenSettings.Domains.Sql.DataContext;
 
@@ -11,9 +12,11 @@ using OpenSettings.Domains.Sql.DataContext;
 namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 {
     [DbContext(typeof(OpenSettingsDbContext))]
-    partial class OpenSettingsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250810194311_InitialOpenSettingsDbMigration")]
+    partial class InitialOpenSettingsDbMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -112,7 +112,12 @@ namespace OpenSettings
             /// <summary>
             /// The header name used to represent the login type in OpenSettings.
             /// </summary>
-            public const string LoginType = "x-os-login-type";
+            public const string AuthType = "x-os-auth-type";
+
+            /// <summary>
+            /// The header name used to represent the authentication method in OpenSettings.
+            /// </summary>
+            public const string AuthMethod = "x-os-auth-method";
 
             /// <summary>
             /// The header name used to represent the caller type in OpenSettings.
@@ -351,7 +356,7 @@ namespace OpenSettings
 
             internal static Type CallerType = typeof(CallerType);
 
-            internal static Type LoginType = typeof(LoginType);
+            internal static Type LoginType = typeof(AuthType);
         }
 
         /// <summary>
@@ -402,7 +407,9 @@ namespace OpenSettings
             /// </summary>
             public static CacheEntryKey OpenSettingsSpaMiddlewareHtmlCacheEntryKey { get; } = new CacheEntry("ossm:html").GetKey();
 
-            /// <summary>
+            public static CacheEntry BasicAuthenticationHandlerAuthTicketCacheEntry { get; } = new CacheEntry("bah:at", TimeSpan.FromMinutes(5));
+
+            /// <summary>   
             /// The cache key for available notification ids, with a 5-minute expiration time.
             /// </summary>
             public static CacheEntry AvailableNotificationIdsCacheEntry { get; } = new CacheEntry("nss:gania", TimeSpan.FromMinutes(5));
