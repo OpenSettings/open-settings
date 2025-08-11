@@ -1,8 +1,8 @@
 ﻿using OpenSettings.Helpers;
+using OpenSettings.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
-using OpenSettings.Models;
 
 namespace OpenSettings.Domains.Sql.Entities
 {
@@ -18,14 +18,14 @@ namespace OpenSettings.Domains.Sql.Entities
         public AuthType AuthType { get; set; }
 
         /// <summary>
-        /// The OAuth provider name (e.g., "Google", "Facebook") if the user authenticated using OAuth2.
+        /// The identity provider name (e.g., "local", Google", "Facebook") if the user authenticated using external service.
         /// </summary>
-        public string OAuthProvider { get; set; }
+        public string IdentityProvider { get; set; }
 
         /// <summary>
-        /// The unique identifier provided by the authentication provider.
+        /// The unique identifier provided by the identity provider if any.
         /// </summary>
-        public string ProviderId { get; set; }
+        public string ExternalId { get; set; }
 
         /// <summary>
         /// The user's email address.
@@ -51,6 +51,26 @@ namespace OpenSettings.Domains.Sql.Entities
         /// The hashed password for authentication.
         /// </summary>
         public string HashedPassword { get; set; }
+
+        /// <summary>
+        /// The given name of the user. 
+        /// </summary>
+        public string GivenName { get; set; }
+
+        /// <summary>
+        /// The lowercase version of the <see cref="GivenName"/>, typically used for case-insensitive comparisons.
+        /// </summary>
+        public string GivenNameLowercase { get; set; }
+
+        /// <summary>
+        /// The family name 
+        /// </summary>
+        public string FamilyName { get; set; }
+
+        /// <summary>
+        /// The lowercase version of the <see cref="FamilyName"/>, typically used for case-insensitive comparisons.
+        /// </summary>
+        public string FamilyNameLowercase { get; set; }
 
         /// <summary>
         /// The full name of the user.

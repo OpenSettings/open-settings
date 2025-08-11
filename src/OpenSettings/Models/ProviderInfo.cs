@@ -7,7 +7,8 @@
     public class ProviderInfo
     {
         /// <summary>
-        /// Gets or sets a value indicating whether the provider is authorized.
+        /// Gets or sets a value indicating whether authorization is required for this provider.
+        /// Aka "IsAuthorized"
         /// </summary>
         public bool Authorize { get; set; }
 

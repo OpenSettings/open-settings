@@ -300,6 +300,142 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.ToTable("Configurations");
                 });
 
+            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.GlobalConfigurationHistorySqlModel", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ClientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("CompressionLevel")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CompressionType")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("CreatedById")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<byte[]>("Data")
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<int>("GlobalConfigurationId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("IdentifierId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Key")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("KeyLowercase")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("RestoredById")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<int>("SerializerType")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Slug")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Version")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("GlobalConfigurationId");
+
+                    b.HasIndex("RestoredById");
+
+                    b.HasIndex("Version");
+
+                    b.HasIndex("Slug", "GlobalConfigurationId")
+                        .IsUnique()
+                        .HasFilter("[Slug] IS NOT NULL");
+
+                    b.ToTable("GlobalConfigurationHistories");
+                });
+
+            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.GlobalConfigurationSqlModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<Guid?>("ClientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("CompressionLevel")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CompressionType")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("CreatedById")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<byte[]>("Data")
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<int?>("IdentifierId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Key")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("KeyLowercase")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<int>("SerializerType")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Slug")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("UpdatedById")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Version")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("UpdatedById");
+
+                    b.HasIndex("KeyLowercase", "ClientId", "IdentifierId")
+                        .IsUnique()
+                        .HasFilter("[KeyLowercase] IS NOT NULL AND [ClientId] IS NOT NULL AND [IdentifierId] IS NOT NULL");
+
+                    b.ToTable("GlobalConfigurations");
+                });
+
             modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.IdentifierSqlModel", b =>
                 {
                     b.Property<int>("Id")
@@ -676,11 +812,9 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 
             modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.SettingHistorySqlModel", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("CompressionLevel")
                         .HasColumnType("int");
@@ -700,6 +834,9 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.Property<Guid?>("RestoredById")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime?>("RestoredOn")
+                        .HasColumnType("datetime2");
+
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
                         .HasColumnType("varbinary(max)");
@@ -712,9 +849,6 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 
                     b.Property<string>("Slug")
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime?>("UpdatedOn")
-                        .HasColumnType("datetime2");
 
                     b.Property<string>("Version")
                         .HasColumnType("nvarchar(450)");
@@ -1213,13 +1347,31 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.Property<string>("EmailLowercase")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ExternalId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FamilyName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FamilyNameLowercase")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("FullName")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FullNameLowercase")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("GivenName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("GivenNameLowercase")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("HashedPassword")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("IdentityProvider")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Initials")
@@ -1230,12 +1382,6 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 
                     b.Property<DateTime>("LastLogin")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("OAuthProvider")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ProviderId")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
@@ -1382,6 +1528,44 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.Navigation("CreatedBy");
 
                     b.Navigation("Identifier");
+
+                    b.Navigation("UpdatedBy");
+                });
+
+            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.GlobalConfigurationHistorySqlModel", b =>
+                {
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedById");
+
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.GlobalConfigurationSqlModel", "GlobalConfiguration")
+                        .WithMany("GlobalConfigurationHistories")
+                        .HasForeignKey("GlobalConfigurationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "RestoredBy")
+                        .WithMany()
+                        .HasForeignKey("RestoredById");
+
+                    b.Navigation("CreatedBy");
+
+                    b.Navigation("GlobalConfiguration");
+
+                    b.Navigation("RestoredBy");
+                });
+
+            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.GlobalConfigurationSqlModel", b =>
+                {
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedById");
+
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "UpdatedBy")
+                        .WithMany()
+                        .HasForeignKey("UpdatedById");
+
+                    b.Navigation("CreatedBy");
 
                     b.Navigation("UpdatedBy");
                 });
@@ -1749,6 +1933,11 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.Navigation("Instances");
 
                     b.Navigation("Settings");
+                });
+
+            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.GlobalConfigurationSqlModel", b =>
+                {
+                    b.Navigation("GlobalConfigurationHistories");
                 });
 
             modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.IdentifierSqlModel", b =>

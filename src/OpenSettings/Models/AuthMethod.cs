@@ -1,6 +1,8 @@
-﻿namespace OpenSettings.Models
+﻿using System.Runtime.Serialization;
+
+namespace OpenSettings.Models
 {
-    internal enum AuthMethod
+    public enum AuthMethod
     {
         Unset = 0,
 
@@ -8,6 +10,6 @@
 
         Jwt = 2,
 
-        Cookie = 3
+        Cookie = 3,
     }
 }

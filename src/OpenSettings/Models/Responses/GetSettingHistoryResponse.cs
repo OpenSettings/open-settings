@@ -20,6 +20,6 @@ namespace OpenSettings.Models.Responses
 
         public DateTime CreatedOn { get; set; }
 
-        public DateTime? UpdatedOn { get; set; }
+        public DateTime? RestoredOn { get; set; }
     }
 }

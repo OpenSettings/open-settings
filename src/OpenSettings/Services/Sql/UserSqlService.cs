@@ -28,18 +28,18 @@ namespace OpenSettings.Services.Sql
 
         public async Task<GetOrCreateUserResponse> GetOrCreateUserAsync(GetOrCreateUserInput input, CancellationToken cancellationToken)
         {
-            var providerId = GetFirstClaimOrDefault(input.Principal, ClaimTypes.NameIdentifier, "sub", "id")?.Value;
+            var externalId = GetFirstClaimOrDefault(input.Principal, ClaimTypes.NameIdentifier, "sub", "id")?.Value;
 
-            if (string.IsNullOrWhiteSpace(providerId))
+            if (string.IsNullOrWhiteSpace(externalId))
             {
                 return null;
             }
 
-            var oAuthProvider = GetFirstClaimOrDefault(input.Principal, IdentityProviderClaimTypeName)?.Value;
+            var identityProvider = GetFirstClaimOrDefault(input.Principal, IdentityProviderClaimTypeName)?.Value;
 
             var entity = await _context.Users
                 .AsNoTracking()
-                .Where(u => u.ProviderId == providerId && u.OAuthProvider == oAuthProvider)
+                .Where(u => u.ExternalId == externalId && u.IdentityProvider == identityProvider)
                 .OrderBy(u => u.Id)
                 .Select(u => new UserSqlModel { Id = u.Id, DisplayName = u.DisplayName, Initials = u.Initials, IsActive = u.IsActive })
                 .FirstOrDefaultAsync(cancellationToken);
@@ -48,11 +48,29 @@ namespace OpenSettings.Services.Sql
 
             if (entity == null)
             {
-                var email = GetFirstClaimOrDefault(input.Principal, ClaimTypes.Email, "email")?.Value ?? string.Empty;
-                var name = GetFirstClaimOrDefault(input.Principal, ClaimTypes.Name, "name")?.Value ?? string.Empty;
-                var username = GetFirstClaimOrDefault(input.Principal, "preferred_username")?.Value ?? string.Empty;
+                var trimmedEmail = GetFirstClaimOrDefault(input.Principal, ClaimTypes.Email, "email")?.Value?.Trim() ?? string.Empty;
+                var trimmedName = GetFirstClaimOrDefault(input.Principal, ClaimTypes.Name, "name")?.Value?.Trim() ?? string.Empty;
+                var trimmedGivenName = GetFirstClaimOrDefault(input.Principal, ClaimTypes.GivenName, "given_name")?.Value?.Trim() ?? string.Empty;
+                var trimmedFamilyName = GetFirstClaimOrDefault(input.Principal, ClaimTypes.Surname, "family_name")?.Value?.Trim() ?? string.Empty;
+                var trimmedUsername = GetFirstClaimOrDefault(input.Principal, "preferred_username")?.Value?.Trim() ?? string.Empty;
 
-                var trimmedName = name.Trim();
+                if (!string.IsNullOrWhiteSpace(trimmedName))
+                {
+                    var nameParts = trimmedName.Split(OpenSettingsDefaults.Separators.SpaceSeparator, StringSplitOptions.RemoveEmptyEntries);
+
+                    if (nameParts.Length > 0)
+                    {
+                        if (trimmedGivenName == string.Empty)
+                        {
+                            trimmedGivenName = string.Join(OpenSettingsDefaults.Format.Space, nameParts.Take(nameParts.Length > 1 ? nameParts.Length - 1 : 1));
+                        }
+
+                        if (trimmedFamilyName == string.Empty && nameParts.Length > 1)
+                        {
+                            trimmedFamilyName = nameParts[nameParts.Length - 1];
+                        }
+                    }
+                }
 
                 var id = Guid.NewGuid();
 
@@ -60,13 +78,17 @@ namespace OpenSettings.Services.Sql
                 {
                     Id = id,
                     AuthType = input.AuthType,
-                    OAuthProvider = oAuthProvider,
-                    ProviderId = providerId,
-                    Email = email,
-                    EmailLowercase = email.ToLowerInvariant(),
-                    Username = username,
-                    UsernameLowercase = username.ToLowerInvariant(),
+                    IdentityProvider = identityProvider,
+                    ExternalId = externalId,
+                    Email = trimmedEmail,
+                    EmailLowercase = trimmedEmail.ToLowerInvariant(),
+                    Username = trimmedUsername,
+                    UsernameLowercase = trimmedUsername.ToLowerInvariant(),
                     HashedPassword = null,
+                    GivenName = trimmedGivenName,
+                    GivenNameLowercase = trimmedGivenName.ToLowerInvariant(),
+                    FamilyName = trimmedFamilyName,
+                    FamilyNameLowercase = trimmedFamilyName.ToLowerInvariant(),
                     FullName = trimmedName,
                     FullNameLowercase = trimmedName.ToLowerInvariant(),
                     Slug = id.ToString().ToSlug(),

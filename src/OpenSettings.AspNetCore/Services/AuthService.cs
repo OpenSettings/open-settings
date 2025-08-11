@@ -4,7 +4,6 @@ using Microsoft.Extensions.Logging;
 using Ogu.Response;
 using Ogu.Response.Abstractions;
 using OpenSettings.AspNetCore.Extensions;
-using OpenSettings.AspNetCore.Models.Requests;
 using OpenSettings.Configurations;
 using OpenSettings.Models;
 using OpenSettings.Models.Inputs;
@@ -30,7 +29,7 @@ namespace OpenSettings.AspNetCore.Services
         private readonly OpenSettingsConfiguration _openSettingsConfiguration;
         private readonly ProviderInfo _providerInfo;
 
-        public AuthService(ILogger<AuthService> logger, IOpenSettingsMemoryCache openSettingsMemoryCache, IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor, ITokenService tokenService,  OpenSettingsConfiguration openSettingsConfiguration, ProviderInfo providerInfo)
+        public AuthService(ILogger<AuthService> logger, IOpenSettingsMemoryCache openSettingsMemoryCache, IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor, ITokenService tokenService, OpenSettingsConfiguration openSettingsConfiguration, ProviderInfo providerInfo)
         {
             _logger = logger;
             _openSettingsMemoryCache = openSettingsMemoryCache;
@@ -41,7 +40,7 @@ namespace OpenSettings.AspNetCore.Services
             _providerInfo = providerInfo;
         }
 
-        public async Task<IResponse<IsAuthenticatedResponse>> IsAuthenticatedAsync(IsAuthenticatedInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse<GetAuthStatusResponse>> GetAuthStatusAsync(GetAuthStatusInput input, CancellationToken cancellationToken = default)
         {
             var httpContext = _httpContextAccessor.HttpContext;
 
@@ -52,27 +51,53 @@ namespace OpenSettings.AspNetCore.Services
 
             if (httpContext.User.Identity?.IsAuthenticated ?? false)
             {
-                return HttpStatusCode.OK.ToSuccessResponseOf(new IsAuthenticatedResponse
+                return HttpStatusCode.OK.ToSuccessResponseOf(new GetAuthStatusResponse
                 {
                     IsAuthenticated = true,
                     AccessToken = null
                 });
             }
 
+            return HttpStatusCode.OK.ToSuccessResponseOf(new GetAuthStatusResponse
+            {
+                IsAuthenticated = false,
+                AccessToken = null
+            });
+
+            // Looks like below not needed when it is m2m
+
             var authHeader = httpContext.Request.Headers.GetAuthenticationHeaderValueFromAuthorizationHeader();
 
-            if (authHeader?.Parameter != OpenSettingsDefaults.Names.BasicSchemeName)
+            if (authHeader?.Parameter == null)
             {
-                return HttpStatusCode.OK.ToSuccessResponseOf(new IsAuthenticatedResponse
+                return HttpStatusCode.OK.ToSuccessResponseOf(new GetAuthStatusResponse
                 {
                     IsAuthenticated = false,
                     AccessToken = null
                 });
             }
 
-            var authenticateResult = await httpContext.AuthenticateAsync(OpenSettingsDefaults.AuthSchemes.Basic);
+            AuthenticateResult authenticateResult;
 
-            return HttpStatusCode.OK.ToSuccessResponseOf(new IsAuthenticatedResponse
+            switch (authHeader.Scheme)
+            {
+                case OpenSettingsDefaults.Names.JwtBearerSchemaName:
+                    authenticateResult = await httpContext.AuthenticateAsync(OpenSettingsDefaults.AuthSchemes.MachineToMachineJwtBearer);
+                    break;
+
+                case OpenSettingsDefaults.Names.BasicSchemeName:
+                    authenticateResult = await httpContext.AuthenticateAsync(OpenSettingsDefaults.AuthSchemes.Basic);
+                    break;
+
+                default:
+                    return HttpStatusCode.OK.ToSuccessResponseOf(new GetAuthStatusResponse
+                    {
+                        IsAuthenticated = false,
+                        AccessToken = null
+                    });
+            }
+
+            return HttpStatusCode.OK.ToSuccessResponseOf(new GetAuthStatusResponse
             {
                 IsAuthenticated = authenticateResult.Succeeded,
                 AccessToken = null
@@ -83,7 +108,7 @@ namespace OpenSettings.AspNetCore.Services
         {
         }
 
-        public Task<IResponse<WhoAmIResponse>> WhoAmIAsync(WhoAmIInput input, CancellationToken cancellationToken = default)
+        public Task<IResponse<GetIdentityResponse>> GetIdentityAsync(GetIdentityInput input, CancellationToken cancellationToken = default)
         {
             // previously it was using _openSettingsMemoryCache to get the claims, but now we are using HttpContext.User.Claims directly.
             var httpContext = _httpContextAccessor.HttpContext;
@@ -100,7 +125,7 @@ namespace OpenSettings.AspNetCore.Services
                 var claimTypeToValue = claims.GroupBy(c => c.Type)
                     .ToDictionary(c => c.Key, c => string.Join(OpenSettingsDefaults.Format.Comma, c.Select(claim => claim.Value)));
 
-                return Task.FromResult(HttpStatusCode.OK.ToSuccessResponseOf(new WhoAmIResponse
+                return Task.FromResult(HttpStatusCode.OK.ToSuccessResponseOf(new GetIdentityResponse
                 {
                     Claims = claimTypeToValue
                 }));
@@ -120,7 +145,7 @@ namespace OpenSettings.AspNetCore.Services
                 .OrderBy(claim => Array.IndexOf(claimArray, claim.Type))
                 .ToDictionary(c => c.Type, c => c.Value);
 
-            return Task.FromResult(HttpStatusCode.OK.ToSuccessResponseOf(new WhoAmIResponse
+            return Task.FromResult(HttpStatusCode.OK.ToSuccessResponseOf(new GetIdentityResponse
             {
                 Claims = filteredClaimTypeToValue
             }));
@@ -159,9 +184,9 @@ namespace OpenSettings.AspNetCore.Services
                     await httpContext.ChallengeAsync(OpenSettingsDefaults.AuthSchemes.OAuth2,
                         new AuthenticationProperties(new Dictionary<string, string>
                         {
-                            { Keys.ReturnUrl, input.ReturnUrl },
-                            { Keys.ApiUrl, input.ApiUrl },
-                            { Keys.Uuid, input.Uuid }
+                            { OpenSettingsDefaults.Keys.AuthService.ReturnUrl, input.ReturnUrl },
+                            { OpenSettingsDefaults.Keys.AuthService.ApiUrl, input.ApiUrl },
+                            { OpenSettingsDefaults.Keys.AuthService.Uuid, input.Uuid }
                         }));
                 }
                 catch (Exception ex)
@@ -175,17 +200,17 @@ namespace OpenSettings.AspNetCore.Services
 
             if (authenticateResult.Properties != null)
             {
-                if (authenticateResult.Properties.Items.TryGetValue(Keys.ReturnUrl, out var returnUrlFromItem) && string.IsNullOrWhiteSpace(input.ReturnUrl))
+                if (authenticateResult.Properties.Items.TryGetValue(OpenSettingsDefaults.Keys.AuthService.ReturnUrl, out var returnUrlFromItem) && string.IsNullOrWhiteSpace(input.ReturnUrl))
                 {
                     input.ReturnUrl = returnUrlFromItem ?? string.Empty;
                 }
 
-                if (authenticateResult.Properties.Items.TryGetValue(Keys.ApiUrl, out var apiUrlFromItem) && string.IsNullOrWhiteSpace(input.ApiUrl))
+                if (authenticateResult.Properties.Items.TryGetValue(OpenSettingsDefaults.Keys.AuthService.ApiUrl, out var apiUrlFromItem) && string.IsNullOrWhiteSpace(input.ApiUrl))
                 {
                     input.ApiUrl = apiUrlFromItem ?? string.Empty;
                 }
 
-                if (authenticateResult.Properties.Items.TryGetValue(Keys.Uuid, out var uuidFromItem) && string.IsNullOrWhiteSpace(input.Uuid))
+                if (authenticateResult.Properties.Items.TryGetValue(OpenSettingsDefaults.Keys.AuthService.Uuid, out var uuidFromItem) && string.IsNullOrWhiteSpace(input.Uuid))
                 {
                     input.Uuid = uuidFromItem;
                 }
@@ -249,7 +274,7 @@ namespace OpenSettings.AspNetCore.Services
                     httpContext.Response.Redirect(input.ReturnUrl);
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Exception occurred while trying to logout from OAuth2 provider.");
 
@@ -265,13 +290,6 @@ namespace OpenSettings.AspNetCore.Services
 
                 await httpContext.Response.WriteAsync("Identity service isn't accessible at this moment!", cancellationToken);
             }
-        }
-
-        private static class Keys
-        {
-            public const string ReturnUrl = "ReturnUrl";
-            public const string ApiUrl = "ApiUrl";
-            public const string Uuid = "uuid";
         }
     }
 }

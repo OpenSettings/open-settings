@@ -1,17 +1,16 @@
-﻿using System;
-using Microsoft.AspNetCore.Authentication;
+﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Ogu.Response;
 using Ogu.Response.Abstractions;
 using OpenSettings.AspNetCore.Extensions;
-using OpenSettings.AspNetCore.Models.Requests;
 using OpenSettings.Configurations;
 using OpenSettings.Extensions;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Models.Responses;
 using OpenSettings.Services.Interfaces;
 using OpenSettings.Services.Rest.Interfaces;
+using System;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
@@ -36,7 +35,7 @@ namespace OpenSettings.AspNetCore.Services
             _openSettingsConfiguration = openSettingsConfiguration;
         }
 
-        public async Task<IResponse<IsAuthenticatedResponse>> IsAuthenticatedAsync(IsAuthenticatedInput input, CancellationToken cancellationToken)
+        public async Task<IResponse<GetAuthStatusResponse>> GetAuthStatusAsync(GetAuthStatusInput input, CancellationToken cancellationToken)
         {
             var httpContext = _httpContextAccessor.HttpContext;
 
@@ -47,7 +46,7 @@ namespace OpenSettings.AspNetCore.Services
 
             if (!string.IsNullOrWhiteSpace(input.Uuid) && OpenSettingsDefaults.Caches.AuthServiceUuidCacheEntry.GetKey(input.Uuid).TryGetValue<string>(_openSettingsMemoryCache, out var accessToken))
             {
-                return HttpStatusCode.OK.ToSuccessResponseOf(new IsAuthenticatedResponse
+                return HttpStatusCode.OK.ToSuccessResponseOf(new GetAuthStatusResponse
                 {
                     IsAuthenticated = true,
                     AccessToken = accessToken
@@ -56,7 +55,7 @@ namespace OpenSettings.AspNetCore.Services
 
             if (httpContext.User.Identity?.IsAuthenticated ?? false)
             {
-                return HttpStatusCode.OK.ToSuccessResponseOf(new IsAuthenticatedResponse
+                return HttpStatusCode.OK.ToSuccessResponseOf(new GetAuthStatusResponse
                 {
                     IsAuthenticated = true,
                     AccessToken = null
@@ -65,18 +64,36 @@ namespace OpenSettings.AspNetCore.Services
 
             var authHeader = httpContext.Request.Headers.GetAuthenticationHeaderValueFromAuthorizationHeader();
 
-            if (authHeader?.Parameter != OpenSettingsDefaults.Names.BasicSchemeName)
+            if (authHeader?.Parameter == null)
             {
-                return HttpStatusCode.OK.ToSuccessResponseOf(new IsAuthenticatedResponse
+                return HttpStatusCode.OK.ToSuccessResponseOf(new GetAuthStatusResponse
                 {
                     IsAuthenticated = false,
                     AccessToken = null
                 });
             }
 
-            var authenticateResult = await httpContext.AuthenticateAsync(OpenSettingsDefaults.AuthSchemes.Basic);
+            AuthenticateResult authenticateResult;
 
-            return HttpStatusCode.OK.ToSuccessResponseOf(new IsAuthenticatedResponse
+            switch (authHeader.Scheme)
+            {
+                case OpenSettingsDefaults.Names.JwtBearerSchemaName:
+                    authenticateResult = await httpContext.AuthenticateAsync(OpenSettingsDefaults.AuthSchemes.MachineToMachineJwtBearer);
+                    break;
+
+                case OpenSettingsDefaults.Names.BasicSchemeName:
+                    authenticateResult = await httpContext.AuthenticateAsync(OpenSettingsDefaults.AuthSchemes.Basic);
+                    break;
+
+                default:
+                    return HttpStatusCode.OK.ToSuccessResponseOf(new GetAuthStatusResponse
+                    {
+                        IsAuthenticated = false,
+                        AccessToken = null
+                    });
+            }
+
+            return HttpStatusCode.OK.ToSuccessResponseOf(new GetAuthStatusResponse
             {
                 IsAuthenticated = authenticateResult.Succeeded,
                 AccessToken = null
@@ -90,7 +107,7 @@ namespace OpenSettings.AspNetCore.Services
             cacheKey.Set(_openSettingsMemoryCache, input.AccessToken);
         }
 
-        public async Task<IResponse<WhoAmIResponse>> WhoAmIAsync(WhoAmIInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse<GetIdentityResponse>> GetIdentityAsync(GetIdentityInput input, CancellationToken cancellationToken = default)
         {
             var httpContext = _httpContextAccessor.HttpContext;
 
@@ -101,7 +118,7 @@ namespace OpenSettings.AspNetCore.Services
 
             var httpClient = GetProviderHttpClient();
 
-            using (var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, $"{OpenSettingsDefaults.Routes.V1.Auth}/who-am-i"))
+            using (var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, $"{OpenSettingsDefaults.Routes.V1.Auth}/identity"))
             {
                 httpRequestMessage.Headers.Authorization = httpContext.Request.Headers.GetAuthenticationHeaderValueFromAuthorizationHeader();
 
@@ -109,10 +126,10 @@ namespace OpenSettings.AspNetCore.Services
                 {
                     if (!response.IsSuccessStatusCode)
                     {
-                        return response.StatusCode.ToFailureResponse<WhoAmIResponse>();
+                        return response.StatusCode.ToFailureResponse<GetIdentityResponse>();
                     }
 
-                    return await response.Content.ToResponseAsync<WhoAmIResponse>(cancellationToken: cancellationToken);
+                    return await response.Content.ToResponseAsync<GetIdentityResponse>(cancellationToken: cancellationToken);
                 }
             }
         }

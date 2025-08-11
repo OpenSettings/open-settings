@@ -5,6 +5,7 @@ using OpenSettings.AspNetCore.Extensions;
 using OpenSettings.Configurations;
 using OpenSettings.Extensions;
 using OpenSettings.Helpers;
+using OpenSettings.Models;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Models.Responses;
 using OpenSettings.Services.Interfaces;
@@ -22,6 +23,7 @@ namespace OpenSettings.AspNetCore.Handlers
         private readonly IAppService _appsService;
         private readonly IOpenSettingsMemoryCache _openSettingsMemoryCache;
         private readonly OpenSettingsConfiguration _openSettingsConfiguration;
+        private readonly bool _authorize;
 
         public BasicAuthenticationHandler(
             IAppService appsService,
@@ -32,7 +34,8 @@ namespace OpenSettings.AspNetCore.Handlers
 #endif
 
             UrlEncoder encoder,
-            OpenSettingsConfiguration openSettingsConfiguration) : base(options, openSettingsConfiguration.LoggerFactory, encoder
+            OpenSettingsConfiguration openSettingsConfiguration, 
+            ProviderInfo providerInfo) : base(options, openSettingsConfiguration.LoggerFactory, encoder
 #if !NET8_0_OR_GREATER
             , clock
 #endif
@@ -42,6 +45,8 @@ namespace OpenSettings.AspNetCore.Handlers
             _logger = openSettingsConfiguration.LoggerFactory.CreateLogger<BasicAuthenticationHandler>();
             _openSettingsMemoryCache = openSettingsMemoryCache;
             _openSettingsConfiguration = openSettingsConfiguration;
+
+            _authorize = providerInfo.Authorize || openSettingsConfiguration.Controller.Authorize;
         }
 
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
@@ -101,10 +106,13 @@ namespace OpenSettings.AspNetCore.Handlers
                         _logger.LogWarning("ClientId: '{clientId}' is not registered.", clientIdAsString);
                     }
 
-                    return AuthenticateResults.InvalidCredentials;
+                    if (_authorize || !registeredApp.IsClientIdUnique)
+                    {
+                        return AuthenticateResults.InvalidCredentials;
+                    }
                 }
 
-                var claims = Helper.GetOpenSettingsClaims(clientIdAsString, registeredApp.ClientName);
+                var claims = Helper.GetOpenSettingsClaims(clientIdAsString, registeredApp.ClientName, AuthType.Machine, AuthMethod.Basic);
 
                 var claimsIdentity = new ClaimsIdentity(claims, Scheme.Name);
 

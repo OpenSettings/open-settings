@@ -19,11 +19,11 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             _authService = authService;
         }
 
-        [HttpPost("authenticated")]
+        [HttpPost("status")]
         [AllowAnonymous]
-        public async Task<IActionResult> IsAuthenticated(string uuid)
+        public async Task<IActionResult> GetAuthStatus(string uuid)
         {
-            var response = await _authService.IsAuthenticatedAsync(new IsAuthenticatedInput
+            var response = await _authService.GetAuthStatusAsync(new GetAuthStatusInput
             {
                 Uuid = uuid
             });
@@ -31,15 +31,15 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             return response.ToAction();
         }
 
-        [HttpGet("who-am-i")]
-        public async Task<IActionResult> WhoAmI([FromQuery] string claimTypes, CancellationToken cancellationToken)
+        [HttpGet("identity")]
+        public async Task<IActionResult> GetIdentity([FromQuery] string claimTypes, CancellationToken cancellationToken)
         {
             if (!User.Identity?.IsAuthenticated ?? false)
             {
                 return Unauthorized();
             }
 
-            var response = await _authService.WhoAmIAsync(new WhoAmIInput
+            var response = await _authService.GetIdentityAsync(new GetIdentityInput
             {
                 ClaimTypes = claimTypes
             }, cancellationToken);

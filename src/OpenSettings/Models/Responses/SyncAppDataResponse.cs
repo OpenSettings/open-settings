@@ -21,6 +21,8 @@ namespace OpenSettings.Models.Responses
 
         public SyncAppDataResponseConfiguration Configuration { get; set; }
 
+        public SyncAppDataResponseClient Client { get; set; }
+
         public bool IsProvider { get; set; }
 
         public bool Authorize => ProviderInfo.Authorize || Configuration.Controller.Authorize;
@@ -66,12 +68,20 @@ namespace OpenSettings.Models.Responses
                 {
                     ProviderInfo = ConstructProviderInfo(openSettingsConfiguration, Configuration.Controller),
                     Configuration,
+                    Client = new SyncAppDataResponseClient
+                    {
+                        Name = openSettingsConfiguration.Client.Name
+                    },
                     IsProvider = true
                 }
                 : new
                 {
                     ProviderInfo,
                     Configuration,
+                    Client = new SyncAppDataResponseClient
+                    {
+                        Name = openSettingsConfiguration.Client.Name
+                    },
                     IsProvider = false
                 };
 

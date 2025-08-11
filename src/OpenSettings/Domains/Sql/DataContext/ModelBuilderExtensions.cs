@@ -94,6 +94,7 @@ namespace OpenSettings.Domains.Sql.DataContext
                 entity.HasIndex(e => new { e.Slug, e.SettingId }).IsUnique();
                 entity.HasIndex(e => e.Version);
                 entity.Property(e => e.RowVersion).IsRowVersion().ValueGeneratedNever();
+                entity.Ignore(e => e.UpdatedOn);
             });
 
             modelBuilder.Entity<InstanceSqlModel>(entity =>
@@ -361,6 +362,25 @@ namespace OpenSettings.Domains.Sql.DataContext
                 entity.HasIndex(e => e.Type);
                 entity.HasIndex(e => e.ClientIdLowercase);
                 entity.HasIndex(e => e.LastHeartbeatOn);
+            });
+
+            modelBuilder.Entity<GlobalConfigurationSqlModel>(entity =>
+            {
+                entity.HasIndex(a => new { a.KeyLowercase, a.ClientId, a.IdentifierId }).IsUnique();
+                entity.Property(e => e.RowVersion).IsRowVersion().ValueGeneratedNever();
+
+                entity.HasMany(a => a.GlobalConfigurationHistories)
+                    .WithOne(h => h.GlobalConfiguration)
+                    .HasForeignKey(h => h.GlobalConfigurationId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<GlobalConfigurationHistorySqlModel>(entity =>
+            {
+                entity.HasIndex(e => new { e.Slug, e.GlobalConfigurationId }).IsUnique();
+                entity.HasIndex(e => e.Version);
+                entity.Property(e => e.RowVersion).IsRowVersion().ValueGeneratedNever();
+                entity.Ignore(e => e.UpdatedOn);
             });
         }
     }

@@ -27,6 +27,16 @@ namespace OpenSettings
 
         internal const string Password = "********";
 
+        public static class Keys
+        {
+            public class AuthService
+            {
+                public const string ReturnUrl = "ReturnUrl";
+                public const string ApiUrl = "ApiUrl";
+                public const string Uuid = "uuid";
+            }
+        }
+
         public static class Files
         {
             internal const string SettingsFileNameWithoutExtension = "settings";
@@ -329,6 +339,10 @@ namespace OpenSettings
             public const string RefreshToken = "refresh_token";
 
             public const string GrantType = "grant_type";
+
+            public const string AuthType = "auth_type";
+
+            public const string AuthMethod = "auth_method";
 
             public const string JsonTokenId = "jti";
         }

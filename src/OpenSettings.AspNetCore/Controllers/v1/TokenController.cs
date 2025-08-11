@@ -28,11 +28,6 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         [AllowAnonymous]
         public async Task<IActionResult> GenerateMachineToMachineToken(GenerateMachineToMachineTokenRequest request, CancellationToken cancellationToken)
         {
-            if (_openSettingsConfiguration.IsConsumerSelected)
-            {
-                return HttpStatusCode.InternalServerError.ToFailureResponse(Errors.GenerateTokenNotSupportedWhileRunningInConsumerMode).ToAction();
-            }
-
             if (!ModelState.IsValid)
             {
                 return ModelState.ToAction();

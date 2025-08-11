@@ -227,7 +227,7 @@ namespace OpenSettings.Services.Sql
                 //var refreshToken = Convert.ToHexString(RandomNumberGenerator.GetBytes(32));
                 //var hashedRefreshToken = SHA256.HashData(refreshToken);
 
-                var claims = Helper.GetOpenSettingsClaims(clientId, registeredApp.ClientName)
+                var claims = Helper.GetOpenSettingsClaims(clientId, registeredApp.ClientName, AuthType.Machine, AuthMethod.Jwt)
                     .Concat(new[]
                         { new Claim(OpenSettingsDefaults.ClaimTypes.JsonTokenId, $"{Guid.NewGuid()}") }
                     );

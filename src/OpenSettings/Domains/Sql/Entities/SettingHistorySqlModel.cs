@@ -10,7 +10,7 @@ namespace OpenSettings.Domains.Sql.Entities
     /// Represents a setting history entity.
     /// </summary>
     [Table("SettingHistories")]
-    public class SettingHistorySqlModel : EntityBase<int>
+    public class SettingHistorySqlModel : EntityBase<Guid>
     {
         /// <summary>
         /// The binary data associated with the setting history.
@@ -55,6 +55,14 @@ namespace OpenSettings.Domains.Sql.Entities
         /// The id of the user who created this setting history.
         /// </summary>
         public Guid? CreatedById { get; set; }
+
+        [NotMapped]
+        public override DateTime? UpdatedOn { get; set; }
+
+        /// <summary>
+        /// The date and time when the entity was last restored, or <c>null</c> if never restored.
+        /// </summary>
+        public DateTime? RestoredOn { get; set; }
 
         /// <summary>
         /// The id of the user who last restored this setting history.

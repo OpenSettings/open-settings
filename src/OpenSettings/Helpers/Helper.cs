@@ -1,4 +1,5 @@
-﻿using StackExchange.Redis;
+﻿using OpenSettings.Models;
+using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -27,13 +28,15 @@ namespace OpenSettings.Helpers
             return parts.Length == 0 ? string.Empty : string.Join(string.Empty, parts.Select(p => p[0])).ToUpper();
         }
 
-        public static Claim[] GetOpenSettingsClaims(string id, string displayName, string initials = null)
+        public static Claim[] GetOpenSettingsClaims(string id, string displayName, AuthType authType, AuthMethod authMethod, string initials = null)
         {
             return new Claim[]
             {
                 new Claim(OpenSettingsDefaults.ClaimTypes.DbUserId, id),
                 new Claim(OpenSettingsDefaults.ClaimTypes.DbUserDisplayName, displayName),
-                new Claim(OpenSettingsDefaults.ClaimTypes.DbUserInitials, initials ?? GetInitials(displayName))
+                new Claim(OpenSettingsDefaults.ClaimTypes.DbUserInitials, initials ?? GetInitials(displayName)),
+                new Claim(OpenSettingsDefaults.ClaimTypes.AuthType, $"{authType}"),
+                new Claim(OpenSettingsDefaults.ClaimTypes.AuthMethod, $"{authMethod}")
             };
         }
 

@@ -18,7 +18,6 @@ using OpenSettings.Services.Rest.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Security.Claims;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -50,13 +49,15 @@ namespace OpenSettings.AspNetCore.Extensions
             var providerInfo = syncAppDataResponse.ProviderInfo;
             var controllerConfiguration = syncAppDataResponse.Configuration.Controller;
 
+            var authorize = syncAppDataResponse.Authorize;
+
             if (syncAppDataResponse.IsProvider)
             {
                 RegisterProviderServices(mvcBuilder.Services, providerInfo, controllerConfiguration, authenticationBuilder);
             }
             else
             {
-                RegisterConsumerServices(mvcBuilder.Services);
+                RegisterConsumerServices(mvcBuilder.Services, providerInfo, syncAppDataResponse.Client, authenticationBuilder, authorize);
             }
 
             mvcBuilder.Services.AddSingleton<IInstanceUrlResolverService, InstanceUrlResolverService>();
@@ -64,8 +65,6 @@ namespace OpenSettings.AspNetCore.Extensions
             mvcBuilder.Services.AddHttpContextAccessor();
 
             mvcBuilder.Services.AddHttpClient();
-
-            var authorize = syncAppDataResponse.Authorize;
 
             if (authorize && providerInfo.OAuth2.IsActive)
             {
@@ -133,7 +132,7 @@ namespace OpenSettings.AspNetCore.Extensions
         {
             services.AddSingleton<IAuthService, AuthService>();
 
-            authenticationBuilder.AddMachineToMachineJwtBearer(providerInfo);
+            authenticationBuilder.AddMachineToMachineJwtBearerForProvider(providerInfo);
 
             if (providerInfo.Authorize && providerInfo.OAuth2.IsActive)
             {
@@ -143,18 +142,22 @@ namespace OpenSettings.AspNetCore.Extensions
             }
         }
 
-        private static void RegisterConsumerServices(IServiceCollection services)
+        private static void RegisterConsumerServices(IServiceCollection services, ProviderInfo providerInfo, SyncAppDataResponseClient client, AuthenticationBuilder authenticationBuilder, bool authorize)
         {
+            if (authorize)
+            {
+                authenticationBuilder.AddMachineToMachineJwtBearerForConsumer(providerInfo, client);
+            }
+
             services.AddTransient<OpenSettingsRestServiceAuthHandler>();
 
             services.AddHttpClient(OpenSettingsDefaults.Names.ProviderHttpClientName).AddHttpMessageHandler<OpenSettingsRestServiceAuthHandler>();
 
             services.AddSingleton<IAuthRestService, AuthRestService>();
             services.AddSingleton<IAuthService>(sp => sp.GetRequiredService<IAuthRestService>());
-
         }
 
-        private static AuthenticationBuilder AddMachineToMachineJwtBearer(this AuthenticationBuilder authenticationBuilder, ProviderInfo providerInfo)
+        private static AuthenticationBuilder AddMachineToMachineJwtBearerForProvider(this AuthenticationBuilder authenticationBuilder, ProviderInfo providerInfo)
         {
             return authenticationBuilder.AddJwtBearer(OpenSettingsDefaults.AuthSchemes.MachineToMachineJwtBearer, opts =>
             {
@@ -164,7 +167,24 @@ namespace OpenSettings.AspNetCore.Extensions
                     ValidateAudience = false,
                     ValidateIssuerSigningKey = true,
                     ValidIssuer = providerInfo.Client.Name,
+                    SaveSigninToken = true,
                     IssuerSigningKey = OpenSettingsDefaults.Caches.SymmetricSecurityKey
+                };
+            });
+        }
+
+        private static AuthenticationBuilder AddMachineToMachineJwtBearerForConsumer(this AuthenticationBuilder authenticationBuilder, ProviderInfo providerInfo, SyncAppDataResponseClient client)
+        {
+            return authenticationBuilder.AddJwtBearer(OpenSettingsDefaults.AuthSchemes.MachineToMachineJwtBearer, opts =>
+            {
+                opts.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateIssuerSigningKey = false,
+                    ValidIssuer = providerInfo.Client.Name,
+                    ValidAudience = client.Name,
+                    SaveSigninToken = true
                 };
             });
         }
@@ -227,7 +247,7 @@ namespace OpenSettings.AspNetCore.Extensions
                               return;
                           }
 
-                          context.Principal?.AddIdentity(new ClaimsIdentity(Helpers.Helper.GetOpenSettingsClaims($"{user.Id}", user.DisplayName, user.Initials)));
+                          context.Principal?.AddIdentity(new ClaimsIdentity(Helpers.Helper.GetOpenSettingsClaims($"{user.Id}", user.DisplayName, AuthType.OAuth2, AuthMethod.Unset, user.Initials)));
                       },
                       OnRemoteFailure = context =>
                       {
@@ -239,6 +259,21 @@ namespace OpenSettings.AspNetCore.Extensions
                           }
 
                           oAuth2Logger.LogError(context.Failure, "OIDC Error: {message}", context.Failure?.Message);
+
+                          if ((string)context.Failure?.Data["error"] != "access_denied")
+                          {
+                              return Task.CompletedTask;
+                          }
+
+                          var returnUrl = context.Properties?.Items[OpenSettingsDefaults.Keys.AuthService.ReturnUrl];
+
+                          if (string.IsNullOrWhiteSpace(returnUrl))
+                          {
+                              return Task.CompletedTask;
+                          }
+
+                          context.Response.Redirect(returnUrl);
+                          context.HandleResponse();
 
                           return Task.CompletedTask;
                       }

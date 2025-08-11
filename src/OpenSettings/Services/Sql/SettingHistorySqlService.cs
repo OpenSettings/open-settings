@@ -39,14 +39,14 @@ namespace OpenSettings.Services.Sql
 
         public async Task<IResponse> GetSettingHistoryDataAsync(GetSettingHistoryDataInput input, CancellationToken cancellationToken = default)
         {
-            var historyIdRule = ValidationRules.GreaterThanRule(nameof(input.HistoryId), input.HistoryId, 0);
+            var historyIdRule = ValidationRules.NotEmptyRule(nameof(input.HistoryId), input.HistoryId);
 
             if (historyIdRule.IsFailed())
             {
                 return HttpStatusCode.BadRequest.ToFailureResponse(historyIdRule.Failure);
             }
 
-            var historyId = historyIdRule.GetStoredValue<int>();
+            var historyId = Guid.Parse(input.HistoryId);
 
             var entity = await _context.SettingHistories
                 .AsNoTracking()
@@ -70,16 +70,14 @@ namespace OpenSettings.Services.Sql
 
         public async Task<IResponse> GetSettingHistoryByIdAsync(GetSettingHistoryInput input, CancellationToken cancellationToken = default)
         {
-            var historyIdRule = ValidationRules.GreaterThanRule("HistoryId", input.HistoryIdOrSlug, 0);
+            var historyIdRule = ValidationRules.NotEmptyRule("HistoryId", input.HistoryIdOrSlug);
 
             if (historyIdRule.IsFailed())
             {
                 return HttpStatusCode.BadRequest.ToFailureResponse(historyIdRule.Failure);
             }
 
-            var historyId = historyIdRule.GetStoredValue<int>();
-
-            return await GetSettingHistoryByIdOrSlugAsync(s => s.Id == historyId, cancellationToken);
+            return await GetSettingHistoryByIdOrSlugAsync(s => s.Id == Guid.Parse(input.HistoryIdOrSlug), cancellationToken);
         }
 
         public Task<IResponse> GetSettingHistoryBySlugAsync(GetSettingHistoryInput input, CancellationToken cancellationToken = default)
@@ -123,7 +121,7 @@ namespace OpenSettings.Services.Sql
                     s.RestoredById,
                     s.RowVersion,
                     s.CreatedOn,
-                    s.UpdatedOn
+                    s.RestoredOn
                 }).ToArrayAsync(cancellationToken);
 
             var settingHistoriesResponse = await Task.WhenAll(entities.Select(async e => new GetSettingHistoriesResponse
@@ -138,7 +136,7 @@ namespace OpenSettings.Services.Sql
                 RestoredById = e.RestoredById,
                 RowVersion = e.RowVersion,
                 CreatedOn = e.CreatedOn,
-                UpdatedOn = e.UpdatedOn
+                RestoredOn = e.RestoredOn
             }));
 
             return HttpStatusCode.OK.ToSuccessResponse(settingHistoriesResponse);
@@ -146,14 +144,14 @@ namespace OpenSettings.Services.Sql
 
         public async Task<IResponse<RestoreSettingHistoryResponse>> RestoreSettingHistoryAsync(RestoreSettingHistoryInput input, CancellationToken cancellationToken)
         {
-            var historyIdRule = ValidationRules.GreaterThanRule(nameof(input.HistoryId), input.HistoryId, 0);
+            var historyIdRule = ValidationRules.NotEmptyRule(nameof(input.HistoryId), input.HistoryId);
 
             if (historyIdRule.IsFailed())
             {
                 return historyIdRule.Failure.ToResponse<RestoreSettingHistoryResponse>();
             }
 
-            var historyId = historyIdRule.GetStoredValue<int>();
+            var historyId = Guid.Parse(input.HistoryId);
 
             var entity = await _context.SettingHistories
                 .AsNoTracking()
@@ -240,7 +238,7 @@ namespace OpenSettings.Services.Sql
                 _context.SettingHistories.Attach(entity);
 
                 entity.RestoredById = input.UserId;
-                entity.UpdatedOn = currentTime;
+                entity.RestoredOn = currentTime;
                 entity.RowVersion = rowVersion;
             }
             else
@@ -320,7 +318,7 @@ namespace OpenSettings.Services.Sql
                     s.RestoredById,
                     s.RowVersion,
                     s.CreatedOn,
-                    s.UpdatedOn
+                    s.RestoredOn
                 }).FirstOrDefaultAsync(cancellationToken);
 
             return entity == null
@@ -335,7 +333,7 @@ namespace OpenSettings.Services.Sql
                     RestoredById = entity.RestoredById,
                     RowVersion = entity.RowVersion,
                     CreatedOn = entity.CreatedOn,
-                    UpdatedOn = entity.UpdatedOn
+                    RestoredOn = entity.RestoredOn
                 });
         }
     }
