@@ -158,11 +158,11 @@ namespace OpenSettings.Services.Sql
 
             var trimmedLicenseKey = licenseKey.Trim();
 
-            var license = await ValidateLicenseKeyAsync(trimmedLicenseKey);
+            var license = ValidateLicenseKey(trimmedLicenseKey);
 
             if (license == null)
             {
-                _logger.LogError("Provided LicenseKey from {licenseKeyObtainedFrom} is invalid.", licenseKeyObtainedFrom);
+                _logger.LogError("Provided LicenseKey from '{licenseKeyObtainedFrom}' is invalid.", licenseKeyObtainedFrom);
 
                 return HttpStatusCode.BadRequest.ToFailureResponse(Errors.InvalidLicenseKey);
             }
@@ -243,7 +243,7 @@ namespace OpenSettings.Services.Sql
             return HttpStatusCode.OK.ToSuccessResponse(license);
         }
 
-        private async Task<License> ValidateLicenseKeyAsync(string licenseKey)
+        private License ValidateLicenseKey(string licenseKey)
         {
             var rsaParameters = new RSAParameters
             {
@@ -305,7 +305,7 @@ namespace OpenSettings.Services.Sql
 
                 var licenseCombinationsTasks = entities.Select(async l => new
                 {
-                    License = await ValidateLicenseKeyAsync(l.Key),
+                    License = ValidateLicenseKey(l.Key),
                     LicenseSqlModel = l
                 });
 

@@ -27,9 +27,16 @@ namespace OpenSettings.AspNetCore.Handlers
             IAppService appsService,
             IOpenSettingsMemoryCache openSettingsMemoryCache,
             IOptionsMonitor<AuthenticationSchemeOptions> options,
+#if !NET8_0_OR_GREATER
             ISystemClock clock,
+#endif
+
             UrlEncoder encoder,
-            OpenSettingsConfiguration openSettingsConfiguration) : base(options, openSettingsConfiguration.LoggerFactory, encoder, clock)
+            OpenSettingsConfiguration openSettingsConfiguration) : base(options, openSettingsConfiguration.LoggerFactory, encoder
+#if !NET8_0_OR_GREATER
+            , clock
+#endif
+            )
         {
             _appsService = appsService;
             _logger = openSettingsConfiguration.LoggerFactory.CreateLogger<BasicAuthenticationHandler>();
@@ -60,7 +67,7 @@ namespace OpenSettings.AspNetCore.Handlers
 
                 if (credentials.Length != 2)
                 {
-                    return AuthenticateResult.Fail("Invalid Authorization Header Format");
+                    return AuthenticateResults.InvalidAuthorizationHeaderFormat;
                 }
 
                 var clientIdAsString = credentials[0];
@@ -69,7 +76,7 @@ namespace OpenSettings.AspNetCore.Handlers
                 if (!(Guid.TryParse(clientIdAsString, out var clientId) &&
                       Guid.TryParse(clientSecretAsString, out var clientSecret)))
                 {
-                    return AuthenticateResult.Fail("Invalid ClientId or ClientSecret");
+                    return AuthenticateResults.InvalidCredentials;
                 }
 
                 var registeredApp = _openSettingsConfiguration.Client.Id == clientId &&
@@ -94,7 +101,7 @@ namespace OpenSettings.AspNetCore.Handlers
                         _logger.LogWarning("ClientId: '{clientId}' is not registered.", clientIdAsString);
                     }
 
-                    return AuthenticateResult.Fail("Invalid ClientId or ClientSecret");
+                    return AuthenticateResults.InvalidCredentials;
                 }
 
                 var claims = Helper.GetOpenSettingsClaims(clientIdAsString, registeredApp.ClientName);
@@ -113,8 +120,14 @@ namespace OpenSettings.AspNetCore.Handlers
             {
                 _logger.LogError(ex, "An error occurred while handling authentication.");
 
-                return AuthenticateResult.Fail("Invalid Authorization Header Format");
+                return AuthenticateResults.InvalidAuthorizationHeaderFormat;
             }
+        }
+
+        private static class AuthenticateResults
+        {
+            public static AuthenticateResult InvalidAuthorizationHeaderFormat { get; } = AuthenticateResult.Fail("Invalid Authorization Header Format");
+            public static AuthenticateResult InvalidCredentials { get; } = AuthenticateResult.Fail("Invalid ClientId or ClientSecret");
         }
     }
 }

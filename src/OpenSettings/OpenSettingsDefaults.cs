@@ -407,7 +407,7 @@ namespace OpenSettings
             /// </summary>
             public static CacheEntryKey OpenSettingsSpaMiddlewareHtmlCacheEntryKey { get; } = new CacheEntry("ossm:html").GetKey();
 
-            public static CacheEntry BasicAuthenticationHandlerAuthTicketCacheEntry { get; } = new CacheEntry("bah:at", TimeSpan.FromMinutes(5));
+            public static CacheEntry BasicAuthenticationHandlerAuthTicketCacheEntry { get; } = new CacheEntry("bah:at", TimeSpan.FromMinutes(15));
 
             /// <summary>   
             /// The cache key for available notification ids, with a 5-minute expiration time.

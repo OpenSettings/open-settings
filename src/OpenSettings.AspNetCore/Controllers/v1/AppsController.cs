@@ -128,7 +128,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         }
 
         [HttpPost("{ClientId:guid}/identifiers/{IdentifierName}/sync-data")]
-        [Authorize(AuthenticationSchemes = OpenSettingsDefaults.AuthSchemes.MachineToMachineJwtBearer)]
+        [Authorize(AuthenticationSchemes = OpenSettingsDefaults.AuthSchemes.Basic)]
         public async Task<IActionResult> SyncAppData(SyncAppDataRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
