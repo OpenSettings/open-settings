@@ -7,9 +7,13 @@
     public enum SerializerType
     {
         /// <summary>
-        /// Represents the Json serialization format.
-        /// This is the default serialization format.
+        /// Represents an unset or default serialization format.
         /// </summary>
-        Json = 0
+        Unset = 0,
+
+        /// <summary>
+        /// Represents the Json serialization format.
+        /// </summary>
+        Json = 1
     }
 }

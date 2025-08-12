@@ -102,6 +102,11 @@ namespace OpenSettings.AspNetCore.Services
 
         public void ReturnTo(ReturnToInput input)
         {
+            if (string.IsNullOrWhiteSpace(input.Uuid) || string.IsNullOrWhiteSpace(input.AccessToken))
+            {
+                return;
+            }
+
             var cacheKey = OpenSettingsDefaults.Caches.AuthServiceUuidCacheEntry.GetKey(input.Uuid);
 
             cacheKey.Set(_openSettingsMemoryCache, input.AccessToken);
@@ -124,11 +129,6 @@ namespace OpenSettings.AspNetCore.Services
 
                 using (var response = await httpClient.SendAsync(httpRequestMessage, cancellationToken))
                 {
-                    if (!response.IsSuccessStatusCode)
-                    {
-                        return response.StatusCode.ToFailureResponse<GetIdentityResponse>();
-                    }
-
                     return await response.Content.ToResponseAsync<GetIdentityResponse>(cancellationToken: cancellationToken);
                 }
             }
@@ -143,23 +143,25 @@ namespace OpenSettings.AspNetCore.Services
                 throw new NotSupportedException();
             }
 
-            var authenticateResult = await httpContext.AuthenticateAsync(OpenSettingsDefaults.AuthSchemes.OAuth2JwtBearer);
-
             if (string.IsNullOrWhiteSpace(input.ReturnUrl))
             {
                 input.ReturnUrl = httpContext.Request.Headers[OpenSettingsDefaults.Headers.Referer].ToString().TrimEnd(OpenSettingsDefaults.Format.SlashChar);
             }
 
+            var baseUrl = $"{httpContext.Request.Scheme}://{httpContext.Request.Host}";
+
+            var authenticateResult = await httpContext.AuthenticateAsync(OpenSettingsDefaults.AuthSchemes.OAuth2JwtBearer);
+
             if (!authenticateResult.Succeeded)
             {
                 if (string.IsNullOrWhiteSpace(input.ReturnUrl))
                 {
-                    input.ReturnUrl = $"{httpContext.Request.Scheme}://{httpContext.Request.Host}/";
+                    input.ReturnUrl = $"{baseUrl}/";
                 }
 
                 if (string.IsNullOrEmpty(input.ApiUrl))
                 {
-                    input.ApiUrl = $"{httpContext.Request.Scheme}://{httpContext.Request.Host}/{_openSettingsConfiguration.Controller.Route}";
+                    input.ApiUrl = $"{baseUrl}/{_openSettingsConfiguration.Controller.Route}";
                 }
 
                 var redirectLoginUrl = $"{_openSettingsConfiguration.Consumer.ProviderUrl}v1/auth/login?returnUrl={input.ReturnUrl}&apiUrl={input.ApiUrl}&uuid={input.Uuid}";
@@ -170,23 +172,21 @@ namespace OpenSettings.AspNetCore.Services
 
             if (authenticateResult.Properties != null)
             {
-                if (authenticateResult.Properties.Items.TryGetValue(Keys.ReturnUrl, out var returnUrlFromItem) && string.IsNullOrWhiteSpace(input.ReturnUrl))
+                if (authenticateResult.Properties.Items.TryGetValue(OpenSettingsDefaults.Keys.AuthService.ReturnUrl, out var returnUrlFromItem) && string.IsNullOrWhiteSpace(input.ReturnUrl))
                 {
                     input.ReturnUrl = returnUrlFromItem ?? string.Empty;
                 }
 
-                if (authenticateResult.Properties.Items.TryGetValue(Keys.ApiUrl, out var apiUrlFromItem) && string.IsNullOrWhiteSpace(input.ApiUrl))
+                if (authenticateResult.Properties.Items.TryGetValue(OpenSettingsDefaults.Keys.AuthService.ApiUrl, out var apiUrlFromItem) && string.IsNullOrWhiteSpace(input.ApiUrl))
                 {
                     input.ApiUrl = apiUrlFromItem ?? string.Empty;
                 }
 
-                if (authenticateResult.Properties.Items.TryGetValue(Keys.Uuid, out var uuidFromItem) && string.IsNullOrWhiteSpace(input.Uuid))
+                if (authenticateResult.Properties.Items.TryGetValue(OpenSettingsDefaults.Keys.AuthService.Uuid, out var uuidFromItem) && string.IsNullOrWhiteSpace(input.Uuid))
                 {
                     input.Uuid = uuidFromItem;
                 }
             }
-
-            var baseUrl = GetBaseUrl(httpContext);
 
             if (input.ApiUrl.StartsWith(baseUrl))
             {
@@ -222,19 +222,21 @@ namespace OpenSettings.AspNetCore.Services
                 throw new NotSupportedException();
             }
 
+            var baseUrl = $"{httpContext.Request.Scheme}://{httpContext.Request.Host}";
+
             if (string.IsNullOrWhiteSpace(input.ReturnUrl))
             {
                 input.ReturnUrl = httpContext.Request.Headers[OpenSettingsDefaults.Headers.Referer].ToString().TrimEnd(OpenSettingsDefaults.Format.SlashChar);
 
                 if (string.IsNullOrWhiteSpace(input.ReturnUrl))
                 {
-                    input.ReturnUrl = GetBaseUrl(httpContext);
+                    input.ReturnUrl = $"{baseUrl}/"; ;
                 }
             }
 
             if (string.IsNullOrEmpty(input.ApiUrl))
             {
-                input.ApiUrl = $"{GetBaseUrl(httpContext)}/{_openSettingsConfiguration.Controller.Route}";
+                input.ApiUrl = $"{baseUrl}/{_openSettingsConfiguration.Controller.Route}";
             }
 
             var redirectLogoutUrl = $"{_openSettingsConfiguration.Consumer.ProviderUrl}v1/auth/logout?returnUrl={input.ReturnUrl}&apiUrl={input.ApiUrl}";
@@ -247,18 +249,6 @@ namespace OpenSettings.AspNetCore.Services
         private HttpClient GetProviderHttpClient()
         {
             return _httpClientFactory.CreateOpenSettingsProviderHttpClient();
-        }
-
-        private static string GetBaseUrl(HttpContext httpContext)
-        {
-            return $"{httpContext.Request.Scheme}://{httpContext.Request.Host}";
-        }
-
-        private static class Keys
-        {
-            public const string ReturnUrl = "ReturnUrl";
-            public const string ApiUrl = "ApiUrl";
-            public const string Uuid = "uuid";
         }
     }
 }

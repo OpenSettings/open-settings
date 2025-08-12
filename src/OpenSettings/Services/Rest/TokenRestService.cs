@@ -70,6 +70,18 @@ namespace OpenSettings.Services.Rest
             }
         }
 
+        public async Task<string> GetPublicJwksAsync(CancellationToken cancellationToken)
+        {
+            const string relativeUri = "v1/token/jwks";
+
+            var httpClient = GetProviderHttpClient();
+
+            using (var response = await httpClient.GetAsync(relativeUri, cancellationToken))
+            {
+                return await response.Content.ReadAsStringAsync();
+            }
+        }
+
         private HttpClient GetProviderHttpClient()
         {
             return _httpClientFactory.CreateOpenSettingsProviderHttpClient();

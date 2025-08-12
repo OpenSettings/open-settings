@@ -22,17 +22,15 @@ namespace OpenSettings.AspNetCore.Services
     internal sealed class AuthService : IAuthService
     {
         private readonly ILogger _logger;
-        private readonly IOpenSettingsMemoryCache _openSettingsMemoryCache;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ITokenService _tokenService;
         private readonly OpenSettingsConfiguration _openSettingsConfiguration;
         private readonly ProviderInfo _providerInfo;
 
-        public AuthService(ILogger<AuthService> logger, IOpenSettingsMemoryCache openSettingsMemoryCache, IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor, ITokenService tokenService, OpenSettingsConfiguration openSettingsConfiguration, ProviderInfo providerInfo)
+        public AuthService(ILogger<AuthService> logger, IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor, ITokenService tokenService, OpenSettingsConfiguration openSettingsConfiguration, ProviderInfo providerInfo)
         {
             _logger = logger;
-            _openSettingsMemoryCache = openSettingsMemoryCache;
             _httpClientFactory = httpClientFactory;
             _httpContextAccessor = httpContextAccessor;
             _tokenService = tokenService;
@@ -160,23 +158,25 @@ namespace OpenSettings.AspNetCore.Services
                 throw new NotSupportedException();
             }
 
-            var authenticateResult = await httpContext.AuthenticateAsync(OpenSettingsDefaults.AuthSchemes.OAuth2);
-
             if (string.IsNullOrWhiteSpace(input.ReturnUrl))
             {
                 input.ReturnUrl = httpContext.Request.Headers[OpenSettingsDefaults.Headers.Referer].ToString().TrimEnd(OpenSettingsDefaults.Format.SlashChar);
             }
 
+            var baseUrl = $"{httpContext.Request.Scheme}://{httpContext.Request.Host}";
+
+            var authenticateResult = await httpContext.AuthenticateAsync(OpenSettingsDefaults.AuthSchemes.OAuth2);
+
             if (!authenticateResult.Succeeded)
             {
                 if (string.IsNullOrWhiteSpace(input.ReturnUrl))
                 {
-                    input.ReturnUrl = $"{httpContext.Request.Scheme}://{httpContext.Request.Host}/";
+                    input.ReturnUrl = $"{baseUrl}/";
                 }
 
                 if (string.IsNullOrEmpty(input.ApiUrl))
                 {
-                    input.ApiUrl = $"{httpContext.Request.Scheme}://{httpContext.Request.Host}/{_openSettingsConfiguration.Controller.Route}";
+                    input.ApiUrl = $"{baseUrl}/{_openSettingsConfiguration.Controller.Route}";
                 }
 
                 try
@@ -215,8 +215,6 @@ namespace OpenSettings.AspNetCore.Services
                     input.Uuid = uuidFromItem;
                 }
             }
-
-            var baseUrl = $"{httpContext.Request.Scheme}://{httpContext.Request.Host}";
 
             if (input.ApiUrl.StartsWith(baseUrl))
             {
@@ -290,6 +288,11 @@ namespace OpenSettings.AspNetCore.Services
 
                 await httpContext.Response.WriteAsync("Identity service isn't accessible at this moment!", cancellationToken);
             }
+        }
+
+        public async Task GetPublicJwksAsync()
+        {
+
         }
     }
 }

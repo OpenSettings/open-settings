@@ -7,8 +7,10 @@ using OpenSettings.Configurations;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Services.Interfaces;
 using System.Net;
+using System.Net.Mime;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc.Formatters;
 
 namespace OpenSettings.AspNetCore.Controllers.v1
 {
@@ -57,6 +59,14 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             var response = await _tokenService.RefreshOAuth2TokenAsync(authHeader.Parameter, cancellationToken);
 
             return response.ToAction();
+        }
+
+        [HttpGet("jwks")]
+        public async Task<IActionResult> GetPublicJwks(CancellationToken cancellationToken = default)
+        {
+            var jwks = await _tokenService.GetPublicJwksAsync(cancellationToken);
+
+            return Content(jwks, OpenSettingsDefaults.ContentTypes.ApplicationJson);
         }
     }
 }

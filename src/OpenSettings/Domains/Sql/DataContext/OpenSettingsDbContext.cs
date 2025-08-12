@@ -153,6 +153,16 @@ namespace OpenSettings.Domains.Sql.DataContext
         /// </summary>
         public DbSet<ProviderRegistrySqlModel> ProviderRegistries { get; set; }
 
+        /// <summary>
+        /// Gets or sets the <see cref="DbSet{GlobalConfigurationSqlModel}"/> for managing GlobalConfigurations.
+        /// </summary>
+        public DbSet<GlobalConfigurationSqlModel> GlobalConfigurations { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="DbSet{GlobalConfigurationHistorySqlModel}"/> for managing GlobalConfigurationHistories.
+        /// </summary>
+        public DbSet<GlobalConfigurationHistorySqlModel> GlobalConfigurationHistories { get; set; }
+
         public virtual void Detach(object entity)
         {
             Entry(entity).State = EntityState.Detached;

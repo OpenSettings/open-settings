@@ -75,6 +75,8 @@ namespace OpenSettings.AspNetCore.Extensions
                         jwtBearerOpts.SaveToken = true;
                         jwtBearerOpts.TokenValidationParameters = new TokenValidationParameters
                         {
+                            //ValidateIssuer = true,
+                            //ValidIssuer = providerInfo.OAuth2.Authority,
                             ValidateAudience = false
                         };
                     });
@@ -149,9 +151,9 @@ namespace OpenSettings.AspNetCore.Extensions
                 authenticationBuilder.AddMachineToMachineJwtBearerForConsumer(providerInfo, client);
             }
 
-            services.AddTransient<OpenSettingsRestServiceAuthHandler>();
+            services.AddTransient<RestServiceHandler>();
 
-            services.AddHttpClient(OpenSettingsDefaults.Names.ProviderHttpClientName).AddHttpMessageHandler<OpenSettingsRestServiceAuthHandler>();
+            services.AddHttpClient(OpenSettingsDefaults.Names.ProviderHttpClientName).AddHttpMessageHandler<RestServiceHandler>();
 
             services.AddSingleton<IAuthRestService, AuthRestService>();
             services.AddSingleton<IAuthService>(sp => sp.GetRequiredService<IAuthRestService>());
@@ -217,11 +219,13 @@ namespace OpenSettings.AspNetCore.Extensions
 
                   var route = $"/{controllerConfiguration.Route}";
 
+                  PathString routeAsPathString = route;
+
                   opts.Events = new OpenIdConnectEvents
                   {
                       OnRedirectToIdentityProvider = context =>
                       {
-                          if (context.Request.Path.StartsWithSegments(route) && context.Request.Path.Value != apiLoginRoute)
+                          if (context.Request.Path.StartsWithSegments(routeAsPathString) && context.Request.Path.Value != apiLoginRoute)
                           {
                               context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                               context.HandleResponse();
@@ -237,13 +241,13 @@ namespace OpenSettings.AspNetCore.Extensions
 
                           if (user == null)
                           {
-                              context.Fail("ProviderId couldn't be obtain");
+                              context.Fail("ExternalId couldn't be obtain.");
                               return;
                           }
 
                           if (!user.IsActive)
                           {
-                              context.Fail("User access disabled");
+                              context.Fail("User access disabled.");
                               return;
                           }
 
@@ -265,9 +269,8 @@ namespace OpenSettings.AspNetCore.Extensions
                               return Task.CompletedTask;
                           }
 
-                          var returnUrl = context.Properties?.Items[OpenSettingsDefaults.Keys.AuthService.ReturnUrl];
-
-                          if (string.IsNullOrWhiteSpace(returnUrl))
+                          if (context.Properties?.Items.TryGetValue(OpenSettingsDefaults.Keys.AuthService.ReturnUrl, out var returnUrl) != true ||
+                              string.IsNullOrWhiteSpace(returnUrl))
                           {
                               return Task.CompletedTask;
                           }

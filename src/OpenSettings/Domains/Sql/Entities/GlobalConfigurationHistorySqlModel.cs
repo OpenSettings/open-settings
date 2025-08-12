@@ -36,8 +36,6 @@ namespace OpenSettings.Domains.Sql.Entities
 
         /// <summary>
         /// Defines the serialization type used for data serialization and deserialization.
-        /// Currently, only <see cref="Models.SerializerType.Json"/> is supported.
-        /// Future support for other formats may be added.
         /// </summary>
         public SerializerType SerializerType { get; set; }
 

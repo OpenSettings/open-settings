@@ -78,7 +78,7 @@ namespace OpenSettings.Helpers
             return string.IsNullOrWhiteSpace(value) ? "Production" : value;
         }
 
-        internal static string GenerateSettingVersion(DateTime currentTime, DateTime createdOn)
+        internal static string GenerateVersion(DateTime currentTime, DateTime createdOn)
         {
             return $"{(currentTime.Ticks - createdOn.Ticks) / 10_000.0}{GenerateRandomCharacters(3)}";
         }

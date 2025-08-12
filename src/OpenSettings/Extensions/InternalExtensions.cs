@@ -78,6 +78,14 @@ namespace OpenSettings.Extensions
             return Encoding.UTF8.GetString(await compressionProvider.DecompressAsync(compressionType, data, cancellationToken));
         }
 
+        internal static async Task<T> DecompressJsonDataAsync<T>(this ICompressionProvider compressionProvider, CompressionType compressionType, byte[] data, CancellationToken cancellationToken = default)
+        {
+            using (var decompressedData = await compressionProvider.DecompressToStreamAsync(compressionType, data, cancellationToken))
+            {
+                return JsonSerializer.Deserialize<T>(decompressedData);
+            }
+        }
+
         internal static RedisMessage ToRedisMessage(this RedisValue redisValue)
         {
             return JsonSerializer.Deserialize<RedisMessage>(redisValue.ToString());

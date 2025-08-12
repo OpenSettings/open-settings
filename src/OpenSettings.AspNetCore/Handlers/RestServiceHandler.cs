@@ -14,14 +14,14 @@ using System.Threading.Tasks;
 
 namespace OpenSettings.AspNetCore.Handlers
 {
-    internal class OpenSettingsRestServiceAuthHandler : DelegatingHandler
+    internal class RestServiceHandler : DelegatingHandler
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ITokenService _tokenService;
         private readonly IOpenSettingsMemoryCache _openSettingsMemoryCache;
         private readonly ProviderInfo _providerInfo;
 
-        public OpenSettingsRestServiceAuthHandler(IHttpContextAccessor httpContextAccessor, ITokenService tokenService, IOpenSettingsMemoryCache openSettingsMemoryCache, ProviderInfo providerInfo)
+        public RestServiceHandler(IHttpContextAccessor httpContextAccessor, ITokenService tokenService, IOpenSettingsMemoryCache openSettingsMemoryCache, ProviderInfo providerInfo)
         {
             _httpContextAccessor = httpContextAccessor;
             _tokenService = tokenService;

@@ -611,7 +611,6 @@ namespace OpenSettings.Services.Sql
                 CreatedById = input.CreatedById
             };
 
-
             if (input.Group != null)
             {
                 var groupJsonResponse = await _appGroupSqlService.GetOrCreateAsync(input.Group.Name, SetSortOrderPosition.Bottom, input.CreatedById, cancellationToken);
@@ -660,7 +659,14 @@ namespace OpenSettings.Services.Sql
                 var trimmedTagNameLowercase = tagName.ToLowerInvariant();
                 var tagSlug = tagName.ToSlug();
 
-                newTags.Add(new TagSqlModel { Name = tagName, NameLowercase = trimmedTagNameLowercase, Slug = tagSlug, CreatedById = input.CreatedById, CreatedOn = currentTime });
+                newTags.Add(new TagSqlModel
+                {
+                    Name = tagName, 
+                    NameLowercase = trimmedTagNameLowercase, 
+                    Slug = tagSlug, 
+                    CreatedById = input.CreatedById, 
+                    CreatedOn = currentTime
+                });
 
                 return 0;
 
@@ -1717,7 +1723,7 @@ namespace OpenSettings.Services.Sql
                     existingSetting.CompressionType = _openSettingsConfiguration.Provider.CompressionType;
                     existingSetting.CompressionLevel = _openSettingsConfiguration.Provider.CompressionLevel;
                     existingSetting.Data = await _compressionProvider.CompressAsync(_openSettingsConfiguration.Provider.CompressionType, data, _openSettingsConfiguration.Provider.CompressionLevel, cancellationToken);
-                    existingSetting.Version = Helper.GenerateSettingVersion(currentTime, existingSetting.CreatedOn);
+                    existingSetting.Version = Helper.GenerateVersion(currentTime, existingSetting.CreatedOn);
                     existingSetting.DataRestored = false;
                     existingSetting.UpdatedOn = currentTime;
                     existingSetting.UpdatedById = userId;

@@ -1085,7 +1085,7 @@ namespace OpenSettings.Services.Sql
             entity.CompressionType = _openSettingsConfiguration.Provider.CompressionType;
             entity.CompressionLevel = _openSettingsConfiguration.Provider.CompressionLevel;
             entity.Data = await _compressionProvider.CompressAsync(_openSettingsConfiguration.Provider.CompressionType, input.Data, _openSettingsConfiguration.Provider.CompressionLevel, cancellationToken);
-            entity.Version = Helper.GenerateSettingVersion(currentTime, entity.CreatedOn);
+            entity.Version = Helper.GenerateVersion(currentTime, entity.CreatedOn);
             entity.UpdatedOn = currentTime;
             entity.UpdatedById = input.UpdatedById;
             entity.DataRestored = false;

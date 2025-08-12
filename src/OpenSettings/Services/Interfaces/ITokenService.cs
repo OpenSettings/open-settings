@@ -76,5 +76,7 @@ namespace OpenSettings.Services.Interfaces
         /// <returns>A task of <see cref="IResponse{TData}"/> that represents the asynchronous operation, with a result of the refreshed <c>access token</c>.</returns>
         /// <exception cref="NotSupportedException">Thrown when OAuth2 Authority is missing.</exception>
         Task<IResponse<RefreshUserTokenResponse>> RefreshOAuth2TokenAsync(string accessToken, CancellationToken cancellationToken = default);
+
+        Task<string> GetPublicJwksAsync(CancellationToken cancellationToken);
     }
 }

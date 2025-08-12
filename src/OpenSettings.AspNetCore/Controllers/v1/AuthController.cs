@@ -49,27 +49,27 @@ namespace OpenSettings.AspNetCore.Controllers.v1
 
         [HttpGet("return-to")]
         [AllowAnonymous]
-        public IActionResult ReturnTo([FromQuery] string returnUrl, [FromQuery] string accessToken, [FromQuery] string uuid)
+        public IActionResult ReturnTo(ReturnToRequest request)
         {
             _authService.ReturnTo(new ReturnToInput
             {
-                ReturnUrl = returnUrl,
-                AccessToken = accessToken,
-                Uuid = uuid
+                ReturnUrl = request.ReturnUrl,
+                AccessToken = request.AccessToken,
+                Uuid = request.Uuid
             });
 
-            return Redirect(returnUrl);
+            return Redirect(request.ReturnUrl);
         }
 
         [HttpGet("login")]
         [AllowAnonymous]
-        public async Task<IActionResult> Login([FromQuery] string returnUrl, [FromQuery] string apiUrl, [FromQuery] string uuid)
+        public async Task<IActionResult> Login(LoginRequest request)
         {
             await _authService.LoginAsync(new LoginInput
             {
-                ReturnUrl = returnUrl,
-                ApiUrl = apiUrl,
-                Uuid = uuid
+                ReturnUrl = request.ReturnUrl,
+                ApiUrl = request.ApiUrl,
+                Uuid = request.Uuid
             });
 
             return new EmptyResult();
@@ -85,6 +85,12 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 ApiUrl = request.ApiUrl
             });
 
+            return new EmptyResult();
+        }
+
+        [HttpGet("jwks")]
+        public async Task<IActionResult> GetPublicJwks()
+        {
             return new EmptyResult();
         }
     }
