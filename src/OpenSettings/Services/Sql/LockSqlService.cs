@@ -47,7 +47,7 @@ namespace OpenSettings.Services.Sql
                 return;
             }
 
-            entity.ExpiryTime = input.ExpiryTime;
+            entity.ExpiryDate = input.ExpiryDate;
 
             await _context.SaveChangesAsync(cancellationToken);
 
@@ -79,7 +79,7 @@ namespace OpenSettings.Services.Sql
             {
                 Key = input.Key,
                 Owner = input.Owner,
-                ExpiryTime = DateTime.UtcNow.Add(input.Timeout)
+                ExpiryDate = DateTime.UtcNow.Add(input.Timeout)
             };
 
             _context.Locks.Add(entity);
@@ -89,13 +89,13 @@ namespace OpenSettings.Services.Sql
 
         private static bool HandleAcquireExistingLock(LockSqlModel entity, AcquireLockInput input)
         {
-            if (entity.ExpiryTime > DateTime.UtcNow)
+            if (entity.ExpiryDate > DateTime.UtcNow)
             {
                 return false;
             }
 
             entity.Owner = input.Owner;
-            entity.ExpiryTime = DateTime.UtcNow.Add(input.Timeout);
+            entity.ExpiryDate = DateTime.UtcNow.Add(input.Timeout);
 
             return true;
         }

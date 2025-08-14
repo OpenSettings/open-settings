@@ -22,9 +22,7 @@ using OpenSettings.Services.Sql;
 using OpenSettings.Services.Sql.Interfaces;
 using StackExchange.Redis;
 using System;
-using System.Text;
 using System.Threading.Channels;
-using Microsoft.IdentityModel.Tokens;
 
 namespace OpenSettings.Extensions
 {
@@ -132,8 +130,6 @@ namespace OpenSettings.Extensions
 
         private static void RegisterProviderServices(this IServiceCollection services, OpenSettingsConfiguration openSettingsConfiguration)
         {
-            OpenSettingsDefaults.Caches.SymmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes($"{openSettingsConfiguration.Client.Secret}"));
-
             if (openSettingsConfiguration.Provider.Redis.IsActive)
             {
                 services.RegisterRedisServiceCollection(openSettingsConfiguration.Provider.Redis.Configuration);
@@ -172,6 +168,7 @@ namespace OpenSettings.Extensions
             services.AddScoped<ITagSqlService, TagSqlService>();
             services.AddScoped<IUserNotificationMappingSqlService, UserNotificationMappingSqlService>();
             services.AddScoped<IUserSqlService, UserSqlService>();
+            services.AddScoped<IGlobalConfigurationSqlService, GlobalConfigurationSqlService>();
             services.AddSingleton<IOpenSettingsService, OpenSettingsService>();
             services.AddSingleton<ITokenSqlService, TokenSqlService>();
 
@@ -192,6 +189,7 @@ namespace OpenSettings.Extensions
             services.AddScoped<ITagsService>(sp => sp.GetRequiredService<ITagSqlService>());
             services.AddScoped<IUserNotificationMappingService>(sp => sp.GetRequiredService<IUserNotificationMappingSqlService>());
             services.AddScoped<IUserService>(sp => sp.GetRequiredService<IUserSqlService>());
+            services.AddScoped<IGlobalConfigurationService>(sp => sp.GetRequiredService<IGlobalConfigurationSqlService>());
             services.AddSingleton<ITokenService>(sp => sp.GetRequiredService<ITokenSqlService>());
 
             services.AddScoped<ILocalSettingsService, LocalSettingsService>();
@@ -225,7 +223,7 @@ namespace OpenSettings.Extensions
             }
 
             services.AddTransient<DecompressionHandler>();
-            services.AddTransient<MachineToMachineRequestHandler>();
+            services.AddTransient<ConsumerToProviderRequestHandler>();
 
             services
                 .AddHttpClient(OpenSettingsDefaults.Names.ProviderHttpClientName, (sp, httpClient) =>
@@ -233,7 +231,7 @@ namespace OpenSettings.Extensions
                     openSettingsConfiguration.Consumer.ConfigureHttpClient(httpClient, openSettingsConfiguration.Client);
                 })
                 .AddHttpMessageHandler<DecompressionHandler>()
-                .AddHttpMessageHandler<MachineToMachineRequestHandler>();
+                .AddHttpMessageHandler<ConsumerToProviderRequestHandler>();
 
             services.AddSingleton<IAppGroupRestService, AppGroupRestService>();
             services.AddSingleton<IAppIdentifierMappingRestService, AppIdentifierMappingsRestService>();

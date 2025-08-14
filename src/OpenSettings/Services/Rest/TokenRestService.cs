@@ -22,9 +22,9 @@ namespace OpenSettings.Services.Rest
             _httpClientFactory = httpClientFactory;
         }
 
-        public async Task<IResponse<GenerateMachineToMachineTokenResponse>> GenerateMachineToMachineTokenAsync(GenerateMachineToMachineTokenInput input, CancellationToken cancellationToken)
+        public async Task<IResponse<GenerateTokenResponse>> GenerateTokenForMachineAsync(GenerateTokenForMachineInput input, CancellationToken cancellationToken)
         {
-            const string relativeUri = "v1/token/m2m";
+            const string relativeUri = "v1/token/machine";
 
             var body = new
             {
@@ -41,45 +41,23 @@ namespace OpenSettings.Services.Rest
             {
                 using (var response = await httpClient.PostAsync(relativeUri, jsonContent, cancellationToken))
                 {
-                    return await response.Content.ToResponseAsync<GenerateMachineToMachineTokenResponse>(cancellationToken: cancellationToken);
+                    return await response.Content.ToResponseAsync<GenerateTokenResponse>(cancellationToken: cancellationToken);
                 }
             }
         }
 
-        public ValueTask<bool> IsOAuth2TokenExpiredAsync(JwtSecurityToken jwtSecurityToken, Func<Task<string>> refreshTokenRetrieveFunc)
+        public Task<string> GetPublicJwksAsync(CancellationToken cancellationToken = default)
         {
-            throw new NotSupportedException();
-        }
+            throw new NotSupportedException(nameof(GetPublicJwksAsync));
 
-        public ValueTask<bool> IsOAuth2TokenExpiredAsync(string accessToken, Func<Task<string>> refreshTokenRetrieveFunc)
-        {
-            throw new NotSupportedException();
-        }
+            //const string relativeUri = "v1/token/jwks";
 
-        public async Task<IResponse<RefreshUserTokenResponse>> RefreshOAuth2TokenAsync(string accessToken, CancellationToken cancellationToken = default)
-        {
-            var refreshTokenRequest = new HttpRequestMessage(HttpMethod.Post, "v1/token/refresh/oauth2");
+            //var httpClient = GetProviderHttpClient();
 
-            refreshTokenRequest.Headers.Authorization = new AuthenticationHeaderValue(OpenSettingsDefaults.Names.JwtBearerSchemaName, accessToken);
-
-            var httpClient = GetProviderHttpClient();
-
-            using (var response = await httpClient.SendAsync(refreshTokenRequest, cancellationToken))
-            {
-                return await response.Content.ToResponseAsync<RefreshUserTokenResponse>(cancellationToken: cancellationToken);
-            }
-        }
-
-        public async Task<string> GetPublicJwksAsync(CancellationToken cancellationToken)
-        {
-            const string relativeUri = "v1/token/jwks";
-
-            var httpClient = GetProviderHttpClient();
-
-            using (var response = await httpClient.GetAsync(relativeUri, cancellationToken))
-            {
-                return await response.Content.ReadAsStringAsync();
-            }
+            //using (var response = await httpClient.GetAsync(relativeUri))
+            //{
+            //    return await response.Content.ReadAsStringAsync();
+            //}
         }
 
         private HttpClient GetProviderHttpClient()

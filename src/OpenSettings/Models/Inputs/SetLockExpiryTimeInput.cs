@@ -8,6 +8,6 @@ namespace OpenSettings.Models.Inputs
 
         public string Owner { get; set; }
 
-        public DateTime ExpiryTime { get; set; }
+        public DateTime ExpiryDate { get; set; }
     }
 }

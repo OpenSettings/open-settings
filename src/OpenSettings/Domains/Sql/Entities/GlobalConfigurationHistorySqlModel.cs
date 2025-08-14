@@ -75,6 +75,11 @@ namespace OpenSettings.Domains.Sql.Entities
         public override DateTime? UpdatedOn { get; set; }
 
         /// <summary>
+        /// The date and time when the entity was last restored, or <c>null</c> if never restored.
+        /// </summary>
+        public DateTime? RestoredOn { get; set; }
+
+        /// <summary>
         /// The id of the user who last restored this global configuration history.
         /// </summary>
         public Guid? RestoredById { get; set; }

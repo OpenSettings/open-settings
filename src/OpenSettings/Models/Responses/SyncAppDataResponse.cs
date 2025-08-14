@@ -100,6 +100,7 @@ namespace OpenSettings.Models.Responses
 
             return new ProviderInfo
             {
+                Url = null,
                 Client = new ProviderInfoClient
                 {
                     Id = openSettingsConfiguration.Client.Id,

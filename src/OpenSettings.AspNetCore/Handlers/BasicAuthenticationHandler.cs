@@ -4,7 +4,6 @@ using Microsoft.Extensions.Options;
 using OpenSettings.AspNetCore.Extensions;
 using OpenSettings.Configurations;
 using OpenSettings.Extensions;
-using OpenSettings.Helpers;
 using OpenSettings.Models;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Models.Responses;
@@ -112,7 +111,15 @@ namespace OpenSettings.AspNetCore.Handlers
                     }
                 }
 
-                var claims = Helper.GetOpenSettingsClaims(clientIdAsString, registeredApp.ClientName, AuthType.Machine, AuthMethod.Basic);
+                var openSettingsClaims = new OpenSettingsClaims
+                {
+                    UserId = clientId,
+                    DisplayName = registeredApp.ClientName,
+                    AuthType = AuthType.Machine,
+                    AuthMethod = AuthMethod.Basic,
+                };
+
+                var claims = openSettingsClaims.GenerateClaims();
 
                 var claimsIdentity = new ClaimsIdentity(claims, Scheme.Name);
 

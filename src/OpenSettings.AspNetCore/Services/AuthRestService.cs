@@ -78,7 +78,7 @@ namespace OpenSettings.AspNetCore.Services
             switch (authHeader.Scheme)
             {
                 case OpenSettingsDefaults.Names.JwtBearerSchemaName:
-                    authenticateResult = await httpContext.AuthenticateAsync(OpenSettingsDefaults.AuthSchemes.MachineToMachineJwtBearer);
+                    authenticateResult = await httpContext.AuthenticateAsync(OpenSettingsDefaults.AuthSchemes.JwtBearer);
                     break;
 
                 case OpenSettingsDefaults.Names.BasicSchemeName:
@@ -150,7 +150,7 @@ namespace OpenSettings.AspNetCore.Services
 
             var baseUrl = $"{httpContext.Request.Scheme}://{httpContext.Request.Host}";
 
-            var authenticateResult = await httpContext.AuthenticateAsync(OpenSettingsDefaults.AuthSchemes.OAuth2JwtBearer);
+            var authenticateResult = await httpContext.AuthenticateAsync(OpenSettingsDefaults.AuthSchemes.JwtBearer);
 
             if (!authenticateResult.Succeeded)
             {
@@ -198,15 +198,15 @@ namespace OpenSettings.AspNetCore.Services
 
             // previously claims were stored in here!
 
-            var isUserTokenExpired = await _tokenService.IsOAuth2TokenExpiredAsync(accessToken,
-                () => httpContext.GetTokenAsync(OpenSettingsDefaults.AuthSchemes.Cookie,
-                    OpenSettingsDefaults.ClaimTypes.RefreshToken));
+            //var isUserTokenExpired = await _tokenService.IsOAuth2TokenExpiredAsync(accessToken,
+            //    () => httpContext.GetTokenAsync(OpenSettingsDefaults.AuthSchemes.Cookie,
+            //        OpenSettingsDefaults.ClaimTypes.RefreshToken));
 
-            if (isUserTokenExpired)
-            {
-                await httpContext.SignOutAsync(OpenSettingsDefaults.AuthSchemes.Cookie);
-                return;
-            }
+            //if (isUserTokenExpired)
+            //{
+            //    await httpContext.SignOutAsync(OpenSettingsDefaults.AuthSchemes.Cookie);
+            //    return;
+            //}
 
             var redirectReturnToUrl = $"{input.ApiUrl}/v1/auth/return-to?returnUrl={input.ReturnUrl}&accessToken={accessToken}&uuid={input.Uuid}";
 

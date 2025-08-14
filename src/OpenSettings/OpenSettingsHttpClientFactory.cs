@@ -12,7 +12,7 @@ namespace OpenSettings
     {
         private HttpClient _httpClient;
         private DecompressionHandler _decompressionHandler;
-        private MachineToMachineRequestHandler _machineToMachineRequestHandler;
+        private ConsumerToProviderRequestHandler _consumerToProviderRequestHandler;
         private HttpClientHandler _httpClientHandler;
 
         private readonly OpenSettingsConfiguration _openSettingsConfiguration;
@@ -34,26 +34,18 @@ namespace OpenSettings
                 return _httpClient;
             }
 
-            var compressionProvider = new CompressionProvider(new ICompression[]
-            {
-                new BrotliCompression(new BrotliCompressionOptions(_openSettingsConfiguration.Provider.CompressionLevel)),
-                new DeflateCompression(new DeflateCompressionOptions(_openSettingsConfiguration.Provider.CompressionLevel)),
-                new GzipCompression(new GzipCompressionOptions(_openSettingsConfiguration.Provider.CompressionLevel)),
-                new SnappyCompression(new SnappyCompressionOptions(_openSettingsConfiguration.Provider.CompressionLevel)),
-                new ZstdCompression(new ZstdCompressionOptions(_openSettingsConfiguration.Provider.CompressionLevel)),
-                new NoneCompression(new NoneCompressionOptions(_openSettingsConfiguration.Provider.CompressionLevel))
-            });
+            var compressionProvider = _openSettingsConfiguration.Provider.CreateCompressionProvider();
 
             _httpClientHandler = new HttpClientHandler();
 
-            _machineToMachineRequestHandler = new MachineToMachineRequestHandler(OpenSettingsDefaults.Caches.GetOpenSettingsMemoryCache(_openSettingsConfiguration.LoggerFactory), new TokenRestService(this), _openSettingsConfiguration)
+            _consumerToProviderRequestHandler = new ConsumerToProviderRequestHandler(OpenSettingsDefaults.Caches.GetOpenSettingsMemoryCache(_openSettingsConfiguration.LoggerFactory), new TokenRestService(this), _openSettingsConfiguration)
             {
                 InnerHandler = _httpClientHandler
             };
 
             _decompressionHandler = new DecompressionHandler(compressionProvider)
             {
-                InnerHandler = _machineToMachineRequestHandler
+                InnerHandler = _consumerToProviderRequestHandler
             };
 
             _httpClient = new HttpClient(_decompressionHandler);

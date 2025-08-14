@@ -28,18 +28,6 @@ namespace OpenSettings.Helpers
             return parts.Length == 0 ? string.Empty : string.Join(string.Empty, parts.Select(p => p[0])).ToUpper();
         }
 
-        public static Claim[] GetOpenSettingsClaims(string id, string displayName, AuthType authType, AuthMethod authMethod, string initials = null)
-        {
-            return new Claim[]
-            {
-                new Claim(OpenSettingsDefaults.ClaimTypes.DbUserId, id),
-                new Claim(OpenSettingsDefaults.ClaimTypes.DbUserDisplayName, displayName),
-                new Claim(OpenSettingsDefaults.ClaimTypes.DbUserInitials, initials ?? GetInitials(displayName)),
-                new Claim(OpenSettingsDefaults.ClaimTypes.AuthType, $"{authType}"),
-                new Claim(OpenSettingsDefaults.ClaimTypes.AuthMethod, $"{authMethod}")
-            };
-        }
-
         /// <summary>
         /// Indicates whether the application is running in "Migration" mode.
         /// Used to determine if Entity Framework Core migration should be generated.

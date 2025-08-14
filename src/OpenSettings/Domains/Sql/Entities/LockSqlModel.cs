@@ -22,6 +22,6 @@ namespace OpenSettings.Domains.Sql.Entities
         /// <summary>
         /// The expiry time of the lock.
         /// </summary>
-        public DateTime ExpiryTime { get; set; }
+        public DateTime ExpiryDate { get; set; }
     }
 }

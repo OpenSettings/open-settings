@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Ogu.Compressions;
 using Ogu.Compressions.Abstractions;
 using OpenSettings.Domains.Sql.DataContext;
 using OpenSettings.Extensions;
@@ -104,13 +105,13 @@ namespace OpenSettings.Configurations
         public bool IsOrmSelected { get; private set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the database has been migrated, it is used for internal purposes.
+        /// Gets or sets a value indicating whether the database has been initialized, it is used for internal purposes.
         /// </summary>
         /// <remarks>
         /// This property is ignored in Json serialization.
         /// </remarks>
         [JsonIgnore]
-        internal bool IsDbMigrated { get; set; }
+        internal bool IsDbInitialized { get; set; }
 
         /// <summary>
         /// Gets or sets the license key. This property is ignored in Json serialization.
@@ -150,16 +151,32 @@ namespace OpenSettings.Configurations
             }
         }
 
-        internal async Task InitializeDbAsync(OpenSettingsDbContext context, CancellationToken cancellationToken)
+        internal async ValueTask InitializeDbAsync(OpenSettingsDbContext context, CancellationToken cancellationToken)
         {
-            if (!context.Database.IsInMemory() && !IsDbMigrated)
+            if (IsDbInitialized)
             {
-                await context.Database.MigrateAsync(cancellationToken);
-
-                IsDbMigrated = true;
+                return;
             }
 
-            Orm.DbProviderName = context.Database.ProviderName?.Split(OpenSettingsDefaults.Format.DotChar).LastOrDefault() ?? "Unknown"; // Todo : unknown to Defaults
+            if (!context.Database.IsInMemory())
+            {
+                await context.Database.MigrateAsync(cancellationToken);
+            }
+
+            Orm.DbProviderName = context.Database.ProviderName?.Split(OpenSettingsDefaults.Format.DotChar).LastOrDefault() ?? OpenSettingsDefaults.Names.Unknown;
+        }
+
+        internal CompressionProvider CreateCompressionProvider()
+        {
+            return new CompressionProvider(new ICompression[]
+            {
+                new BrotliCompression(new Ogu.Compressions.BrotliCompressionOptions(CompressionLevel)),
+                new DeflateCompression(new DeflateCompressionOptions(CompressionLevel)),
+                new GzipCompression(new GzipCompressionOptions(CompressionLevel)),
+                new SnappyCompression(new SnappyCompressionOptions(CompressionLevel)),
+                new ZstdCompression(new ZstdCompressionOptions(CompressionLevel)),
+                new NoneCompression(new NoneCompressionOptions(CompressionLevel))
+            });
         }
     }
 }

@@ -628,9 +628,9 @@ namespace OpenSettings.Services.Sql
 
                     if (cacheControl.MaxAge.HasValue)
                     {
-                        setLockExpiryTimeInput.ExpiryTime = Helper.GetExpiryTime(notificationsResponse.Expires);
+                        setLockExpiryTimeInput.ExpiryDate = Helper.GetExpiryTime(notificationsResponse.Expires);
 
-                        if (setLockExpiryTimeInput.ExpiryTime > currentTime)
+                        if (setLockExpiryTimeInput.ExpiryDate > currentTime)
                         {
                             await _locksService.SetLockExpiryTimeAsync(setLockExpiryTimeInput, cancellationToken);
                         }
@@ -822,7 +822,7 @@ namespace OpenSettings.Services.Sql
 
         private async Task IncludeLicenseExpiryNotificationIfAnyAsync(GetAvailableNotificationsResponse response, CancellationToken cancellationToken)
         {
-            var currentLicense = LicenseProvider.Instance.CurrentLicense;
+            var currentLicense = LicenseProvider.Instance.License;
 
             if (!currentLicense.ExpiryDate.HasValue || currentLicense.ExpiryDate.Value.Date > DateTime.UtcNow.Date.AddDays(5))
             {

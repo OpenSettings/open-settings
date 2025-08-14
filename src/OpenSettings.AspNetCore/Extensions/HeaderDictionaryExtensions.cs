@@ -37,6 +37,15 @@ namespace OpenSettings.AspNetCore.Extensions
                 : AuthMethod.Unset;
         }
 
+        internal static Guid? GetClientIdHeaderValueOrDefault(this IHeaderDictionary headerDictionary)
+        {
+            return TryGetHeaderValue(headerDictionary, OpenSettingsDefaults.Headers.ClientId,
+                       out var clientIdAsString) &&
+                   Guid.TryParse(clientIdAsString, out var clientId)
+                ? (Guid?)clientId
+                : null;
+        }
+
         internal static AuthenticationHeaderValue GetAuthenticationHeaderValueFromAuthorizationHeader(this IHeaderDictionary headerDictionary)
         {
             return TryGetHeaderValue(headerDictionary, OpenSettingsDefaults.Headers.Authorization, out var authorizationHeaderValueAsString) && 

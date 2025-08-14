@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
@@ -15,8 +16,10 @@ using OpenSettings.Models.Inputs;
 using OpenSettings.Models.Responses;
 using OpenSettings.Services.Interfaces;
 using OpenSettings.Services.Rest.Interfaces;
+using OpenSettings.Services.Sql.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
@@ -65,22 +68,6 @@ namespace OpenSettings.AspNetCore.Extensions
             mvcBuilder.Services.AddHttpContextAccessor();
 
             mvcBuilder.Services.AddHttpClient();
-
-            if (authorize && providerInfo.OAuth2.IsActive)
-            {
-                authenticationBuilder
-                    .AddJwtBearer(OpenSettingsDefaults.AuthSchemes.OAuth2JwtBearer, jwtBearerOpts =>
-                    {
-                        jwtBearerOpts.Authority = providerInfo.OAuth2.Authority;
-                        jwtBearerOpts.SaveToken = true;
-                        jwtBearerOpts.TokenValidationParameters = new TokenValidationParameters
-                        {
-                            //ValidateIssuer = true,
-                            //ValidIssuer = providerInfo.OAuth2.Authority,
-                            ValidateAudience = false
-                        };
-                    });
-            }
 
             var providerControllerType = typeof(ProviderController);
 
@@ -134,7 +121,7 @@ namespace OpenSettings.AspNetCore.Extensions
         {
             services.AddSingleton<IAuthService, AuthService>();
 
-            authenticationBuilder.AddMachineToMachineJwtBearerForProvider(providerInfo);
+            authenticationBuilder.AddJwtBearerForProvider(providerInfo);
 
             if (providerInfo.Authorize && providerInfo.OAuth2.IsActive)
             {
@@ -148,45 +135,61 @@ namespace OpenSettings.AspNetCore.Extensions
         {
             if (authorize)
             {
-                authenticationBuilder.AddMachineToMachineJwtBearerForConsumer(providerInfo, client);
+                authenticationBuilder.AddJwtBearerForConsumer(providerInfo, client);
             }
 
-            services.AddTransient<RestServiceHandler>();
+            services.AddTransient<UserConsumerToProviderRequestHandler>();
 
-            services.AddHttpClient(OpenSettingsDefaults.Names.ProviderHttpClientName).AddHttpMessageHandler<RestServiceHandler>();
+            services.AddHttpClient(OpenSettingsDefaults.Names.ProviderHttpClientName).AddHttpMessageHandler<UserConsumerToProviderRequestHandler>();
 
             services.AddSingleton<IAuthRestService, AuthRestService>();
             services.AddSingleton<IAuthService>(sp => sp.GetRequiredService<IAuthRestService>());
         }
 
-        private static AuthenticationBuilder AddMachineToMachineJwtBearerForProvider(this AuthenticationBuilder authenticationBuilder, ProviderInfo providerInfo)
+        private static void AddJwtBearerForProvider(this AuthenticationBuilder authenticationBuilder, ProviderInfo providerInfo)
         {
-            return authenticationBuilder.AddJwtBearer(OpenSettingsDefaults.AuthSchemes.MachineToMachineJwtBearer, opts =>
+            authenticationBuilder.AddJwtBearer(OpenSettingsDefaults.AuthSchemes.JwtBearer, opts =>
             {
                 opts.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,
-                    ValidateAudience = false,
-                    ValidateIssuerSigningKey = true,
                     ValidIssuer = providerInfo.Client.Name,
-                    SaveSigninToken = true,
-                    IssuerSigningKey = OpenSettingsDefaults.Caches.SymmetricSecurityKey
+                    ValidateIssuerSigningKey = true,
+                    ValidateAudience = false,
+                    ValidateLifetime = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(new byte[32])
+                };
+
+                opts.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = async context =>
+                    {
+                        var tokenSqlService = context.HttpContext.RequestServices.GetRequiredService<ITokenSqlService>();
+
+                        var providerTokenInfo = await tokenSqlService.GetProviderTokenInfoAsync(context.HttpContext.RequestAborted);
+
+                        if (!ReferenceEquals(context.Options.TokenValidationParameters.IssuerSigningKeys, providerTokenInfo.SigningKeys))
+                        {
+                            context.Options.TokenValidationParameters.IssuerSigningKeys = providerTokenInfo.SigningKeys;
+                        }
+                    }
                 };
             });
         }
 
-        private static AuthenticationBuilder AddMachineToMachineJwtBearerForConsumer(this AuthenticationBuilder authenticationBuilder, ProviderInfo providerInfo, SyncAppDataResponseClient client)
+        private static void AddJwtBearerForConsumer(this AuthenticationBuilder authenticationBuilder, ProviderInfo providerInfo, SyncAppDataResponseClient client)
         {
-            return authenticationBuilder.AddJwtBearer(OpenSettingsDefaults.AuthSchemes.MachineToMachineJwtBearer, opts =>
+            authenticationBuilder.AddJwtBearer(OpenSettingsDefaults.AuthSchemes.JwtBearer, opts =>
             {
+                opts.Authority = null; // -> not using discovery
+                opts.MetadataAddress = $"{providerInfo.Url}{OpenSettingsDefaults.Routes.V1.Token}/{OpenSettingsDefaults.Routes.V1.TokenEndpoints.GetPublicJwks}";
                 opts.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateIssuerSigningKey = false,
                     ValidIssuer = providerInfo.Client.Name,
-                    ValidAudience = client.Name,
-                    SaveSigninToken = true
+                    ValidateIssuerSigningKey = true,
+                    ValidateAudience = true,
+                    ValidAudience = client.Name
                 };
             });
         }
@@ -251,7 +254,36 @@ namespace OpenSettings.AspNetCore.Extensions
                               return;
                           }
 
-                          context.Principal?.AddIdentity(new ClaimsIdentity(Helpers.Helper.GetOpenSettingsClaims($"{user.Id}", user.DisplayName, AuthType.OAuth2, AuthMethod.Unset, user.Initials)));
+                          if (context.Properties == null)
+                          {
+                              return;
+                          }
+
+                          var tokenService = context.HttpContext.RequestServices.GetRequiredService<ITokenSqlService>();
+
+                          var tokenResponse = await tokenService.GenerateTokenForUserAsync(new GenerateTokenForUserInput
+                          {
+                              UserId = user.Id,
+                              UserInitials = user.Initials,
+                              DisplayName = user.DisplayName,
+                              Audience = context.Properties.Items.TryGetValue(OpenSettingsDefaults.Keys.AuthService.ClientId, out var clientId) ? clientId : null,
+                          }, context.HttpContext.RequestAborted);
+
+                          context.Properties.Items.Add(OpenSettingsDefaults.Keys.AuthService.AccessToken, tokenResponse.AccessToken);
+
+                          var claimsIdentity = context.Principal.Identity as ClaimsIdentity;
+
+                          if (claimsIdentity == null)
+                          {
+                              return;
+                          }
+
+                          foreach (var claim in claimsIdentity.Claims.ToArray())
+                          {
+                              claimsIdentity.RemoveClaim(claim);
+                          }
+
+                          context.Principal.AddIdentity(new ClaimsIdentity(tokenResponse.Claims));
                       },
                       OnRemoteFailure = context =>
                       {
@@ -293,16 +325,14 @@ namespace OpenSettings.AspNetCore.Extensions
         /// <remarks>Only called if Authorize is true. (Line : 120)</remarks>
         private static void ApplyConventionOptions(ControllerAuthorizeConventionOptions conventionOptions, ProviderInfo providerInfo, bool isServiceTypeProvider)
         {
-            var authSchemes = new List<string>(4) { OpenSettingsDefaults.AuthSchemes.Basic, OpenSettingsDefaults.AuthSchemes.MachineToMachineJwtBearer };
+            var authSchemes = new List<string>(4) { OpenSettingsDefaults.AuthSchemes.Basic, OpenSettingsDefaults.AuthSchemes.JwtBearer };
 
-            if (providerInfo.OAuth2.IsActive) 
+            if (providerInfo.OAuth2.IsActive)
             {
                 if (isServiceTypeProvider)
                 {
                     authSchemes.Add(OpenSettingsDefaults.AuthSchemes.OAuth2);
                 }
-
-                authSchemes.Add(OpenSettingsDefaults.AuthSchemes.OAuth2JwtBearer);
             }
 
             conventionOptions.AuthenticationSchemes = string.Join(OpenSettingsDefaults.Format.Comma, authSchemes);

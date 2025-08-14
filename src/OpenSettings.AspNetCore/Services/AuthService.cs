@@ -61,49 +61,11 @@ namespace OpenSettings.AspNetCore.Services
                 IsAuthenticated = false,
                 AccessToken = null
             });
-
-            // Looks like below not needed when it is m2m
-
-            var authHeader = httpContext.Request.Headers.GetAuthenticationHeaderValueFromAuthorizationHeader();
-
-            if (authHeader?.Parameter == null)
-            {
-                return HttpStatusCode.OK.ToSuccessResponseOf(new GetAuthStatusResponse
-                {
-                    IsAuthenticated = false,
-                    AccessToken = null
-                });
-            }
-
-            AuthenticateResult authenticateResult;
-
-            switch (authHeader.Scheme)
-            {
-                case OpenSettingsDefaults.Names.JwtBearerSchemaName:
-                    authenticateResult = await httpContext.AuthenticateAsync(OpenSettingsDefaults.AuthSchemes.MachineToMachineJwtBearer);
-                    break;
-
-                case OpenSettingsDefaults.Names.BasicSchemeName:
-                    authenticateResult = await httpContext.AuthenticateAsync(OpenSettingsDefaults.AuthSchemes.Basic);
-                    break;
-
-                default:
-                    return HttpStatusCode.OK.ToSuccessResponseOf(new GetAuthStatusResponse
-                    {
-                        IsAuthenticated = false,
-                        AccessToken = null
-                    });
-            }
-
-            return HttpStatusCode.OK.ToSuccessResponseOf(new GetAuthStatusResponse
-            {
-                IsAuthenticated = authenticateResult.Succeeded,
-                AccessToken = null
-            });
         }
 
         public void ReturnTo(ReturnToInput input)
         {
+
         }
 
         public Task<IResponse<GetIdentityResponse>> GetIdentityAsync(GetIdentityInput input, CancellationToken cancellationToken = default)
@@ -181,12 +143,22 @@ namespace OpenSettings.AspNetCore.Services
 
                 try
                 {
+                    var clientId = httpContext.Request.Headers.GetClientIdHeaderValueOrDefault();
+
+                    if (clientId == null)
+                    {
+                        // Todo: Spa needs to return client id in the header.
+                        //httpContext.Response.Redirect(input.ReturnUrl);
+                        //return;
+                    }
+
                     await httpContext.ChallengeAsync(OpenSettingsDefaults.AuthSchemes.OAuth2,
                         new AuthenticationProperties(new Dictionary<string, string>
                         {
                             { OpenSettingsDefaults.Keys.AuthService.ReturnUrl, input.ReturnUrl },
                             { OpenSettingsDefaults.Keys.AuthService.ApiUrl, input.ApiUrl },
-                            { OpenSettingsDefaults.Keys.AuthService.Uuid, input.Uuid }
+                            { OpenSettingsDefaults.Keys.AuthService.Uuid, input.Uuid },
+                            { OpenSettingsDefaults.Keys.AuthService.ClientId, $"{clientId}" },
                         }));
                 }
                 catch (Exception ex)
@@ -198,43 +170,40 @@ namespace OpenSettings.AspNetCore.Services
                 return;
             }
 
-            if (authenticateResult.Properties != null)
+            if (authenticateResult.Properties.Items.TryGetValue(OpenSettingsDefaults.Keys.AuthService.ReturnUrl, out var returnUrlFromItem) && string.IsNullOrWhiteSpace(input.ReturnUrl))
             {
-                if (authenticateResult.Properties.Items.TryGetValue(OpenSettingsDefaults.Keys.AuthService.ReturnUrl, out var returnUrlFromItem) && string.IsNullOrWhiteSpace(input.ReturnUrl))
-                {
-                    input.ReturnUrl = returnUrlFromItem ?? string.Empty;
-                }
-
-                if (authenticateResult.Properties.Items.TryGetValue(OpenSettingsDefaults.Keys.AuthService.ApiUrl, out var apiUrlFromItem) && string.IsNullOrWhiteSpace(input.ApiUrl))
-                {
-                    input.ApiUrl = apiUrlFromItem ?? string.Empty;
-                }
-
-                if (authenticateResult.Properties.Items.TryGetValue(OpenSettingsDefaults.Keys.AuthService.Uuid, out var uuidFromItem) && string.IsNullOrWhiteSpace(input.Uuid))
-                {
-                    input.Uuid = uuidFromItem;
-                }
+                input.ReturnUrl = returnUrlFromItem ?? string.Empty;
             }
 
-            if (input.ApiUrl.StartsWith(baseUrl))
+            if (authenticateResult.Properties.Items.TryGetValue(OpenSettingsDefaults.Keys.AuthService.ApiUrl, out var apiUrlFromItem) && string.IsNullOrWhiteSpace(input.ApiUrl))
             {
-                httpContext.Response.Redirect(input.ReturnUrl);
-                return;
+                input.ApiUrl = apiUrlFromItem ?? string.Empty;
             }
 
-            var accessToken = await httpContext.GetTokenAsync(OpenSettingsDefaults.AuthSchemes.Cookie, "access_token");
+            if (authenticateResult.Properties.Items.TryGetValue(OpenSettingsDefaults.Keys.AuthService.Uuid, out var uuidFromItem) && string.IsNullOrWhiteSpace(input.Uuid))
+            {
+                input.Uuid = uuidFromItem;
+            }
+
+            _ = authenticateResult.Properties.Items.TryGetValue(OpenSettingsDefaults.Keys.AuthService.AccessToken, out var accessToken);
+
+            //if (input.ApiUrl.StartsWith(baseUrl))
+            //{
+            //    httpContext.Response.Redirect(input.ReturnUrl);
+            //    return;
+            //}
 
             // previously claims were stored in here!
 
-            var isUserTokenExpired = await _tokenService.IsOAuth2TokenExpiredAsync(accessToken,
-                () => httpContext.GetTokenAsync(OpenSettingsDefaults.AuthSchemes.Cookie,
-                    OpenSettingsDefaults.ClaimTypes.RefreshToken));
+            //var isUserTokenExpired = await _tokenService.IsOAuth2TokenExpiredAsync(accessToken,
+            //    () => httpContext.GetTokenAsync(OpenSettingsDefaults.AuthSchemes.Cookie,
+            //        OpenSettingsDefaults.ClaimTypes.RefreshToken));
 
-            if (isUserTokenExpired)
-            {
-                await httpContext.SignOutAsync(OpenSettingsDefaults.AuthSchemes.Cookie);
-                return;
-            }
+            //if (isUserTokenExpired)
+            //{
+            //    await httpContext.SignOutAsync(OpenSettingsDefaults.AuthSchemes.Cookie);
+            //    return;
+            //}
 
             var redirectReturnToUrl = $"{input.ApiUrl}/v1/auth/return-to?returnUrl={input.ReturnUrl}&accessToken={accessToken}&uuid={input.Uuid}";
 

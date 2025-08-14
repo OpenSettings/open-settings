@@ -62,6 +62,8 @@ namespace OpenSettings.Domains.Sql.Entities
         /// </summary>
         public string GivenNameLowercase { get; set; }
 
+        public string MiddleName { get; set; }
+
         /// <summary>
         /// The family name 
         /// </summary>
@@ -99,10 +101,16 @@ namespace OpenSettings.Domains.Sql.Entities
         /// </summary>
         public string Initials { get; set; }
 
+        public string PictureUrl { get; set; }
+
+        public string Locale { get; set; }
+
         /// <summary>
         /// The date and time when the user last logged in.
         /// </summary>
         public DateTime LastLogin { get; set; }
+
+        public bool IsEmailVerified { get; set; }
 
         /// <summary>
         /// Indicates whether the user account is active.

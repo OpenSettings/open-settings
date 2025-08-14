@@ -77,16 +77,16 @@ namespace OpenSettings.Services.Sql
 
             var license = (License)response.Data;
 
-            var previousLicenseReferenceId = LicenseProvider.Instance.CurrentLicense.ReferenceId;
+            var previousLicenseReferenceId = LicenseProvider.Instance.License.ReferenceId;
 
-            LicenseProvider.Instance.CurrentLicense = (int)license.Edition > (int)LicenseProvider.Instance.CurrentLicense.Edition
+            LicenseProvider.Instance.License = (int)license.Edition > (int)LicenseProvider.Instance.License.Edition
                 ? license
-                : license.Edition == LicenseProvider.Instance.CurrentLicense.Edition && (license.ExpiryDate == null ||
-                    license.ExpiryDate > LicenseProvider.Instance.CurrentLicense.ExpiryDate)
+                : license.Edition == LicenseProvider.Instance.License.Edition && (license.ExpiryDate == null ||
+                    license.ExpiryDate > LicenseProvider.Instance.License.ExpiryDate)
                     ? license
-                    : LicenseProvider.Instance.CurrentLicense;
+                    : LicenseProvider.Instance.License;
 
-            if (previousLicenseReferenceId != LicenseProvider.Instance.CurrentLicense.ReferenceId)
+            if (previousLicenseReferenceId != LicenseProvider.Instance.License.ReferenceId)
             {
                 OpenSettingsDefaults.Caches.OpenSettingsSpaMiddlewareHtmlCacheEntryKey.Remove(_openSettingsMemoryCache);
             }
@@ -118,12 +118,12 @@ namespace OpenSettings.Services.Sql
 
             await _context.SaveChangesAsync(cancellationToken);
 
-            if (input.ReferenceId != LicenseProvider.Instance.CurrentLicense.ReferenceId)
+            if (input.ReferenceId != LicenseProvider.Instance.License.ReferenceId)
             {
                 return HttpStatusCode.OK.ToSuccessResponse();
             }
 
-            LicenseProvider.Instance.CurrentLicense = await InitializeAsync(CancellationToken.None) ?? License.Community;
+            LicenseProvider.Instance.License = await InitializeAsync(CancellationToken.None) ?? License.Community;
 
             OpenSettingsDefaults.Caches.OpenSettingsSpaMiddlewareHtmlCacheEntryKey.Remove(_openSettingsMemoryCache);
 
@@ -132,7 +132,7 @@ namespace OpenSettings.Services.Sql
 
         public async Task<IResponse<License>> GetCurrentLicenseAsync(CancellationToken cancellationToken)
         {
-            var license = LicenseProvider.Instance.CurrentLicense ?? (LicenseProvider.Instance.CurrentLicense = await InitializeAsync(cancellationToken));
+            var license = LicenseProvider.Instance.License ?? (LicenseProvider.Instance.License = await InitializeAsync(cancellationToken));
 
             return HttpStatusCode.OK.ToSuccessResponseOf(license);
         }

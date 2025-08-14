@@ -160,7 +160,7 @@ namespace OpenSettings.AspNetCore.Spa
 
                     var text = await OpenSettingsDefaults.Caches.OpenSettingsSpaMiddlewareHtmlCacheEntryKey.GetOrCreateAsync(_openSettingsMemoryCache, c =>
                     {
-                        _indexArguments[IndexArguments.License] = JsonSerializer.Serialize(LicenseProvider.Instance.CurrentLicense, _jsonSerializerOptions);
+                        _indexArguments[IndexArguments.License] = JsonSerializer.Serialize(LicenseProvider.Instance.License, _jsonSerializerOptions);
 
                         return BuildHtmlAsync(_openSettingsConfiguration.Spa.IndexStream, _indexArguments);
                     }).ConfigureAwait(false);

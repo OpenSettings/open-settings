@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
 using OpenSettings.Attributes;
 using OpenSettings.Models;
 using OpenSettings.Services;
@@ -9,6 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.Encodings.Web;
 using System.Text.Json;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace OpenSettings
 {
@@ -31,9 +31,11 @@ namespace OpenSettings
         {
             public class AuthService
             {
-                public const string ReturnUrl = "ReturnUrl";
-                public const string ApiUrl = "ApiUrl";
+                public const string ReturnUrl = "returnUrl";
+                public const string ApiUrl = "apiUrl";
                 public const string Uuid = "uuid";
+                public const string ClientId = "clientId";
+                public const string AccessToken = "accessToken";
             }
         }
 
@@ -87,6 +89,8 @@ namespace OpenSettings
             public const string JwtBearerSchemaName = "Bearer";
 
             internal const string RedisSubscriber = "OpenSettings";
+
+            internal const string Unknown = nameof(Unknown);
         }
 
 
@@ -283,6 +287,11 @@ namespace OpenSettings
                 /// The TokenController base route.
                 /// </summary>
                 public const string Token = "v1/token";
+
+                public static class TokenEndpoints
+                {
+                    public const string GetPublicJwks = "jwks";
+                }
             }
         }
 
@@ -307,14 +316,9 @@ namespace OpenSettings
             public const string OAuth2 = "OpenSettingsOAuth2";
 
             /// <summary>
-            /// The authentication scheme for Machine-To-Machine JWT Bearer Authentication in OpenSettings.
+            /// The authentication scheme for JWT Bearer Authentication in OpenSettings.
             /// </summary>
-            public const string MachineToMachineJwtBearer = "OpenSettingsM2MJwtBearer";
-
-            /// <summary>
-            /// The authentication scheme for OAuth2 JWT Bearer Authentication in OpenSettings.
-            /// </summary>
-            public const string OAuth2JwtBearer = "OpenSettingsOAuth2JwtBearer";
+            public const string JwtBearer = "OpenSettingsJwtBearer";
         }
 
         /// <summary>
@@ -392,7 +396,7 @@ namespace OpenSettings
         {
             public static TimeSpan TokenExpirySafetyMargin { get; } = TimeSpan.FromSeconds(30);
 
-            public static TimeSpan TokenExpiryTimeSpan { get; } = TimeSpan.FromHours(1);
+            public static TimeSpan TokenExpiryTime { get; } = TimeSpan.FromHours(1);
         }
 
         /// <summary>
@@ -412,11 +416,6 @@ namespace OpenSettings
             internal static ConcurrentDictionary<object, byte> CacheKeys { get; } = new ConcurrentDictionary<object, byte>();
 
             /// <summary>
-            /// The security key used in Provider mode to generate & validate machine-to-machine token.
-            /// </summary>
-            internal static SymmetricSecurityKey SymmetricSecurityKey { get; set; }
-
-            /// <summary>
             /// The cache key for the Settings Spa Middleware Html content.
             /// </summary>
             public static CacheEntryKey OpenSettingsSpaMiddlewareHtmlCacheEntryKey { get; } = new CacheEntry("ossm:html").GetKey();
@@ -430,8 +429,6 @@ namespace OpenSettings
 
             public static CacheEntry RestServiceAuthHandlerAccessTokenCacheEntry { get; } = new CacheEntry("ossrsah:gatk");
 
-            public static CacheEntry TokenServiceRefreshOAuth2TokenCacheEntry { get; } = new CacheEntry("ts:rt");
-
             public static CacheEntry TokenServiceGenerateMachineToMachineTokenCacheEntry { get; } = new CacheEntry("ts:gmtmt");
 
             public static CacheEntry AuthServiceUuidCacheEntry { get; } = new CacheEntry("asu:rt:at", TimeSpan.FromMinutes(5));
@@ -440,7 +437,29 @@ namespace OpenSettings
 
             public static CacheEntryKey OpenSettingsConfigsCacheEntryKey { get; } = OpenSettingsConfigsCacheEntry.GetKey();
 
-            public static CacheEntryKey MachineToMachineTokenCacheEntryKey { get; } = new CacheEntry("m2m:token").GetKey();
+            public static CacheEntryKey MachineTokenCacheEntryKey { get; } = new CacheEntry("machine:token").GetKey();
+
+            public static CacheEntryKey ProviderTokenInfoCacheEntryKey { get; } = new CacheEntry("tss:pti", TimeSpan.FromMinutes(10))
+            {
+                Options =
+                {
+                    PostEvictionCallbacks =
+                    {
+                        new PostEvictionCallbackRegistration
+                        {
+                            EvictionCallback = (key, value, reason, state) =>
+                            {
+                                var val = (ProviderTokenInfo)value;
+
+                                foreach (var signingKey in val.SigningKeys)
+                                {
+                                    signingKey.Rsa.Dispose();
+                                }
+                            }
+                        }
+                    }
+                }
+            }.GetKey();
 
             private static OpenSettingsMemoryCache _openSettingsMemoryCache;
 

@@ -32,7 +32,7 @@ namespace OpenSettings
         /// <see cref="Extensions.HostBuilderExtensions.UseOpenSettingsAsync(IHostBuilder, OpenSettingsConfiguration, Type[])"/> or
         /// <see cref="Extensions.HostBuilderExtensions.UseOpenSettingsAsync(IHostBuilder, OpenSettingsConfiguration, Func{IConfiguration, Task}, Type[])"/>.
         /// </summary>
-        public License CurrentLicense { get; internal set; }
+        public License License { get; internal set; }
 
         /// <summary>
         /// Initializes the license provider if it has not already been initialized. 
@@ -40,16 +40,16 @@ namespace OpenSettings
         /// based on the configuration settings.
         /// </summary>
         /// <param name="openSettingsConfiguration">The configuration settings for OpenSettings.</param>
-        /// <param name="cancellationToken">A token to cancel the operation if needed.</param>
+        /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
         internal Task InitializeAsync(OpenSettingsConfiguration openSettingsConfiguration, CancellationToken cancellationToken)
         {
-            if (CurrentLicense != null)
+            if (License != null)
             {
                 return Task.CompletedTask;
             }
 
-            var logger = openSettingsConfiguration.LoggerFactory.CreateLogger(nameof(LicenseProvider));
+            var logger = openSettingsConfiguration.LoggerFactory.CreateLogger<LicenseProvider>();
 
             return openSettingsConfiguration.IsConsumerSelected
                 ? InitializeConsumerLicenseAsync(logger, openSettingsConfiguration, cancellationToken)
@@ -68,20 +68,20 @@ namespace OpenSettings
 
                     if (response.Success)
                     {
-                        CurrentLicense = response.Data;
+                        License = response.Data;
                     }
                     else
                     {
-                        CurrentLicense = License.Community;
-                        CurrentLicense.FailureReasons.Add(LicenseFailureReason.RestFailure);
+                        License = License.Community;
+                        License.FailureReasons.Add(LicenseFailureReason.RestFailure);
                     }
                 }
                 catch (Exception ex)
                 {
                     logger.LogError(ex, "An exception occurred while license initialization for consumer. ProviderUrl: '{providerUrl}'. The fallback license edition is '{license}'.", openSettingsConfiguration.Consumer.ProviderUrl, nameof(License.Community));
 
-                    CurrentLicense = License.Community;
-                    CurrentLicense.FailureReasons.Add(LicenseFailureReason.RestException);
+                    License = License.Community;
+                    License.FailureReasons.Add(LicenseFailureReason.RestException);
                 }
             }
         }
@@ -98,15 +98,15 @@ namespace OpenSettings
 
                     var response = await licensesSqlService.GetCurrentLicenseAsync(cancellationToken);
 
-                    CurrentLicense = response.Data;
+                    License = response.Data;
                 }
             }
             catch (Exception ex)
             {
                 logger.LogError(ex, "An exception occurred while license initialization for provider. The fallback license edition is '{license}'.", nameof(License.Community));
 
-                CurrentLicense = License.Community;
-                CurrentLicense.FailureReasons.Add(LicenseFailureReason.SqlException);
+                License = License.Community;
+                License.FailureReasons.Add(LicenseFailureReason.SqlException);
             }
         }
     }

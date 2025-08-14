@@ -219,15 +219,7 @@ namespace OpenSettings.Extensions
             }
             else
             {
-                var compressionProvider = new CompressionProvider(new ICompression[]
-                {
-                    new BrotliCompression(new BrotliCompressionOptions(openSettingsConfiguration.Provider.CompressionLevel)),
-                    new DeflateCompression(new DeflateCompressionOptions(openSettingsConfiguration.Provider.CompressionLevel)),
-                    new GzipCompression(new GzipCompressionOptions(openSettingsConfiguration.Provider.CompressionLevel)),
-                    new SnappyCompression(new SnappyCompressionOptions(openSettingsConfiguration.Provider.CompressionLevel)),
-                    new ZstdCompression(new ZstdCompressionOptions(openSettingsConfiguration.Provider.CompressionLevel)),
-                    new NoneCompression(new NoneCompressionOptions(openSettingsConfiguration.Provider.CompressionLevel))
-                });
+                var compressionProvider = openSettingsConfiguration.Provider.CreateCompressionProvider();
 
                 var context = OpenSettingsDbContext.GetInstance(openSettingsConfiguration.Provider);
 
