@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Ogu.Response;
 using Ogu.Response.Abstractions;
-using OpenSettings.AspNetCore.Extensions;
 using OpenSettings.Configurations;
 using OpenSettings.Models;
 using OpenSettings.Models.Inputs;
@@ -16,6 +15,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using OpenSettings.Extensions;
 
 namespace OpenSettings.AspNetCore.Services
 {
@@ -24,91 +24,81 @@ namespace OpenSettings.AspNetCore.Services
         private readonly ILogger _logger;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly ITokenService _tokenService;
+        private readonly IOpenSettingsMemoryCache _openSettingsMemoryCache;
         private readonly OpenSettingsConfiguration _openSettingsConfiguration;
         private readonly ProviderInfo _providerInfo;
 
-        public AuthService(ILogger<AuthService> logger, IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor, ITokenService tokenService, OpenSettingsConfiguration openSettingsConfiguration, ProviderInfo providerInfo)
+        public AuthService(IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor, IOpenSettingsMemoryCache openSettingsMemoryCache, OpenSettingsConfiguration openSettingsConfiguration, ProviderInfo providerInfo)
         {
-            _logger = logger;
+            _logger = openSettingsConfiguration.LoggerFactory.CreateLogger<AuthService>();
             _httpClientFactory = httpClientFactory;
             _httpContextAccessor = httpContextAccessor;
-            _tokenService = tokenService;
+            _openSettingsMemoryCache = openSettingsMemoryCache;
             _openSettingsConfiguration = openSettingsConfiguration;
             _providerInfo = providerInfo;
         }
 
-        public async Task<IResponse<GetAuthStatusResponse>> GetAuthStatusAsync(GetAuthStatusInput input, CancellationToken cancellationToken = default)
+        public Task<IResponse<GetMeResponse>> GetMeAsync(GetMeInput input, CancellationToken cancellationToken)
         {
             var httpContext = _httpContextAccessor.HttpContext;
 
             if (httpContext == null)
             {
-                throw new NotSupportedException();
+                throw new NotSupportedException(nameof(GetMeAsync));
             }
 
-            if (httpContext.User.Identity?.IsAuthenticated ?? false)
+            if (!httpContext.User.Identity?.IsAuthenticated ?? true)
             {
-                return HttpStatusCode.OK.ToSuccessResponseOf(new GetAuthStatusResponse
+                return Task.FromResult(HttpStatusCode.OK.ToSuccessResponseOf(new GetMeResponse
                 {
-                    IsAuthenticated = true,
-                    AccessToken = null
-                });
+                    IsAuthenticated = false
+                }));
             }
 
-            return HttpStatusCode.OK.ToSuccessResponseOf(new GetAuthStatusResponse
+            Dictionary<string, string> claimTypeToValue;
+
+            if (input.Includes.HasFlag(GetMeInputIncludes.Claims))
             {
-                IsAuthenticated = false,
-                AccessToken = null
-            });
+                var claims = httpContext.User.Claims;
+
+                if (string.IsNullOrWhiteSpace(input.ClaimTypes))
+                {
+                    claimTypeToValue = claims.GroupBy(c => c.Type)
+                        .ToDictionary(c => c.Key, c => string.Join(OpenSettingsDefaults.Format.Comma, c.Select(claim => claim.Value)));
+                }
+                else
+                {
+                    var claimArray = input.ClaimTypes
+                        .Split(OpenSettingsDefaults.Separators.CommaSeparator, StringSplitOptions.RemoveEmptyEntries)
+                        .Select(claimType => claimType.Trim())
+                        .Where(claimType => claimType != string.Empty)
+                        .Distinct()
+                        .ToArray();
+
+                    claimTypeToValue = claims
+                        .GroupBy(c => c.Type)
+                        .Select(c => new { Type = c.Key, Value = string.Join(OpenSettingsDefaults.Format.Comma, c.Select(claim => claim.Value)) })
+                        .Where(claim => claimArray.Contains(claim.Type))
+                        .OrderBy(claim => Array.IndexOf(claimArray, claim.Type))
+                        .ToDictionary(c => c.Type, c => c.Value);
+                }
+            }
+            else
+            {
+                claimTypeToValue = null;
+            }
+
+            return Task.FromResult(HttpStatusCode.OK.ToSuccessResponseOf(new GetMeResponse
+            {
+                IsAuthenticated = true,
+                AccessToken = null,
+                Claims = claimTypeToValue
+            }));
         }
 
         public void ReturnTo(ReturnToInput input)
         {
-
-        }
-
-        public Task<IResponse<GetIdentityResponse>> GetIdentityAsync(GetIdentityInput input, CancellationToken cancellationToken = default)
-        {
-            // previously it was using _openSettingsMemoryCache to get the claims, but now we are using HttpContext.User.Claims directly.
-            var httpContext = _httpContextAccessor.HttpContext;
-
-            if (httpContext == null)
-            {
-                throw new NotSupportedException();
-            }
-
-            var claims = httpContext.User.Claims;
-
-            if (string.IsNullOrWhiteSpace(input.ClaimTypes))
-            {
-                var claimTypeToValue = claims.GroupBy(c => c.Type)
-                    .ToDictionary(c => c.Key, c => string.Join(OpenSettingsDefaults.Format.Comma, c.Select(claim => claim.Value)));
-
-                return Task.FromResult(HttpStatusCode.OK.ToSuccessResponseOf(new GetIdentityResponse
-                {
-                    Claims = claimTypeToValue
-                }));
-            }
-
-            var claimArray = input.ClaimTypes
-                .Split(OpenSettingsDefaults.Separators.CommaSeparator, StringSplitOptions.RemoveEmptyEntries)
-                .Select(claimType => claimType.Trim())
-                .Where(claimType => claimType != string.Empty)
-                .Distinct()
-                .ToArray();
-
-            var filteredClaimTypeToValue = claims
-                .GroupBy(c => c.Type)
-                .Select(c => new { Type = c.Key, Value = string.Join(OpenSettingsDefaults.Format.Comma, c.Select(claim => claim.Value)) })
-                .Where(claim => claimArray.Contains(claim.Type))
-                .OrderBy(claim => Array.IndexOf(claimArray, claim.Type))
-                .ToDictionary(c => c.Type, c => c.Value);
-
-            return Task.FromResult(HttpStatusCode.OK.ToSuccessResponseOf(new GetIdentityResponse
-            {
-                Claims = filteredClaimTypeToValue
-            }));
+            // Redundant while running in the provider mode.
         }
 
         public async Task LoginAsync(LoginInput input, CancellationToken cancellationToken = default)
@@ -120,45 +110,30 @@ namespace OpenSettings.AspNetCore.Services
                 throw new NotSupportedException();
             }
 
-            if (string.IsNullOrWhiteSpace(input.ReturnUrl))
-            {
-                input.ReturnUrl = httpContext.Request.Headers[OpenSettingsDefaults.Headers.Referer].ToString().TrimEnd(OpenSettingsDefaults.Format.SlashChar);
-            }
-
             var baseUrl = $"{httpContext.Request.Scheme}://{httpContext.Request.Host}";
+
+            if (string.IsNullOrWhiteSpace(input.ReturnUrl) || 
+                string.IsNullOrWhiteSpace(input.ApiUrl) || 
+                !input.ClientId.HasValue)
+            {
+                input.ReturnUrl = $"{baseUrl}/{_openSettingsConfiguration.Spa.RoutePrefix}";
+                httpContext.Response.Redirect(input.ReturnUrl);
+                return;
+            }
 
             var authenticateResult = await httpContext.AuthenticateAsync(OpenSettingsDefaults.AuthSchemes.OAuth2);
 
             if (!authenticateResult.Succeeded)
             {
-                if (string.IsNullOrWhiteSpace(input.ReturnUrl))
-                {
-                    input.ReturnUrl = $"{baseUrl}/";
-                }
-
-                if (string.IsNullOrEmpty(input.ApiUrl))
-                {
-                    input.ApiUrl = $"{baseUrl}/{_openSettingsConfiguration.Controller.Route}";
-                }
-
                 try
                 {
-                    var clientId = httpContext.Request.Headers.GetClientIdHeaderValueOrDefault();
-
-                    if (clientId == null)
-                    {
-                        // Todo: Spa needs to return client id in the header.
-                        //httpContext.Response.Redirect(input.ReturnUrl);
-                        //return;
-                    }
-
                     await httpContext.ChallengeAsync(OpenSettingsDefaults.AuthSchemes.OAuth2,
                         new AuthenticationProperties(new Dictionary<string, string>
                         {
                             { OpenSettingsDefaults.Keys.AuthService.ReturnUrl, input.ReturnUrl },
                             { OpenSettingsDefaults.Keys.AuthService.ApiUrl, input.ApiUrl },
                             { OpenSettingsDefaults.Keys.AuthService.Uuid, input.Uuid },
-                            { OpenSettingsDefaults.Keys.AuthService.ClientId, $"{clientId}" },
+                            { OpenSettingsDefaults.Keys.AuthService.ClientId, $"{input.ClientId}" },
                         }));
                 }
                 catch (Exception ex)
@@ -185,27 +160,11 @@ namespace OpenSettings.AspNetCore.Services
                 input.Uuid = uuidFromItem;
             }
 
+            _ = authenticateResult.Properties.Items.TryGetValue(OpenSettingsDefaults.Keys.AuthService.ClientId, out var clientId);
+
             _ = authenticateResult.Properties.Items.TryGetValue(OpenSettingsDefaults.Keys.AuthService.AccessToken, out var accessToken);
 
-            //if (input.ApiUrl.StartsWith(baseUrl))
-            //{
-            //    httpContext.Response.Redirect(input.ReturnUrl);
-            //    return;
-            //}
-
-            // previously claims were stored in here!
-
-            //var isUserTokenExpired = await _tokenService.IsOAuth2TokenExpiredAsync(accessToken,
-            //    () => httpContext.GetTokenAsync(OpenSettingsDefaults.AuthSchemes.Cookie,
-            //        OpenSettingsDefaults.ClaimTypes.RefreshToken));
-
-            //if (isUserTokenExpired)
-            //{
-            //    await httpContext.SignOutAsync(OpenSettingsDefaults.AuthSchemes.Cookie);
-            //    return;
-            //}
-
-            var redirectReturnToUrl = $"{input.ApiUrl}/v1/auth/return-to?returnUrl={input.ReturnUrl}&accessToken={accessToken}&uuid={input.Uuid}";
+            var redirectReturnToUrl = $"{input.ApiUrl}/v1/auth/return-to?returnUrl={Uri.EscapeDataString(input.ReturnUrl)}&accessToken={accessToken}&uuid={input.Uuid}";
 
             httpContext.Response.Redirect(redirectReturnToUrl);
         }
@@ -216,7 +175,7 @@ namespace OpenSettings.AspNetCore.Services
 
             if (httpContext == null)
             {
-                throw new NotSupportedException();
+                throw new NotSupportedException(nameof(LogoutAsync));
             }
 
             if (string.IsNullOrWhiteSpace(input.ReturnUrl))
@@ -226,18 +185,16 @@ namespace OpenSettings.AspNetCore.Services
 
             try
             {
-                using (var response = await _httpClientFactory.CreateClient().GetAsync($"{_providerInfo.OAuth2.Authority.TrimEnd('/')}/.well-known/openid-configuration", cancellationToken))
+                var isIdpOnline = await IsIdpOnlineAsync(cancellationToken);
+
+                await httpContext.SignOutAsync(OpenSettingsDefaults.AuthSchemes.Cookie);
+
+                if (isIdpOnline)
                 {
-                    if (response.IsSuccessStatusCode)
-                    {
-                        await httpContext.SignOutAsync(OpenSettingsDefaults.AuthSchemes.Cookie);
-                        await httpContext.SignOutAsync(OpenSettingsDefaults.AuthSchemes.OAuth2);
-
-                        return;
-                    }
-
-                    await httpContext.SignOutAsync(OpenSettingsDefaults.AuthSchemes.Cookie);
-
+                    await httpContext.SignOutAsync(OpenSettingsDefaults.AuthSchemes.OAuth2);
+                }
+                else
+                {
                     httpContext.Response.Redirect(input.ReturnUrl);
                 }
             }
@@ -255,13 +212,32 @@ namespace OpenSettings.AspNetCore.Services
 
                 httpContext.Response.StatusCode = 500;
 
-                await httpContext.Response.WriteAsync("Identity service isn't accessible at this moment!", cancellationToken);
+                await httpContext.Response.WriteAsync("Identity service isn't accessible at this moment!.", cancellationToken);
             }
         }
 
-        public async Task GetPublicJwksAsync()
+        private async Task<bool> IsIdpOnlineAsync(CancellationToken cancellationToken = default)
         {
+            if (OpenSettingsDefaults.Caches.AuthServiceIsIdpOnlineCheckCacheEntryKey.TryGetValue(_openSettingsMemoryCache, out bool isIdpOnline))
+            {
+                return isIdpOnline;
+            }
 
+            var client = _httpClientFactory.CreateClient();
+
+            var requestUri = $"{_providerInfo.OAuth2.Authority.TrimEnd('/')}/.well-known/openid-configuration";
+
+            using (var response = await client.GetAsync(
+                       requestUri,
+                       HttpCompletionOption.ResponseHeadersRead,
+                       cancellationToken))
+            {
+                isIdpOnline = response.IsSuccessStatusCode;
+
+                OpenSettingsDefaults.Caches.AuthServiceIsIdpOnlineCheckCacheEntryKey.Set(_openSettingsMemoryCache, isIdpOnline);
+
+                return isIdpOnline;
+            }
         }
     }
 }

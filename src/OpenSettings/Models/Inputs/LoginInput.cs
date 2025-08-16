@@ -1,4 +1,6 @@
-﻿namespace OpenSettings.Models.Inputs
+﻿using System;
+
+namespace OpenSettings.Models.Inputs
 {
     public class LoginInput
     {
@@ -7,5 +9,7 @@
         public string ApiUrl { get; set; }
 
         public string Uuid { get; set; }
+
+        public Guid? ClientId { get; set; }
     }
 }

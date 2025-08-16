@@ -439,6 +439,8 @@ namespace OpenSettings
 
             public static CacheEntryKey MachineTokenCacheEntryKey { get; } = new CacheEntry("machine:token").GetKey();
 
+            public static CacheEntryKey AuthServiceIsIdpOnlineCheckCacheEntryKey { get; } = new CacheEntry("as:iioc", TimeSpan.FromMinutes(1)).GetKey();
+
             public static CacheEntryKey ProviderTokenInfoCacheEntryKey { get; } = new CacheEntry("tss:pti", TimeSpan.FromMinutes(10))
             {
                 Options =

@@ -8,14 +8,12 @@ namespace OpenSettings.Services.Interfaces
 {
     public interface IAuthService
     {
-        Task<IResponse<GetAuthStatusResponse>> GetAuthStatusAsync(GetAuthStatusInput input, CancellationToken cancellationToken = default);
+        Task<IResponse<GetMeResponse>> GetMeAsync(GetMeInput input, CancellationToken cancellationToken = default);
 
         void ReturnTo(ReturnToInput input);
 
         Task LoginAsync(LoginInput input, CancellationToken cancellationToken = default);
 
         Task LogoutAsync(LogoutInput input, CancellationToken cancellationToken = default);
-
-        Task<IResponse<GetIdentityResponse>> GetIdentityAsync(GetIdentityInput input, CancellationToken cancellationToken = default);
     }
 }

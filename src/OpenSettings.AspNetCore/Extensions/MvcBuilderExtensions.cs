@@ -19,6 +19,7 @@ using OpenSettings.Services.Rest.Interfaces;
 using OpenSettings.Services.Sql.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading;
@@ -189,7 +190,7 @@ namespace OpenSettings.AspNetCore.Extensions
                     ValidIssuer = providerInfo.Client.Name,
                     ValidateIssuerSigningKey = true,
                     ValidateAudience = true,
-                    ValidAudience = client.Name
+                    ValidAudience = $"{client.Id}"
                 };
             });
         }
@@ -208,6 +209,12 @@ namespace OpenSettings.AspNetCore.Extensions
                   opts.ClientId = controllerConfiguration.OAuth2.ClientId;
                   opts.ClientSecret = controllerConfiguration.OAuth2.ClientSecret;
                   opts.ResponseType = "code";
+                  opts.SaveTokens = true;
+                  opts.GetClaimsFromUserInfoEndpoint = true;
+                  opts.SecurityTokenValidator = new JwtSecurityTokenHandler
+                  {
+                      MapInboundClaims = false
+                  };
                   opts.Scope.Clear();
                   opts.Scope.Add("openid");
                   opts.Scope.Add("profile");
@@ -216,9 +223,6 @@ namespace OpenSettings.AspNetCore.Extensions
                   {
                       opts.Scope.Add("offline_access");
                   }
-
-                  opts.SaveTokens = true;
-                  opts.GetClaimsFromUserInfoEndpoint = true;
 
                   var route = $"/{controllerConfiguration.Route}";
 
@@ -259,6 +263,8 @@ namespace OpenSettings.AspNetCore.Extensions
                               return;
                           }
 
+                          _ = context.Properties.Items.TryGetValue(OpenSettingsDefaults.Keys.AuthService.ClientId, out var clientId);
+
                           var tokenService = context.HttpContext.RequestServices.GetRequiredService<ITokenSqlService>();
 
                           var tokenResponse = await tokenService.GenerateTokenForUserAsync(new GenerateTokenForUserInput
@@ -266,17 +272,12 @@ namespace OpenSettings.AspNetCore.Extensions
                               UserId = user.Id,
                               UserInitials = user.Initials,
                               DisplayName = user.DisplayName,
-                              Audience = context.Properties.Items.TryGetValue(OpenSettingsDefaults.Keys.AuthService.ClientId, out var clientId) ? clientId : null,
+                              Audience = clientId,
                           }, context.HttpContext.RequestAborted);
 
                           context.Properties.Items.Add(OpenSettingsDefaults.Keys.AuthService.AccessToken, tokenResponse.AccessToken);
 
-                          var claimsIdentity = context.Principal.Identity as ClaimsIdentity;
-
-                          if (claimsIdentity == null)
-                          {
-                              return;
-                          }
+                          var claimsIdentity = (ClaimsIdentity)context.Principal.Identity;
 
                           foreach (var claim in claimsIdentity.Claims.ToArray())
                           {

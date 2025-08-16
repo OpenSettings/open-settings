@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System;
+using Microsoft.AspNetCore.Mvc;
 
 namespace OpenSettings.AspNetCore.Models.Requests
 {
@@ -12,5 +13,8 @@ namespace OpenSettings.AspNetCore.Models.Requests
 
         [FromQuery]
         public string Uuid { get; set; }
+
+        [FromQuery]
+        public Guid? ClientId { get; set; }
     }
 }

@@ -4,7 +4,6 @@ using Ogu.Response;
 using OpenSettings.AspNetCore.Models.Requests;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Services.Interfaces;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace OpenSettings.AspNetCore.Controllers.v1
@@ -19,30 +18,15 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             _authService = authService;
         }
 
-        [HttpPost("status")]
+        [HttpPost("me")]
         [AllowAnonymous]
-        public async Task<IActionResult> GetAuthStatus(string uuid)
+        public async Task<IActionResult> GetMe(GetMeRequest request)
         {
-            var response = await _authService.GetAuthStatusAsync(new GetAuthStatusInput
+            var response = await _authService.GetMeAsync(new GetMeInput
             {
-                Uuid = uuid
+                Uuid = request.Uuid,
+                Includes = request.Includes
             });
-
-            return response.ToAction();
-        }
-
-        [HttpGet("identity")]
-        public async Task<IActionResult> GetIdentity([FromQuery] string claimTypes, CancellationToken cancellationToken)
-        {
-            if (!User.Identity?.IsAuthenticated ?? false)
-            {
-                return Unauthorized();
-            }
-
-            var response = await _authService.GetIdentityAsync(new GetIdentityInput
-            {
-                ClaimTypes = claimTypes
-            }, cancellationToken);
 
             return response.ToAction();
         }
@@ -69,7 +53,8 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             {
                 ReturnUrl = request.ReturnUrl,
                 ApiUrl = request.ApiUrl,
-                Uuid = request.Uuid
+                Uuid = request.Uuid,
+                ClientId = request.ClientId
             });
 
             return new EmptyResult();

@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Caching.Memory;
 using Ogu.Response;
 using Ogu.Response.Abstractions;
 using OpenSettings.AspNetCore.Extensions;
@@ -13,6 +12,7 @@ using OpenSettings.Services.Rest.Interfaces;
 using System;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -23,81 +23,83 @@ namespace OpenSettings.AspNetCore.Services
         private readonly IOpenSettingsMemoryCache _openSettingsMemoryCache;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly ITokenService _tokenService;
         private readonly OpenSettingsConfiguration _openSettingsConfiguration;
 
-        public AuthRestService(IOpenSettingsMemoryCache openSettingsMemoryCache, IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor, ITokenService tokenService, OpenSettingsConfiguration openSettingsConfiguration)
+        public AuthRestService(IOpenSettingsMemoryCache openSettingsMemoryCache, IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor, OpenSettingsConfiguration openSettingsConfiguration)
         {
             _openSettingsMemoryCache = openSettingsMemoryCache;
             _httpClientFactory = httpClientFactory;
             _httpContextAccessor = httpContextAccessor;
-            _tokenService = tokenService;
             _openSettingsConfiguration = openSettingsConfiguration;
         }
 
-        public async Task<IResponse<GetAuthStatusResponse>> GetAuthStatusAsync(GetAuthStatusInput input, CancellationToken cancellationToken)
+        public async Task<IResponse<GetMeResponse>> GetMeAsync(GetMeInput input, CancellationToken cancellationToken)
         {
             var httpContext = _httpContextAccessor.HttpContext;
 
             if (httpContext == null)
             {
-                throw new NotSupportedException();
-            }
-
-            if (!string.IsNullOrWhiteSpace(input.Uuid) && OpenSettingsDefaults.Caches.AuthServiceUuidCacheEntry.GetKey(input.Uuid).TryGetValue<string>(_openSettingsMemoryCache, out var accessToken))
-            {
-                return HttpStatusCode.OK.ToSuccessResponseOf(new GetAuthStatusResponse
-                {
-                    IsAuthenticated = true,
-                    AccessToken = accessToken
-                });
-            }
-
-            if (httpContext.User.Identity?.IsAuthenticated ?? false)
-            {
-                return HttpStatusCode.OK.ToSuccessResponseOf(new GetAuthStatusResponse
-                {
-                    IsAuthenticated = true,
-                    AccessToken = null
-                });
+                throw new NotSupportedException(nameof(GetMeAsync));
             }
 
             var authHeader = httpContext.Request.Headers.GetAuthenticationHeaderValueFromAuthorizationHeader();
+            string accessToken = null;
 
-            if (authHeader?.Parameter == null)
+            if (string.IsNullOrWhiteSpace(input.Uuid) ||
+                !OpenSettingsDefaults.Caches.AuthServiceUuidCacheEntry.GetKey(input.Uuid).TryGetValue(_openSettingsMemoryCache, out accessToken) || 
+                (!httpContext.User.Identity?.IsAuthenticated ?? true))
             {
-                return HttpStatusCode.OK.ToSuccessResponseOf(new GetAuthStatusResponse
+
+                if (authHeader?.Parameter == null)
                 {
-                    IsAuthenticated = false,
-                    AccessToken = null
-                });
-            }
-
-            AuthenticateResult authenticateResult;
-
-            switch (authHeader.Scheme)
-            {
-                case OpenSettingsDefaults.Names.JwtBearerSchemaName:
-                    authenticateResult = await httpContext.AuthenticateAsync(OpenSettingsDefaults.AuthSchemes.JwtBearer);
-                    break;
-
-                case OpenSettingsDefaults.Names.BasicSchemeName:
-                    authenticateResult = await httpContext.AuthenticateAsync(OpenSettingsDefaults.AuthSchemes.Basic);
-                    break;
-
-                default:
-                    return HttpStatusCode.OK.ToSuccessResponseOf(new GetAuthStatusResponse
+                    return HttpStatusCode.OK.ToSuccessResponseOf(new GetMeResponse
                     {
-                        IsAuthenticated = false,
-                        AccessToken = null
+                        IsAuthenticated = false
                     });
+                }
+
+                AuthenticateResult authenticateResult;
+
+                switch (authHeader.Scheme)
+                {
+                    case OpenSettingsDefaults.Names.JwtBearerSchemaName:
+                        authenticateResult = await httpContext.AuthenticateAsync(OpenSettingsDefaults.AuthSchemes.JwtBearer);
+                        break;
+
+                    case OpenSettingsDefaults.Names.BasicSchemeName:
+                        authenticateResult = await httpContext.AuthenticateAsync(OpenSettingsDefaults.AuthSchemes.Basic);
+                        break;
+
+                    default:
+                        return HttpStatusCode.OK.ToSuccessResponseOf(new GetMeResponse
+                        {
+                            IsAuthenticated = false
+                        });
+                }
+
+                if (!authenticateResult.Succeeded)
+                {
+                    return HttpStatusCode.OK.ToSuccessResponseOf(new GetMeResponse
+                    {
+                        IsAuthenticated = false
+                    });
+                }
             }
 
-            return HttpStatusCode.OK.ToSuccessResponseOf(new GetAuthStatusResponse
+            var httpClient = GetProviderHttpClient();
+
+            using (var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, $"{OpenSettingsDefaults.Routes.V1.Auth}/me"))
             {
-                IsAuthenticated = authenticateResult.Succeeded,
-                AccessToken = null
-            });
+                httpRequestMessage.Headers.Authorization = authHeader ??
+                                                           (accessToken == null
+                                                               ? null
+                                                               : new AuthenticationHeaderValue(OpenSettingsDefaults.Names.JwtBearerSchemaName, accessToken));
+
+                using (var response = await httpClient.SendAsync(httpRequestMessage, cancellationToken))
+                {
+                    return await response.Content.ToResponseAsync<GetMeResponse>(cancellationToken: cancellationToken);
+                }
+            }
         }
 
         public void ReturnTo(ReturnToInput input)
@@ -112,28 +114,6 @@ namespace OpenSettings.AspNetCore.Services
             cacheKey.Set(_openSettingsMemoryCache, input.AccessToken);
         }
 
-        public async Task<IResponse<GetIdentityResponse>> GetIdentityAsync(GetIdentityInput input, CancellationToken cancellationToken = default)
-        {
-            var httpContext = _httpContextAccessor.HttpContext;
-
-            if (httpContext == null)
-            {
-                throw new NotSupportedException();
-            }
-
-            var httpClient = GetProviderHttpClient();
-
-            using (var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, $"{OpenSettingsDefaults.Routes.V1.Auth}/identity"))
-            {
-                httpRequestMessage.Headers.Authorization = httpContext.Request.Headers.GetAuthenticationHeaderValueFromAuthorizationHeader();
-
-                using (var response = await httpClient.SendAsync(httpRequestMessage, cancellationToken))
-                {
-                    return await response.Content.ToResponseAsync<GetIdentityResponse>(cancellationToken: cancellationToken);
-                }
-            }
-        }
-
         public async Task LoginAsync(LoginInput input, CancellationToken cancellationToken = default)
         {
             var httpContext = _httpContextAccessor.HttpContext;
@@ -143,28 +123,30 @@ namespace OpenSettings.AspNetCore.Services
                 throw new NotSupportedException();
             }
 
+            var baseUrl = $"{httpContext.Request.Scheme}://{httpContext.Request.Host}";
+
+            var spaLocation = $"{baseUrl}/{_openSettingsConfiguration.Spa.RoutePrefix}";
+
             if (string.IsNullOrWhiteSpace(input.ReturnUrl))
             {
-                input.ReturnUrl = httpContext.Request.Headers[OpenSettingsDefaults.Headers.Referer].ToString().TrimEnd(OpenSettingsDefaults.Format.SlashChar);
+                input.ReturnUrl = spaLocation;
             }
-
-            var baseUrl = $"{httpContext.Request.Scheme}://{httpContext.Request.Host}";
+            else if(!input.ReturnUrl.StartsWith(baseUrl))
+            {
+                httpContext.Response.Redirect(spaLocation);
+                return;
+            }
 
             var authenticateResult = await httpContext.AuthenticateAsync(OpenSettingsDefaults.AuthSchemes.JwtBearer);
 
             if (!authenticateResult.Succeeded)
             {
-                if (string.IsNullOrWhiteSpace(input.ReturnUrl))
-                {
-                    input.ReturnUrl = $"{baseUrl}/";
-                }
-
                 if (string.IsNullOrEmpty(input.ApiUrl))
                 {
                     input.ApiUrl = $"{baseUrl}/{_openSettingsConfiguration.Controller.Route}";
                 }
 
-                var redirectLoginUrl = $"{_openSettingsConfiguration.Consumer.ProviderUrl}v1/auth/login?returnUrl={input.ReturnUrl}&apiUrl={input.ApiUrl}&uuid={input.Uuid}";
+                var redirectLoginUrl = $"{_openSettingsConfiguration.Consumer.ProviderUrl}v1/auth/login?returnUrl={Uri.EscapeDataString(input.ReturnUrl)}&apiUrl={input.ApiUrl}&uuid={input.Uuid}&clientId={_openSettingsConfiguration.Client.Id}";
 
                 httpContext.Response.Redirect(redirectLoginUrl);
                 return;
@@ -196,19 +178,7 @@ namespace OpenSettings.AspNetCore.Services
 
             var accessToken = await httpContext.GetTokenAsync(OpenSettingsDefaults.AuthSchemes.Cookie, "access_token");
 
-            // previously claims were stored in here!
-
-            //var isUserTokenExpired = await _tokenService.IsOAuth2TokenExpiredAsync(accessToken,
-            //    () => httpContext.GetTokenAsync(OpenSettingsDefaults.AuthSchemes.Cookie,
-            //        OpenSettingsDefaults.ClaimTypes.RefreshToken));
-
-            //if (isUserTokenExpired)
-            //{
-            //    await httpContext.SignOutAsync(OpenSettingsDefaults.AuthSchemes.Cookie);
-            //    return;
-            //}
-
-            var redirectReturnToUrl = $"{input.ApiUrl}/v1/auth/return-to?returnUrl={input.ReturnUrl}&accessToken={accessToken}&uuid={input.Uuid}";
+            var redirectReturnToUrl = $"{input.ApiUrl}/v1/auth/return-to?returnUrl={input.ReturnUrl}&apiUrl={input.ApiUrl}&accessToken={accessToken}&uuid={input.Uuid}";
 
             httpContext.Response.Redirect(redirectReturnToUrl);
         }
