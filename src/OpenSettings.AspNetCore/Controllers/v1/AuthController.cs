@@ -53,7 +53,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             {
                 ReturnUrl = request.ReturnUrl,
                 ApiUrl = request.ApiUrl,
-                Uuid = request.Uuid,
+                StateId = request.StateId,
                 ClientId = request.ClientId
             });
 

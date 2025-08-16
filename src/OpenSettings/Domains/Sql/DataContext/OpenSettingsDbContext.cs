@@ -163,6 +163,16 @@ namespace OpenSettings.Domains.Sql.DataContext
         /// </summary>
         public DbSet<GlobalConfigurationHistorySqlModel> GlobalConfigurationHistories { get; set; }
 
+        /// <summary>
+        /// Gets or sets the <see cref="DbSet{LoginEntrySqlModel}"/> for managing LoginEntries.
+        /// </summary>
+        public DbSet<LoginEntrySqlModel> LoginEntries { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="DbSet{DataProtectionKey}"/> for managing DataProtectionKeys.
+        /// </summary>
+        public DbSet<DataProtectionKey> DataProtectionKeys { get; set; }
+
         public virtual void Detach(object entity)
         {
             Entry(entity).State = EntityState.Detached;

@@ -2,10 +2,10 @@
 using Microsoft.Extensions.Hosting;
 using OpenSettings.Configurations;
 using OpenSettings.Models;
+using OpenSettings.Models.Responses;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using OpenSettings.Models.Responses;
 
 namespace OpenSettings.Extensions
 {
@@ -65,6 +65,8 @@ namespace OpenSettings.Extensions
             Func<IConfiguration, Task> configureFunc,
             params Type[] settingsTypes)
         {
+            OpenSettingsDefaults.Caches.OpenSettingsConfiguration = openSettingsConfiguration;
+
             openSettingsConfiguration.Client = openSettingsConfiguration.Client ?? new ClientInfo();
 
             await LicenseProvider.Instance.InitializeAsync(openSettingsConfiguration, CancellationToken.None);

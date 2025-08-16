@@ -67,7 +67,7 @@ namespace OpenSettings.Extensions
         /// <param name="providerInfo">Information about the provider being registered.</param>
         /// <returns>The <see cref="IServiceCollection"/> with OpenSettings services registered.</returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="services" /> or <paramref name="openSettingsConfiguration"/> is null.</exception>
-        public static IServiceCollection AddOpenSettings(this IServiceCollection services, OpenSettingsConfiguration openSettingsConfiguration, ProviderInfo providerInfo)
+        internal static IServiceCollection AddOpenSettings(this IServiceCollection services, OpenSettingsConfiguration openSettingsConfiguration, ProviderInfo providerInfo)
         {
             if(services == null)
             {
@@ -139,7 +139,7 @@ namespace OpenSettings.Extensions
 
             services.AddSingleton<IPasswordHasher<AppSqlModel>, PasswordHasher<AppSqlModel>>();
 
-            services.AddOpenSettingsDbContext<OpenSettingsDbContext>(openSettingsConfiguration.Provider.Orm);
+            services.AddOpenSettingsDbContext(openSettingsConfiguration.Provider.Orm);
 
             services.AddSingleton<IHostedService>(sp =>
             {
@@ -272,11 +272,11 @@ namespace OpenSettings.Extensions
             services.AddSingleton<ILocalSettingsService, LocalSettingsService>();
         }
 
-        private static IServiceCollection AddOpenSettingsDbContext<TContext>(this IServiceCollection services, OrmConfiguration orm) where TContext : DbContext
+        private static IServiceCollection AddOpenSettingsDbContext(this IServiceCollection services, OrmConfiguration orm)
         {
             if (orm.EnablePooling)
             {
-                services.AddDbContextPool<TContext>(
+                services.AddDbContextPool<OpenSettingsDbContext>(
                     dbCtxBuilder =>
                     {
 #if DEBUG
@@ -289,7 +289,7 @@ namespace OpenSettings.Extensions
             }
             else
             {
-                services.AddDbContext<TContext>(dbCtxBuilder =>
+                services.AddDbContext<OpenSettingsDbContext>(dbCtxBuilder =>
                 {
 #if DEBUG
                     dbCtxBuilder.EnableSensitiveDataLogging();
@@ -299,8 +299,6 @@ namespace OpenSettings.Extensions
                     orm.ConfigureDbContext?.Invoke(dbCtxBuilder);
                 });
             }
-
-            services.AddScoped<OpenSettingsDbContext>();
 
             return services;
         }

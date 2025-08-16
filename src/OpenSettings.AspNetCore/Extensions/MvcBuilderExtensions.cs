@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Ogu.AspNetCore.Conventions;
 using OpenSettings.AspNetCore.Controllers.v1;
+using OpenSettings.AspNetCore.CustomDataProtection;
 using OpenSettings.AspNetCore.Handlers;
 using OpenSettings.AspNetCore.Services;
 using OpenSettings.Configurations;
@@ -121,13 +122,17 @@ namespace OpenSettings.AspNetCore.Extensions
         private static void RegisterProviderServices(IServiceCollection services, ProviderInfo providerInfo, ConfigurationController controllerConfiguration, AuthenticationBuilder authenticationBuilder)
         {
             services.AddSingleton<IAuthService, AuthService>();
-
+            
             authenticationBuilder.AddJwtBearerForProvider(providerInfo);
-
             if (providerInfo.Authorize && providerInfo.OAuth2.IsActive)
             {
                 authenticationBuilder
-                    .AddCookie(OpenSettingsDefaults.AuthSchemes.Cookie)
+                    .AddCookie(OpenSettingsDefaults.AuthSchemes.Cookie, opts =>
+                    {
+                        opts.DataProtectionProvider =
+                            CustomDataProtectionExtensions.CreateOpenSettingsDataProtectionProvider(providerInfo.Client
+                                .Name);
+                    })
                     .AddOAuth2(controllerConfiguration);
             }
         }

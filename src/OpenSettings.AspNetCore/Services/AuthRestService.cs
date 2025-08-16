@@ -146,7 +146,7 @@ namespace OpenSettings.AspNetCore.Services
                     input.ApiUrl = $"{baseUrl}/{_openSettingsConfiguration.Controller.Route}";
                 }
 
-                var redirectLoginUrl = $"{_openSettingsConfiguration.Consumer.ProviderUrl}v1/auth/login?returnUrl={Uri.EscapeDataString(input.ReturnUrl)}&apiUrl={input.ApiUrl}&uuid={input.Uuid}&clientId={_openSettingsConfiguration.Client.Id}";
+                var redirectLoginUrl = $"{_openSettingsConfiguration.Consumer.ProviderUrl}v1/auth/login?returnUrl={Uri.EscapeDataString(input.ReturnUrl)}&apiUrl={input.ApiUrl}&stateId={input.StateId}&clientId={_openSettingsConfiguration.Client.Id}";
 
                 httpContext.Response.Redirect(redirectLoginUrl);
                 return;
@@ -164,9 +164,9 @@ namespace OpenSettings.AspNetCore.Services
                     input.ApiUrl = apiUrlFromItem ?? string.Empty;
                 }
 
-                if (authenticateResult.Properties.Items.TryGetValue(OpenSettingsDefaults.Keys.AuthService.Uuid, out var uuidFromItem) && string.IsNullOrWhiteSpace(input.Uuid))
+                if (authenticateResult.Properties.Items.TryGetValue(OpenSettingsDefaults.Keys.AuthService.StateId, out var stateIdFromItem) && string.IsNullOrWhiteSpace(input.StateId))
                 {
-                    input.Uuid = uuidFromItem;
+                    input.StateId = stateIdFromItem;
                 }
             }
 
@@ -178,7 +178,7 @@ namespace OpenSettings.AspNetCore.Services
 
             var accessToken = await httpContext.GetTokenAsync(OpenSettingsDefaults.AuthSchemes.Cookie, "access_token");
 
-            var redirectReturnToUrl = $"{input.ApiUrl}/v1/auth/return-to?returnUrl={input.ReturnUrl}&apiUrl={input.ApiUrl}&accessToken={accessToken}&uuid={input.Uuid}";
+            var redirectReturnToUrl = $"{input.ApiUrl}/v1/auth/return-to?returnUrl={input.ReturnUrl}&apiUrl={input.ApiUrl}&accessToken={accessToken}&stateId={input.StateId}";
 
             httpContext.Response.Redirect(redirectReturnToUrl);
         }

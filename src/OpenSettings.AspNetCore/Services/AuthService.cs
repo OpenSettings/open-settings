@@ -132,7 +132,7 @@ namespace OpenSettings.AspNetCore.Services
                         {
                             { OpenSettingsDefaults.Keys.AuthService.ReturnUrl, input.ReturnUrl },
                             { OpenSettingsDefaults.Keys.AuthService.ApiUrl, input.ApiUrl },
-                            { OpenSettingsDefaults.Keys.AuthService.Uuid, input.Uuid },
+                            { OpenSettingsDefaults.Keys.AuthService.StateId, input.StateId },
                             { OpenSettingsDefaults.Keys.AuthService.ClientId, $"{input.ClientId}" },
                         }));
                 }
@@ -155,16 +155,16 @@ namespace OpenSettings.AspNetCore.Services
                 input.ApiUrl = apiUrlFromItem ?? string.Empty;
             }
 
-            if (authenticateResult.Properties.Items.TryGetValue(OpenSettingsDefaults.Keys.AuthService.Uuid, out var uuidFromItem) && string.IsNullOrWhiteSpace(input.Uuid))
+            if (authenticateResult.Properties.Items.TryGetValue(OpenSettingsDefaults.Keys.AuthService.StateId, out var stateIdFromItem) && string.IsNullOrWhiteSpace(input.StateId))
             {
-                input.Uuid = uuidFromItem;
+                input.StateId = stateIdFromItem;
             }
 
             _ = authenticateResult.Properties.Items.TryGetValue(OpenSettingsDefaults.Keys.AuthService.ClientId, out var clientId);
 
             _ = authenticateResult.Properties.Items.TryGetValue(OpenSettingsDefaults.Keys.AuthService.AccessToken, out var accessToken);
 
-            var redirectReturnToUrl = $"{input.ApiUrl}/v1/auth/return-to?returnUrl={Uri.EscapeDataString(input.ReturnUrl)}&accessToken={accessToken}&uuid={input.Uuid}";
+            var redirectReturnToUrl = $"{input.ApiUrl}/v1/auth/return-to?returnUrl={Uri.EscapeDataString(input.ReturnUrl)}&accessToken={accessToken}&stateId={input.StateId}";
 
             httpContext.Response.Redirect(redirectReturnToUrl);
         }

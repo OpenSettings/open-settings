@@ -12,7 +12,7 @@ namespace OpenSettings.AspNetCore.Models.Requests
         public string ApiUrl { get; set; }
 
         [FromQuery]
-        public string Uuid { get; set; }
+        public string StateId { get; set; }
 
         [FromQuery]
         public Guid? ClientId { get; set; }

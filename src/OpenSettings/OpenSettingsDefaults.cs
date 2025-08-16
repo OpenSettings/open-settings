@@ -9,6 +9,7 @@ using System.IO;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using Microsoft.Extensions.Caching.Memory;
+using OpenSettings.Configurations;
 
 namespace OpenSettings
 {
@@ -33,7 +34,7 @@ namespace OpenSettings
             {
                 public const string ReturnUrl = "returnUrl";
                 public const string ApiUrl = "apiUrl";
-                public const string Uuid = "uuid";
+                public const string StateId = "stateId";
                 public const string ClientId = "clientId";
                 public const string AccessToken = "accessToken";
             }
@@ -405,6 +406,8 @@ namespace OpenSettings
         /// </summary>
         internal static class Caches
         {
+            internal static OpenSettingsConfiguration OpenSettingsConfiguration { get; set; }
+
             internal static Dictionary<Guid, LocalSetting> ComputedIdentifierToLocalSetting { get; } = new Dictionary<Guid, LocalSetting>();
 
             internal static Dictionary<Guid, Guid> TypeIdToComputedIdentifier { get; } = new Dictionary<Guid, Guid>();

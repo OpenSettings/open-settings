@@ -382,6 +382,16 @@ namespace OpenSettings.Domains.Sql.DataContext
                 entity.Property(e => e.RowVersion).IsRowVersion().ValueGeneratedNever();
                 entity.Ignore(e => e.UpdatedOn);
             });
+
+            modelBuilder.Entity<LoginEntrySqlModel>(entity =>
+            {
+                entity.Property(e => e.Metadata).HasConversion(dictionaryConverter).Metadata.SetValueComparer(dictionaryComparer);
+                entity.HasIndex(e => e.StateId);
+            });
+
+            modelBuilder.Entity<DataProtectionKey>(entity =>
+            {
+            });
         }
     }
 }
