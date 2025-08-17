@@ -25,6 +25,8 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using System.Net.Http;
 
 namespace OpenSettings.AspNetCore.Extensions
 {
@@ -244,6 +246,10 @@ namespace OpenSettings.AspNetCore.Extensions
                           }
 
                           return Task.CompletedTask;
+                      },
+                      OnTicketReceived = async context =>
+                      {
+                          await AuthService.OnAuth2TicketReceivedAsync(context);
                       },
                       OnRemoteFailure = context =>
                       {

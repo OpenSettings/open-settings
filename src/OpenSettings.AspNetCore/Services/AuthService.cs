@@ -24,6 +24,7 @@ using System.Net.Http;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.OAuth;
 
 namespace OpenSettings.AspNetCore.Services
 {
@@ -181,6 +182,125 @@ namespace OpenSettings.AspNetCore.Services
             }
         }
 
+        public static async Task OnAuth2TicketReceivedAsync(TicketReceivedContext context)
+        {
+            var returnUrl = context.Properties.GetString(OpenSettingsDefaults.Keys.AuthService.ReturnUrl);
+            //var apiUrl = context.Properties.GetString(OpenSettingsDefaults.Keys.AuthService.ApiUrl);
+            //var stateId = context.Properties.GetString(OpenSettingsDefaults.Keys.AuthService.StateId);
+            var clientId = context.Properties.GetString(OpenSettingsDefaults.Keys.AuthService.ClientId);
+
+            var httpContext = context.HttpContext;
+            var usersService = httpContext.RequestServices.GetRequiredService<IUserService>();
+
+            var user = await usersService.GetOrCreateUserAsync(new GetOrCreateUserInput(context.Principal, AuthType.OAuth2), context.HttpContext.RequestAborted);
+
+            if (user == null)
+            {
+                // ExternalId couldn't obtain.
+                context.Fail("ExternalId couldn't obtain.");
+                context.Response.Redirect(returnUrl);
+                context.HandleResponse();
+                return;
+            }
+
+            if (!user.IsActive)
+            {
+                // User access disabled.
+                context.Fail("User access disabled.");
+                context.Response.Redirect(returnUrl);
+                context.HandleResponse();
+                return;
+            }
+
+            var openSettingsDbContext = httpContext.RequestServices.GetRequiredService<OpenSettingsDbContext>();
+
+            var clientIdAsGuid = Guid.Parse(clientId);
+
+            var loginEntry = new LoginEntrySqlModel
+            {
+                Id = Guid.NewGuid(),
+                ClientId = clientIdAsGuid,
+                ClientIdLowercase = clientId.ToLowerInvariant(),
+                InstanceId = ProviderCoordinationTimedService.InstanceId,
+                UserId = user.Id,
+                UserIdLowercase = $"{user.Id}".ToLowerInvariant(),
+                RemoteIpAddress = httpContext.Connection.RemoteIpAddress?.ToString(),
+                UserAgent = httpContext.Request.Headers["User-Agent"].ToString(),
+                AuthType = AuthType.OAuth2,
+                AuthMethod = AuthMethod.Unset,
+                AccessToken = null,
+                AccessTokenExpiryDate = null,
+                RefreshToken = null,
+                RefreshTokenExpiryDate = null,
+                Scopes = string.Join(OpenSettingsDefaults.Format.Space,
+                    httpContext.User.Claims
+                        .Where(c => c.Type == "scope" || c.Type == "scp")
+                        .SelectMany(c => c.Value.Split(OpenSettingsDefaults.Format.SpaceChar))
+                        .Distinct()),
+                IsSuccessful = true,
+                Metadata = new Dictionary<string, object>(),
+                CreatedOn = DateTime.UtcNow
+            };
+
+            List<Claim> claims;
+
+            if (OpenSettingsDefaults.Caches.OpenSettingsConfiguration.Client.Id == clientIdAsGuid)
+            {
+                var openSettingsClaims = new OpenSettingsClaims
+                {
+                    UserId = user.Id,
+                    DisplayName = user.DisplayName,
+                    UserInitials = user.Initials,
+                    AuthType = AuthType.OAuth2,
+                    AuthMethod = AuthMethod.Cookie
+                };
+
+                loginEntry.AuthMethod = openSettingsClaims.AuthMethod;
+
+                claims = openSettingsClaims.GenerateClaims();
+            }
+            else
+            {
+                loginEntry.AuthMethod = AuthMethod.Jwt;
+
+                var tokenService = httpContext.RequestServices.GetRequiredService<ITokenSqlService>();
+
+                var tokenResponse = await tokenService.GenerateTokenForUserAsync(new GenerateTokenForUserInput
+                {
+                    UserId = user.Id,
+                    DisplayName = user.DisplayName,
+                    UserInitials = user.Initials,
+                    Audience = clientId
+                }, httpContext.RequestAborted);
+
+                claims = tokenResponse.Claims;
+
+                loginEntry.AccessToken = tokenResponse.AccessToken.Value;
+                loginEntry.AccessTokenExpiryDate = tokenResponse.AccessToken.ExpiryDate;
+                loginEntry.RefreshToken = tokenResponse.RefreshToken?.Value;
+                loginEntry.RefreshTokenExpiryDate = tokenResponse.RefreshToken?.ExpiryDate;
+            }
+
+            var loginEntityEntry = openSettingsDbContext.LoginEntries.Add(loginEntry);
+
+            await openSettingsDbContext.SaveChangesAsync(httpContext.RequestAborted);
+
+            loginEntityEntry.State = EntityState.Detached;
+
+            var claimsIdentity = (ClaimsIdentity)context.Principal.Identity;
+
+            foreach (var claim in claimsIdentity.Claims.ToArray())
+            {
+                claimsIdentity.RemoveClaim(claim);
+            }
+
+            claimsIdentity.AddClaims(claims);
+
+            var newPrincipal = new ClaimsPrincipal(claimsIdentity);
+
+            context.Principal = newPrincipal;
+        }
+
         public async Task LoginAsync(LoginInput input, CancellationToken cancellationToken = default)
         {
             var httpContext = _httpContextAccessor.HttpContext;
@@ -213,7 +333,7 @@ namespace OpenSettings.AspNetCore.Services
                             { OpenSettingsDefaults.Keys.AuthService.ReturnUrl, input.ReturnUrl },
                             { OpenSettingsDefaults.Keys.AuthService.ApiUrl, input.ApiUrl },
                             { OpenSettingsDefaults.Keys.AuthService.StateId, $"{input.StateId }" },
-                            { OpenSettingsDefaults.Keys.AuthService.ClientId, $"{input.ClientId} " },
+                            { OpenSettingsDefaults.Keys.AuthService.ClientId, $"{input.ClientId} " }
                         }));
                 }
                 catch (Exception ex)
@@ -224,106 +344,6 @@ namespace OpenSettings.AspNetCore.Services
 
                 return;
             }
-
-            var usersService = httpContext.RequestServices.GetRequiredService<IUserService>();
-
-            var user = await usersService.GetOrCreateUserAsync(new GetOrCreateUserInput(httpContext.User, AuthType.OAuth2), CancellationToken.None);
-
-            if (user == null)
-            {
-                // ExternalId couldn't obtain.
-                httpContext.Response.Redirect(input.ReturnUrl);
-                return;
-            }
-
-            if (!user.IsActive)
-            {
-                // User access disabled.
-                httpContext.Response.Redirect(input.ReturnUrl);
-                return;
-            }
-
-            var openSettingsDbContext = httpContext.RequestServices.GetRequiredService<OpenSettingsDbContext>();
-
-            var loginEntry = new LoginEntrySqlModel
-            {
-                Id = Guid.NewGuid(),
-                ClientId = input.ClientId.Value,
-                ClientIdLowercase = $"{input.ClientId}".ToLowerInvariant(),
-                InstanceId = ProviderCoordinationTimedService.InstanceId,
-                UserId = user.Id,
-                UserIdLowercase = $"{user.Id}".ToLowerInvariant(),
-                RemoteIpAddress = httpContext.Connection.RemoteIpAddress?.ToString(),
-                UserAgent = httpContext.Request.Headers["User-Agent"].ToString(),
-                AuthType = AuthType.OAuth2,
-                AuthMethod = AuthMethod.Unset,
-                AccessToken = null,
-                AccessTokenExpiryDate = null,
-                RefreshToken = null,
-                RefreshTokenExpiryDate = null,
-                Scopes = string.Join(OpenSettingsDefaults.Format.Space,
-                    httpContext.User.Claims
-                        .Where(c => c.Type == "scope" || c.Type == "scp")
-                        .SelectMany(c => c.Value.Split(OpenSettingsDefaults.Format.SpaceChar))
-                        .Distinct()),
-                IsSuccessful = true,
-                Metadata = new Dictionary<string, object>(),
-                CreatedOn = DateTime.UtcNow
-            };
-
-            List<Claim> claims;
-
-            if (_openSettingsConfiguration.Client.Id == input.ClientId.Value)
-            {
-                var openSettingsClaims = new OpenSettingsClaims
-                {
-                    UserId = user.Id,
-                    DisplayName = user.DisplayName,
-                    UserInitials = user.Initials,
-                    AuthType = AuthType.OAuth2,
-                    AuthMethod = AuthMethod.Cookie
-                };
-
-                loginEntry.AuthMethod = openSettingsClaims.AuthMethod;
-
-                claims = openSettingsClaims.GenerateClaims();
-            }
-            else
-            {
-                loginEntry.AuthMethod = AuthMethod.Jwt;
-
-                var tokenService = httpContext.RequestServices.GetRequiredService<ITokenSqlService>();
-
-                var tokenResponse = await tokenService.GenerateTokenForUserAsync(new GenerateTokenForUserInput
-                {
-                    UserId = user.Id,
-                    DisplayName = user.DisplayName,
-                    UserInitials = user.Initials,
-                    Audience = $"{input.ClientId}"
-                }, cancellationToken);
-
-                claims = tokenResponse.Claims;
-
-                loginEntry.AccessToken = tokenResponse.AccessToken.Value;
-                loginEntry.AccessTokenExpiryDate = tokenResponse.AccessToken.ExpiryDate;
-                loginEntry.RefreshToken = tokenResponse.RefreshToken?.Value;
-                loginEntry.RefreshTokenExpiryDate = tokenResponse.RefreshToken?.ExpiryDate;
-            }
-
-            var loginEntityEntry = openSettingsDbContext.LoginEntries.Add(loginEntry);
-
-            await openSettingsDbContext.SaveChangesAsync(cancellationToken);
-
-            loginEntityEntry.State = EntityState.Detached;
-
-            var claimsIdentity = (ClaimsIdentity)httpContext.User.Identity;
-
-            foreach (var claim in claimsIdentity.Claims.ToArray())
-            {
-                claimsIdentity.RemoveClaim(claim);
-            }
-
-            httpContext.User.AddIdentity(new ClaimsIdentity(claims));
 
             httpContext.Response.Redirect(input.ReturnUrl);
         }

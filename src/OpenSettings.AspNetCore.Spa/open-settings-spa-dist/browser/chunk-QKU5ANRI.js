@@ -1,1 +1,0 @@
-import{M as i,V as t,fc as u,nc as n,p as e}from"./chunk-RTM3GTTE.js";var l=(m,a)=>{let r=t(n),c=t(u);return r.isAuthenticated||!r.isAuthorizationRequired?!0:r.checkAuthorization().pipe(i(o=>(o||c.navigate(["/login"],{queryParams:{returnUrl:a.url}}),e(o))))};export{l as a};
