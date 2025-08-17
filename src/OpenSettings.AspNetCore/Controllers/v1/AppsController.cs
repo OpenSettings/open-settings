@@ -138,7 +138,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
 
             if (request.Body.Instance != null)
             {
-                request.Body.Instance.IpAddress = Request.GetIpAddress();
+                request.Body.Instance.RemoteIpAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
             }
 
             var result = await _appsService.SyncAppDataAsync(new SyncAppDataInput
@@ -322,7 +322,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 Urls = request.Body.Urls,
                 Version = request.Body.Version,
                 IsActive = request.Body.IsActive,
-                IpAddress = Request.GetIpAddress(),
+                RemoteIpAddress = HttpContext.Connection.RemoteIpAddress?.ToString(),
                 MachineName = request.Body.MachineName,
                 Environment = request.Body.Environment,
                 ReloadStrategies = request.Body.ReloadStrategies,
@@ -350,7 +350,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 IdentifierName = request.Body.IdentifierName,
                 Urls = request.Body.Urls,
                 IsActive = request.Body.IsActive,
-                IpAddress = Request.GetIpAddress(),
+                RemoteIpAddress = HttpContext.Connection.RemoteIpAddress?.ToString(),
                 UpdatedById = User.GetUserId()
             }, CancellationToken.None);
 

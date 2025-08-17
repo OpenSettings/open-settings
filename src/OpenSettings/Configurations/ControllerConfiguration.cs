@@ -38,7 +38,7 @@
         /// </para>
         /// <para>The default value is '<c>false</c>'.</para>
         /// </summary>
-        public bool Authorize { get; set; }
+        public bool RequiresAuthentication { get; set; }
 
         /// <summary>
         /// Gets or sets OAuth2 configuration for the open settings controller, allowing for 

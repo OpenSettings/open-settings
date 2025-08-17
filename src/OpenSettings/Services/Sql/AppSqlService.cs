@@ -906,7 +906,7 @@ namespace OpenSettings.Services.Sql
                         i.PackVersion,
                         i.Urls,
                         i.IsActive,
-                        i.IpAddress,
+                        i.RemoteIpAddress,
                         i.MachineName,
                         i.Environment,
                         i.ReloadStrategies,
@@ -1018,7 +1018,7 @@ namespace OpenSettings.Services.Sql
                     Version = s.Version,
                     Urls = s.Urls,
                     IsActive = s.IsActive,
-                    IpAddress = s.IpAddress,
+                    RemoteIpAddress = s.RemoteIpAddress,
                     MachineName = s.MachineName,
                     Environment = s.Environment,
                     ReloadStrategies = s.ReloadStrategies,
@@ -1119,7 +1119,7 @@ namespace OpenSettings.Services.Sql
                         i.Name,
                         i.Urls,
                         i.IsActive,
-                        i.IpAddress,
+                        i.RemoteIpAddress,
                         i.MachineName,
                         i.Environment,
                         i.ReloadStrategies,
@@ -1224,7 +1224,7 @@ namespace OpenSettings.Services.Sql
                     Version = instance.Version,
                     Urls = instance.Urls,
                     IsActive = instance.IsActive,
-                    IpAddress = instance.IpAddress,
+                    RemoteIpAddress = instance.RemoteIpAddress,
                     MachineName = instance.MachineName,
                     Environment = instance.Environment,
                     ReloadStrategies = instance.ReloadStrategies,
@@ -1526,7 +1526,7 @@ namespace OpenSettings.Services.Sql
                         Version = input.Instance.Version,
                         PackVersion = input.Instance.PackVersion,
                         IsActive = input.Instance.IsActive,
-                        IpAddress = input.Instance.IpAddress,
+                        RemoteIpAddress = input.Instance.RemoteIpAddress,
                         MachineName = input.Instance.MachineName,
                         Environment = input.Instance.Environment,
                         ReloadStrategies = input.Instance.ReloadStrategies,
@@ -1548,7 +1548,7 @@ namespace OpenSettings.Services.Sql
                     instance.Version = input.Instance.Version;
                     instance.PackVersion = input.Instance.PackVersion;
                     instance.IsActive = input.Instance.IsActive;
-                    instance.IpAddress = input.Instance.IpAddress;
+                    instance.RemoteIpAddress = input.Instance.RemoteIpAddress;
                     instance.MachineName = input.Instance.MachineName;
                     instance.Environment = input.Instance.Environment;
                     instance.ReloadStrategies = input.Instance.ReloadStrategies;
@@ -1565,7 +1565,7 @@ namespace OpenSettings.Services.Sql
                         i => i.Version,
                         i => i.PackVersion,
                         i => i.IsActive,
-                        i => i.IpAddress,
+                        i => i.RemoteIpAddress,
                         i => i.MachineName,
                         i => i.Environment,
                         i => i.ReloadStrategies,

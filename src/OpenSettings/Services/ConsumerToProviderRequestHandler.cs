@@ -63,12 +63,12 @@ namespace OpenSettings.Services
                 return null;
             }
 
-            authorization = new AuthenticationHeaderValue(OpenSettingsDefaults.Names.JwtBearerSchemaName, generateTokenResponse.Data.AccessToken);
+            authorization = new AuthenticationHeaderValue(OpenSettingsDefaults.Names.JwtBearerSchemaName, generateTokenResponse.Data.AccessToken.Value);
 
             OpenSettingsDefaults.Caches.MachineTokenCacheEntryKey.Set(_openSettingsMemoryCache, authorization,
                 cacheEntry =>
                 {
-                    cacheEntry.AbsoluteExpiration = Helpers.Helper.GetExpiryTimeOffset(generateTokenResponse.Data.Expires);
+                    cacheEntry.AbsoluteExpiration = generateTokenResponse.Data.AccessToken.ExpiryDate;
                 });
 
             return authorization;

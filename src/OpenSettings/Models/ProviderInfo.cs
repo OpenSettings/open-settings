@@ -9,10 +9,9 @@
         public string Url { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether authorization is required for this provider.
-        /// Aka "IsAuthorized"
+        /// Gets or sets a value indicating whether authentication is required for this provider.
         /// </summary>
-        public bool Authorize { get; set; }
+        public bool RequiresAuthentication { get; set; }
 
         /// <summary>
         /// Gets or sets the client information associated with the provider.

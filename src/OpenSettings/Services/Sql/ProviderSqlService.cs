@@ -58,7 +58,7 @@ namespace OpenSettings.Services.Sql
                     Name = _providerInfo.Client.Name,
                     Version = _providerInfo.Client.Version,
                 },
-                Authorize = _providerInfo.Authorize,
+                RequiresAuthentication = _providerInfo.RequiresAuthentication,
                 PackInfo = new PackInfo
                 {
                     Version = _providerInfo.PackInfo.Version,

@@ -24,25 +24,11 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         {
             var response = await _authService.GetMeAsync(new GetMeInput
             {
-                Uuid = request.Uuid,
+                StateId = request.StateId,
                 Includes = request.Includes
             });
 
             return response.ToAction();
-        }
-
-        [HttpGet("return-to")]
-        [AllowAnonymous]
-        public IActionResult ReturnTo(ReturnToRequest request)
-        {
-            _authService.ReturnTo(new ReturnToInput
-            {
-                ReturnUrl = request.ReturnUrl,
-                AccessToken = request.AccessToken,
-                Uuid = request.Uuid
-            });
-
-            return Redirect(request.ReturnUrl);
         }
 
         [HttpGet("login")]

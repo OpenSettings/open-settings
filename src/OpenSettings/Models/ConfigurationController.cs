@@ -8,7 +8,7 @@ namespace OpenSettings.Models
 
         public bool AllowFromExploring { get; set; }
 
-        public bool Authorize { get; set; }
+        public bool RequiresAuthentication { get; set; }
 
         public OAuth2Configuration OAuth2 { get; set; } = new OAuth2Configuration();
     }

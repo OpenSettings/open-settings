@@ -43,8 +43,8 @@ namespace OpenSettings.AspNetCore.CustomDataProtection
                     MasterKey = element.Descendants("masterKey").Elements("value").FirstOrDefault()?.Value,
                     FriendlyName = friendlyName,
                     Xml = element.ToString(SaveOptions.DisableFormatting),
-                    EncryptionAlgorithm = element.Descendants("encryption")?.FirstOrDefault()?.Attribute("algorithm")?.Value,
-                    ValidationAlgorithm = element.Descendants("validation")?.FirstOrDefault()?.Attribute("algorithm")?.Value,
+                    EncryptionAlgorithm = element.Descendants("encryption").FirstOrDefault()?.Attribute("algorithm")?.Value,
+                    ValidationAlgorithm = element.Descendants("validation").FirstOrDefault()?.Attribute("algorithm")?.Value,
                     CreatedOn = DateTime.Parse(element.Element("creationDate")?.Value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal),
                     ActivationDate = DateTime.Parse(element.Element("activationDate")?.Value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal),
                     ExpiryDate = DateTime.Parse(element.Element("expirationDate")?.Value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal)

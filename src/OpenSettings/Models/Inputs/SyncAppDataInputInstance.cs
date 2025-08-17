@@ -31,7 +31,7 @@ namespace OpenSettings.Models.Inputs
         public bool IsActive { get; set; }
 
         [JsonIgnore]
-        public string IpAddress { get; set; }
+        public string RemoteIpAddress { get; set; }
 
         public string MachineName { get; set; }
 

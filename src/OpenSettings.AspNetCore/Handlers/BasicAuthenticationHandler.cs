@@ -22,7 +22,7 @@ namespace OpenSettings.AspNetCore.Handlers
         private readonly IAppService _appsService;
         private readonly IOpenSettingsMemoryCache _openSettingsMemoryCache;
         private readonly OpenSettingsConfiguration _openSettingsConfiguration;
-        private readonly bool _authorize;
+        private readonly bool _requiresAuthentication;
 
         public BasicAuthenticationHandler(
             IAppService appsService,
@@ -45,7 +45,7 @@ namespace OpenSettings.AspNetCore.Handlers
             _openSettingsMemoryCache = openSettingsMemoryCache;
             _openSettingsConfiguration = openSettingsConfiguration;
 
-            _authorize = providerInfo.Authorize || openSettingsConfiguration.Controller.Authorize;
+            _requiresAuthentication = providerInfo.RequiresAuthentication || openSettingsConfiguration.Controller.RequiresAuthentication;
         }
 
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
@@ -105,7 +105,7 @@ namespace OpenSettings.AspNetCore.Handlers
                         _logger.LogWarning("ClientId: '{clientId}' is not registered.", clientIdAsString);
                     }
 
-                    if (_authorize || !registeredApp.IsClientIdUnique)
+                    if (_requiresAuthentication || !registeredApp.IsClientIdUnique)
                     {
                         return AuthenticateResults.InvalidCredentials;
                     }

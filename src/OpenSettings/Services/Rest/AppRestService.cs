@@ -68,7 +68,7 @@ namespace OpenSettings.Services.Rest
                     {
                         input.Configuration.Controller.Route,
                         input.Configuration.Controller.AllowFromExploring,
-                        input.Configuration.Controller.Authorize,
+                        input.Configuration.Controller.RequiresAuthentication,
                         OAuth2 = new
                         {
                             input.Configuration.Controller.OAuth2.Authority,

@@ -19,7 +19,7 @@ var openSettingsProviderConfiguration = new OpenSettingsConfiguration(ServiceTyp
             Authority = "https://localhost:5001",
             SignedOutRedirectUri = "settings"
         },
-        Authorize = true
+        RequiresAuthentication = true
     },
     Client = new ClientInfo(
         new Guid("adbdf741-bb4d-4673-b2a8-23e677fcf454"), // The unique identifier for the client. 

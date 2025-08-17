@@ -88,7 +88,7 @@ namespace OpenSettings.Services.Sql
                 Version = input.Version,
                 PackVersion = input.PackVersion,
                 IsActive = input.IsActive,
-                IpAddress = input.IpAddress,
+                RemoteIpAddress = input.RemoteIpAddress,
                 MachineName = input.MachineName,
                 Environment = input.Environment,
                 ReloadStrategies = input.ReloadStrategies,
@@ -148,7 +148,7 @@ namespace OpenSettings.Services.Sql
 
             _context.MarkAsModified(entity.Instance,
                 e => e.Urls,
-                e => e.IpAddress,
+                e => e.RemoteIpAddress,
                 e => e.IsActive,
                 e => e.UpdatedOn
                 );
@@ -156,7 +156,7 @@ namespace OpenSettings.Services.Sql
             var currentTime = DateTime.UtcNow;
 
             entity.Instance.Urls = input.Urls;
-            entity.Instance.IpAddress = input.IpAddress;
+            entity.Instance.RemoteIpAddress = input.RemoteIpAddress;
             entity.Instance.IsActive = input.IsActive;
             entity.Instance.UpdatedOn = currentTime;
 

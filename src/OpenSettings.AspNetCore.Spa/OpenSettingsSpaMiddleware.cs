@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
@@ -84,13 +83,13 @@ namespace OpenSettings.AspNetCore.Spa
             {
                 Route = $"/{openSettingsConfiguration.Controller.Route}",
                 openSettingsConfiguration.Controller.AllowFromExploring,
-                openSettingsConfiguration.Controller.Authorize,
+                openSettingsConfiguration.Controller.RequiresAuthentication,
                 openSettingsConfiguration.Controller.OAuth2
             };
 
             var cloneProviderInfo = new
             {
-                providerInfo.Authorize,
+                providerInfo.RequiresAuthentication ,
                 Client = new
                 {
                     providerInfo.Client.Id,

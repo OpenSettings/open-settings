@@ -59,9 +59,9 @@ namespace OpenSettings.Domains.Sql.Entities
         // public bool IsPollingSettingsWorkerActive { get; set; }
 
         /// <summary>
-        /// The ip address of the instance.
+        /// The remote ip address of the instance.
         /// </summary>
-        public string IpAddress { get; set; }
+        public string RemoteIpAddress { get; set; }
 
         /// <summary>
         /// The machine name of the instance.

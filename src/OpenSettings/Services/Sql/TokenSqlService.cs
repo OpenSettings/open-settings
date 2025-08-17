@@ -56,7 +56,7 @@ namespace OpenSettings.Services.Sql
 
                 var globalConfiguration = sp.GetRequiredService<IGlobalConfigurationSqlService>();
 
-                var keySet = await globalConfiguration.GetTokenKeySetAsync(cancellationToken);
+                var keySet = await globalConfiguration.GetOrCreateTokenKeySetAsync(cancellationToken);
 
                 var signingKeys = GenerateSigningKeys(keySet);
 
@@ -130,7 +130,7 @@ namespace OpenSettings.Services.Sql
                 DisplayName = input.DisplayName,
                 UserInitials = input.UserInitials,
                 AuthType = AuthType.OAuth2,
-                AuthMethod = _clientId == input.Audience ? AuthMethod.Cookie : AuthMethod.Jwt
+                AuthMethod = AuthMethod.Jwt
             };
 
             var claims = openSettingsClaims.GenerateClaims();
@@ -153,20 +153,24 @@ namespace OpenSettings.Services.Sql
 
             var currentTime = DateTimeOffset.UtcNow;
 
-            var expires = currentTime + expiryTimeSpan;
+            var expiryDate = currentTime + expiryTimeSpan;
 
             var token = new JwtSecurityToken(
                 issuer: _openSettingsConfiguration.Client.Name,
                 audience: audience,
                 claims: claims,
                 notBefore: currentTime.UtcDateTime,
-                expires: expires.UtcDateTime,
+                expires: expiryDate.UtcDateTime,
                 signingCredentials: providerTokenInfo.SigningCredential
             );
 
             var accessToken = WriteJwtToken(token);
 
-            var tokenResponse = new GenerateTokenResponse(accessToken, expires, expiryTimeSpan.TotalSeconds, claims);
+            var tokenResponse = new GenerateTokenResponse
+            {
+                AccessToken = new GenerateTokenResponseToken(accessToken, expiryDate, expiryTimeSpan.TotalSeconds),
+                Claims = claims
+            };
 
             return tokenResponse;
         }
@@ -189,7 +193,7 @@ namespace OpenSettings.Services.Sql
 
             tokenCacheEntryKey.Set(_openSettingsMemoryCache, response, cacheEntry =>
             {
-                cacheEntry.AbsoluteExpiration = Helper.GetExpiryTimeOffset(response.Expires) - OpenSettingsDefaults.TimeSpans.TokenExpirySafetyMargin;
+                cacheEntry.AbsoluteExpiration = response.AccessToken.ExpiryDate - OpenSettingsDefaults.TimeSpans.TokenExpirySafetyMargin;
             });
 
             return HttpStatusCode.OK.ToSuccessResponseOf(response);

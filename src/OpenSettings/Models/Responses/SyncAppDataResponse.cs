@@ -25,7 +25,7 @@ namespace OpenSettings.Models.Responses
 
         public bool IsProvider { get; set; }
 
-        public bool Authorize => ProviderInfo.Authorize || Configuration.Controller.Authorize;
+        public bool RequiresAuthentication => ProviderInfo.RequiresAuthentication || Configuration.Controller.RequiresAuthentication;
 
         public static SyncAppDataResponse Get(IConfiguration configuration)
         {
@@ -113,7 +113,7 @@ namespace OpenSettings.Models.Responses
                     IsActive= openSettingsConfiguration.Provider.Redis.IsActive,
                     Configuration = openSettingsConfiguration.Provider.Redis.Configuration,
                 },
-                Authorize = controllerConfiguration.Authorize,
+                RequiresAuthentication = controllerConfiguration.RequiresAuthentication,
                 PackInfo = new PackInfo
                 {
                     Version = openSettingsAssemblyInfo.PackInfo.Version,

@@ -20,7 +20,7 @@ namespace OpenSettings.AspNetCore.Models.Requests
 
         public bool IsActive { get; set; }
 
-        public string IpAddress { get; set; }
+        public string RemoteIpAddress { get; set; }
 
         public string MachineName { get; set; }
 

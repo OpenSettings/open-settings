@@ -54,7 +54,7 @@ namespace OpenSettings.AspNetCore.Extensions
             var providerInfo = syncAppDataResponse.ProviderInfo;
             var controllerConfiguration = syncAppDataResponse.Configuration.Controller;
 
-            var authorize = syncAppDataResponse.Authorize;
+            var requiresAuthentication = syncAppDataResponse.RequiresAuthentication;
 
             if (syncAppDataResponse.IsProvider)
             {
@@ -62,7 +62,7 @@ namespace OpenSettings.AspNetCore.Extensions
             }
             else
             {
-                RegisterConsumerServices(mvcBuilder.Services, providerInfo, syncAppDataResponse.Client, authenticationBuilder, authorize);
+                RegisterConsumerServices(mvcBuilder.Services, providerInfo, syncAppDataResponse.Client, authenticationBuilder, requiresAuthentication);
             }
 
             mvcBuilder.Services.AddSingleton<IInstanceUrlResolverService, InstanceUrlResolverService>();
@@ -110,7 +110,7 @@ namespace OpenSettings.AspNetCore.Extensions
                     mvcOpts.Conventions.AddControllerDisableConvention(providerControllerType);
                 }
 
-                if (authorize)
+                if (requiresAuthentication)
                 {
                     mvcOpts.Conventions.AddControllerAuthorizeConvention(controllerTypes,
                         conventionOpts =>
@@ -124,7 +124,7 @@ namespace OpenSettings.AspNetCore.Extensions
             services.AddSingleton<IAuthService, AuthService>();
             
             authenticationBuilder.AddJwtBearerForProvider(providerInfo);
-            if (providerInfo.Authorize && providerInfo.OAuth2.IsActive)
+            if (providerInfo.RequiresAuthentication && providerInfo.OAuth2.IsActive)
             {
                 authenticationBuilder
                     .AddCookie(OpenSettingsDefaults.AuthSchemes.Cookie, opts =>
@@ -244,52 +244,6 @@ namespace OpenSettings.AspNetCore.Extensions
                           }
 
                           return Task.CompletedTask;
-                      },
-                      OnTokenValidated = async context =>
-                      {
-                          var usersService = context.HttpContext.RequestServices.GetRequiredService<IUserService>();
-
-                          var user = await usersService.GetOrCreateUserAsync(new GetOrCreateUserInput(context.Principal, AuthType.OAuth2), CancellationToken.None);
-
-                          if (user == null)
-                          {
-                              context.Fail("ExternalId couldn't be obtain.");
-                              return;
-                          }
-
-                          if (!user.IsActive)
-                          {
-                              context.Fail("User access disabled.");
-                              return;
-                          }
-
-                          if (context.Properties == null)
-                          {
-                              return;
-                          }
-
-                          _ = context.Properties.Items.TryGetValue(OpenSettingsDefaults.Keys.AuthService.ClientId, out var clientId);
-
-                          var tokenService = context.HttpContext.RequestServices.GetRequiredService<ITokenSqlService>();
-
-                          var tokenResponse = await tokenService.GenerateTokenForUserAsync(new GenerateTokenForUserInput
-                          {
-                              UserId = user.Id,
-                              UserInitials = user.Initials,
-                              DisplayName = user.DisplayName,
-                              Audience = clientId,
-                          }, context.HttpContext.RequestAborted);
-
-                          context.Properties.Items.Add(OpenSettingsDefaults.Keys.AuthService.AccessToken, tokenResponse.AccessToken);
-
-                          var claimsIdentity = (ClaimsIdentity)context.Principal.Identity;
-
-                          foreach (var claim in claimsIdentity.Claims.ToArray())
-                          {
-                              claimsIdentity.RemoveClaim(claim);
-                          }
-
-                          context.Principal.AddIdentity(new ClaimsIdentity(tokenResponse.Claims));
                       },
                       OnRemoteFailure = context =>
                       {

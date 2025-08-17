@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/shared/models/sort-direction.enum.ts"],
-  "sourcesContent": ["export enum SortDirection{\r\n    Asc = 0,\r\n    Desc = 1\r\n}"],
-  "mappings": ";AAAA,IAAY;CAAZ,SAAYA,gBAAa;AACrB,EAAAA,eAAAA,eAAA,KAAA,IAAA,CAAA,IAAA;AACA,EAAAA,eAAAA,eAAA,MAAA,IAAA,CAAA,IAAA;AACJ,GAHY,kBAAA,gBAAa,CAAA,EAAA;",
-  "names": ["SortDirection"]
-}

@@ -1,8 +1,10 @@
-﻿namespace OpenSettings.Models.Inputs
+﻿using System;
+
+namespace OpenSettings.Models.Inputs
 {
     public class GetMeInput
     {
-        public string Uuid { get; set; }
+        public Guid? StateId { get; set; }
 
         public string ClaimTypes { get; set; }
 

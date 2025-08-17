@@ -528,7 +528,7 @@ namespace OpenSettings.Services
                     {
                         Route = _openSettingsConfiguration.Controller.Route,
                         AllowFromExploring = _openSettingsConfiguration.Controller.AllowFromExploring,
-                        Authorize = _openSettingsConfiguration.Controller.Authorize,
+                        RequiresAuthentication = _openSettingsConfiguration.Controller.RequiresAuthentication,
                         OAuth2 = new OAuth2Configuration
                         {
                             Authority = _openSettingsConfiguration.Controller.OAuth2.Authority,

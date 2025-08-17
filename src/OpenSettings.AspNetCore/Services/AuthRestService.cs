@@ -10,9 +10,11 @@ using OpenSettings.Models.Responses;
 using OpenSettings.Services.Interfaces;
 using OpenSettings.Services.Rest.Interfaces;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
+using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -42,20 +44,29 @@ namespace OpenSettings.AspNetCore.Services
                 throw new NotSupportedException(nameof(GetMeAsync));
             }
 
-            var authHeader = httpContext.Request.Headers.GetAuthenticationHeaderValueFromAuthorizationHeader();
-            string accessToken = null;
-
-            if (string.IsNullOrWhiteSpace(input.Uuid) ||
-                !OpenSettingsDefaults.Caches.AuthServiceUuidCacheEntry.GetKey(input.Uuid).TryGetValue(_openSettingsMemoryCache, out accessToken) || 
-                (!httpContext.User.Identity?.IsAuthenticated ?? true))
+            if (httpContext.User.Identity?.IsAuthenticated != true)
             {
+                var authHeader = httpContext.Request.Headers.GetAuthenticationHeaderValueFromAuthorizationHeader();
 
                 if (authHeader?.Parameter == null)
                 {
-                    return HttpStatusCode.OK.ToSuccessResponseOf(new GetMeResponse
+                    if (input.StateId == null)
                     {
-                        IsAuthenticated = false
-                    });
+                        return HttpStatusCode.OK.ToSuccessResponseOf(new GetMeResponse
+                        {
+                            IsAuthenticated = false
+                        });
+                    }
+
+                    var httpClient = GetProviderHttpClient();
+
+                    using (var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, $"{OpenSettingsDefaults.Routes.V1.Auth}/me"))
+                    {
+                        using (var response = await httpClient.SendAsync(httpRequestMessage, cancellationToken))
+                        {
+                            return await response.Content.ToResponseAsync<GetMeResponse>(cancellationToken: cancellationToken);
+                        }
+                    }
                 }
 
                 AuthenticateResult authenticateResult;
@@ -71,47 +82,63 @@ namespace OpenSettings.AspNetCore.Services
                         break;
 
                     default:
-                        return HttpStatusCode.OK.ToSuccessResponseOf(new GetMeResponse
-                        {
-                            IsAuthenticated = false
-                        });
+                        authenticateResult = null;
+                        break;
                 }
 
-                if (!authenticateResult.Succeeded)
+                if (authenticateResult == null || !authenticateResult.Succeeded)
                 {
                     return HttpStatusCode.OK.ToSuccessResponseOf(new GetMeResponse
                     {
                         IsAuthenticated = false
                     });
                 }
-            }
 
-            var httpClient = GetProviderHttpClient();
-
-            using (var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, $"{OpenSettingsDefaults.Routes.V1.Auth}/me"))
-            {
-                httpRequestMessage.Headers.Authorization = authHeader ??
-                                                           (accessToken == null
-                                                               ? null
-                                                               : new AuthenticationHeaderValue(OpenSettingsDefaults.Names.JwtBearerSchemaName, accessToken));
-
-                using (var response = await httpClient.SendAsync(httpRequestMessage, cancellationToken))
+                return HttpStatusCode.OK.ToSuccessResponseOf(new GetMeResponse
                 {
-                    return await response.Content.ToResponseAsync<GetMeResponse>(cancellationToken: cancellationToken);
-                }
+                    IsAuthenticated = true,
+                    AccessToken = null,
+                    Claims = GetClaimsByFiltering(authenticateResult.Principal.Claims, input.Includes, input.ClaimTypes)
+                });
             }
-        }
 
-        public void ReturnTo(ReturnToInput input)
-        {
-            if (string.IsNullOrWhiteSpace(input.Uuid) || string.IsNullOrWhiteSpace(input.AccessToken))
+            var claims = GetClaimsByFiltering(httpContext.User.Claims, input.Includes, input.ClaimTypes);
+
+            return HttpStatusCode.OK.ToSuccessResponseOf(new GetMeResponse
             {
-                return;
+                IsAuthenticated = true,
+                AccessToken = null,
+                Claims = claims
+            });
+
+            Dictionary<string, string> GetClaimsByFiltering(IEnumerable<Claim> claimsInput, GetMeInputIncludes includes, string claimTypes)
+            {
+                if (!includes.HasFlag(GetMeInputIncludes.Claims))
+                {
+                    return null;
+                }
+
+                if (string.IsNullOrWhiteSpace(claimTypes))
+                {
+                    return claimsInput.GroupBy(c => c.Type)
+                        .ToDictionary(c => c.Key, c => string.Join(OpenSettingsDefaults.Format.Comma, c.Select(claim => claim.Value)));
+                }
+
+                var claimArray = claimTypes
+                    .Split(OpenSettingsDefaults.Separators.CommaSeparator, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(claimType => claimType.Trim())
+                    .Where(claimType => claimType != string.Empty)
+                    .Distinct()
+                    .ToArray();
+
+                return claimsInput
+                    .GroupBy(c => c.Type)
+                    .Select(c => new { Type = c.Key, Value = string.Join(OpenSettingsDefaults.Format.Comma, c.Select(claim => claim.Value)) })
+                    .Where(claim => claimArray.Contains(claim.Type))
+                    .OrderBy(claim => Array.IndexOf(claimArray, claim.Type))
+                    .ToDictionary(c => c.Type, c => c.Value);
             }
 
-            var cacheKey = OpenSettingsDefaults.Caches.AuthServiceUuidCacheEntry.GetKey(input.Uuid);
-
-            cacheKey.Set(_openSettingsMemoryCache, input.AccessToken);
         }
 
         public async Task LoginAsync(LoginInput input, CancellationToken cancellationToken = default)
@@ -152,23 +179,23 @@ namespace OpenSettings.AspNetCore.Services
                 return;
             }
 
-            if (authenticateResult.Properties != null)
-            {
-                if (authenticateResult.Properties.Items.TryGetValue(OpenSettingsDefaults.Keys.AuthService.ReturnUrl, out var returnUrlFromItem) && string.IsNullOrWhiteSpace(input.ReturnUrl))
-                {
-                    input.ReturnUrl = returnUrlFromItem ?? string.Empty;
-                }
+            //if (authenticateResult.Properties != null)
+            //{
+            //    if (authenticateResult.Properties.Items.TryGetValue(OpenSettingsDefaults.Keys.AuthService.ReturnUrl, out var returnUrlFromItem) && string.IsNullOrWhiteSpace(input.ReturnUrl))
+            //    {
+            //        input.ReturnUrl = returnUrlFromItem ?? string.Empty;
+            //    }
 
-                if (authenticateResult.Properties.Items.TryGetValue(OpenSettingsDefaults.Keys.AuthService.ApiUrl, out var apiUrlFromItem) && string.IsNullOrWhiteSpace(input.ApiUrl))
-                {
-                    input.ApiUrl = apiUrlFromItem ?? string.Empty;
-                }
+            //    if (authenticateResult.Properties.Items.TryGetValue(OpenSettingsDefaults.Keys.AuthService.ApiUrl, out var apiUrlFromItem) && string.IsNullOrWhiteSpace(input.ApiUrl))
+            //    {
+            //        input.ApiUrl = apiUrlFromItem ?? string.Empty;
+            //    }
 
-                if (authenticateResult.Properties.Items.TryGetValue(OpenSettingsDefaults.Keys.AuthService.StateId, out var stateIdFromItem) && string.IsNullOrWhiteSpace(input.StateId))
-                {
-                    input.StateId = stateIdFromItem;
-                }
-            }
+            //    if (authenticateResult.Properties.Items.TryGetValue(OpenSettingsDefaults.Keys.AuthService.StateId, out var stateIdFromItem) && string.IsNullOrWhiteSpace(input.StateId))
+            //    {
+            //        input.StateId = stateIdFromItem;
+            //    }
+            //}
 
             if (input.ApiUrl.StartsWith(baseUrl))
             {

@@ -1,10 +1,11 @@
-﻿using OpenSettings.Models.Inputs;
+﻿using System;
+using OpenSettings.Models.Inputs;
 
 namespace OpenSettings.AspNetCore.Models.Requests
 {
     public class GetMeRequest
     {
-        public string Uuid { get; set; }
+        public Guid? StateId { get; set; }
 
         public string ClaimTypes { get; set; }
 

@@ -31,7 +31,7 @@ namespace OpenSettings.Services.Sql
             _openSettingsDbContext = openSettingsDbContext;
         }
 
-        public async Task<TokenKeySet> GetTokenKeySetAsync(CancellationToken cancellationToken)
+        public async Task<TokenKeySet> GetOrCreateTokenKeySetAsync(CancellationToken cancellationToken)
         {
             const string configKey = "token-key-set";
 

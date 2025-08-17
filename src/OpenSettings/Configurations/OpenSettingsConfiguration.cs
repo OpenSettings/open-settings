@@ -355,7 +355,7 @@ namespace OpenSettings.Configurations
 
             Controller.Route = configuration.Controller.Route;
             Controller.AllowFromExploring = configuration.Controller.AllowFromExploring;
-            Controller.Authorize = configuration.Controller.Authorize;
+            Controller.RequiresAuthentication = configuration.Controller.RequiresAuthentication;
             Controller.OAuth2.Authority = configuration.Controller.OAuth2.Authority;
             Controller.OAuth2.ClientId = configuration.Controller.OAuth2.ClientId;
             Controller.OAuth2.ClientSecret = configuration.Controller.OAuth2.ClientSecret;

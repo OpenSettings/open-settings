@@ -8,7 +8,7 @@ namespace OpenSettings.Models.Inputs
 
         public string ApiUrl { get; set; }
 
-        public string StateId { get; set; }
+        public Guid StateId { get; set; }
 
         public Guid? ClientId { get; set; }
     }

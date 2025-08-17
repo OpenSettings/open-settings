@@ -558,9 +558,6 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.Property<int>("IdentifierId")
                         .HasColumnType("int");
 
-                    b.Property<string>("IpAddress")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
@@ -577,6 +574,9 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         .HasColumnType("nvarchar(max)");
 
                     b.PrimitiveCollection<string>("ReloadStrategies")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RemoteIpAddress")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("ServiceType")
@@ -702,6 +702,15 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("AccessToken")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset?>("AccessTokenExpiryDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<int>("AuthMethod")
+                        .HasColumnType("int");
+
                     b.Property<int>("AuthType")
                         .HasColumnType("int");
 
@@ -714,14 +723,8 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("ExpiryDate")
-                        .HasColumnType("datetime2");
-
                     b.Property<Guid>("InstanceId")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("IpAddress")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsSuccessful")
                         .HasColumnType("bit");
@@ -729,8 +732,20 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.Property<string>("Metadata")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("StateId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<string>("RefreshToken")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset?>("RefreshTokenExpiryDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("RemoteIpAddress")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Scopes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("StateId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime?>("UpdatedOn")
                         .HasColumnType("datetime2");
@@ -746,9 +761,13 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CreatedOn");
+
                     b.HasIndex("StateId");
 
                     b.HasIndex("UserId");
+
+                    b.HasIndex("StateId", "AuthMethod", "CreatedOn", "IsSuccessful");
 
                     b.ToTable("LoginEntries");
                 });

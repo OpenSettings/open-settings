@@ -9,7 +9,10 @@ namespace OpenSettings.Domains.Sql.Entities
     [Table("LoginEntries")]
     public class LoginEntrySqlModel : EntityBase<Guid>
     {
-        public string StateId { get; set; }
+        /// <summary>
+        /// The state id which relevant to login.
+        /// </summary>
+        public Guid StateId { get; set; }
 
         /// <summary>
         /// The client id which initiated the login.
@@ -34,13 +37,23 @@ namespace OpenSettings.Domains.Sql.Entities
         /// </summary>
         public string UserIdLowercase { get; set; }
 
-        public string IpAddress { get; set; }
+        public string RemoteIpAddress { get; set; }
 
         public string UserAgent { get; set; }
 
         public AuthType AuthType { get; set; }
 
-        public DateTime ExpiryDate { get; set; }
+        public AuthMethod AuthMethod { get; set; }
+
+        public string AccessToken { get; set; }
+
+        public DateTimeOffset? AccessTokenExpiryDate { get; set; }
+
+        public string RefreshToken { get; set; }
+
+        public DateTimeOffset? RefreshTokenExpiryDate { get; set; }
+
+        public string Scopes { get; set; }
 
         /// <summary>
         /// Specify whether login completed successfully.

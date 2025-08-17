@@ -387,6 +387,8 @@ namespace OpenSettings.Domains.Sql.DataContext
             {
                 entity.Property(e => e.Metadata).HasConversion(dictionaryConverter).Metadata.SetValueComparer(dictionaryComparer);
                 entity.HasIndex(e => e.StateId);
+                entity.HasIndex(e => new { e.StateId, e.AuthMethod, e.CreatedOn, e.IsSuccessful });
+                entity.HasIndex(e => e.CreatedOn);
             });
 
             modelBuilder.Entity<DataProtectionKey>(entity =>

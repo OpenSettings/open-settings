@@ -174,6 +174,8 @@ namespace OpenSettings
 
             internal const string Dot = ".";
 
+            internal const char SpaceChar = ' ';
+
             internal const char DotChar = '.';
 
             internal const char HyphenChar = '-';
@@ -444,7 +446,7 @@ namespace OpenSettings
 
             public static CacheEntryKey AuthServiceIsIdpOnlineCheckCacheEntryKey { get; } = new CacheEntry("as:iioc", TimeSpan.FromMinutes(1)).GetKey();
 
-            public static CacheEntryKey ProviderTokenInfoCacheEntryKey { get; } = new CacheEntry("tss:pti", TimeSpan.FromMinutes(10))
+            public static CacheEntryKey ProviderTokenInfoCacheEntryKey { get; } = new CacheEntry("tss:pti")
             {
                 Options =
                 {
@@ -455,6 +457,11 @@ namespace OpenSettings
                             EvictionCallback = (key, value, reason, state) =>
                             {
                                 var val = (ProviderTokenInfo)value;
+
+                                if (val == null)
+                                {
+                                    return;
+                                }
 
                                 foreach (var signingKey in val.SigningKeys)
                                 {

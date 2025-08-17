@@ -10,8 +10,6 @@ namespace OpenSettings.Services.Interfaces
     {
         Task<IResponse<GetMeResponse>> GetMeAsync(GetMeInput input, CancellationToken cancellationToken = default);
 
-        void ReturnTo(ReturnToInput input);
-
         Task LoginAsync(LoginInput input, CancellationToken cancellationToken = default);
 
         Task LogoutAsync(LogoutInput input, CancellationToken cancellationToken = default);
