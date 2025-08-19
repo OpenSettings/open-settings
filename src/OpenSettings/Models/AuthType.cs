@@ -11,9 +11,9 @@
         Unset = 0,
 
         /// <summary>
-        /// Represents a login type where the user is authenticated via OAuth.
+        /// Represents a login type where the user is authenticated via OpenIdConnect flow.
         /// </summary>
-        OAuth2 = 2,
+        OpenIdConnect = 2,
 
         /// <summary>
         /// Represents a login type where the user is authenticated via a machine account.

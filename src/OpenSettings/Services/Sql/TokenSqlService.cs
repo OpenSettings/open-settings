@@ -6,7 +6,6 @@ using Ogu.Response;
 using Ogu.Response.Abstractions;
 using OpenSettings.Configurations;
 using OpenSettings.Extensions;
-using OpenSettings.Helpers;
 using OpenSettings.Models;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Models.Responses;
@@ -21,6 +20,9 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
+#if NETSTANDARD2_0
+using OpenSettings.Helpers;
+#endif
 
 namespace OpenSettings.Services.Sql
 {
@@ -31,7 +33,6 @@ namespace OpenSettings.Services.Sql
         private readonly ILogger _logger;
 
         private readonly OpenSettingsConfiguration _openSettingsConfiguration;
-        private readonly string _clientId;
 
         public TokenSqlService(IServiceProvider serviceProvider) : base(new JwtSecurityTokenHandler())
         {
@@ -39,8 +40,6 @@ namespace OpenSettings.Services.Sql
             _openSettingsMemoryCache = serviceProvider.GetRequiredService<IOpenSettingsMemoryCache>();
             _openSettingsConfiguration = serviceProvider.GetRequiredService<OpenSettingsConfiguration>();
             _logger = _openSettingsConfiguration.LoggerFactory.CreateLogger<TokenSqlService>();
-
-            _clientId = $"{_openSettingsConfiguration.Client.Id}";
         }
 
         public async ValueTask<ProviderTokenInfo> GetProviderTokenInfoAsync(CancellationToken cancellationToken)
@@ -58,7 +57,7 @@ namespace OpenSettings.Services.Sql
 
                 var keySet = await globalConfiguration.GetOrCreateTokenKeySetAsync(cancellationToken);
 
-                var signingKeys = GenerateSigningKeys(keySet);
+                var signingKeys = GenerateSigningKeys(keySet.Keys);
 
                 var firstAvailableSigningKey = signingKeys[0];
                 
@@ -74,36 +73,20 @@ namespace OpenSettings.Services.Sql
                 OpenSettingsDefaults.Caches.ProviderTokenInfoCacheEntryKey.Set(_openSettingsMemoryCache, providerTokenInfo,
                     cacheEntry =>
                     {
-                        cacheEntry.PostEvictionCallbacks.Add(new PostEvictionCallbackRegistration()
+                        cacheEntry.PostEvictionCallbacks.Add(new PostEvictionCallbackRegistration
                         {
-                            EvictionCallback = ((key, value, reason, state) =>
+                            EvictionCallback = (key, value, reason, state) =>
                             {
-                                    
-                            })
+                                foreach (var signingKey in ((ProviderTokenInfo)value).SigningKeys)
+                                {
+                                    signingKey.Rsa.Dispose();
+                                }
+                            }
                         });
                     });
 
                 return providerTokenInfo;
             }
-        }
-
-        private static RsaSecurityKey[] GenerateSigningKeys(TokenKeySet keySet)
-        {
-            var issuerSigningKeys = keySet.Keys.Where(k => k.IsActive).Select(signingKey =>
-            {
-                var rsa = RSA.Create();
-
-                rsa.ImportPkcs8PrivateKey(signingKey.PrivateKey, out _);
-
-                var securityKey = new RsaSecurityKey(rsa)
-                {
-                    KeyId = signingKey.KeyId,
-                };
-
-                return securityKey;
-            }).ToArray();
-
-            return issuerSigningKeys;
         }
 
         public async Task<IResponse<GenerateTokenResponse>> GenerateTokenForMachineAsync(GenerateTokenForMachineInput input, CancellationToken cancellationToken)
@@ -122,20 +105,20 @@ namespace OpenSettings.Services.Sql
                 : HttpStatusCode.OK.ToSuccessResponseOf(response);
         }
 
-        public async Task<GenerateTokenResponse> GenerateTokenForUserAsync(GenerateTokenForUserInput input, CancellationToken cancellationToken)
+        public async Task<GenerateTokenResponse> GenerateTokenForUserAsync(GenerateTokenForUserInput input, TimeSpan tokenExpiryTime, CancellationToken cancellationToken)
         {
             var openSettingsClaims = new OpenSettingsClaims
             {
                 UserId = input.UserId,
                 DisplayName = input.DisplayName,
                 UserInitials = input.UserInitials,
-                AuthType = AuthType.OAuth2,
+                AuthType = AuthType.OpenIdConnect,
                 AuthMethod = AuthMethod.Jwt
             };
 
             var claims = openSettingsClaims.GenerateClaims();
 
-            var tokenResponse = await GenerateTokenAsync(input.Audience, OpenSettingsDefaults.TimeSpans.TokenExpiryTime, claims, cancellationToken);
+            var tokenResponse = await GenerateTokenAsync(input.Audience, tokenExpiryTime, claims, cancellationToken);
 
             return tokenResponse;
         }
@@ -228,10 +211,29 @@ namespace OpenSettings.Services.Sql
 
                 var claims = openSettingsClaims.GenerateClaims();
 
-                var tokenResponse = await GenerateTokenAsync(registeredApp.ClientName, tokenExpiryTime, claims, cancellationToken);
+                var tokenResponse = await GenerateTokenAsync($"{input.ClientId}", tokenExpiryTime, claims, cancellationToken);
 
                 return tokenResponse;
             }
+        }
+
+        private static RsaSecurityKey[] GenerateSigningKeys(TokenKeySetSigningKey[] keys)
+        {
+            var issuerSigningKeys = keys.Where(k => k.IsActive).Select(signingKey =>
+            {
+                var rsa = RSA.Create();
+
+                rsa.ImportPkcs8PrivateKey(signingKey.PrivateKey, out _);
+
+                var securityKey = new RsaSecurityKey(rsa)
+                {
+                    KeyId = signingKey.KeyId,
+                };
+
+                return securityKey;
+            }).ToArray();
+
+            return issuerSigningKeys;
         }
     }
 }

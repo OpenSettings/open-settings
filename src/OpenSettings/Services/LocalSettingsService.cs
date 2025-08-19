@@ -529,14 +529,14 @@ namespace OpenSettings.Services
                         Route = _openSettingsConfiguration.Controller.Route,
                         AllowFromExploring = _openSettingsConfiguration.Controller.AllowFromExploring,
                         RequiresAuthentication = _openSettingsConfiguration.Controller.RequiresAuthentication,
-                        OAuth2 = new OAuth2Configuration
+                        OpenIdConnect = new OpenIdConnectConfiguration
                         {
-                            Authority = _openSettingsConfiguration.Controller.OAuth2.Authority,
-                            ClientId = _openSettingsConfiguration.Controller.OAuth2.ClientId,
-                            ClientSecret = _openSettingsConfiguration.Controller.OAuth2.ClientSecret,
-                            SignedOutRedirectUri = _openSettingsConfiguration.Controller.OAuth2.SignedOutRedirectUri,
-                            AllowOfflineAccess = _openSettingsConfiguration.Controller.OAuth2.AllowOfflineAccess,
-                            IsActive = _openSettingsConfiguration.Controller.OAuth2.IsActive,
+                            Authority = _openSettingsConfiguration.Controller.OpenIdConnect.Authority,
+                            ClientId = _openSettingsConfiguration.Controller.OpenIdConnect.ClientId,
+                            ClientSecret = _openSettingsConfiguration.Controller.OpenIdConnect.ClientSecret,
+                            SignedOutRedirectUri = _openSettingsConfiguration.Controller.OpenIdConnect.SignedOutRedirectUri,
+                            AllowOfflineAccess = _openSettingsConfiguration.Controller.OpenIdConnect.AllowOfflineAccess,
+                            IsActive = _openSettingsConfiguration.Controller.OpenIdConnect.IsActive,
                         }
                     },
                     Spa = new ConfigurationSpa
@@ -651,7 +651,7 @@ namespace OpenSettings.Services
                         },
                         Controller = new ConfigurationController
                         {
-                            OAuth2 = new OAuth2Configuration()
+                            OpenIdConnect = new OpenIdConnectConfiguration()
                         },
                         Spa = new ConfigurationSpa
                         {

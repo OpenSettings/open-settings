@@ -708,29 +708,29 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.Property<DateTimeOffset?>("AccessTokenExpiryDate")
                         .HasColumnType("datetimeoffset");
 
+                    b.Property<Guid>("Audience")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<int>("AuthMethod")
                         .HasColumnType("int");
 
                     b.Property<int>("AuthType")
                         .HasColumnType("int");
 
-                    b.Property<Guid>("ClientId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("ClientIdLowercase")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
-
-                    b.Property<Guid>("InstanceId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("IsSuccessful")
                         .HasColumnType("bit");
 
+                    b.Property<Guid>("Issuer")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Metadata")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("ProviderRegistryId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("RefreshToken")
                         .HasColumnType("nvarchar(max)");
@@ -756,12 +756,11 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.Property<Guid?>("UserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("UserIdLowercase")
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("Id");
 
                     b.HasIndex("CreatedOn");
+
+                    b.HasIndex("ProviderRegistryId");
 
                     b.HasIndex("StateId");
 
@@ -1737,9 +1736,17 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 
             modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.LoginEntrySqlModel", b =>
                 {
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.ProviderRegistrySqlModel", "ProviderRegistry")
+                        .WithMany()
+                        .HasForeignKey("ProviderRegistryId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "User")
                         .WithMany()
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("ProviderRegistry");
 
                     b.Navigation("User");
                 });

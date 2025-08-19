@@ -356,12 +356,12 @@ namespace OpenSettings.Configurations
             Controller.Route = configuration.Controller.Route;
             Controller.AllowFromExploring = configuration.Controller.AllowFromExploring;
             Controller.RequiresAuthentication = configuration.Controller.RequiresAuthentication;
-            Controller.OAuth2.Authority = configuration.Controller.OAuth2.Authority;
-            Controller.OAuth2.ClientId = configuration.Controller.OAuth2.ClientId;
-            Controller.OAuth2.ClientSecret = configuration.Controller.OAuth2.ClientSecret;
-            Controller.OAuth2.SignedOutRedirectUri = configuration.Controller.OAuth2.SignedOutRedirectUri;
-            Controller.OAuth2.AllowOfflineAccess = configuration.Controller.OAuth2.AllowOfflineAccess;
-            Controller.OAuth2.IsActive = configuration.Controller.OAuth2.IsActive;
+            Controller.OpenIdConnect.Authority = configuration.Controller.OpenIdConnect.Authority;
+            Controller.OpenIdConnect.ClientId = configuration.Controller.OpenIdConnect.ClientId;
+            Controller.OpenIdConnect.ClientSecret = configuration.Controller.OpenIdConnect.ClientSecret;
+            Controller.OpenIdConnect.SignedOutRedirectUri = configuration.Controller.OpenIdConnect.SignedOutRedirectUri;
+            Controller.OpenIdConnect.AllowOfflineAccess = configuration.Controller.OpenIdConnect.AllowOfflineAccess;
+            Controller.OpenIdConnect.IsActive = configuration.Controller.OpenIdConnect.IsActive;
 
             Spa.RoutePrefix = configuration.Spa.RoutePrefix;
             Spa.DocumentTitle = configuration.Spa.DocumentTitle;

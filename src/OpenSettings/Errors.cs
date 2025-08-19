@@ -222,7 +222,7 @@ namespace OpenSettings
         [Description("RefreshToken is not supported while running in 'Consumer' mode.")]
         RefreshTokenNotSupportedWhileRunningInConsumerMode = 50003,
 
-        [Description("Missing OAuth2 authority configuration.")]
-        MissingOAuth2Authority = 50005,
+        [Description("Missing OpenIdConnect authority configuration.")]
+        MissingOpenIdConnectAuthority = 50005,
     }
 }

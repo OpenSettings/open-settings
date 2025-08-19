@@ -7,6 +7,13 @@ namespace OpenSettings.AspNetCore.Extensions
 {
     internal static class HeaderDictionaryExtensions
     {
+        internal static string GetUserAgentOrDefault(this IHeaderDictionary headerDictionary)
+        {
+            return TryGetHeaderValue(headerDictionary, OpenSettingsDefaults.Headers.UserAgent, out var value)
+                ? value
+                : null;
+        }
+
         internal static string GetPackVersionHeaderValueOrDefault(this IHeaderDictionary headerDictionary)
         {
             return TryGetHeaderValue(headerDictionary, OpenSettingsDefaults.Headers.PackVersion, out var value) ? value : null;

@@ -84,7 +84,7 @@ namespace OpenSettings.AspNetCore.Spa
                 Route = $"/{openSettingsConfiguration.Controller.Route}",
                 openSettingsConfiguration.Controller.AllowFromExploring,
                 openSettingsConfiguration.Controller.RequiresAuthentication,
-                openSettingsConfiguration.Controller.OAuth2
+                OpenIdConnect = openSettingsConfiguration.Controller.OpenIdConnect
             };
 
             var cloneProviderInfo = new
@@ -102,11 +102,11 @@ namespace OpenSettings.AspNetCore.Spa
                     providerInfo.PackInfo.Score,
                     providerInfo.PackInfo.IsPreview,
                 },
-                OAuth2 = new
+                OpenIdConnect = new
                 {
-                    providerInfo.OAuth2.Authority,
-                    providerInfo.OAuth2.AllowOfflineAccess,
-                    providerInfo.OAuth2.IsActive
+                    providerInfo.OpenIdConnect.Authority,
+                    providerInfo.OpenIdConnect.AllowOfflineAccess,
+                    providerInfo.OpenIdConnect.IsActive
                 },
                 Redis = new
                 {

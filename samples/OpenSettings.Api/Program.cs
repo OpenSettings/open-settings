@@ -10,14 +10,13 @@ var openSettingsProviderConfiguration = new OpenSettingsConfiguration(ServiceTyp
 {
     Controller = new ControllerConfiguration
     {
-        OAuth2 = new OAuth2Configuration
+        OpenIdConnect = new OpenIdConnectConfiguration
         {
             IsActive = true,
             ClientId = "web",
             ClientSecret = "secret",
             AllowOfflineAccess = true,
             Authority = "https://localhost:5001",
-            SignedOutRedirectUri = "settings"
         },
         RequiresAuthentication = true
     },

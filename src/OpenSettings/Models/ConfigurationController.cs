@@ -10,6 +10,6 @@ namespace OpenSettings.Models
 
         public bool RequiresAuthentication { get; set; }
 
-        public OAuth2Configuration OAuth2 { get; set; } = new OAuth2Configuration();
+        public OpenIdConnectConfiguration OpenIdConnect { get; set; } = new OpenIdConnectConfiguration();
     }
 }

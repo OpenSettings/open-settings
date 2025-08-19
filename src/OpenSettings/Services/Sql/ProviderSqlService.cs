@@ -65,11 +65,11 @@ namespace OpenSettings.Services.Sql
                     Score = _providerInfo.PackInfo.Score,
                     IsPreview = _providerInfo.PackInfo.IsPreview
                 },
-                OAuth2 = new OAuth2Info
+                OpenIdConnect = new OpenIdConnectInfo
                 {
-                    Authority = _providerInfo.OAuth2.Authority,
-                    AllowOfflineAccess = _providerInfo.OAuth2.AllowOfflineAccess,
-                    IsActive = _providerInfo.OAuth2.IsActive
+                    Authority = _providerInfo.OpenIdConnect.Authority,
+                    AllowOfflineAccess = _providerInfo.OpenIdConnect.AllowOfflineAccess,
+                    IsActive = _providerInfo.OpenIdConnect.IsActive
                 },
                 Redis = new RedisInfo
                 {

@@ -15,27 +15,22 @@ namespace OpenSettings.Domains.Sql.Entities
         public Guid StateId { get; set; }
 
         /// <summary>
-        /// The client id which initiated the login.
+        /// The issuer which created the login entry.
         /// </summary>
-        public Guid ClientId { get; set; }
+        public Guid Issuer { get; set; }
 
         /// <summary>
-        /// The lowercase version of the <see cref="ClientId"/>, typically used for case-insensitive comparisons.
+        /// The audience which initiated the login.
         /// </summary>
-        public string ClientIdLowercase { get; set; }
+        public Guid Audience { get; set; }
 
         /// <summary>
         /// The instance id of the provider service which processed the login.
         /// This comes from <see cref="ProviderCoordinationTimedService.InstanceId"/> which corresponds the ProviderRegistry's id field.
         /// </summary>
-        public Guid InstanceId { get; set; }
+        public Guid? ProviderRegistryId { get; set; }
 
         public Guid? UserId { get; set; }
-
-        /// <summary>
-        /// The lowercase version of the <see cref="UserId"/>, typically used for case-insensitive comparisons.
-        /// </summary>
-        public string UserIdLowercase { get; set; }
 
         public string RemoteIpAddress { get; set; }
 
@@ -70,5 +65,8 @@ namespace OpenSettings.Domains.Sql.Entities
         /// </summary>
         [ForeignKey(nameof(UserId))]
         public virtual UserSqlModel User { get; set; }
+
+        [ForeignKey(nameof(ProviderRegistryId))]
+        public virtual ProviderRegistrySqlModel ProviderRegistry { get; set; }
     }
 }

@@ -60,7 +60,7 @@ namespace OpenSettings.AspNetCore.Services
 
                     var httpClient = GetProviderHttpClient();
 
-                    using (var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, $"{OpenSettingsDefaults.Routes.V1.Auth}/me"))
+                    using (var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, $"{OpenSettingsDefaults.Routes.V1.Auth}/me{httpContext.Request.QueryString.Value}"))
                     {
                         using (var response = await httpClient.SendAsync(httpRequestMessage, cancellationToken))
                         {
@@ -138,7 +138,6 @@ namespace OpenSettings.AspNetCore.Services
                     .OrderBy(claim => Array.IndexOf(claimArray, claim.Type))
                     .ToDictionary(c => c.Type, c => c.Value);
             }
-
         }
 
         public async Task LoginAsync(LoginInput input, CancellationToken cancellationToken = default)
@@ -147,67 +146,32 @@ namespace OpenSettings.AspNetCore.Services
 
             if (httpContext == null)
             {
-                throw new NotSupportedException();
-            }
-
-            var baseUrl = $"{httpContext.Request.Scheme}://{httpContext.Request.Host}";
-
-            var spaLocation = $"{baseUrl}/{_openSettingsConfiguration.Spa.RoutePrefix}";
-
-            if (string.IsNullOrWhiteSpace(input.ReturnUrl))
-            {
-                input.ReturnUrl = spaLocation;
-            }
-            else if(!input.ReturnUrl.StartsWith(baseUrl))
-            {
-                httpContext.Response.Redirect(spaLocation);
-                return;
+                throw new NotSupportedException(nameof(LoginAsync));
             }
 
             var authenticateResult = await httpContext.AuthenticateAsync(OpenSettingsDefaults.AuthSchemes.JwtBearer);
 
-            if (!authenticateResult.Succeeded)
-            {
-                if (string.IsNullOrEmpty(input.ApiUrl))
-                {
-                    input.ApiUrl = $"{baseUrl}/{_openSettingsConfiguration.Controller.Route}";
-                }
-
-                var redirectLoginUrl = $"{_openSettingsConfiguration.Consumer.ProviderUrl}v1/auth/login?returnUrl={Uri.EscapeDataString(input.ReturnUrl)}&apiUrl={input.ApiUrl}&stateId={input.StateId}&clientId={_openSettingsConfiguration.Client.Id}";
-
-                httpContext.Response.Redirect(redirectLoginUrl);
-                return;
-            }
-
-            //if (authenticateResult.Properties != null)
-            //{
-            //    if (authenticateResult.Properties.Items.TryGetValue(OpenSettingsDefaults.Keys.AuthService.ReturnUrl, out var returnUrlFromItem) && string.IsNullOrWhiteSpace(input.ReturnUrl))
-            //    {
-            //        input.ReturnUrl = returnUrlFromItem ?? string.Empty;
-            //    }
-
-            //    if (authenticateResult.Properties.Items.TryGetValue(OpenSettingsDefaults.Keys.AuthService.ApiUrl, out var apiUrlFromItem) && string.IsNullOrWhiteSpace(input.ApiUrl))
-            //    {
-            //        input.ApiUrl = apiUrlFromItem ?? string.Empty;
-            //    }
-
-            //    if (authenticateResult.Properties.Items.TryGetValue(OpenSettingsDefaults.Keys.AuthService.StateId, out var stateIdFromItem) && string.IsNullOrWhiteSpace(input.StateId))
-            //    {
-            //        input.StateId = stateIdFromItem;
-            //    }
-            //}
-
-            if (input.ApiUrl.StartsWith(baseUrl))
+            if (authenticateResult.Succeeded)
             {
                 httpContext.Response.Redirect(input.ReturnUrl);
                 return;
             }
 
-            var accessToken = await httpContext.GetTokenAsync(OpenSettingsDefaults.AuthSchemes.Cookie, "access_token");
+            var currentServiceUrl = $"{httpContext.Request.Scheme}://{httpContext.Request.Host}";
 
-            var redirectReturnToUrl = $"{input.ApiUrl}/v1/auth/return-to?returnUrl={input.ReturnUrl}&apiUrl={input.ApiUrl}&accessToken={accessToken}&stateId={input.StateId}";
+            if (string.IsNullOrWhiteSpace(input.ReturnUrl) || !input.ReturnUrl.StartsWith(currentServiceUrl))
+            {
+                input.ReturnUrl = $"{currentServiceUrl}/{_openSettingsConfiguration.Spa.RoutePrefix}";
+            }
 
-            httpContext.Response.Redirect(redirectReturnToUrl);
+            if (string.IsNullOrEmpty(input.ApiUrl) || !input.ApiUrl.StartsWith(currentServiceUrl))
+            {
+                input.ApiUrl = $"{currentServiceUrl}/{_openSettingsConfiguration.Controller.Route}";
+            }
+
+            var redirectLoginUrl = $"{_openSettingsConfiguration.Consumer.ProviderUrl}v1/auth/login?returnUrl={Uri.EscapeDataString(input.ReturnUrl)}&apiUrl={Uri.EscapeDataString(input.ApiUrl)}&stateId={input.StateId}&clientId={_openSettingsConfiguration.Client.Id}";
+
+            httpContext.Response.Redirect(redirectLoginUrl);
         }
 
         public Task LogoutAsync(LogoutInput input, CancellationToken cancellationToken = default)
@@ -216,27 +180,22 @@ namespace OpenSettings.AspNetCore.Services
 
             if (httpContext == null)
             {
-                throw new NotSupportedException();
+                throw new NotSupportedException(nameof(LogoutAsync));
             }
 
-            var baseUrl = $"{httpContext.Request.Scheme}://{httpContext.Request.Host}";
+            var currentServiceUrl = $"{httpContext.Request.Scheme}://{httpContext.Request.Host}";
 
-            if (string.IsNullOrWhiteSpace(input.ReturnUrl))
+            if (string.IsNullOrWhiteSpace(input.ReturnUrl) || !input.ReturnUrl.StartsWith(currentServiceUrl))
             {
-                input.ReturnUrl = httpContext.Request.Headers[OpenSettingsDefaults.Headers.Referer].ToString().TrimEnd(OpenSettingsDefaults.Format.SlashChar);
-
-                if (string.IsNullOrWhiteSpace(input.ReturnUrl))
-                {
-                    input.ReturnUrl = $"{baseUrl}/"; ;
-                }
+                input.ReturnUrl = $"{currentServiceUrl}/{_openSettingsConfiguration.Spa.RoutePrefix}";
             }
 
-            if (string.IsNullOrEmpty(input.ApiUrl))
+            if (string.IsNullOrEmpty(input.ApiUrl) || !input.ApiUrl.StartsWith(currentServiceUrl))
             {
-                input.ApiUrl = $"{baseUrl}/{_openSettingsConfiguration.Controller.Route}";
+                input.ApiUrl = $"{currentServiceUrl}/{_openSettingsConfiguration.Controller.Route}";
             }
 
-            var redirectLogoutUrl = $"{_openSettingsConfiguration.Consumer.ProviderUrl}v1/auth/logout?returnUrl={input.ReturnUrl}&apiUrl={input.ApiUrl}";
+            var redirectLogoutUrl = $"{_openSettingsConfiguration.Consumer.ProviderUrl}v1/auth/logout?returnUrl={Uri.EscapeDataString(input.ReturnUrl)}&apiUrl={Uri.EscapeDataString(input.ApiUrl)}";
 
             httpContext.Response.Redirect(redirectLogoutUrl);
 

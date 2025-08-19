@@ -2,7 +2,7 @@
 {
     /// <summary>
     /// Represents information about a provider, including client details, authorization status, version information,
-    /// and configuration related to OpenSettings, OAuth2, and Redis.
+    /// and configuration related to OpenSettings, OpenIdConnect, and Redis.
     /// </summary>
     public class ProviderInfo
     {
@@ -24,9 +24,9 @@
         public PackInfo PackInfo { get; set; } = new PackInfo();
 
         /// <summary>
-        /// Gets or sets the OAuth2 configuration for the provider.
+        /// Gets or sets the OpenIdConnect configuration for the provider.
         /// </summary>
-        public OAuth2Info OAuth2 { get; set; } = new OAuth2Info();
+        public OpenIdConnectInfo OpenIdConnect { get; set; } = new OpenIdConnectInfo();
 
         /// <summary>
         /// Gets or sets the Redis configuration for the provider.

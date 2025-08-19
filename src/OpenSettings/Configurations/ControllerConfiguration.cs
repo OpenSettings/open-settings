@@ -41,9 +41,9 @@
         public bool RequiresAuthentication { get; set; }
 
         /// <summary>
-        /// Gets or sets OAuth2 configuration for the open settings controller, allowing for 
-        /// more detailed configuration of authentication and authorization using OAuth2.
+        /// Gets or sets OpenIdConnect configuration for the open settings controller, allowing for 
+        /// more detailed configuration of authentication and authorization using OpenIdConnect.
         /// </summary>
-        public OAuth2Configuration OAuth2 { get; set; } = new OAuth2Configuration();
+        public OpenIdConnectConfiguration OpenIdConnect { get; set; } = new OpenIdConnectConfiguration();
     }
 }

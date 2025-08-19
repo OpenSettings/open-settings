@@ -120,11 +120,11 @@ namespace OpenSettings.Models.Responses
                     Score = openSettingsAssemblyInfo.PackInfo.Score,
                     IsPreview = openSettingsAssemblyInfo.PackInfo.IsPreview
                 },
-                OAuth2 = new OAuth2Info
+                OpenIdConnect = new OpenIdConnectInfo
                 {
-                    Authority = controllerConfiguration.OAuth2.Authority,
-                    AllowOfflineAccess = controllerConfiguration.OAuth2.AllowOfflineAccess,
-                    IsActive = controllerConfiguration.OAuth2.IsActive
+                    Authority = controllerConfiguration.OpenIdConnect.Authority,
+                    AllowOfflineAccess = controllerConfiguration.OpenIdConnect.AllowOfflineAccess,
+                    IsActive = controllerConfiguration.OpenIdConnect.IsActive
                 }
             };
         }

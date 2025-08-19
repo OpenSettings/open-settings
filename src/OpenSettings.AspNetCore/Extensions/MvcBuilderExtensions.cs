@@ -1,32 +1,20 @@
 ﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Ogu.AspNetCore.Conventions;
+using OpenSettings.AspNetCore.Authentication;
 using OpenSettings.AspNetCore.Controllers.v1;
 using OpenSettings.AspNetCore.CustomDataProtection;
 using OpenSettings.AspNetCore.Handlers;
 using OpenSettings.AspNetCore.Services;
-using OpenSettings.Configurations;
 using OpenSettings.Models;
-using OpenSettings.Models.Inputs;
 using OpenSettings.Models.Responses;
 using OpenSettings.Services.Interfaces;
 using OpenSettings.Services.Rest.Interfaces;
-using OpenSettings.Services.Sql.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using System.Net.Http;
 
 namespace OpenSettings.AspNetCore.Extensions
 {
@@ -124,9 +112,9 @@ namespace OpenSettings.AspNetCore.Extensions
         private static void RegisterProviderServices(IServiceCollection services, ProviderInfo providerInfo, ConfigurationController controllerConfiguration, AuthenticationBuilder authenticationBuilder)
         {
             services.AddSingleton<IAuthService, AuthService>();
-            
+
             authenticationBuilder.AddJwtBearerForProvider(providerInfo);
-            if (providerInfo.RequiresAuthentication && providerInfo.OAuth2.IsActive)
+            if (providerInfo.RequiresAuthentication && providerInfo.OpenIdConnect.IsActive)
             {
                 authenticationBuilder
                     .AddCookie(OpenSettingsDefaults.AuthSchemes.Cookie, opts =>
@@ -135,7 +123,7 @@ namespace OpenSettings.AspNetCore.Extensions
                             CustomDataProtectionExtensions.CreateOpenSettingsDataProtectionProvider(providerInfo.Client
                                 .Name);
                     })
-                    .AddOAuth2(controllerConfiguration);
+                    .AddOpenSettingsOpenIdConnect(controllerConfiguration);
             }
         }
 
@@ -168,20 +156,7 @@ namespace OpenSettings.AspNetCore.Extensions
                     IssuerSigningKey = new SymmetricSecurityKey(new byte[32])
                 };
 
-                opts.Events = new JwtBearerEvents
-                {
-                    OnMessageReceived = async context =>
-                    {
-                        var tokenSqlService = context.HttpContext.RequestServices.GetRequiredService<ITokenSqlService>();
-
-                        var providerTokenInfo = await tokenSqlService.GetProviderTokenInfoAsync(context.HttpContext.RequestAborted);
-
-                        if (!ReferenceEquals(context.Options.TokenValidationParameters.IssuerSigningKeys, providerTokenInfo.SigningKeys))
-                        {
-                            context.Options.TokenValidationParameters.IssuerSigningKeys = providerTokenInfo.SigningKeys;
-                        }
-                    }
-                };
+                opts.Events = new ProviderJwtBearerEvents();
             });
         }
 
@@ -190,96 +165,48 @@ namespace OpenSettings.AspNetCore.Extensions
             authenticationBuilder.AddJwtBearer(OpenSettingsDefaults.AuthSchemes.JwtBearer, opts =>
             {
                 opts.Authority = null; // -> not using discovery
-                opts.MetadataAddress = $"{providerInfo.Url}{OpenSettingsDefaults.Routes.V1.Token}/{OpenSettingsDefaults.Routes.V1.TokenEndpoints.GetPublicJwks}";
+                opts.RequireHttpsMetadata = false;
                 opts.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,
                     ValidIssuer = providerInfo.Client.Name,
                     ValidateIssuerSigningKey = true,
                     ValidateAudience = true,
-                    ValidAudience = $"{client.Id}"
+                    ValidAudience = $"{OpenSettingsDefaults.Caches.OpenSettingsConfiguration.Client.Id}",
+                    IssuerSigningKey = new SymmetricSecurityKey(new byte[32])
                 };
+
+                opts.Events = new ConsumerJwtBearerEvents();
             });
         }
 
-        private static AuthenticationBuilder AddOAuth2(this AuthenticationBuilder authenticationBuilder, ConfigurationController controllerConfiguration)
+        private static AuthenticationBuilder AddOpenSettingsOpenIdConnect(this AuthenticationBuilder authenticationBuilder, ConfigurationController controllerConfiguration)
         {
-            var apiLoginRoute = $"/{controllerConfiguration.Route}/v1/auth/login";
+            return authenticationBuilder.AddOpenIdConnect(OpenSettingsDefaults.AuthSchemes.OpenIdConnect, opts =>
+            {
+                opts.Authority = controllerConfiguration.OpenIdConnect.Authority;
+                opts.SignInScheme = OpenSettingsDefaults.AuthSchemes.Cookie;
+                opts.SignedOutRedirectUri = controllerConfiguration.OpenIdConnect.SignedOutRedirectUri;
+                opts.ClientId = controllerConfiguration.OpenIdConnect.ClientId;
+                opts.ClientSecret = controllerConfiguration.OpenIdConnect.ClientSecret;
+                opts.ResponseType = "code";
+                opts.SaveTokens = true;
+                opts.GetClaimsFromUserInfoEndpoint = true;
+                opts.SecurityTokenValidator = new JwtSecurityTokenHandler
+                {
+                    MapInboundClaims = false
+                };
+                opts.Scope.Clear();
+                opts.Scope.Add("openid");
+                opts.Scope.Add("profile");
 
-            ILogger oAuth2Logger = null;
+                if (controllerConfiguration.OpenIdConnect.AllowOfflineAccess)
+                {
+                    opts.Scope.Add("offline_access");
+                }
 
-            return authenticationBuilder.AddOpenIdConnect(OpenSettingsDefaults.AuthSchemes.OAuth2, opts =>
-              {
-                  opts.Authority = controllerConfiguration.OAuth2.Authority;
-                  opts.SignInScheme = OpenSettingsDefaults.AuthSchemes.Cookie;
-                  opts.SignedOutRedirectUri = controllerConfiguration.OAuth2.SignedOutRedirectUri;
-                  opts.ClientId = controllerConfiguration.OAuth2.ClientId;
-                  opts.ClientSecret = controllerConfiguration.OAuth2.ClientSecret;
-                  opts.ResponseType = "code";
-                  opts.SaveTokens = true;
-                  opts.GetClaimsFromUserInfoEndpoint = true;
-                  opts.SecurityTokenValidator = new JwtSecurityTokenHandler
-                  {
-                      MapInboundClaims = false
-                  };
-                  opts.Scope.Clear();
-                  opts.Scope.Add("openid");
-                  opts.Scope.Add("profile");
-
-                  if (controllerConfiguration.OAuth2.AllowOfflineAccess)
-                  {
-                      opts.Scope.Add("offline_access");
-                  }
-
-                  var route = $"/{controllerConfiguration.Route}";
-
-                  PathString routeAsPathString = route;
-
-                  opts.Events = new OpenIdConnectEvents
-                  {
-                      OnRedirectToIdentityProvider = context =>
-                      {
-                          if (context.Request.Path.StartsWithSegments(routeAsPathString) && context.Request.Path.Value != apiLoginRoute)
-                          {
-                              context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                              context.HandleResponse();
-                          }
-
-                          return Task.CompletedTask;
-                      },
-                      OnTicketReceived = async context =>
-                      {
-                          await AuthService.OnAuth2TicketReceivedAsync(context);
-                      },
-                      OnRemoteFailure = context =>
-                      {
-                          if (oAuth2Logger == null)
-                          {
-                              var openSettingsConfiguration = context.HttpContext.RequestServices.GetService<OpenSettingsConfiguration>();
-
-                              oAuth2Logger = openSettingsConfiguration.LoggerFactory.CreateLogger("OAuth2");
-                          }
-
-                          oAuth2Logger.LogError(context.Failure, "OIDC Error: {message}", context.Failure?.Message);
-
-                          if ((string)context.Failure?.Data["error"] != "access_denied")
-                          {
-                              return Task.CompletedTask;
-                          }
-
-                          if (context.Properties?.Items.TryGetValue(OpenSettingsDefaults.Keys.AuthService.ReturnUrl, out var returnUrl) != true ||
-                              string.IsNullOrWhiteSpace(returnUrl))
-                          {
-                              return Task.CompletedTask;
-                          }
-
-                          context.Response.Redirect(returnUrl);
-                          context.HandleResponse();
-
-                          return Task.CompletedTask;
-                      }
-                  };
-              });
+                opts.Events = new ProviderOpenIdConnectEvents();
+            });
         }
 
         /// <summary>
@@ -293,11 +220,11 @@ namespace OpenSettings.AspNetCore.Extensions
         {
             var authSchemes = new List<string>(4) { OpenSettingsDefaults.AuthSchemes.Basic, OpenSettingsDefaults.AuthSchemes.JwtBearer };
 
-            if (providerInfo.OAuth2.IsActive)
+            if (providerInfo.OpenIdConnect.IsActive)
             {
                 if (isServiceTypeProvider)
                 {
-                    authSchemes.Add(OpenSettingsDefaults.AuthSchemes.OAuth2);
+                    authSchemes.Add(OpenSettingsDefaults.AuthSchemes.OpenIdConnect);
                 }
             }
 

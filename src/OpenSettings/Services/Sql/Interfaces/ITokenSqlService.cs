@@ -1,4 +1,5 @@
-﻿using OpenSettings.Models;
+﻿using System;
+using OpenSettings.Models;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Models.Responses;
 using OpenSettings.Services.Interfaces;
@@ -11,6 +12,6 @@ namespace OpenSettings.Services.Sql.Interfaces
     {
         ValueTask<ProviderTokenInfo> GetProviderTokenInfoAsync(CancellationToken cancellationToken);
 
-        Task<GenerateTokenResponse> GenerateTokenForUserAsync(GenerateTokenForUserInput input, CancellationToken cancellationToken);
+        Task<GenerateTokenResponse> GenerateTokenForUserAsync(GenerateTokenForUserInput input, TimeSpan tokenExpiryTime, CancellationToken cancellationToken);
     }
 }

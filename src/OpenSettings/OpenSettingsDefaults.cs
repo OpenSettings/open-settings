@@ -124,6 +124,8 @@ namespace OpenSettings
 
             public const string Location = "Location";
 
+            public const string UserAgent = "User-Agent";
+
             /// <summary>
             /// The header name used to represent the login type in OpenSettings.
             /// </summary>
@@ -231,6 +233,11 @@ namespace OpenSettings
                 /// </summary>
                 public const string Auth = "v1/auth";
 
+                public static class AuthEndpoints
+                {
+                    public const string Login = "login";
+                }
+
                 /// <summary>
                 /// The IdentifiersController base route.
                 /// </summary> 
@@ -314,9 +321,9 @@ namespace OpenSettings
             public const string Cookie = "OpenSettingsCookieScheme";
 
             /// <summary>
-            /// The authentication scheme for OAuth2 Authentication in OpenSettings.
+            /// The authentication scheme for OpenIdConnect Authentication in OpenSettings.
             /// </summary>
-            public const string OAuth2 = "OpenSettingsOAuth2";
+            public const string OpenIdConnect = "OpenSettingsOpenIdConnect";
 
             /// <summary>
             /// The authentication scheme for JWT Bearer Authentication in OpenSettings.

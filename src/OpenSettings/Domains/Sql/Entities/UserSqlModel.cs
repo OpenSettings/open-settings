@@ -13,7 +13,7 @@ namespace OpenSettings.Domains.Sql.Entities
     public class UserSqlModel : EntityBase<Guid>
     {
         /// <summary>
-        /// The authentication type used by the user (e.g., "Machine", "OAuth2").
+        /// The authentication type used by the user (e.g., "Machine", "OpenIdConnect").
         /// </summary>
         public AuthType AuthType { get; set; }
 

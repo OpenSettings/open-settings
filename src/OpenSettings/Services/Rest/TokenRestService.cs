@@ -46,18 +46,16 @@ namespace OpenSettings.Services.Rest
             }
         }
 
-        public Task<string> GetPublicJwksAsync(CancellationToken cancellationToken = default)
+        public async Task<string> GetPublicJwksAsync(CancellationToken cancellationToken = default)
         {
-            throw new NotSupportedException(nameof(GetPublicJwksAsync));
+            const string relativeUri = "v1/token/jwks";
 
-            //const string relativeUri = "v1/token/jwks";
+            var httpClient = GetProviderHttpClient();
 
-            //var httpClient = GetProviderHttpClient();
-
-            //using (var response = await httpClient.GetAsync(relativeUri))
-            //{
-            //    return await response.Content.ReadAsStringAsync();
-            //}
+            using (var response = await httpClient.GetAsync(relativeUri, cancellationToken))
+            {
+                return await response.Content.ReadAsStringAsync();
+            }
         }
 
         private HttpClient GetProviderHttpClient()

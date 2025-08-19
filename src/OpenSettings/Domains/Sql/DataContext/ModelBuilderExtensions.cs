@@ -389,6 +389,14 @@ namespace OpenSettings.Domains.Sql.DataContext
                 entity.HasIndex(e => e.StateId);
                 entity.HasIndex(e => new { e.StateId, e.AuthMethod, e.CreatedOn, e.IsSuccessful });
                 entity.HasIndex(e => e.CreatedOn);
+                entity.HasOne(e => e.ProviderRegistry)
+                    .WithMany()
+                    .HasForeignKey(e => e.ProviderRegistryId)
+                    .OnDelete(DeleteBehavior.SetNull);
+                entity.HasOne(e => e.User)
+                    .WithMany()
+                    .HasForeignKey(e => e.UserId)
+                    .OnDelete(DeleteBehavior.SetNull);
             });
 
             modelBuilder.Entity<DataProtectionKey>(entity =>

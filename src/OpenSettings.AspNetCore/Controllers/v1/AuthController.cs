@@ -58,11 +58,5 @@ namespace OpenSettings.AspNetCore.Controllers.v1
 
             return new EmptyResult();
         }
-
-        [HttpGet("jwks")]
-        public async Task<IActionResult> GetPublicJwks()
-        {
-            return new EmptyResult();
-        }
     }
 }

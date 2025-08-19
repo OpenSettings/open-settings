@@ -69,14 +69,14 @@ namespace OpenSettings.Services.Rest
                         input.Configuration.Controller.Route,
                         input.Configuration.Controller.AllowFromExploring,
                         input.Configuration.Controller.RequiresAuthentication,
-                        OAuth2 = new
+                        OpenIdConnect = new
                         {
-                            input.Configuration.Controller.OAuth2.Authority,
-                            input.Configuration.Controller.OAuth2.ClientId,
-                            input.Configuration.Controller.OAuth2.ClientSecret,
-                            input.Configuration.Controller.OAuth2.SignedOutRedirectUri,
-                            input.Configuration.Controller.OAuth2.AllowOfflineAccess,
-                            input.Configuration.Controller.OAuth2.IsActive,
+                            input.Configuration.Controller.OpenIdConnect.Authority,
+                            input.Configuration.Controller.OpenIdConnect.ClientId,
+                            input.Configuration.Controller.OpenIdConnect.ClientSecret,
+                            input.Configuration.Controller.OpenIdConnect.SignedOutRedirectUri,
+                            input.Configuration.Controller.OpenIdConnect.AllowOfflineAccess,
+                            input.Configuration.Controller.OpenIdConnect.IsActive,
                         }
                     },
                     Spa = new
