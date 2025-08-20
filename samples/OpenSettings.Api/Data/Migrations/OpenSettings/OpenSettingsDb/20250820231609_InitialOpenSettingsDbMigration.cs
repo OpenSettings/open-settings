@@ -82,6 +82,7 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     Type = table.Column<int>(type: "int", nullable: false),
                     ClientId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ClientIdLowercase = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    InstanceDynamicId = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Scheme = table.Column<int>(type: "int", nullable: false),
                     Host = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Port = table.Column<int>(type: "int", nullable: false),

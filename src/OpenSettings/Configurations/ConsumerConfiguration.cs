@@ -23,6 +23,7 @@ namespace OpenSettings.Configurations
         /// Any trailing slashes will be trimmed automatically when setting the value.
         /// </value>
         /// <remarks>This Url should point to the endpoint for the api. e.g. 'https://.../api/settings'</remarks>
+        /// <returns>The provider url e.g. 'https://.../api/settings/'</returns>
         public string ProviderUrl
         {
             get => _providerUrl;

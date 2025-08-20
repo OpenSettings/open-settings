@@ -28,7 +28,8 @@ namespace OpenSettings.Domains.Sql.Entities
         public string Slug { get; set; }
 
         /// <summary>
-        /// The unique identifier of the instance.
+        /// The unique identifier of the instance. 
+        /// By default, it is dynamically generated, but it can be set explicitly to a static value.
         /// </summary>
         public string DynamicId { get; set; }
 

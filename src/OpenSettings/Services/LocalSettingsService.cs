@@ -509,6 +509,7 @@ namespace OpenSettings.Services
                     RegistrationMode = _openSettingsConfiguration.RegistrationMode,
                     Consumer = new ConfigurationConsumer
                     {
+                        ProviderUrl = _openSettingsConfiguration.Consumer.ProviderUrl,
                         RequestEncodings = _openSettingsConfiguration.Consumer.RequestEncodings,
                         IsRedisActive = _openSettingsConfiguration.Consumer.IsRedisActive,
                         PollingSettingsWorker = new ConfigurationConsumerPollingSettingsWorker

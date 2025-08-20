@@ -5,6 +5,8 @@ namespace OpenSettings.Models
 {
     public class ConfigurationConsumer
     {
+        public string ProviderUrl { get; set; }
+
         public HashSet<CompressionType> RequestEncodings { get; set; } = new HashSet<CompressionType>();
 
         public bool IsRedisActive { get; set; }

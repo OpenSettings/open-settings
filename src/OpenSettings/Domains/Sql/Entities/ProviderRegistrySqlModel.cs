@@ -26,6 +26,12 @@ namespace OpenSettings.Domains.Sql.Entities
         public string ClientIdLowercase { get; set; }
 
         /// <summary>
+        /// The dynamic identifier of the instance. 
+        /// </summary>
+        /// <remarks>The referenced id in the `dbo.Instances` table may not exist if the instance has been deleted.</remarks>
+        public string InstanceDynamicId { get; set; }
+
+        /// <summary>
         /// The communication scheme used by the provider (e.g., HTTP, gRPC).
         /// </summary>
         public ProviderRegistryScheme Scheme { get; set; }

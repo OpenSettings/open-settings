@@ -56,9 +56,7 @@ namespace OpenSettings.AspNetCore.Extensions
             }
 
             mvcBuilder.Services.AddSingleton<IInstanceUrlResolverService, InstanceUrlResolverService>();
-
             mvcBuilder.Services.AddHttpContextAccessor();
-
             mvcBuilder.Services.AddHttpClient();
 
             var providerControllerType = typeof(ProviderController);
@@ -131,7 +129,7 @@ namespace OpenSettings.AspNetCore.Extensions
         {
             if (authorize)
             {
-                authenticationBuilder.AddJwtBearerForConsumer(providerInfo, client);
+                authenticationBuilder.AddJwtBearerForConsumer(providerInfo);
             }
 
             services.AddTransient<UserConsumerToProviderRequestHandler>();
@@ -160,7 +158,7 @@ namespace OpenSettings.AspNetCore.Extensions
             });
         }
 
-        private static void AddJwtBearerForConsumer(this AuthenticationBuilder authenticationBuilder, ProviderInfo providerInfo, SyncAppDataResponseClient client)
+        private static void AddJwtBearerForConsumer(this AuthenticationBuilder authenticationBuilder, ProviderInfo providerInfo)
         {
             authenticationBuilder.AddJwtBearer(OpenSettingsDefaults.AuthSchemes.JwtBearer, opts =>
             {
@@ -192,10 +190,6 @@ namespace OpenSettings.AspNetCore.Extensions
                 opts.ResponseType = "code";
                 opts.SaveTokens = true;
                 opts.GetClaimsFromUserInfoEndpoint = true;
-                opts.SecurityTokenValidator = new JwtSecurityTokenHandler
-                {
-                    MapInboundClaims = false
-                };
                 opts.Scope.Clear();
                 opts.Scope.Add("openid");
                 opts.Scope.Add("profile");
@@ -204,7 +198,7 @@ namespace OpenSettings.AspNetCore.Extensions
                 {
                     opts.Scope.Add("offline_access");
                 }
-
+                
                 opts.Events = new ProviderOpenIdConnectEvents();
             });
         }

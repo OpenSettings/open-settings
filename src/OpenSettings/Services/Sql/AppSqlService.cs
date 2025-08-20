@@ -795,14 +795,14 @@ namespace OpenSettings.Services.Sql
 
             var appId = appIdRule.GetStoredValue<int>();
 
-            return await GetGroupedAppDataByAppIdOrSlugAsync(a => a.Id == appId, cancellationToken);
+            return await GetGroupedAppDataByPredicateAsync(a => a.Id == appId, cancellationToken);
         }
 
         public Task<IResponse> GetGroupedAppDataByAppSlugAsync(GetGroupedAppDataByAppInput input, CancellationToken cancellationToken = default)
         {
             input.AppIdOrSlug = input.AppIdOrSlug?.ToSlug();
 
-            return GetGroupedAppDataByAppIdOrSlugAsync(a => a.Slug == input.AppIdOrSlug, cancellationToken);
+            return GetGroupedAppDataByPredicateAsync(a => a.Slug == input.AppIdOrSlug, cancellationToken);
         }
 
 
@@ -881,7 +881,7 @@ namespace OpenSettings.Services.Sql
             return HttpStatusCode.OK.ToSuccessResponse();
         }
 
-        private async Task<IResponse> GetGroupedAppDataByAppIdOrSlugAsync(Expression<Func<AppSqlModel, bool>> predicate, CancellationToken cancellationToken = default)
+        private async Task<IResponse> GetGroupedAppDataByPredicateAsync(Expression<Func<AppSqlModel, bool>> predicate, CancellationToken cancellationToken = default)
         {
             var entity = await _context.Apps
                 .AsNoTracking()
@@ -1538,7 +1538,7 @@ namespace OpenSettings.Services.Sql
                 }
                 else
                 {
-                    _context.Instances.Attach(instance);
+                    var instanceEntityEntry = _context.Instances.Attach(instance);
 
                     instance.Name = instanceName;
                     instance.NameLowercase = instanceNameLowercase;
@@ -1556,7 +1556,7 @@ namespace OpenSettings.Services.Sql
                     instance.DataAccessType = input.Instance.DataAccessType;
                     instance.UpdatedOn = currentTime;
 
-                    _context.MarkAsModified(instance,
+                    instanceEntityEntry.MarkAsModified(
                         i => i.Name,
                         i => i.NameLowercase,
                         i => i.Slug,
@@ -1580,6 +1580,7 @@ namespace OpenSettings.Services.Sql
                 .Where(c => c.AppId == appId && c.IdentifierId == identifierId)
                 .Select(c => new ConfigurationSqlModel
                 {
+                    Id = c.Id,
                     StoreInSeparateFile = c.StoreInSeparateFile,
                     IgnoreOnFileChange = c.IgnoreOnFileChange,
                     RegistrationMode = c.RegistrationMode,
@@ -1610,6 +1611,14 @@ namespace OpenSettings.Services.Sql
                 }
 
                 app.Configurations.Add(configuration);
+            }
+            else if(input.Configuration != null && configuration.Consumer.ProviderUrl != input.Configuration.Consumer.ProviderUrl)
+            {
+                var configurationEntityEntry = _context.Configurations.Attach(configuration);
+
+                configuration.Consumer.ProviderUrl = input.Configuration.Consumer.ProviderUrl;
+
+                configurationEntityEntry.MarkAsModified(c => c.Consumer);
             }
 
             var computedIdentifierToSetting = await _context.Settings

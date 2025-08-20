@@ -843,6 +843,9 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.Property<string>("Host")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("InstanceDynamicId")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("LastHeartbeatOn")
                         .HasColumnType("datetime2");
 

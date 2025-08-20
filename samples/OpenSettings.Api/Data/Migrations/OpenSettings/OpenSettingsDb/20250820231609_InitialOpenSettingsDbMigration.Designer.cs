@@ -12,7 +12,7 @@ using OpenSettings.Domains.Sql.DataContext;
 namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 {
     [DbContext(typeof(OpenSettingsDbContext))]
-    [Migration("20250819232215_InitialOpenSettingsDbMigration")]
+    [Migration("20250820231609_InitialOpenSettingsDbMigration")]
     partial class InitialOpenSettingsDbMigration
     {
         /// <inheritdoc />
@@ -844,6 +844,9 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Host")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("InstanceDynamicId")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("LastHeartbeatOn")

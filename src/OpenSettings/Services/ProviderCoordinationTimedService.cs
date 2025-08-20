@@ -192,6 +192,7 @@ namespace OpenSettings.Services
                 Type = ProviderRegistryType.Slave,
                 ClientId = clientId,
                 ClientIdLowercase = clientIdLowercase,
+                InstanceDynamicId = _openSettingsConfiguration.InstanceDynamicId,
                 Scheme = ProviderRegistryScheme.Unset,
                 Region = string.Empty,
                 Version = _openSettingsConfiguration.Client.Version,

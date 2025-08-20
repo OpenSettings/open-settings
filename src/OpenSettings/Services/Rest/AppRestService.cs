@@ -44,6 +44,7 @@ namespace OpenSettings.Services.Rest
                     input.Configuration.RegistrationMode,
                     Consumer = new
                     {
+                        input.Configuration.Consumer.ProviderUrl,
                         input.Configuration.Consumer.RequestEncodings,
                         input.Configuration.Consumer.IsRedisActive,
                         PollingSettingsWorker = new
