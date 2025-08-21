@@ -84,7 +84,7 @@ namespace OpenSettings.AspNetCore.Spa
                 Route = $"/{openSettingsConfiguration.Controller.Route}",
                 openSettingsConfiguration.Controller.AllowFromExploring,
                 openSettingsConfiguration.Controller.RequiresAuthentication,
-                OpenIdConnect = openSettingsConfiguration.Controller.OpenIdConnect
+                openSettingsConfiguration.Controller.OpenIdConnect
             };
 
             var cloneProviderInfo = new

@@ -83,10 +83,11 @@ namespace OpenSettings.Extensions
 
             services.AddSingleton<OpenSettingsConfiguration>(sp =>
             {
-                var loggerFactory = sp.GetService<ILoggerFactory>();
-
-                openSettingsConfiguration.LoggerFactory = loggerFactory ?? NullLoggerFactory.Instance;
-
+                if (openSettingsConfiguration.InternalLoggerFactory == null)
+                {
+                    openSettingsConfiguration.LoggerFactory = sp.GetService<ILoggerFactory>() ?? NullLoggerFactory.Instance;
+                }
+                
                 return openSettingsConfiguration;
             });
 

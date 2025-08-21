@@ -21,7 +21,7 @@ var openSettingsProviderConfiguration = new OpenSettingsConfiguration(ServiceTyp
         RequiresAuthentication = true
     },
     Client = new ClientInfo(
-        new Guid("adbdf741-bb4d-4673-b2a8-23e677fcf454"), // The unique identifier for the client. 
+        new Guid("adbdf741-bb4d-4673-b2a8-23e677fcf454"), // The unique identifier for the client.
         new Guid("4294a5e3-0839-4358-a03d-1ac52585ae5f")) // The secret key for the client.
 };
 

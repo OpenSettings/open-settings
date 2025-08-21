@@ -27,7 +27,7 @@ namespace OpenSettings.Configurations
         public string ProviderUrl
         {
             get => _providerUrl;
-            set => _providerUrl = $"{value.TrimEnd('/')}/";
+            set => _providerUrl = $"{value.TrimEnd(OpenSettingsDefaults.Format.SlashChar)}/";
         }
 
         /// <summary>
@@ -95,7 +95,6 @@ namespace OpenSettings.Configurations
             RequestEncodings.AddToRequestHeaders(httpClient.DefaultRequestHeaders);
         }
 
-        [JsonIgnore]
         internal static bool IsGeneratorModeEnabled
         {
             get

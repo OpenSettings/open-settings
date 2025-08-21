@@ -259,22 +259,31 @@ namespace OpenSettings.Configurations
         [JsonIgnore]
         public bool IsProviderSelected { get; private set; }
 
-        private ILoggerFactory _loggerFactory = NullLoggerFactory.Instance;
+        internal ILoggerFactory InternalLoggerFactory;
 
         /// <summary>
-        /// An optional logger factory used for logging information during the settings building process.
+        /// An optional logger factory used for logging information during the building process.
         /// </summary>
+        /// <remarks>
+        /// Behavior:
+        /// <list type="bullet">
+        ///   <item>
+        ///     <description><c>null</c> (default), OpenSettings will attempt to resolve <see cref="ILoggerFactory"/> from DI,
+        ///     or fallback to <see cref="NullLoggerFactory.Instance"/> if none is registered.</description>
+        ///   </item>
+        ///   <item>
+        ///     <description>Assign a custom <see cref="ILoggerFactory"/>, OpenSettings uses the provided logger factory.</description>
+        ///   </item>
+        ///   <item>
+        ///     <description>Assign <see cref="NullLoggerFactory.Instance"/> explicitly, disables logging entirely.</description>
+        ///   </item>
+        /// </list>
+        /// </remarks>
         [JsonIgnore]
         public ILoggerFactory LoggerFactory
         {
-            get => _loggerFactory;
-            set
-            {
-                if (value != null)
-                {
-                    _loggerFactory = value;
-                }
-            }
+            get => InternalLoggerFactory ?? NullLoggerFactory.Instance;
+            set => InternalLoggerFactory = value;
         }
 
         /// <summary>
@@ -310,24 +319,8 @@ namespace OpenSettings.Configurations
 
         private void UpdateSelectionStatus()
         {
-            IsConsumerSelected = false;
-            IsProviderSelected = false;
-
-            switch (_selection)
-            {
-                case ServiceType.Provider:
-
-                    IsProviderSelected = true;
-
-                    break;
-
-                case ServiceType.Consumer:
-                default:
-
-                    IsConsumerSelected = true;
-
-                    break;
-            }
+            IsProviderSelected = _selection == ServiceType.Provider;
+            IsConsumerSelected = !IsProviderSelected;
         }
 
         internal void Update(SyncAppDataResponseConfiguration configuration)

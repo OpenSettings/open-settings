@@ -4,13 +4,12 @@ using Ogu.Compressions.Abstractions;
 using OpenSettings.Domains.Sql.DataContext;
 using OpenSettings.Extensions;
 using OpenSettings.Models;
-using System;
-using System.Collections.Generic;
 using System.IO.Compression;
 using System.Linq;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using OpenSettings.Services.Sql;
 
 namespace OpenSettings.Configurations
 {
@@ -20,10 +19,8 @@ namespace OpenSettings.Configurations
     /// </summary>
     public class ProviderConfiguration
     {
-        private readonly Dictionary<DataAccessType, Action> _selectionHandlers;
-
         /// <summary>
-        /// Initializes a new instance of the <see cref="ProviderConfiguration"/> class with the default 
+        /// Initializes a new instance of the <see cref="ProviderConfiguration"/> class with the default.
         /// <see cref="DataAccessType.Orm"/> selection.
         /// </summary>
         public ProviderConfiguration() : this(DataAccessType.Orm)
@@ -38,19 +35,8 @@ namespace OpenSettings.Configurations
         /// </param>
         public ProviderConfiguration(DataAccessType selection)
         {
-            _selectionHandlers = new Dictionary<DataAccessType, Action>
-            {
-                { DataAccessType.Orm , () =>
-                {
-                    IsOrmSelected = true;
-                } }
-            };
-
-            _selection = selection;
-            UpdateSelectionStatus();
+            Selection = selection;
         }
-
-        private DataAccessType _selection;
 
         /// <summary>
         /// Gets or sets the current data access method selected for the provider.
@@ -59,21 +45,8 @@ namespace OpenSettings.Configurations
         /// <value>
         /// A <see cref="DataAccessType"/> value indicating the current data access strategy (e.g., <see cref="DataAccessType.Orm"/>).
         /// </value>
-        public DataAccessType Selection
-        {
-            get => _selection;
-            set
-            {
-                if (_selection == value)
-                {
-                    return;
-                }
-
-                _selection = value;
-                UpdateSelectionStatus();
-            }
-        }
-
+        public DataAccessType Selection { get; set; }
+        
         /// <summary>
         /// Gets or sets the configuration settings for the Orm (Object-Relational Mapper).
         /// This property is used when the <see cref="Selection"/> is set to <see cref="DataAccessType.Orm"/>.
@@ -102,7 +75,7 @@ namespace OpenSettings.Configurations
         /// This property is ignored in Json serialization.
         /// </remarks>
         [JsonIgnore]
-        public bool IsOrmSelected { get; private set; }
+        public bool IsOrmSelected { get; } = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether the database has been initialized, it is used for internal purposes.
@@ -114,14 +87,25 @@ namespace OpenSettings.Configurations
         internal bool IsDbInitialized { get; set; }
 
         /// <summary>
-        /// Gets or sets the license key. This property is ignored in Json serialization.
-        /// If provided, it is used as the primary source for validation.
-        /// If invalid or missing, the system will check for a license key in the project directory.
-        /// If still not found or invalid, it will retrieve the license key from the database.
+        /// Gets or sets the license key. This property is ignored during JSON serialization.
         /// </summary>
-        /// <remark>
-        /// This property is ignored in Json serialization.
-        /// </remark>
+        /// <remarks>
+        /// Behavior:
+        /// <list type="bullet">
+        ///   <item>
+        ///     <description></description>
+        ///   </item>
+        ///   <item>
+        ///     <description>When provided, it is used as the primary source for license validation.</description>
+        ///   </item>
+        ///   <item>
+        ///     <description>If invalid or missing, the system will check for a license key in the project directory ("<c>OpenSettings-License.key</c>").</description>
+        ///   </item>
+        ///   <item>
+        ///     <description>If the file is also not found or is invalid, the license key will be retrieved from the database.</description>
+        ///   </item>
+        /// </list>
+        /// </remarks>
         [JsonIgnore]
         public string LicenseKey { get; set; }
 
@@ -134,22 +118,12 @@ namespace OpenSettings.Configurations
         public CompressionType CompressionType { get; set; } = CompressionType.None;
 
         /// <summary>
-        /// Gets or sets the compression level used by the provider when storing setting data. Default level is <see cref="CompressionLevel.Fastest"/>
+        /// Gets or sets the compression level used by the provider when storing setting data. Default level is <see cref="CompressionLevel.Fastest"/>.
         /// </summary>
         /// <value>
         /// A <see cref="CompressionLevel"/> value indicating the compression level.
         /// </value>
         public CompressionLevel CompressionLevel { get; set; } = CompressionLevel.Fastest;
-
-        private void UpdateSelectionStatus()
-        {
-            IsOrmSelected = false;
-
-            if (_selectionHandlers.TryGetValue(_selection, out var action))
-            {
-                action();
-            }
-        }
 
         internal async ValueTask InitializeDbAsync(OpenSettingsDbContext context, CancellationToken cancellationToken)
         {

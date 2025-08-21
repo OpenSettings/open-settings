@@ -6,8 +6,6 @@
     /// </summary>
     public class ProviderInfo
     {
-        public string Url { get; set; }
-
         /// <summary>
         /// Gets or sets a value indicating whether authentication is required for this provider.
         /// </summary>

@@ -9,9 +9,12 @@
         private string _authority;
 
         /// <summary>
-        /// Gets or sets the authority URL for the OpenIdConnect provider.
+        /// Gets or sets the authority Url for the OpenIdConnect provider.
         /// The value is trimmed of any trailing slashes.
         /// </summary>
+        /// <remarks>
+        /// e.g. '<c>https://identity.opensettings.net/</c>'.
+        /// </remarks>
         public string Authority
         {
             get => _authority;

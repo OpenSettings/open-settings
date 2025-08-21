@@ -17,8 +17,9 @@ namespace OpenSettings.Configurations
         /// <para>With this prefix, the open settings Spa page can be accessed through the defined route.</para>
         /// </summary>
         /// <remarks>
-        /// The default value is '<c><see cref="OpenSettingsDefaults.Spa.DefaultRoutePrefix"/></c>'.
+        /// The default value is '<c>settings</c>'.
         /// </remarks>
+        /// <exception cref="Exception">Throws an exception when assigned null or whitespace.</exception>
         public string RoutePrefix
         {
             get => _routePrefix;
@@ -31,7 +32,7 @@ namespace OpenSettings.Configurations
 
                 if (value != string.Empty)
                 {
-                    value = value.TrimStart('/').TrimEnd('/');
+                    value = value.TrimStart(OpenSettingsDefaults.Format.SlashChar).TrimEnd(OpenSettingsDefaults.Format.SlashChar);
                 }
 
                 _routePrefix = value;

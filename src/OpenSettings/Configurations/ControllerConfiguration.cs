@@ -38,6 +38,16 @@
         /// </para>
         /// <para>The default value is '<c>false</c>'.</para>
         /// </summary>
+        /// <remarks>
+        /// Middleware should be registered in the following order to ensure authentication works:
+        /// <code>
+        /// app.UseRouting();
+        /// app.UseAuthentication();
+        /// app.UseAuthorization();
+        /// app.UseOpenSettings();
+        /// app.MapControllers();
+        /// </code>
+        /// </remarks>
         public bool RequiresAuthentication { get; set; }
 
         /// <summary>
