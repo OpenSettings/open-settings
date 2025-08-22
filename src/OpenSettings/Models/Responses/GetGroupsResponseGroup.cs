@@ -2,7 +2,7 @@
 
 namespace OpenSettings.Models.Responses
 {
-    public class GetAppGroupsResponseGroup
+    public class GetAppGroupsResponseGroup : ISortable
     {
         public string Id { get; set; }
 

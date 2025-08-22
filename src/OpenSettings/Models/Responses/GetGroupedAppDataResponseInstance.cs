@@ -13,8 +13,6 @@ namespace OpenSettings.Models.Responses
 
         public string Version { get; set; }
 
-        public string[] Urls { get; set; } = Array.Empty<string>();
-
         public bool IsActive { get; set; }
 
         public string RemoteIpAddress { get; set; }
@@ -23,13 +21,15 @@ namespace OpenSettings.Models.Responses
 
         public string Environment { get; set; }
 
-        public List<ReloadStrategy> ReloadStrategies { get; set; } = new List<ReloadStrategy>();
-
         public ServiceType ServiceType { get; set; }
 
         public DateTime CreatedOn { get; set; }
 
         public DateTime? UpdatedOn { get; set; }
+
+        public string[] Urls { get; set; } = Array.Empty<string>();
+
+        public List<ReloadStrategy> ReloadStrategies { get; set; } = new List<ReloadStrategy>();
 
         public byte[] RowVersion { get; set; } = Array.Empty<byte>();
     }

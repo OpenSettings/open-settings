@@ -19,14 +19,18 @@
         public string Route 
         { 
             get => _route; 
-            set => _route = string.IsNullOrWhiteSpace(value) ? value : value.TrimStart('/').TrimEnd('/');
+            set => _route = string.IsNullOrWhiteSpace(value) 
+                ? value 
+                : value.TrimStart(OpenSettingsDefaults.Format.SlashChar).TrimEnd(OpenSettingsDefaults.Format.SlashChar);
         }
 
         /// <summary>
         /// Specifies whether the open settings controller's endpoints should be exposed in
         /// Api documentation (e.g., for Swagger or other Api explorers).
-        /// <para>The default value is '<c>false</c>'.</para>
         /// </summary>
+        /// <remarks>
+        /// The default value is '<c>false</c>'.
+        /// </remarks>
         public bool AllowFromExploring { get; set; }
 
         /// <summary>
@@ -39,7 +43,7 @@
         /// <para>The default value is '<c>false</c>'.</para>
         /// </summary>
         /// <remarks>
-        /// Middleware should be registered in the following order to ensure authentication works:
+        /// Middleware should be registered in the following order to ensure authentication works: 
         /// <code>
         /// app.UseRouting();
         /// app.UseAuthentication();
@@ -47,6 +51,7 @@
         /// app.UseOpenSettings();
         /// app.MapControllers();
         /// </code>
+        /// For more information, see <see href="https://learn.microsoft.com/en-us/aspnet/core/fundamentals/middleware/?view=aspnetcore-9.0#middleware-order">Asp.Net Core Middleware Order</see>
         /// </remarks>
         public bool RequiresAuthentication { get; set; }
 

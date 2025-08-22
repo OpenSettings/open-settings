@@ -46,7 +46,7 @@ namespace OpenSettings.Services
                 return;
             }
 
-            using (var context = OpenSettingsDbContext.GetInstance(_openSettingsConfiguration.Provider))
+            using (var context = OpenSettingsDbContext.GetInstance(_openSettingsConfiguration.Provider, _openSettingsConfiguration.LoggerFactory))
             {
                 var notifications = await context.Notifications
                     .AsNoTracking()

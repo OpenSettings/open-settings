@@ -4,6 +4,10 @@ namespace OpenSettings.Models.Responses
 {
     public class UpdateAppGroupResponse
     {
+        public UpdateAppGroupResponse()
+        {
+        }
+
         public UpdateAppGroupResponse(string name, string slug, int sortOrder, Guid? updatedById, DateTime updatedOn, byte[] rowVersion)
         {
             Name = name;
@@ -14,16 +18,16 @@ namespace OpenSettings.Models.Responses
             RowVersion = rowVersion ?? Array.Empty<byte>();
         }
 
-        public string Name { get; }
+        public string Name { get; set; }
 
-        public string Slug { get; }
+        public string Slug { get; set; }
 
-        public int SortOrder { get; }
+        public int SortOrder { get; set; }
 
-        public Guid? UpdatedById { get; }
+        public Guid? UpdatedById { get; set; }
 
-        public DateTime UpdatedOn { get; }
+        public DateTime UpdatedOn { get; set; }
 
-        public byte[] RowVersion { get; }
+        public byte[] RowVersion { get; set; } = Array.Empty<byte>();
     }
 }

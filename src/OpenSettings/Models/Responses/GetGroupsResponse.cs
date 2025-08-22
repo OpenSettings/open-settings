@@ -1,35 +1,25 @@
-﻿using System;
-using System.Linq;
+﻿using OpenSettings.Extensions;
+using System;
 
 namespace OpenSettings.Models.Responses
 {
     public class GetAppGroupsResponse
     {
+        public GetAppGroupsResponse()
+        {
+        }
+
         public GetAppGroupsResponse(GetAppGroupsResponseGroup[] appGroups)
         {
             AppGroups = appGroups ?? Array.Empty<GetAppGroupsResponseGroup>();
 
-            if (AppGroups.Length == 0)
-            {
-                return;
-            }
-
-            var firstIndex = AppGroups[0];
-
-            MinSortOrder = firstIndex.SortOrder;
-            MaxSortOrder = firstIndex.SortOrder;
-
-            foreach (var item in AppGroups.Skip(1))
-            {
-                MinSortOrder = Math.Min(MinSortOrder, item.SortOrder);
-                MaxSortOrder = Math.Max(MaxSortOrder, item.SortOrder);
-            }
+            (MinSortOrder, MaxSortOrder) = appGroups.GetSortOrderRange();
         }
 
-        public int MinSortOrder { get; }
+        public int MinSortOrder { get; set; }
 
-        public int MaxSortOrder { get; }
+        public int MaxSortOrder { get; set; }
 
-        public GetAppGroupsResponseGroup[] AppGroups { get; }
+        public GetAppGroupsResponseGroup[] AppGroups { get; set; } = Array.Empty<GetAppGroupsResponseGroup>();
     }
 }

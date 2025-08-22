@@ -135,6 +135,7 @@ namespace OpenSettings.Services.Rest
                     switch (response.StatusCode)
                     {
                         case HttpStatusCode.Unauthorized:
+                        case HttpStatusCode.Forbidden:
                             throw new AuthenticationException("Authentication has failed!. Client is not authorized.");
 
                         default:
@@ -148,7 +149,7 @@ namespace OpenSettings.Services.Rest
                                 : await response.Content.ReadAsStringAsync();
 #endif
 
-                            throw new Exception($"Error occurred during sync app data. Status code: {response.StatusCode}, Content: {content}");
+                            throw new HttpRequestException($"Error occurred during sync app data. Status code: {response.StatusCode}, Content: {content}.");
                     }
                 }
             }

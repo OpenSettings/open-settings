@@ -10,13 +10,13 @@ namespace OpenSettings.Models.Responses
 
         public string Slug { get; set; }
 
-        public GetGroupedAppsResponseAppGroup Group { get; set; }
-
         public string Description { get; set; }
 
         public string ImageUrl { get; set; }
 
         public string WikiUrl { get; set; }
+
+        public GetGroupedAppsResponseAppGroup Group { get; set; }
 
         public UpdateAppResponseTag[] Tags { get; set; } = Array.Empty<UpdateAppResponseTag>();
 

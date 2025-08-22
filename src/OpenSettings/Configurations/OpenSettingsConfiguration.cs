@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using OpenSettings.Exceptions;
 using OpenSettings.Models;
 using OpenSettings.Models.Responses;
 using System;
@@ -162,39 +161,13 @@ namespace OpenSettings.Configurations
         public SpaConfiguration Spa { get; set; } = new SpaConfiguration();
 
         /// <summary>
-        /// Gets or sets the maximum number of retries for initial syncing data. The retry behavior is determined as follows:
-        /// <list type="bullet">
-        ///     <item>
-        ///         <c>0</c> or any negative value other than <c>-1</c>: No retries (operation will fail immediately on failure).
-        ///     </item>
-        ///     <item>
-        ///         <c>-1</c>: Infinite retries (operation will continue retrying until success).
-        ///     </item>
-        ///     <item>
-        ///         Any positive integer: Retry up to the specified number of attempts.
-        ///     </item>
-        /// </list>
-        /// <para>
-        /// By default, the value is <c>-1</c>, which means infinite retries. Negative values other than <c>-1</c> are interpreted as "no retries" (equivalent to <c>0</c> retries), while <c>-1</c> signifies infinite retries. 
-        /// If set to a positive value, the system will attempt the operation that many times before giving up.
-        /// </para>
-        /// <remarks>
-        /// If the maximum retry count is reached, a <see cref="SyncAppDataMaxRetryExceededException"/> will be thrown.
-        /// </remarks>
+        /// Gets or sets the resilience configuration for synchronizing application data.
         /// </summary>
-        public int SyncAppDataMaxRetryCount { get; set; } = -1;
-
-        /// <summary>
-        /// Gets or sets the delay time in milliseconds between retry attempts when a sync app data operation fails.
-        /// </summary>
-        /// <value>
-        /// The number of milliseconds to wait before retrying a failed sync app data operation. The default value is 1000 milliseconds.
-        /// </value>
-        public int SyncAppDataRetryDelayMilliseconds { get; set; } = 1000;
+        public SyncAppDataResilienceConfiguration SyncAppDataResilience { get; set; } = new SyncAppDataResilienceConfiguration();
 
         /// <summary>
         /// Gets or sets the operation to perform during the setup process.
-        /// The default is <see cref="Models.Operation.ReadOrInitialize"/>.
+        /// The default is <see cref="Operation.ReadOrInitialize"/>.
         /// </summary>
         /// <value>The <see cref="Operation"/> value indicating what operation to perform.</value>
         public Operation Operation { get; set; } = Operation.ReadOrInitialize;

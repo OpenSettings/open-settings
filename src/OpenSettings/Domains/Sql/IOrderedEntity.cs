@@ -18,12 +18,6 @@ namespace OpenSettings.Domains.Sql
         int SortOrder { get; set; }
 
         /// <summary>
-        /// A concurrency token used for tracking changes.  
-        /// Helps prevent conflicts during concurrent updates.
-        /// </summary>
-        byte[] RowVersion { get; set; }
-
-        /// <summary>
         /// The date and time when the entity was last updated, or <c>null</c> if never updated.
         /// </summary>
         DateTime? UpdatedOn { get; set; }
@@ -32,5 +26,11 @@ namespace OpenSettings.Domains.Sql
         /// The id of the user who last updated this entity.
         /// </summary>
         Guid? UpdatedById { get; set; }
+
+        /// <summary>
+        /// A concurrency token used for tracking changes.  
+        /// Helps prevent conflicts during concurrent updates.
+        /// </summary>
+        byte[] RowVersion { get; set; }
     }
 }

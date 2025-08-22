@@ -5,6 +5,10 @@ namespace OpenSettings.Models.Responses
 {
     public class GetPaginatedIdentifiersResponse
     {
+        public GetPaginatedIdentifiersResponse()
+        {
+        }
+
         public GetPaginatedIdentifiersResponse(GetPaginatedInput input, int itemCount, ModelForPaginatedResponseData[] identifiers, int minSortOrder, int maxSortOrder)
         {
             Identifiers = identifiers ?? Array.Empty<ModelForPaginatedResponseData>();
@@ -13,12 +17,12 @@ namespace OpenSettings.Models.Responses
             MaxSortOrder = maxSortOrder;
         }
 
-        public PagingInfo PagingInfo { get; }
+        public int MinSortOrder { get; set; }
 
-        public ModelForPaginatedResponseData[] Identifiers { get; }
+        public int MaxSortOrder { get; set; }
 
-        public int MinSortOrder { get; }
+        public PagingInfo PagingInfo { get; set; }
 
-        public int MaxSortOrder { get; }
+        public ModelForPaginatedResponseData[] Identifiers { get; set; } = Array.Empty<ModelForPaginatedResponseData>();
     }
 }

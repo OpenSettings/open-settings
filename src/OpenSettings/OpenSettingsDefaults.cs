@@ -1,6 +1,9 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using OpenSettings.Attributes;
+using OpenSettings.Configurations;
 using OpenSettings.Models;
+using OpenSettings.Models.Responses;
 using OpenSettings.Services;
 using System;
 using System.Collections.Concurrent;
@@ -8,8 +11,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.Encodings.Web;
 using System.Text.Json;
-using Microsoft.Extensions.Caching.Memory;
-using OpenSettings.Configurations;
 
 namespace OpenSettings
 {
@@ -30,6 +31,8 @@ namespace OpenSettings
 
         public static class Keys
         {
+            public const string GeneratorMode = "OPENSETTINGS_GENERATOR_MODE";
+
             public class AuthService
             {
                 public const string ReturnUrl = "returnUrl";
@@ -71,6 +74,13 @@ namespace OpenSettings
             internal const string DefaultDocumentTitle = "OpenSettings Spa";
         }
 
+        public static class Flags
+        {
+            internal const bool IsDbLogEnabled = false;
+
+            internal const bool IsSensitiveDataLoggingEnabled = false;
+        }
+
         public static class Paging
         {
             internal const int MaxPageSize = 64;
@@ -93,7 +103,6 @@ namespace OpenSettings
 
             internal const string Unknown = nameof(Unknown);
         }
-
 
         /// <summary>
         /// Provides constant values for content types used in OpenSettings.
@@ -426,6 +435,20 @@ namespace OpenSettings
             internal static Dictionary<string, int> ClassNameToCount { get; } = new Dictionary<string, int>();
 
             internal static ConcurrentDictionary<object, byte> CacheKeys { get; } = new ConcurrentDictionary<object, byte>();
+
+            internal static GetAppResponseGroup UngroupedAppsForGetAppResponse { get; } = new GetAppResponseGroup
+            {
+                Id = "-1",
+                Name = "Ungrouped apps",
+                SortOrder = 0
+            };
+
+            public static GetGroupedAppsResponseAppGroup UngroupedAppsForGetGroupedApps { get; } = new GetGroupedAppsResponseAppGroup
+            {
+                Id = UngroupedAppsForGetAppResponse.Id,
+                Name = UngroupedAppsForGetAppResponse.Name,
+                SortOrder = UngroupedAppsForGetAppResponse.SortOrder
+            };
 
             /// <summary>
             /// The cache key for the Settings Spa Middleware Html content.

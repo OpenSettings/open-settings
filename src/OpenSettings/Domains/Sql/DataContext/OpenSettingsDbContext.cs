@@ -1,7 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using OpenSettings.Configurations;
 using OpenSettings.Domains.Sql.Entities;
+using System.Diagnostics;
 
 namespace OpenSettings.Domains.Sql.DataContext
 {
@@ -193,14 +196,17 @@ namespace OpenSettings.Domains.Sql.DataContext
             base.OnModelCreating(modelBuilder);
         }
 
-        public static OpenSettingsDbContext GetInstance(ProviderConfiguration provider)
+        public static OpenSettingsDbContext GetInstance(ProviderConfiguration provider, ILoggerFactory loggerFactory)
         {
             var dbContextOptionsBuilder = new DbContextOptionsBuilder<OpenSettingsDbContext>();
-
             provider.Orm.ConfigureDbContext.Invoke(dbContextOptionsBuilder);
 
+            dbContextOptionsBuilder.UseLoggerFactory(OpenSettingsDefaults.Flags.IsDbLogEnabled ? loggerFactory : NullLoggerFactory.Instance);
 #if DEBUG
-            dbContextOptionsBuilder.EnableSensitiveDataLogging();
+            if (Debugger.IsAttached)
+            {
+                dbContextOptionsBuilder.EnableSensitiveDataLogging(OpenSettingsDefaults.Flags.IsSensitiveDataLoggingEnabled);
+            }
 #endif
             dbContextOptionsBuilder.ConfigureWarnings(w => w.Ignore(RelationalEventId.AmbientTransactionWarning));
 

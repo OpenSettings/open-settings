@@ -15,12 +15,12 @@ namespace OpenSettings.Models.Responses
 
         public NotificationSource Source { get; set; }
 
-        public Dictionary<string, object> Metadata { get; set; }
-
         public bool IsExpired { get; set; }
 
         public DateTime CreatedOn { get; set; }
 
         public string CreatorName { get; set; }
+
+        public Dictionary<string, object> Metadata { get; set; }
     }
 }

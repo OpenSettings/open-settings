@@ -2,7 +2,7 @@
 
 namespace OpenSettings.Models.Responses
 {
-    public class GetIdentifiersResponseIdentifier
+    public class GetIdentifiersResponseIdentifier : ISortable
     {
         public string Id { get; set; }
 

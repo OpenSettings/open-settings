@@ -44,7 +44,7 @@ namespace OpenSettings.AspNetCore.Extensions
             var providerInfo = syncAppDataResponse.ProviderInfo;
             var controllerConfiguration = syncAppDataResponse.Configuration.Controller;
 
-            var requiresAuthentication = syncAppDataResponse.RequiresAuthentication;
+            var requiresAuthentication = syncAppDataResponse.IsAuthenticationRequired();
 
             if (syncAppDataResponse.IsProvider)
             {

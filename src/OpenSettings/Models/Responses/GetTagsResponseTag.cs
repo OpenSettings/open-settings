@@ -2,7 +2,7 @@
 
 namespace OpenSettings.Models.Responses
 {
-    public class GetTagsResponseTag
+    public class GetTagsResponseTag : ISortable
     {
         public string Id { get; set; }
 

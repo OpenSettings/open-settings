@@ -1835,7 +1835,7 @@ namespace OpenSettings.Services.Sql
                         Name = a.Group.Name,
                         SortOrder = a.Group.SortOrder
                     }
-                    : GetAppResponseGroup.UngroupedApps,
+                    : OpenSettingsDefaults.Caches.UngroupedAppsForGetAppResponse,
                 Tags = a.AppTagMappings.OrderBy(t => t.Tag.SortOrder).Select(t => new GetAppResponseTag
                 {
                     Id = $"{t.Tag.Id}",
@@ -1868,7 +1868,7 @@ namespace OpenSettings.Services.Sql
                         Name = a.Group.Name,
                         SortOrder = a.Group.SortOrder
                     }
-                    : GetGroupedAppsResponseAppGroup.UngroupedApps,
+                    : OpenSettingsDefaults.Caches.UngroupedAppsForGetGroupedApps,
                 Tags = a.AppTagMappings.OrderBy(t => t.Tag.SortOrder).Select(t => new GetGroupedAppsResponseAppTag
                 {
                     Id = $"{t.Tag.Id}",

@@ -22,6 +22,7 @@ using OpenSettings.Services.Sql;
 using OpenSettings.Services.Sql.Interfaces;
 using StackExchange.Redis;
 using System;
+using System.Diagnostics;
 using System.Threading.Channels;
 
 namespace OpenSettings.Extensions
@@ -280,8 +281,15 @@ namespace OpenSettings.Extensions
                 services.AddDbContextPool<OpenSettingsDbContext>(
                     dbCtxBuilder =>
                     {
+                        if (!OpenSettingsDefaults.Flags.IsDbLogEnabled)
+                        {
+                            dbCtxBuilder.UseLoggerFactory(NullLoggerFactory.Instance);
+                        }
 #if DEBUG
-                        dbCtxBuilder.EnableSensitiveDataLogging();
+                        if (Debugger.IsAttached)
+                        {
+                            dbCtxBuilder.EnableSensitiveDataLogging(OpenSettingsDefaults.Flags.IsSensitiveDataLoggingEnabled);
+                        }
 #endif
                         dbCtxBuilder.ConfigureWarnings(w => w.Ignore(RelationalEventId.AmbientTransactionWarning));
 
@@ -292,8 +300,15 @@ namespace OpenSettings.Extensions
             {
                 services.AddDbContext<OpenSettingsDbContext>(dbCtxBuilder =>
                 {
+                    if (!OpenSettingsDefaults.Flags.IsDbLogEnabled)
+                    {
+                        dbCtxBuilder.UseLoggerFactory(NullLoggerFactory.Instance);
+                    }
 #if DEBUG
-                    dbCtxBuilder.EnableSensitiveDataLogging();
+                    if (Debugger.IsAttached)
+                    {
+                        dbCtxBuilder.EnableSensitiveDataLogging(OpenSettingsDefaults.Flags.IsSensitiveDataLoggingEnabled);
+                    }
 #endif
                     dbCtxBuilder.ConfigureWarnings(w => w.Ignore(RelationalEventId.AmbientTransactionWarning));
 

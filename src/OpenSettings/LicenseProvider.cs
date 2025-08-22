@@ -90,7 +90,7 @@ namespace OpenSettings
         {
             try
             {
-                using (var context = OpenSettingsDbContext.GetInstance(openSettingsConfiguration.Provider))
+                using (var context = OpenSettingsDbContext.GetInstance(openSettingsConfiguration.Provider, openSettingsConfiguration.LoggerFactory))
                 {
                     await openSettingsConfiguration.Provider.InitializeDbAsync(context, cancellationToken);
 

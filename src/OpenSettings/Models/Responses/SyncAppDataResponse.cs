@@ -13,9 +13,10 @@ namespace OpenSettings.Models.Responses
 {
     public class SyncAppDataResponse
     {
-        public const string InstanceFullName = "OpenSettings.Models.Responses.SyncAppDataResponse";
+        private const string InstanceFullName = "OpenSettings.Models.Responses.SyncAppDataResponse";
+        private const string ProviderSectionKey = "OpenSettings.Models.Responses.SyncAppDataResponse:ProviderInfo";
 
-        public ICollection<SyncAppDataResponseSetting> Settings { get; set; } = Array.Empty<SyncAppDataResponseSetting>();
+        public bool IsProvider { get; set; }
 
         public ProviderInfo ProviderInfo { get; set; }
 
@@ -23,45 +24,15 @@ namespace OpenSettings.Models.Responses
 
         public SyncAppDataResponseClient Client { get; set; }
 
-        public bool IsProvider { get; set; }
+        public ICollection<SyncAppDataResponseSetting> Settings { get; set; } = Array.Empty<SyncAppDataResponseSetting>();
 
-        public bool RequiresAuthentication => ProviderInfo.RequiresAuthentication || Configuration.Controller.RequiresAuthentication;
-
-        public static SyncAppDataResponse Get(IConfiguration configuration)
-        {
-            var localSyncDataResponse = configuration.GetSection(InstanceFullName).Get<SyncAppDataResponse>();
-
-            return localSyncDataResponse;
-        }
-
-        public static ProviderInfo GetProviderInfo(IConfiguration configuration)
-        {
-            return configuration.GetSection($"{InstanceFullName}:{nameof(ProviderInfo)}").Get<ProviderInfo>();
-        }
-
-        public static async Task<SyncAppDataResponse> GetAsync(CancellationToken cancellationToken = default)
-        {
-            if (!File.Exists(OpenSettingsDefaults.Files.GeneratedOpenSettingsFilePath))
-            {
-                return null;
-            }
-
-            var jsonFile = await JsonHelper.GetJsonFileAsync(OpenSettingsDefaults.Files.GeneratedOpenSettingsFilePath, cancellationToken);
-
-            if (!jsonFile.TryGetValue(InstanceFullName, out var localSyncDataResponseObj) ||
-                !(localSyncDataResponseObj is JsonElement localSyncDataResponseJsonElement))
-            {
-                return null;
-            }
-
-            return localSyncDataResponseJsonElement.Deserialize<SyncAppDataResponse>();
-        }
+        public bool IsAuthenticationRequired() => ProviderInfo.RequiresAuthentication || Configuration.Controller.RequiresAuthentication;
 
         public Task WriteToFileAsync(OpenSettingsConfiguration openSettingsConfiguration, CancellationToken cancellationToken = default)
         {
-            var fullPathToInstanceFullNameToObjectInstance = new Dictionary<string, Dictionary<string, object>>();
+            var fullPathToInstanceFullNameToObjectInstance = new Dictionary<string, Dictionary<string, object>>(1);
 
-            var dictionary = fullPathToInstanceFullNameToObjectInstance.GetOrCreateDictionary(OpenSettingsDefaults.Files.GeneratedOpenSettingsFilePath);
+            var dictionary = fullPathToInstanceFullNameToObjectInstance.GetOrCreateDictionary(OpenSettingsDefaults.Files.GeneratedOpenSettingsFilePath, 1);
 
             dictionary[InstanceFullName] = ProviderInfo == null
                 ? new
@@ -92,6 +63,36 @@ namespace OpenSettings.Models.Responses
 #else
             return FileHelper.WriteToDiskAsync(fullPathToInstanceFullNameToObjectInstance, cancellationToken);
 #endif
+        }
+
+        public static SyncAppDataResponse Get(IConfiguration configuration)
+        {
+            var localSyncDataResponse = configuration.GetSection(InstanceFullName).Get<SyncAppDataResponse>();
+
+            return localSyncDataResponse;
+        }
+
+        public static ProviderInfo GetProviderInfo(IConfiguration configuration)
+        {
+            return configuration.GetSection(ProviderSectionKey).Get<ProviderInfo>();
+        }
+
+        public static async Task<SyncAppDataResponse> GetAsync(CancellationToken cancellationToken = default)
+        {
+            if (!File.Exists(OpenSettingsDefaults.Files.GeneratedOpenSettingsFilePath))
+            {
+                return null;
+            }
+
+            var jsonFile = await JsonHelper.GetJsonFileAsync(OpenSettingsDefaults.Files.GeneratedOpenSettingsFilePath, cancellationToken);
+
+            if (!jsonFile.TryGetValue(InstanceFullName, out var localSyncDataResponseObj) ||
+                !(localSyncDataResponseObj is JsonElement localSyncDataResponseJsonElement))
+            {
+                return null;
+            }
+
+            return localSyncDataResponseJsonElement.Deserialize<SyncAppDataResponse>();
         }
 
         private static ProviderInfo ConstructProviderInfo(OpenSettingsConfiguration openSettingsConfiguration, ConfigurationController controllerConfiguration)

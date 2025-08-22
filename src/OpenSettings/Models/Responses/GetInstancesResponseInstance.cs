@@ -13,13 +13,9 @@ namespace OpenSettings.Models.Responses
 
         public string Name { get; set; }
 
-        public string[] Urls { get; set; } = Array.Empty<string>();
-
         public bool IsActive { get; set; }
 
         public string MachineName { get; set; }
-
-        public List<ReloadStrategy> ReloadStrategies { get; set; } = new List<ReloadStrategy>();
 
         public ServiceType ServiceType { get; set; }
 
@@ -30,5 +26,9 @@ namespace OpenSettings.Models.Responses
         public DateTime CreatedOn { get; set; }
 
         public DateTime? UpdatedOn { get; set; }
+
+        public string[] Urls { get; set; } = Array.Empty<string>();
+
+        public List<ReloadStrategy> ReloadStrategies { get; set; } = new List<ReloadStrategy>();
     }
 }

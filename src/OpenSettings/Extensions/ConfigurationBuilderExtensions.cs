@@ -221,7 +221,7 @@ namespace OpenSettings.Extensions
             {
                 var compressionProvider = openSettingsConfiguration.Provider.CreateCompressionProvider();
 
-                var context = OpenSettingsDbContext.GetInstance(openSettingsConfiguration.Provider);
+                var context = OpenSettingsDbContext.GetInstance(openSettingsConfiguration.Provider, openSettingsConfiguration.LoggerFactory);
 
                 await openSettingsConfiguration.Provider.InitializeDbAsync(context, cancellationToken);
 

@@ -22,7 +22,7 @@
             {
                 if (!string.IsNullOrWhiteSpace(value))
                 {
-                    _authority = value.TrimEnd('/');
+                    _authority = value.TrimEnd(OpenSettingsDefaults.Format.SlashChar);
                 }
             }
         }

@@ -14,14 +14,14 @@ namespace OpenSettings.Models.Responses
 
         public bool DataRestored { get; set; }
 
-        public GetGroupedAppDataByIdentifierIdResponseSettingClass Class { get; set; }
-
-        public byte[] RowVersion { get; set; } = Array.Empty<byte>();
-
         public bool StoreInSeparateFile { get; set; }
 
         public bool? IgnoreOnFileChange { get; set; }
 
         public RegistrationMode RegistrationMode { get; set; }
+
+        public GetGroupedAppDataByIdentifierIdResponseSettingClass Class { get; set; }
+
+        public byte[] RowVersion { get; set; } = Array.Empty<byte>();
     }
 }

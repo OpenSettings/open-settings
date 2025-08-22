@@ -3,7 +3,6 @@ using OpenSettings.Models;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
-using System.Text.Json.Serialization;
 
 namespace OpenSettings.Configurations
 {
@@ -37,7 +36,7 @@ namespace OpenSettings.Configurations
         /// </summary>
         /// <value>
         /// A <see cref="HashSet{CompressionType}"/> representing the encodings that the consumer requests 
-        /// from the provider service. This collection is initialized with a default size (6)
+        /// from the provider service. This collection is initialized with a default constant size (6).
         /// </value>
         public HashSet<CompressionType> RequestEncodings { get; internal set; } = new
 #if !NETSTANDARD2_0
@@ -99,7 +98,7 @@ namespace OpenSettings.Configurations
         {
             get
             {
-                var openSettingsGeneratorMode = Environment.GetEnvironmentVariable("OPENSETTINGS_GENERATOR_MODE");
+                var openSettingsGeneratorMode = Environment.GetEnvironmentVariable(OpenSettingsDefaults.Keys.GeneratorMode);
 
                 return string.Equals(openSettingsGeneratorMode, "1", StringComparison.OrdinalIgnoreCase) ||
                        string.Equals(openSettingsGeneratorMode, "TRUE", StringComparison.OrdinalIgnoreCase);

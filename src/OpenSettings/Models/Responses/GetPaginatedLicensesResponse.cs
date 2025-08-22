@@ -5,14 +5,18 @@ namespace OpenSettings.Models.Responses
 {
     public class GetPaginatedLicensesResponse
     {
+        public GetPaginatedLicensesResponse()
+        {
+        }
+
         public GetPaginatedLicensesResponse(GetPaginatedInput input, int itemCount, GetPaginatedLicensesResponseLicense[] licenses)
         {
             Licenses = licenses ?? Array.Empty<GetPaginatedLicensesResponseLicense>();
             PagingInfo = new PagingInfo(input.PageIndex, input.PageSize, itemCount);
         }
 
-        public PagingInfo PagingInfo { get; }
+        public PagingInfo PagingInfo { get; set; }
 
-        public GetPaginatedLicensesResponseLicense[] Licenses { get; }
+        public GetPaginatedLicensesResponseLicense[] Licenses { get; set; } = Array.Empty<GetPaginatedLicensesResponseLicense>();
     }
 }

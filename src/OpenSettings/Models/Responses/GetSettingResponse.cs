@@ -10,8 +10,6 @@ namespace OpenSettings.Models.Responses
 
         public CompressionLevel CompressionLevel { get; set; }
 
-        public byte[] Data { get; set; } = Array.Empty<byte>();
-
         public bool DataRestored { get; set; }
 
         public bool DataValidationDisabled { get; set; }
@@ -37,6 +35,8 @@ namespace OpenSettings.Models.Responses
         public DateTime CreatedOn { get; set; }
 
         public DateTime? UpdatedOn { get; set; }
+
+        public byte[] Data { get; set; } = Array.Empty<byte>();
 
         public byte[] RowVersion { get; set; } = Array.Empty<byte>();
     }

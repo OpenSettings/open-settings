@@ -43,8 +43,11 @@ static OpenSettingsConfiguration GetConsumerConfiguration() => new OpenSettingsC
         SkipInitialSyncAppData = false,
         PollingSettingsWorker = new PollingSettingsWorkerConfiguration(isActive: true, startsIn: TimeSpan.FromMinutes(1), period: TimeSpan.FromMinutes(5))
     },
-    SyncAppDataMaxRetryCount = -1, // Infinite retries
-    SyncAppDataRetryDelayMilliseconds = 1000, // Delay in milliseconds between retry attempts
+    SyncAppDataResilience = new SyncAppDataResilienceConfiguration
+    {
+        MaxRetryAttempts = -1, // Infinite retries
+        RetryDelay = TimeSpan.FromSeconds(1) // Delay between retry attempts
+    },
     Operation = Operation.ReadOrInitialize,
     StoreInSeparateFile = true,
     IgnoreOnFileChange = false,

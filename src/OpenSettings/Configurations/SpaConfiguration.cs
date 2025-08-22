@@ -25,15 +25,20 @@ namespace OpenSettings.Configurations
             get => _routePrefix;
             set
             {
-                if (value == null || value == " ")
+                if (value == string.Empty)
+                {
+                    _routePrefix = value;
+                    return;
+                }
+
+                value = value?.Trim();
+
+                if (string.IsNullOrEmpty(value))
                 {
                     throw new Exception("RoutePrefix can not be null or whitespace!");
                 }
 
-                if (value != string.Empty)
-                {
-                    value = value.TrimStart(OpenSettingsDefaults.Format.SlashChar).TrimEnd(OpenSettingsDefaults.Format.SlashChar);
-                }
+                value = value.TrimStart(OpenSettingsDefaults.Format.SlashChar).TrimEnd(OpenSettingsDefaults.Format.SlashChar);
 
                 _routePrefix = value;
             }
@@ -60,8 +65,14 @@ namespace OpenSettings.Configurations
         /// The default value is <c>true</c>.
         /// </summary>
         /// <remarks>
-        /// Setting this property to <c>true</c> does not guarantee that the Spa will be accessible.
-        /// Make sure to register <c>AddOpenSettingsController(...)</c> and <c>app.UseOpenSettings(...)</c> after <c>UseRouting()</c> and before <c>UseEndpoints()</c>.
+        /// Setting this property to <c>true</c> does not guarantee that the Spa will be accessible. Should be done as follows:
+        /// <code>
+        /// services.AddOpenSettingsController(builder.Configuration);
+        /// ...
+        /// app.UseRouting();
+        /// app.UseOpenSettings();
+        /// app.UseEndpoints();
+        /// </code>
         /// </remarks>
         public bool IsActive { get; set; } = true;
     }

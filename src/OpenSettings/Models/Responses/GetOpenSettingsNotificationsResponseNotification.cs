@@ -13,8 +13,6 @@ namespace OpenSettings.Models.Responses
 
         public NotificationType Type { get; set; }
 
-        public Dictionary<string, object> Metadata { get; set; } = new Dictionary<string, object>();
-
         public DateTime CreatedOn { get; set; }
 
         public TimeSpan? ExpiresIn { get; set; }
@@ -22,5 +20,7 @@ namespace OpenSettings.Models.Responses
         public bool IsExpired { get; set; }
 
         public string CreatedBy { get; set; }
+
+        public Dictionary<string, object> Metadata { get; set; } = new Dictionary<string, object>();
     }
 }

@@ -18,7 +18,7 @@ namespace OpenSettings.AspNetCore.CustomDataProtection
 
             IEnumerable<XElement> GetAllElementsCore()
             {
-                using (var context = OpenSettingsDbContext.GetInstance(OpenSettingsDefaults.Caches.OpenSettingsConfiguration.Provider))
+                using (var context = OpenSettingsDbContext.GetInstance(OpenSettingsDefaults.Caches.OpenSettingsConfiguration.Provider, OpenSettingsDefaults.Caches.OpenSettingsConfiguration.LoggerFactory))
                 {
                     foreach (var key in context.DataProtectionKeys.AsNoTracking())
                     {
@@ -33,7 +33,7 @@ namespace OpenSettings.AspNetCore.CustomDataProtection
 
         public void StoreElement(XElement element, string friendlyName)
         {
-            using (var context = OpenSettingsDbContext.GetInstance(OpenSettingsDefaults.Caches.OpenSettingsConfiguration.Provider))
+            using (var context = OpenSettingsDbContext.GetInstance(OpenSettingsDefaults.Caches.OpenSettingsConfiguration.Provider, OpenSettingsDefaults.Caches.OpenSettingsConfiguration.LoggerFactory))
             {
                 var keyId = element.Attribute("id")?.Value;
 

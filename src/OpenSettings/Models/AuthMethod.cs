@@ -1,6 +1,4 @@
-﻿using System.Runtime.Serialization;
-
-namespace OpenSettings.Models
+﻿namespace OpenSettings.Models
 {
     public enum AuthMethod
     {

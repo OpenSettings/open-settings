@@ -5,11 +5,14 @@ namespace OpenSettings.Models.Responses
 {
     public class GetPaginatedLicensesResponseLicense
     {
+        public GetPaginatedLicensesResponseLicense()
+        {
+        }
+
         public GetPaginatedLicensesResponseLicense(LicenseSqlModel license)
         {
             Id = license.Id;
             ReferenceId = license.ReferenceId;
-            Features = license.Features ?? Array.Empty<string>();
             ExpiryDate = license.ExpiryDate;
             IsExpired = license.IsExpired;
             IsRevoked = license.IsRevoked;
@@ -19,13 +22,12 @@ namespace OpenSettings.Models.Responses
             Edition = license.Edition;
             CreatedOn = license.CreatedOn;
             UpdatedOn = license.UpdatedOn;
+            Features = license.Features ?? Array.Empty<string>();
         }
 
         public int Id { get; set; }
 
         public string ReferenceId { get; set; }
-
-        public string[] Features { get; set; }
 
         public DateTime? ExpiryDate { get; set; }
 
@@ -44,5 +46,7 @@ namespace OpenSettings.Models.Responses
         public DateTime CreatedOn { get; set; }
 
         public DateTime? UpdatedOn { get; set; }
+
+        public string[] Features { get; set; } = Array.Empty<string>();
     }
 }

@@ -15,8 +15,6 @@ namespace OpenSettings.Models.Responses
 
         public NotificationSource Source { get; set; }
 
-        public Dictionary<string, object> Metadata { get; set; }
-
         public bool IsOpened { get; set; }
 
         public bool IsViewed { get; set; }
@@ -28,5 +26,7 @@ namespace OpenSettings.Models.Responses
         public DateTime CreatedOn { get; set; }
 
         public string CreatorName { get; set; }
+
+        public Dictionary<string, object> Metadata { get; set; } = new Dictionary<string, object>();
     }
 }

@@ -305,9 +305,7 @@ namespace OpenSettings.Services
                     IdentifierName = identifierName
                 }, cancellationToken);
 
-            var computedIdentifierToUpdatedOn =
-                settingsLastUpdatedClassComputedIdentifiers.Data.ComputedIdentifierToUpdatedOn.ToDictionary(k => k.Key,
-                    k => k.Value);
+            var computedIdentifierToUpdatedOn = settingsLastUpdatedClassComputedIdentifiers.Data.ComputedIdentifierToUpdatedOn;
 
             if (computedIdentifierToUpdatedOn.Count == 0)
             {
@@ -384,7 +382,7 @@ namespace OpenSettings.Services
                 return false;
             }
 
-            var computedIdentifierToUpdatedOn = settingsLastUpdatedClassComputedIdentifiers.Data.ComputedIdentifierToUpdatedOn.ToDictionary(k => k.Key, k => k.Value);
+            var computedIdentifierToUpdatedOn = settingsLastUpdatedClassComputedIdentifiers.Data.ComputedIdentifierToUpdatedOn;
 
             if (computedIdentifierToUpdatedOn.Count == 0)
             {
@@ -569,11 +567,21 @@ namespace OpenSettings.Services
             SyncAppDataResponse syncAppDataResponse = null;
             var attempt = 1;
             Exception exception = null;
+            Random random = null;
 
             var isMigrationEnabled = Helper.IsMigrationEnabled;
 
+            var deadline = _openSettingsConfiguration.SyncAppDataResilience.TotalTimeout.HasValue
+                ? DateTime.UtcNow + _openSettingsConfiguration.SyncAppDataResilience.TotalTimeout.Value
+                : (DateTime?)null;
+
             do
             {
+                if (deadline.HasValue && DateTime.UtcNow >= deadline.Value)
+                {
+                    throw new TotalTimeoutExceededException(nameof(SyncAppDataAsync), _openSettingsConfiguration.SyncAppDataResilience.TotalTimeout.Value);
+                }
+
                 try
                 {
                     var response = await _appsService.SyncAppDataAsync(appSqlModel, cancellationToken);
@@ -598,31 +606,54 @@ namespace OpenSettings.Services
                 }
                 catch (Exception ex)
                 {
+#if DEBUG
                     if (Debugger.IsAttached)
                     {
                         throw;
                     }
-
+#endif
                     exception = ex;
                 }
 
                 if (syncAppDataResponse == null)
                 {
-                    var isMaxRetryExceeded = _openSettingsConfiguration.SyncAppDataMaxRetryCount != -1 && attempt >= _openSettingsConfiguration.SyncAppDataMaxRetryCount;
-
-                    Logs.InitializationFailed(_logger, attempt, !isMaxRetryExceeded, exception);
-
                     if (isMigrationEnabled)
                     {
                         break;
                     }
 
+                    var isMaxRetryExceeded = _openSettingsConfiguration.SyncAppDataResilience.MaxRetryAttempts >= 0 && attempt >= _openSettingsConfiguration.SyncAppDataResilience.MaxRetryAttempts;
+
+                    Logs.InitializationFailed(_logger, attempt, !isMaxRetryExceeded, exception);
+
                     if (isMaxRetryExceeded)
                     {
-                        throw new SyncAppDataMaxRetryExceededException(_openSettingsConfiguration.SyncAppDataMaxRetryCount, attempt);
+                        throw new MaxRetryExceededException(nameof(SyncAppDataAsync), _openSettingsConfiguration.SyncAppDataResilience.MaxRetryAttempts);
                     }
 
-                    await Task.Delay(_openSettingsConfiguration.SyncAppDataRetryDelayMilliseconds, cancellationToken);
+                    if (deadline.HasValue && DateTime.UtcNow >= deadline.Value)
+                    {
+                        throw new TotalTimeoutExceededException(nameof(SyncAppDataAsync), _openSettingsConfiguration.SyncAppDataResilience.TotalTimeout.Value);
+                    }
+
+                    var delay = _openSettingsConfiguration.SyncAppDataResilience.RetryDelay;
+
+                    if (_openSettingsConfiguration.SyncAppDataResilience.BackoffType == DelayBackoffType.Exponential)
+                    {
+                        delay = TimeSpan.FromMilliseconds(delay.TotalMilliseconds * Math.Pow(2, attempt - 1));
+                    }
+
+                    if (_openSettingsConfiguration.SyncAppDataResilience.MaxRetryDelay.HasValue && delay > _openSettingsConfiguration.SyncAppDataResilience.MaxRetryDelay.Value)
+                    {
+                        delay = _openSettingsConfiguration.SyncAppDataResilience.MaxRetryDelay.Value;
+                    }
+
+                    if (_openSettingsConfiguration.SyncAppDataResilience.UseJitter)
+                    {
+                        delay = TimeSpan.FromMilliseconds(delay.TotalMilliseconds * (0.5 + (random ?? (random = new Random())).NextDouble() * 0.5));
+                    }
+
+                    await Task.Delay(delay, cancellationToken);
                 }
                 else
                 {
@@ -786,7 +817,7 @@ namespace OpenSettings.Services
             return fullPathToInstanceFullNameToObjectInstance;
         }
 
-        private static SyncAppDataInputSetting[] GenerateSettings(IEnumerable<LocalSetting> settingsData, OpenSettingsConfiguration openSettingsConfiguration)
+        private static SyncAppDataInputSetting[] GenerateSettings(Dictionary<Guid, LocalSetting>.ValueCollection settingsData, OpenSettingsConfiguration openSettingsConfiguration)
         {
             return settingsData.Select(settingData =>
             {
@@ -866,7 +897,7 @@ namespace OpenSettings.Services
 
             public static readonly Action<ILogger, Exception> SettingsGeneratedAndShuttingDown =
                 LoggerMessage.Define(
-                    LogLevel.Information, 
+                    LogLevel.Information,
                     new EventId(4, nameof(SyncAppDataAsync)),
                     SettingsGeneratedAndShuttingDownFormatString);
         }
