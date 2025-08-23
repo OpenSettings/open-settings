@@ -12,7 +12,7 @@ var openSettingsProviderConfiguration = new OpenSettingsConfiguration(ServiceTyp
     {
         OpenIdConnect = new OpenIdConnectConfiguration
         {
-            IsActive = true,
+            IsActive = false,
             ClientId = "web",
             ClientSecret = "secret",
             AllowOfflineAccess = true,

@@ -16,13 +16,9 @@ namespace OpenSettings.Models.Responses
         private const string InstanceFullName = "OpenSettings.Models.Responses.SyncAppDataResponse";
         private const string ProviderSectionKey = "OpenSettings.Models.Responses.SyncAppDataResponse:ProviderInfo";
 
-        public bool IsProvider { get; set; }
-
         public ProviderInfo ProviderInfo { get; set; }
 
         public SyncAppDataResponseConfiguration Configuration { get; set; }
-
-        public SyncAppDataResponseClient Client { get; set; }
 
         public ICollection<SyncAppDataResponseSetting> Settings { get; set; } = Array.Empty<SyncAppDataResponseSetting>();
 
@@ -38,22 +34,12 @@ namespace OpenSettings.Models.Responses
                 ? new
                 {
                     ProviderInfo = ConstructProviderInfo(openSettingsConfiguration, Configuration.Controller),
-                    Configuration,
-                    Client = new SyncAppDataResponseClient
-                    {
-                        Name = openSettingsConfiguration.Client.Name
-                    },
-                    IsProvider = true
+                    Configuration
                 }
                 : new
                 {
                     ProviderInfo,
-                    Configuration,
-                    Client = new SyncAppDataResponseClient
-                    {
-                        Name = openSettingsConfiguration.Client.Name
-                    },
-                    IsProvider = false
+                    Configuration
                 };
 
 #if NETSTANDARD2_0

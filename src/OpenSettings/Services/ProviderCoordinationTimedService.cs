@@ -367,6 +367,7 @@ namespace OpenSettings.Services
             timedHostedServiceOptions.Period = TimeSpan.FromMilliseconds(providerCoordinationTimedServiceOptions.MasterCheckInterval);
             timedHostedServiceOptions.PreservePeriod = true;
             timedHostedServiceOptions.LogOptions.LogWhenTaskStarted = false;
+            timedHostedServiceOptions.LogOptions.LogWhenTaskCompleted = false;
         }
 
         private static class Logs

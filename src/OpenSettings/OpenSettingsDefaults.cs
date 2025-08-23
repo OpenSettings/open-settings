@@ -456,6 +456,15 @@ namespace OpenSettings
                 public static readonly EventId LoginFailedDueToUserIsDisabled = new EventId(1151, nameof(LoginFailedDueToUserIsDisabled));
                 public static readonly EventId OpenIdConnectErrorOccurred = new EventId(1152, nameof(OpenIdConnectErrorOccurred));
             }
+
+            public static class DataValidationService // 1200-1249
+            {
+                public static readonly EventId FailedToDeserializeComplexType = new EventId(1200, nameof(FailedToDeserializeComplexType));
+                public static readonly EventId FailedToValidateComplexProperty = new EventId(1201, nameof(FailedToValidateComplexProperty));
+                public static readonly EventId FailedToDeserializeJsonElement = new EventId(1202, nameof(FailedToDeserializeJsonElement));
+                public static readonly EventId UnexpectedErrorOccurredWhileDeserializingToType = new EventId(1203, nameof(UnexpectedErrorOccurredWhileDeserializingToType));
+                public static readonly EventId UnsupportedTypeEncountered = new EventId(1204, nameof(UnsupportedTypeEncountered));
+            }
         }
 
         /// <summary>
@@ -475,6 +484,8 @@ namespace OpenSettings
             internal static Dictionary<string, int> ClassNameToCount { get; } = new Dictionary<string, int>();
 
             internal static ConcurrentDictionary<object, byte> CacheKeys { get; } = new ConcurrentDictionary<object, byte>();
+
+            internal static ConcurrentDictionary<string, Type> TypeNameToType { get; } = new ConcurrentDictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
 
             internal static GetAppResponseGroup UngroupedAppsForGetAppResponse { get; } = new GetAppResponseGroup
             {

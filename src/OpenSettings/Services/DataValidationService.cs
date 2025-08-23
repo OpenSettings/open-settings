@@ -1,11 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
+using OpenSettings.Configurations;
 using OpenSettings.Models;
 using OpenSettings.Services.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
-using OpenSettings.Configurations;
 
 namespace OpenSettings.Services
 {
@@ -65,7 +65,7 @@ namespace OpenSettings.Services
                                     continue;
                                 }
                             }
-                            
+
                             if (propertyFromDb.TypeName == NullableGenericTypeName)
                             {
                                 if (!ValidatePropertyValue(propertyValue, propertyFromDb.GenericTypeArguments.First()))
@@ -78,9 +78,9 @@ namespace OpenSettings.Services
                                 return false;
                             }
                         }
-                        catch
+                        catch (Exception ex)
                         {
-                            _logger.LogError("Failed to deserialize complex type for property '{propertyName}' with value '{propertyValue}'", propertyName, propertyValue);
+                            Logs.FailedToDeserializeComplexType(_logger, propertyName, propertyValue, ex);
 
                             return false;
                         }
@@ -126,7 +126,7 @@ namespace OpenSettings.Services
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError(ex, "Failed to validate complex property '{propertyName}' with value '{propertyValue}'.", property.Name, propertyValue);
+                        Logs.FailedToValidateComplexProperty(_logger, property.Name, propertyValue, ex);
 
                         return false;
                     }
@@ -143,7 +143,7 @@ namespace OpenSettings.Services
             return true;
         }
 
-        private static bool ValidatePropertyValue(JsonElement propertyValue, string typeName)
+        private bool ValidatePropertyValue(JsonElement propertyValue, string typeName)
         {
             switch (typeName)
             {
@@ -197,44 +197,60 @@ namespace OpenSettings.Services
                     return propertyValue.ValueKind == JsonValueKind.Array;
 
                 default:
+                    Logs.UnsupportedTypeEncountered(_logger, typeName, null);
                     return false;
             }
         }
 
-        private object DeserializeJsonElement(JsonElement jsonElement, string typeName)
+        private object DeserializeJsonElement(JsonElement propertyValue, string typeName)
         {
-            var targetType = Type.GetType(typeName);
-
+            var targetType = OpenSettingsDefaults.Caches.TypeNameToType.GetOrAdd(typeName, Type.GetType);
+            
             if (targetType == null)
             {
                 return null;
             }
 
-            string rawJson = null;
-
             try
             {
-                rawJson = jsonElement.GetRawText();
-
-                return JsonSerializer.Deserialize(rawJson, targetType);
-            }
-            catch (ObjectDisposedException ex)
-            {
-                _logger.LogError(ex, "Failed to deserialize to type '{targetTypeName}' because the JsonElement was disposed.",
-                    targetType.Name);
+               return propertyValue.Deserialize(targetType);
             }
             catch (JsonException ex)
             {
-                _logger.LogError(ex, "Failed to deserialize JsonElement to type '{targetTypeName}' with value '{rawJson}'.",
-                    targetType.Name, rawJson);
+                Logs.FailedToDeserializeJsonElement(_logger, targetType.Name, propertyValue, ex);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unexpected error while deserializing to type '{targetTypeName}' with value '{rawJson}'.",
-                    targetType.Name, rawJson);
+                Logs.UnexpectedErrorOccurredWhileDeserializingToType(_logger, targetType.Name, propertyValue, ex);
             }
 
             return null;
+        }
+
+        private static class Logs
+        {
+            public static readonly Action<ILogger, string, JsonElement, Exception> FailedToDeserializeComplexType =
+                LoggerMessage.Define<string, JsonElement>(LogLevel.Error,
+                    OpenSettingsDefaults.EventIds.DataValidationService.FailedToDeserializeComplexType,
+                    "Failed to deserialize complex type for property '{propertyName}' with value '{propertyValue}'.");
+
+            public static readonly Action<ILogger, string, JsonElement, Exception> FailedToValidateComplexProperty =
+                LoggerMessage.Define<string, JsonElement>(LogLevel.Error,
+                    OpenSettingsDefaults.EventIds.DataValidationService.FailedToValidateComplexProperty,
+                    "Failed to validate complex property '{propertyName}' with value '{propertyValue}'.");
+
+            public static readonly Action<ILogger, string, JsonElement, Exception> FailedToDeserializeJsonElement = LoggerMessage.Define<string, JsonElement>(LogLevel.Error,
+                OpenSettingsDefaults.EventIds.DataValidationService.FailedToDeserializeJsonElement,
+                "Failed to deserialize JsonElement to type '{targetTypeName}' with value '{propertyValue}'.");
+
+            public static readonly Action<ILogger, string, JsonElement, Exception> UnexpectedErrorOccurredWhileDeserializingToType = LoggerMessage.Define<string, JsonElement>(LogLevel.Error,
+                OpenSettingsDefaults.EventIds.DataValidationService.UnexpectedErrorOccurredWhileDeserializingToType,
+                "Unexpected error while deserializing to type '{targetTypeName}' with value '{propertyValue}'.");
+
+            public static readonly Action<ILogger, string, Exception> UnsupportedTypeEncountered =
+                LoggerMessage.Define<string>(LogLevel.Warning,
+                    OpenSettingsDefaults.EventIds.DataValidationService.UnsupportedTypeEncountered,
+                    "Unsupported type '{typeName}' encountered during property value validation.");
         }
     }
 }

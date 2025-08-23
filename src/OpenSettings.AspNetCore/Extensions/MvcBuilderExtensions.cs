@@ -14,7 +14,6 @@ using OpenSettings.Services.Interfaces;
 using OpenSettings.Services.Rest.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
 
 namespace OpenSettings.AspNetCore.Extensions
 {
@@ -46,13 +45,15 @@ namespace OpenSettings.AspNetCore.Extensions
 
             var requiresAuthentication = syncAppDataResponse.IsAuthenticationRequired();
 
-            if (syncAppDataResponse.IsProvider)
+            var openSettingsConfiguration = OpenSettingsDefaults.Caches.OpenSettingsConfiguration;
+
+            if (openSettingsConfiguration.IsProviderSelected)
             {
                 RegisterProviderServices(mvcBuilder.Services, providerInfo, controllerConfiguration, authenticationBuilder);
             }
             else
             {
-                RegisterConsumerServices(mvcBuilder.Services, providerInfo, syncAppDataResponse.Client, authenticationBuilder, requiresAuthentication);
+                RegisterConsumerServices(mvcBuilder.Services, providerInfo, authenticationBuilder, requiresAuthentication);
             }
 
             mvcBuilder.Services.AddSingleton<IInstanceUrlResolverService, InstanceUrlResolverService>();
@@ -93,7 +94,7 @@ namespace OpenSettings.AspNetCore.Extensions
                     mvcOpts.Conventions.AddControllerHideFromExploringConvention(controllerTypes);
                 }
 
-                if (!syncAppDataResponse.IsProvider)
+                if (openSettingsConfiguration.IsConsumerSelected)
                 {
                     mvcOpts.Conventions.AddControllerDisableConvention(providerControllerType);
                 }
@@ -102,7 +103,7 @@ namespace OpenSettings.AspNetCore.Extensions
                 {
                     mvcOpts.Conventions.AddControllerAuthorizeConvention(controllerTypes,
                         conventionOpts =>
-                            ApplyConventionOptions(conventionOpts, providerInfo, syncAppDataResponse.IsProvider));
+                            ApplyConventionOptions(conventionOpts, providerInfo, openSettingsConfiguration.IsProviderSelected));
                 }
             }).AddControllersAsServices();
         }
@@ -125,7 +126,7 @@ namespace OpenSettings.AspNetCore.Extensions
             }
         }
 
-        private static void RegisterConsumerServices(IServiceCollection services, ProviderInfo providerInfo, SyncAppDataResponseClient client, AuthenticationBuilder authenticationBuilder, bool authorize)
+        private static void RegisterConsumerServices(IServiceCollection services, ProviderInfo providerInfo, AuthenticationBuilder authenticationBuilder, bool authorize)
         {
             if (authorize)
             {
@@ -162,7 +163,6 @@ namespace OpenSettings.AspNetCore.Extensions
         {
             authenticationBuilder.AddJwtBearer(OpenSettingsDefaults.AuthSchemes.JwtBearer, opts =>
             {
-                opts.Authority = null; // -> not using discovery
                 opts.RequireHttpsMetadata = false;
                 opts.TokenValidationParameters = new TokenValidationParameters
                 {
@@ -212,7 +212,7 @@ namespace OpenSettings.AspNetCore.Extensions
         /// <remarks>Only called if Authorize is true. (Line : 120)</remarks>
         private static void ApplyConventionOptions(ControllerAuthorizeConventionOptions conventionOptions, ProviderInfo providerInfo, bool isServiceTypeProvider)
         {
-            var authSchemes = new List<string>(4) { OpenSettingsDefaults.AuthSchemes.Basic, OpenSettingsDefaults.AuthSchemes.JwtBearer };
+            var authSchemes = new List<string>(3) { OpenSettingsDefaults.AuthSchemes.Basic, OpenSettingsDefaults.AuthSchemes.JwtBearer };
 
             if (providerInfo.OpenIdConnect.IsActive)
             {
