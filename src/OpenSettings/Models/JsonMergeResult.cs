@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Text.Json;
 
 namespace OpenSettings.Models
 {
@@ -8,6 +9,6 @@ namespace OpenSettings.Models
 
         public string FailureReason { get; set; }
 
-        public Dictionary<string, object> Data { get; set; } = new Dictionary<string, object>();
+        public Dictionary<string, JsonElement> Data { get; set; } = new Dictionary<string, JsonElement>();
     }
 }

@@ -12,15 +12,14 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using OpenSettings.Configurations;
 
 namespace OpenSettings.Services
 {
     public class OpenSettingsService : IOpenSettingsService
     {
-        private const string Url = "https://raw.githubusercontent.com/OpenSettings/open-settings-configs/refs/heads/" +
-
-                                   "master"
-
+        private const string Url = "https://raw.githubusercontent.com/OpenSettings/open-settings-configs/refs/heads/" 
+                                   + "master"
                                    + "/configs.json";
 
         private const string NotificationsConfigName = "notifications";
@@ -29,9 +28,9 @@ namespace OpenSettings.Services
         private readonly IMemoryCache _openSettingsMemoryCache;
         private readonly IHttpClientFactory _httpClientFactory;
 
-        public OpenSettingsService(ILogger<OpenSettingsService> logger, IOpenSettingsMemoryCache openSettingsMemoryCache, IHttpClientFactory httpClientFactory)
+        public OpenSettingsService(IOpenSettingsMemoryCache openSettingsMemoryCache, IHttpClientFactory httpClientFactory, OpenSettingsConfiguration openSettingsConfiguration)
         {
-            _logger = logger;
+            _logger = openSettingsConfiguration.LoggerFactory.CreateLogger<OpenSettingsService>();
             _openSettingsMemoryCache = openSettingsMemoryCache;
             _httpClientFactory = httpClientFactory;
         }

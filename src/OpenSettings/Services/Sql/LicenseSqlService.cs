@@ -303,13 +303,12 @@ namespace OpenSettings.Services.Sql
                     return License.Community;
                 }
 
-                var licenseCombinationsTasks = entities.Select(async l => new
+                var licenseCombinations = entities.Select(l => new
                 {
                     License = ValidateLicenseKey(l.Key),
                     LicenseSqlModel = l
-                });
+                }).ToArray();
 
-                var licenseCombinations = await Task.WhenAll(licenseCombinationsTasks);
                 var anyChanges = false;
 
                 License license = null;
@@ -437,8 +436,6 @@ namespace OpenSettings.Services.Sql
                 default:
                     return query;
             }
-
-            return query;
         }
     }
 }

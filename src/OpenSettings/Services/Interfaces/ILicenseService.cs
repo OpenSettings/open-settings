@@ -19,7 +19,7 @@ namespace OpenSettings.Services.Interfaces
         /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
         /// <returns>
         /// A task that represents the asynchronous operation. The task result contains an <see cref="IResponse"/> 
-        /// with the paginated list of licenses. See data type: <see cref="OpenSettings.Models.Responses.GetPaginatedLicensesResponse"/>.
+        /// with the paginated list of licenses. See data type: <see cref="Models.Responses.GetPaginatedLicensesResponse"/>.
         /// </returns>
         Task<IResponse> GetPaginatedLicensesAsync(GetPaginatedLicensesInput input, CancellationToken cancellationToken);
 
@@ -27,7 +27,7 @@ namespace OpenSettings.Services.Interfaces
         /// Retrieves the current active license. This method never returns a failure.
         /// </summary>
         /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
-        /// <returns>A task that represents the asynchronous operation. The task result contains an <see cref="IResponse"/> with the license data. See data type: <see cref="OpenSettings.Models.License"/>.</returns>
+        /// <returns>A task that represents the asynchronous operation. The task result contains an <see cref="IResponse"/> with the license data. See data type: <see cref="License"/>.</returns>
         Task<IResponse<License>> GetCurrentLicenseAsync(CancellationToken cancellationToken);
 
         /// <summary>
@@ -37,7 +37,7 @@ namespace OpenSettings.Services.Interfaces
         /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
         /// <returns>
         /// A task that represents the asynchronous operation. The task result contains an <see cref="IResponse"/> 
-        /// with the license data. See data type: <see cref="OpenSettings.Models.License"/>.
+        /// with the license data. See data type: <see cref="License"/>.
         /// </returns>
         Task<IResponse> SaveLicenseAsync(string licenseKey, CancellationToken cancellationToken);
 

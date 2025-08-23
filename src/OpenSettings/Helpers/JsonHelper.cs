@@ -51,11 +51,11 @@ namespace OpenSettings.Helpers
         /// <param name="filePath">The file path of the JSON file to read.</param>
         /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
         /// <returns>A <see cref="Task"/> containing a <b>Dictionary&lt;string, object&gt;</b> with the JSON data.</returns>
-        public static async Task<Dictionary<string, object>> GetJsonFileAsync(string filePath, CancellationToken cancellationToken = default)
+        public static async Task<Dictionary<string, TValue>> GetJsonFileAsync<TValue>(string filePath, CancellationToken cancellationToken = default)
         {
             using (var fileStream = File.OpenRead(filePath))
             {
-                return await JsonSerializer.DeserializeAsync<Dictionary<string, object>>(fileStream, DefaultJsonSerializerOptions, cancellationToken);
+                return await JsonSerializer.DeserializeAsync<Dictionary<string, TValue>>(fileStream, DefaultJsonSerializerOptions, cancellationToken);
             }
         }
 
@@ -125,7 +125,7 @@ namespace OpenSettings.Helpers
                 {
                     jsonMergeResult.IsFaulted = true;
                     jsonMergeResult.FailureReason = $"Warning: the base file path content is neither an Array nor an Object, but a {firstRoot.ValueKind}. Merging will proceed with the patch file, but the result may not be as expected!.";
-                    jsonMergeResult.Data = patchDoc.Deserialize<Dictionary<string, object>>();
+                    jsonMergeResult.Data = patchDoc.Deserialize<Dictionary<string, JsonElement>>();
 
                     return jsonMergeResult;
                 }
@@ -134,7 +134,7 @@ namespace OpenSettings.Helpers
                 {
                     jsonMergeResult.IsFaulted = true;
                     jsonMergeResult.FailureReason = $"ValueKind mismatch: the base file has a {firstRoot.ValueKind} and the patch file has a {secondRoot.ValueKind}. Merging will proceed with the patch file, but the result may not be as expected!.";
-                    jsonMergeResult.Data = patchDoc.Deserialize<Dictionary<string, object>>();
+                    jsonMergeResult.Data = patchDoc.Deserialize<Dictionary<string, JsonElement>>();
 
                     return jsonMergeResult;
                 }
@@ -152,12 +152,12 @@ namespace OpenSettings.Helpers
 
                 jsonWriter.Flush();
 
-                jsonMergeResult.Data = JsonSerializer.Deserialize<Dictionary<string, object>>(output.ToArray());
+                jsonMergeResult.Data = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(output.ToArray());
             }
 #else
             }
 
-            jsonMergeResult.Data = JsonSerializer.Deserialize<Dictionary<string, object>>(output.WrittenSpan);
+            jsonMergeResult.Data = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(output.WrittenSpan);
 #endif
             return jsonMergeResult;
         }

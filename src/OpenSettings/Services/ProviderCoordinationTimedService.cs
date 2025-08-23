@@ -11,6 +11,7 @@ using OpenSettings.Models;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Services.Interfaces;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,7 +23,7 @@ namespace OpenSettings.Services
     /// </summary>
     internal sealed class ProviderCoordinationTimedService : TimedHostedService, IProviderCoordinationTimedService
     {
-        public static Guid InstanceId { get; } = Guid.NewGuid();
+        public static Guid ProviderRegistryId { get; } = Guid.NewGuid();
 
         private bool? _isMaster;
 
@@ -37,11 +38,22 @@ namespace OpenSettings.Services
             Timeout = TimeSpan.FromSeconds(10)
         };
 
-        public ProviderCoordinationTimedService(ILogger<ProviderCoordinationTimedService> logger, IOptions<ProviderCoordinationTimedServiceOptions> providerCoordinationTimedServiceOpts, IServiceProvider serviceProvider, OpenSettingsConfiguration openSettingsConfiguration) : base(logger, nameof(ProviderCoordinationTimedService), timedHostedServiceOpts => Configure(providerCoordinationTimedServiceOpts.Value, timedHostedServiceOpts))
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ProviderCoordinationTimedService"/> class.
+        /// </summary>
+        /// <param name="providerCoordinationTimedServiceOptions">The provider coordination timed service options.</param>
+        /// <param name="serviceProvider">The service provider.</param>
+        /// <param name="openSettingsConfiguration">The OpenSettings configuration.</param>
+        public ProviderCoordinationTimedService(
+            IOptions<ProviderCoordinationTimedServiceOptions> providerCoordinationTimedServiceOptions,
+            IServiceProvider serviceProvider, OpenSettingsConfiguration openSettingsConfiguration)
+            : base(openSettingsConfiguration.LoggerFactory.CreateLogger<ProviderCoordinationTimedService>(),
+                nameof(ProviderCoordinationTimedService),
+                timedHostedServiceOpts => Configure(providerCoordinationTimedServiceOptions.Value, timedHostedServiceOpts))
         {
             _serviceProvider = serviceProvider;
 
-            var providerCoordinationTimedServiceOptsValue = providerCoordinationTimedServiceOpts.Value;
+            var providerCoordinationTimedServiceOptsValue = providerCoordinationTimedServiceOptions.Value;
             _openSettingsConfiguration = openSettingsConfiguration;
 
             _masterStaleTimeout = TimeSpan.FromMilliseconds(providerCoordinationTimedServiceOptsValue.MasterCheckInterval + providerCoordinationTimedServiceOptsValue.GraceBuffer);
@@ -55,7 +67,7 @@ namespace OpenSettings.Services
                 {
                     var providerRegistry = await context.ProviderRegistries
                         .AsNoTracking()
-                        .Where(p => p.Id == InstanceId)
+                        .Where(p => p.Id == ProviderRegistryId)
                         .OrderBy(p => p.Type)
                         .Select(p => new { p.Type })
                         .FirstOrDefaultAsync(cancellationToken);
@@ -82,7 +94,7 @@ namespace OpenSettings.Services
 
                                 var anyMasterProviderOtherThanCurrent = await context.ProviderRegistries
                                     .AsNoTracking()
-                                    .AnyAsync(p => p.Type == ProviderRegistryType.Master && p.Id != InstanceId && p.LastHeartbeatOn >= threshold, cancellationToken);
+                                    .AnyAsync(p => p.Type == ProviderRegistryType.Master && p.Id != ProviderRegistryId && p.LastHeartbeatOn >= threshold, cancellationToken);
 
                                 if (!anyMasterProviderOtherThanCurrent)
                                 {
@@ -102,7 +114,7 @@ namespace OpenSettings.Services
                         {
                             await BecomeMasterAsync(context, cancellationToken);
 
-                            Logger.LogInformation("Instance '{instanceId}' for ClientId '{clientId}' successfully became master.", InstanceId, _openSettingsConfiguration.Client.Id);
+                            Logs.BecameMasterSuccessfully(Logger, ProviderRegistryId, _openSettingsConfiguration.Client.Id, null);
 
                             _isMaster = true;
 
@@ -136,6 +148,9 @@ namespace OpenSettings.Services
                 _serviceProvider.GetRequiredService<IProviderRegistryCleanupTimedService>()
             };
 
+            var failedServices= new List<string>(_masterProviderServices.Length);
+            var succeedServices = new List<string>(_masterProviderServices.Length);
+
             var tasksForStart = _masterProviderServices.Select(service => service.StartAsync(cancellationToken)
                 .ContinueWith(task =>
                 {
@@ -143,16 +158,25 @@ namespace OpenSettings.Services
 
                     if (task.IsFaulted)
                     {
-                        Logger.LogError(task.Exception, "Failed to start service: '{serviceName}'.",
-                            serviceName);
+                        failedServices.Add(serviceName);
                     }
                     else
                     {
-                        Logger.LogInformation("Service started successfully: '{serviceName}'.", serviceName);
+                        succeedServices.Add(serviceName);
                     }
                 }, cancellationToken));
 
             await Task.WhenAll(tasksForStart);
+
+            if (failedServices.Count > 0)
+            {
+                Logs.FailedToStartServices(Logger, string.Join(OpenSettingsDefaults.Format.CommaWithSpace, failedServices), null);
+            }
+
+            if (succeedServices.Count > 0)
+            {
+                Logs.ServicesStartedSuccessfully(Logger, string.Join(OpenSettingsDefaults.Format.CommaWithSpace, succeedServices), null);
+            }
         }
 
         private async Task StopMasterProviderServices(CancellationToken cancellationToken)
@@ -162,6 +186,9 @@ namespace OpenSettings.Services
                 return;
             }
 
+            var failedServices = new List<string>(_masterProviderServices.Length);
+            var succeedServices = new List<string>(_masterProviderServices.Length);
+
             var tasksForStop = _masterProviderServices.Select(service => service.StopAsync(cancellationToken)
                 .ContinueWith(task =>
                 {
@@ -169,15 +196,25 @@ namespace OpenSettings.Services
 
                     if (task.IsFaulted)
                     {
-                        Logger.LogError(task.Exception, "Failed to stop service: '{serviceName}'", serviceName);
+                        failedServices.Add(serviceName);
                     }
                     else
                     {
-                        Logger.LogInformation("Service stopped successfully: '{serviceName}'", serviceName);
+                        succeedServices.Add(serviceName);
                     }
                 }, cancellationToken));
 
             await Task.WhenAll(tasksForStop);
+
+            if (failedServices.Count > 0)
+            {
+                Logs.FailedToStopServices(Logger, string.Join(OpenSettingsDefaults.Format.Comma, failedServices), null);
+            }
+
+            if (succeedServices.Count > 0)
+            {
+                Logs.ServiceStoppedSuccessfully(Logger, string.Join(OpenSettingsDefaults.Format.Comma, succeedServices), null);
+            }
         }
 
         private async Task RegisterProviderAsync(OpenSettingsDbContext context, CancellationToken cancellationToken)
@@ -188,7 +225,7 @@ namespace OpenSettings.Services
 
             var providerRegistry = new ProviderRegistrySqlModel
             {
-                Id = InstanceId,
+                Id = ProviderRegistryId,
                 Type = ProviderRegistryType.Slave,
                 ClientId = clientId,
                 ClientIdLowercase = clientIdLowercase,
@@ -243,7 +280,7 @@ namespace OpenSettings.Services
 
         private static async Task UpdateHeartbeatOnAsync(OpenSettingsDbContext context, CancellationToken cancellationToken)
         {
-            var providerRegistry = new ProviderRegistrySqlModel { Id = InstanceId }; // Todo: Can InstanceId not found in the provider registry when this get called?
+            var providerRegistry = new ProviderRegistrySqlModel { Id = ProviderRegistryId };
 
             var entry = context.ProviderRegistries.Attach(providerRegistry);
 
@@ -260,7 +297,7 @@ namespace OpenSettings.Services
         {
             var masterProviderRegistry = new ProviderRegistrySqlModel
             {
-                Id = InstanceId,
+                Id = ProviderRegistryId,
                 Type = ProviderRegistryType.Master,
                 LastHeartbeatOn = DateTime.UtcNow
             };
@@ -271,7 +308,7 @@ namespace OpenSettings.Services
             entry.Property(p => p.LastHeartbeatOn).IsModified = true;
 
             var oldMasterProviders = await context.ProviderRegistries.AsNoTracking()
-                .Where(p => p.Id != InstanceId && p.Type == ProviderRegistryType.Master)
+                .Where(p => p.Id != ProviderRegistryId && p.Type == ProviderRegistryType.Master)
                 .Select(p => new ProviderRegistrySqlModel { Id = p.Id })
                 .ToArrayAsync(cancellationToken);
 
@@ -306,7 +343,7 @@ namespace OpenSettings.Services
 
             if (masterProviderRegistry == null)
             {
-                Logger.LogWarning("Provider registry not found.");
+                Logs.MasterTypeProviderNotFound(Logger, null);
 
                 return true;
             }
@@ -315,12 +352,12 @@ namespace OpenSettings.Services
 
             if (threshold > masterProviderRegistry.LastHeartbeatOn)
             {
-                Logger.LogWarning("Master is stale. Last heartbeat: '{lastHeartbeatOn}', Threshold: '{threshold}'", masterProviderRegistry.LastHeartbeatOn, threshold);
+                Logs.MasterStale(Logger, masterProviderRegistry.LastHeartbeatOn, threshold, null);
 
                 return true;
             }
-
-            Logger.LogDebug("Master is healthy. Last heartbeat: '{lastHeartbeatOn}', Threshold: '{threshold}'.", masterProviderRegistry.LastHeartbeatOn, threshold);
+            
+            Logs.MasterHealthy(Logger, masterProviderRegistry.LastHeartbeatOn, threshold, null);
 
             return false;
         }
@@ -330,6 +367,48 @@ namespace OpenSettings.Services
             timedHostedServiceOptions.Period = TimeSpan.FromMilliseconds(providerCoordinationTimedServiceOptions.MasterCheckInterval);
             timedHostedServiceOptions.PreservePeriod = true;
             timedHostedServiceOptions.LogOptions.LogWhenTaskStarted = false;
+        }
+
+        private static class Logs
+        {
+            public static readonly Action<ILogger, Exception> MasterTypeProviderNotFound =
+                LoggerMessage.Define(LogLevel.Warning,
+                    OpenSettingsDefaults.EventIds.ProviderCoordinationTimedService.MasterTypeProviderNotFound,
+                    "The master type provider could not be found.");
+
+            public static readonly Action<ILogger, DateTime, DateTime, Exception> MasterStale =
+                LoggerMessage.Define<DateTime, DateTime>(LogLevel.Warning,
+                    OpenSettingsDefaults.EventIds.ProviderCoordinationTimedService.MasterStale,
+                    "Master is stale. Last heartbeat: '{lastHeartbeatOn}', Threshold: '{threshold}'");
+
+            public static readonly Action<ILogger, DateTime, DateTime, Exception> MasterHealthy =
+                LoggerMessage.Define<DateTime, DateTime>(LogLevel.Debug,
+                    OpenSettingsDefaults.EventIds.ProviderCoordinationTimedService.MasterHealthy,
+                    "Master is healthy. Last heartbeat: '{lastHeartbeatOn}', Threshold: '{threshold}'.");
+
+            public static readonly Action<ILogger, string, Exception> FailedToStartServices =
+                LoggerMessage.Define<string>(LogLevel.Error,
+                    OpenSettingsDefaults.EventIds.ProviderCoordinationTimedService.FailedToStartServices,
+                    "Failed to start services: '{services}'.");
+
+            public static readonly Action<ILogger, string, Exception> FailedToStopServices =
+                LoggerMessage.Define<string>(LogLevel.Error,
+                    OpenSettingsDefaults.EventIds.ProviderCoordinationTimedService.FailedToStopServices,
+                    "Failed to stop services: '{services}'");
+
+            public static readonly Action<ILogger, string, Exception> ServicesStartedSuccessfully
+                = LoggerMessage.Define<string>(LogLevel.Information,
+                    OpenSettingsDefaults.EventIds.ProviderCoordinationTimedService.ServicesStartedSuccessfully,
+                    "Services started successfully: '{services}'.");
+
+            public static readonly Action<ILogger, string, Exception> ServiceStoppedSuccessfully =
+                LoggerMessage.Define<string>(LogLevel.Information,
+                    OpenSettingsDefaults.EventIds.ProviderCoordinationTimedService.ServicesStoppedSuccessfully,
+                    "Services stopped successfully: '{services}'");
+
+            public static readonly Action<ILogger, Guid, Guid, Exception> BecameMasterSuccessfully = LoggerMessage.Define<Guid, Guid>(LogLevel.Information,
+                OpenSettingsDefaults.EventIds.ProviderCoordinationTimedService.BecameMasterSuccessfully,
+                "ProviderRegistryId '{providerRegistryId}' for ClientId '{clientId}' successfully became master.");
         }
     }
 }

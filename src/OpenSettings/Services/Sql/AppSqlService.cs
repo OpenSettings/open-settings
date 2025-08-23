@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Logging;
 using Ogu.Compressions.Abstractions;
 using Ogu.Response;
@@ -21,6 +22,7 @@ using System.Net;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using TagSqlModel = OpenSettings.Domains.Sql.Entities.TagSqlModel;
 
 namespace OpenSettings.Services.Sql
 {
@@ -39,7 +41,6 @@ namespace OpenSettings.Services.Sql
         private readonly ProviderInfo _providerInfo;
 
         public AppsSqlService(
-            ILogger<AppsSqlService> logger,
             IIdentifierSqlService identifierSqlService,
             IAppGroupSqlService appGroupSqlService,
             ITagSqlService tagsSqlService,
@@ -49,7 +50,7 @@ namespace OpenSettings.Services.Sql
             OpenSettingsConfiguration openSettingsConfiguration,
             ProviderInfo providerInfo)
         {
-            _logger = logger;
+            _logger = openSettingsConfiguration.LoggerFactory.CreateLogger<AppsSqlService>();
             _identifierSqlService = identifierSqlService;
             _appGroupSqlService = appGroupSqlService;
             _tagsSqlService = tagsSqlService;
@@ -698,20 +699,22 @@ namespace OpenSettings.Services.Sql
                     newTagSortOrderStartingPoint = 0;
                 }
 
+                var tagEntityEntries = new List<EntityEntry<TagSqlModel>>(newTags.Count);
+
                 foreach (var tag in newTags)
                 {
                     tag.SortOrder = newTagSortOrderStartingPoint;
 
-                    _context.Tags.Add(tag);
+                    tagEntityEntries.Add(_context.Tags.Add(tag));
 
                     newTagSortOrderStartingPoint += OpenSettingsDefaults.SortOrderGap;
                 }
 
                 await _context.SaveChangesAsync(cancellationToken);
 
-                foreach (var tag in newTags)
+                foreach (var tagEntityEntry in tagEntityEntries)
                 {
-                    _context.Entry(tag).State = EntityState.Detached;
+                    tagEntityEntry.State = EntityState.Detached;
                 }
             }
 
@@ -1451,7 +1454,7 @@ namespace OpenSettings.Services.Sql
             return clientId;
         }
 
-        private async Task<IResponse<SyncAppDataResponse>> HandleExistingAppAsync(SyncAppDataInput input, Dictionary<string, int> classNameToCount, int identifierId, int appId, string hashedClientSecret, ICollection<int> mappedAppIdentifierIds, CancellationToken cancellationToken = default)
+        private async Task<IResponse<SyncAppDataResponse>> HandleExistingAppAsync(SyncAppDataInput input, Dictionary<string, int> classNameToCount, int identifierId, int appId, string hashedClientSecret, HashSet<int> mappedAppIdentifierIds, CancellationToken cancellationToken = default)
         {
             var passwordVerificationResult = _passwordHasher.VerifyHashedPassword(null, hashedClientSecret, $"{input.Client.Secret}");
 

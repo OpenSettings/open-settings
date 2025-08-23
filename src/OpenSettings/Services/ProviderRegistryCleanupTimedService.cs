@@ -11,6 +11,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using OpenSettings.Configurations;
 
 namespace OpenSettings.Services
 {
@@ -23,10 +24,10 @@ namespace OpenSettings.Services
         private readonly IServiceProvider _serviceProvider;
 
         public ProviderRegistryCleanupTimedService(
-            ILogger<ProviderRegistryCleanupTimedService> logger,
             IOptions<ProviderRegistryCleanupTimedServiceOptions> providerRegistryCleanupTimedServiceOptions,
-            IServiceProvider serviceProvider) 
-            : base(logger, nameof(ProviderRegistryCleanupTimedService), timedHostedServiceOptions => Configure(providerRegistryCleanupTimedServiceOptions.Value, timedHostedServiceOptions))
+            IServiceProvider serviceProvider,
+            OpenSettingsConfiguration openSettingsConfiguration) 
+            : base(openSettingsConfiguration.LoggerFactory.CreateLogger<ProviderRegistryCleanupTimedService>(), nameof(ProviderRegistryCleanupTimedService), timedHostedServiceOptions => Configure(providerRegistryCleanupTimedServiceOptions.Value, timedHostedServiceOptions))
         {
             _options = providerRegistryCleanupTimedServiceOptions.Value;
             _serviceProvider = serviceProvider;
@@ -62,9 +63,10 @@ namespace OpenSettings.Services
 
         private static void Configure(ProviderRegistryCleanupTimedServiceOptions providerRegistryCleanupTimedServiceOptions, TimedHostedServiceOptions timedHostedServiceOptions)
         {
-            timedHostedServiceOptions.PreservePeriod = true;
             timedHostedServiceOptions.Period = providerRegistryCleanupTimedServiceOptions.CleanupCheckInterval;
+            timedHostedServiceOptions.PreservePeriod = true;
             timedHostedServiceOptions.StartsIn = providerRegistryCleanupTimedServiceOptions.StartsIn;
+            timedHostedServiceOptions.LogOptions.LogWhenTaskStarted = false;
         }
     }
 }

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using OpenSettings.AspNetCore.Extensions;
 using OpenSettings.Configurations;
 using OpenSettings.Domains.Sql.DataContext;
 using OpenSettings.Domains.Sql.Entities;
@@ -17,7 +18,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using OpenSettings.AspNetCore.Extensions;
 
 namespace OpenSettings.AspNetCore.Authentication
 {
@@ -66,8 +66,9 @@ namespace OpenSettings.AspNetCore.Authentication
 
             if (user == null)
             {
-                eventsContext.Logger.LogWarning("Login failed: unable to obtain user external id.");
-                context.Fail("Unable to obtain user external id.");
+                Logs.LoginFailedDueToNotFoundExternalUserId(eventsContext.Logger, null);
+
+                context.Fail(Logs.LoginFailedDueToNotFoundExternalUserIdFormatString);
                 context.Response.Redirect(returnUrl);
                 context.HandleResponse();
                 return;
@@ -75,8 +76,9 @@ namespace OpenSettings.AspNetCore.Authentication
 
             if (!user.IsActive)
             {
-                eventsContext.Logger.LogWarning("Login failed: user is disabled.");
-                context.Fail("User is disabled.");
+                Logs.LoginFailedDueToUserIsDisabled(eventsContext.Logger, user.Id, null);
+
+                context.Fail(Logs.LoginFailedDueToUserIsDisabledFormatString.Replace("{userId}", $"{user.Id}"));
                 context.Response.Redirect(returnUrl);
                 context.HandleResponse();
                 return;
@@ -92,7 +94,7 @@ namespace OpenSettings.AspNetCore.Authentication
                 StateId = Guid.Parse(stateId),
                 Audience = clientIdAsGuid,
                 Issuer = OpenSettingsDefaults.Caches.OpenSettingsConfiguration.Client.Id,
-                ProviderRegistryId = ProviderCoordinationTimedService.InstanceId,
+                ProviderRegistryId = ProviderCoordinationTimedService.ProviderRegistryId,
                 UserId = user.Id,
                 RemoteIpAddress = $"{httpContext.Connection.RemoteIpAddress}",
                 UserAgent = httpContext.Request.Headers.GetUserAgentOrDefault(),
@@ -175,7 +177,7 @@ namespace OpenSettings.AspNetCore.Authentication
         {
             var eventsContext = ProviderOpenIdConnectEventsContext.GetContext(context.HttpContext);
 
-            eventsContext.Logger.LogError(context.Failure, "OpenIdConnect Error: {failureMessage}", context.Failure?.Message);
+            Logs.OpenIdConnectErrorOccurred(eventsContext.Logger, context.Failure?.Message, context.Failure);
 
             if ((string)context.Failure?.Data["error"] != "access_denied")
             {
@@ -192,6 +194,26 @@ namespace OpenSettings.AspNetCore.Authentication
             context.HandleResponse();
 
             return Task.CompletedTask;
+        }
+
+        private static class Logs
+        {
+            public const string LoginFailedDueToNotFoundExternalUserIdFormatString = "Login failed: unable to obtain user external id.";
+            public const string LoginFailedDueToUserIsDisabledFormatString = "Login failed: user is disabled. UserId: '{userId}'.";
+            
+            public static readonly Action<ILogger, string, Exception> OpenIdConnectErrorOccurred = LoggerMessage.Define<string>(LogLevel.Error,
+                    OpenSettingsDefaults.EventIds.ProviderOpenIdConnectEvents.OpenIdConnectErrorOccurred,
+                    "OpenIdConnect Error: '{failureMessage}'");
+
+            public static readonly Action<ILogger, Exception> LoginFailedDueToNotFoundExternalUserId =
+                LoggerMessage.Define(LogLevel.Warning,
+                    OpenSettingsDefaults.EventIds.ProviderOpenIdConnectEvents.LoginFailedDueToNotFoundExternalUserId,
+                    LoginFailedDueToNotFoundExternalUserIdFormatString);
+
+            public static readonly Action<ILogger, Guid, Exception> LoginFailedDueToUserIsDisabled =
+                LoggerMessage.Define<Guid>(LogLevel.Warning,
+                    OpenSettingsDefaults.EventIds.ProviderOpenIdConnectEvents.LoginFailedDueToUserIsDisabled,
+                    LoginFailedDueToUserIsDisabledFormatString);
         }
 
         private class ProviderOpenIdConnectEventsContext

@@ -108,7 +108,7 @@ namespace OpenSettings.Services
                 }
                 catch (Exception ex)
                 {
-                    Logs.ErrorOccurredWhenDeserializing(_logger, data, settingData.Type.Name, ex);
+                    Logs.UpdateLocalDataAndWriteToDiskFailedWhileDeserializing(_logger, data, settingData.Type.Name, ex);
                 }
             }
 
@@ -176,11 +176,11 @@ namespace OpenSettings.Services
                 {
                     case ConfigSource.File when File.Exists(localSetting.GeneratedFilePath):
 
-                        var dictionary = await JsonHelper.GetJsonFileAsync(localSetting.GeneratedFilePath, cancellationToken);
+                        var dictionary = await JsonHelper.GetJsonFileAsync<JsonElement>(localSetting.GeneratedFilePath, cancellationToken);
 
                         if (dictionary.TryGetValue(localSetting.Type.FullName, out var instance))
                         {
-                            return JsonSerializer.Deserialize($"{instance}", localSetting.Type);
+                            return instance.Deserialize(localSetting.Type);
                         }
 
                         break;
@@ -219,7 +219,7 @@ namespace OpenSettings.Services
                 return;
             }
 
-            IDictionary<string, object> fullNameToInstance;
+            Dictionary<string, object> fullNameToInstance;
 
             var request = new FetchAppDataInput
             {
@@ -255,7 +255,7 @@ namespace OpenSettings.Services
 
                 if (File.Exists(settingData.GeneratedFilePath))
                 {
-                    fullNameToInstance = await JsonHelper.GetJsonFileAsync(settingData.GeneratedFilePath, cancellationToken);
+                    fullNameToInstance = await JsonHelper.GetJsonFileAsync<object>(settingData.GeneratedFilePath, cancellationToken);
 
                     fullNameToInstance[settingData.Type.FullName] = instance;
                 }
@@ -266,7 +266,7 @@ namespace OpenSettings.Services
             }
             catch (Exception ex)
             {
-                Logs.ErrorOccurredWhenDeserializing(_logger, data, settingData.Type.Name, ex);
+                Logs.UpdateLocalDataAndWriteToDiskFailedWhileDeserializing(_logger, data, settingData.Type.Name, ex);
 
                 return;
             }
@@ -772,7 +772,7 @@ namespace OpenSettings.Services
                     }
                     catch (Exception ex)
                     {
-                        Logs.ErrorOccurredWhenDeserializing(_logger, syncAppDataResponseSetting.Data, localSetting.Type.FullName, ex);
+                        Logs.UpdateLocalDataAndWriteToDiskFailedWhileDeserializing(_logger, syncAppDataResponseSetting.Data, localSetting.Type.FullName, ex);
                     }
 
                     string filePath, generatedFilePath;
@@ -880,25 +880,25 @@ namespace OpenSettings.Services
             public static readonly Action<ILogger, string, Exception> InitializationSucceed =
                 LoggerMessage.Define<string>(
                     LogLevel.Information,
-                    new EventId(1, nameof(SyncAppDataAsync)),
+                    OpenSettingsDefaults.EventIds.LocalSettingsService.SyncAppDataInitializationSucceed,
                     "Settings initialized with id: {instanceDynamicId}");
 
             public static readonly Action<ILogger, int, bool, Exception> InitializationFailed =
                 LoggerMessage.Define<int, bool>(
                     LogLevel.Warning,
-                    new EventId(2, nameof(SyncAppDataAsync)),
+                    OpenSettingsDefaults.EventIds.LocalSettingsService.SyncAppDataInitializationFailed,
                     "Settings couldn't initialize! Attempt: {attempt} - Retry: {retry}");
 
-            public static readonly Action<ILogger, string, string, Exception> ErrorOccurredWhenDeserializing =
+            public static readonly Action<ILogger, string, string, Exception> UpdateLocalDataAndWriteToDiskFailedWhileDeserializing =
                 LoggerMessage.Define<string, string>(
                     LogLevel.Error,
-                    new EventId(3, "UpdateLocalDataAndWriteToDiskAsync"),
+                   OpenSettingsDefaults.EventIds.LocalSettingsService.UpdateLocalDataAndWriteToDiskFailedWhileDeserializing,
                     "Error occurred when deserializing settings data: {data} - type: {typeName}");
 
             public static readonly Action<ILogger, Exception> SettingsGeneratedAndShuttingDown =
                 LoggerMessage.Define(
                     LogLevel.Information,
-                    new EventId(4, nameof(SyncAppDataAsync)),
+                    OpenSettingsDefaults.EventIds.LocalSettingsService.SettingsGeneratedAndShuttingDown,
                     SettingsGeneratedAndShuttingDownFormatString);
         }
     }

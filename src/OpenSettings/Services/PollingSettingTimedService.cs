@@ -14,7 +14,7 @@ namespace OpenSettings.Services
     {
         private readonly ILocalSettingsService _localSettingsService;
 
-        public PollingSettingTimedService(ILogger<PollingSettingTimedService> logger, ILocalSettingsService localSettingsService, OpenSettingsConfiguration openSettingsConfiguration) : base(logger, nameof(PollingSettingTimedService),
+        public PollingSettingTimedService(ILocalSettingsService localSettingsService, OpenSettingsConfiguration openSettingsConfiguration) : base(openSettingsConfiguration.LoggerFactory.CreateLogger<PollingSettingTimedService>(), nameof(PollingSettingTimedService),
             opts =>
             {
                 opts.StartsIn = openSettingsConfiguration.Consumer.PollingSettingsWorker.StartsIn;

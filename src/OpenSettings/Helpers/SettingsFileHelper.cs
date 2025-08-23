@@ -177,7 +177,7 @@ namespace OpenSettings.Helpers
                         };
                     }
 
-                    var data = await JsonHelper.GetJsonFileAsync(filePath, cancellationToken);
+                    var data = await JsonHelper.GetJsonFileAsync<JsonElement>(filePath, cancellationToken);
 
                     foreach (var duplicate in data.Keys.Select(settingFullName => settingFullName.ToLower()).Where(settingFullName => !settingsFullName.TryAdd(settingFullName, 0)))
                     {
@@ -208,7 +208,7 @@ namespace OpenSettings.Helpers
             var onlyEnvFileMergeResultsTasks = environmentNameToFileModel.Where(e => !nameToFileMergeResult.ContainsKey(e.Key)).Select(
                 async envFile =>
                 {
-                    var data = await JsonHelper.GetJsonFileAsync(envFile.Value.FilePath, cancellationToken);
+                    var data = await JsonHelper.GetJsonFileAsync<JsonElement>(envFile.Value.FilePath, cancellationToken);
 
                     foreach (var duplicate in data.Keys.Select(k => k.ToLower()).Where(k => !settingsFullName.TryAdd(k, 0)))
                     {
@@ -279,7 +279,7 @@ namespace OpenSettings.Helpers
                     storedInSeparateFile = true;
                 }
 
-                var data = await JsonHelper.GetJsonFileAsync(filePath, cancellationToken);
+                var data = await JsonHelper.GetJsonFileAsync<JsonElement>(filePath, cancellationToken);
 
                 foreach (var duplicate in data.Keys.Select(k => k.ToLower()).Where(k => !settingsFullName.TryAdd(k, 0)))
                 {
@@ -334,7 +334,7 @@ namespace OpenSettings.Helpers
             return Path.Combine(AppContext.BaseDirectory, stringBuilder.ToString());
         }
 
-        private static LocalSetting CreateSettingDataFromPreData(MD5 md5, Type type, Dictionary<string, object> preSettingsData, string settingsFilePath, string generatedSettingsFilePath, bool createInstance, StringBuilder stringBuilder, RegistrationMode registrationMode)
+        private static LocalSetting CreateSettingDataFromPreData(MD5 md5, Type type, Dictionary<string, JsonElement> preSettingsData, string settingsFilePath, string generatedSettingsFilePath, bool createInstance, StringBuilder stringBuilder, RegistrationMode registrationMode)
         {
             var settingData = new LocalSetting
             {
@@ -346,7 +346,7 @@ namespace OpenSettings.Helpers
 
             if (preSettingsData.TryGetValue(type.FullName, out var jsonSettings))
             {
-                settingData.Instance = JsonSerializer.Deserialize($"{jsonSettings}", type) as ISettings;
+                settingData.Instance = jsonSettings.Deserialize(type) as ISettings;
             }
             else if (createInstance)
             {

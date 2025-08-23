@@ -22,13 +22,12 @@ namespace OpenSettings.Services.Redis
         private readonly ILocalSettingsService _localSettingsService;
 
         public OpenSettingsRedisHostedService(
-            ILogger<OpenSettingsRedisHostedService> logger,
             OpenSettingsConfiguration openSettingsConfiguration,
             ILocalSettingsService localSettingsService,
             ProviderInfo providerInfo,
             Domains.Redis.DataContext.Context redisContext)
         {
-            _logger = logger;
+            _logger = openSettingsConfiguration.LoggerFactory.CreateLogger<OpenSettingsRedisHostedService>();
             _instanceDynamicId = openSettingsConfiguration.InstanceDynamicId;
             _localSettingsService = localSettingsService;
             _channel = Helper.ConstructChannelName(providerInfo.Redis.Channel, openSettingsConfiguration.Client.Id, openSettingsConfiguration.IdentifierNameLowercase);
@@ -93,15 +92,9 @@ namespace OpenSettings.Services.Redis
 
         private static class Logs
         {
-            private static class EventIds
-            {
-                public static readonly EventId DataChangeNotifiedEventId = new EventId(1, "DataChangeNotified");
-                public static readonly EventId RedisSubscriptionFailedEventId = new EventId(2, "RedisSubscriptionFailed");
-            }
+            public static readonly Action<ILogger, Exception> DataChangeNotified = LoggerMessage.Define(LogLevel.Information, OpenSettingsDefaults.EventIds.OpenSettingsRedisHostedService.DataChangeNotified, "Data change being notified!.");
 
-            public static readonly Action<ILogger, Exception> DataChangeNotified = LoggerMessage.Define(LogLevel.Information, EventIds.DataChangeNotifiedEventId, "Data change being notified!.");
-
-            public static readonly Action<ILogger, string, Exception> RedisSubscriptionFailed = LoggerMessage.Define<string>(LogLevel.Error, EventIds.RedisSubscriptionFailedEventId, "Redis subscription to channel: '{channel}' failed!.");
+            public static readonly Action<ILogger, string, Exception> RedisSubscriptionFailed = LoggerMessage.Define<string>(LogLevel.Error, OpenSettingsDefaults.EventIds.OpenSettingsRedisHostedService.RedisSubscriptionFailed, "Redis subscription to channel: '{channel}' failed!.");
         }
     }
 }

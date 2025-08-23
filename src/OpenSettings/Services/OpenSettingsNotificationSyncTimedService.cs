@@ -25,10 +25,9 @@ namespace OpenSettings.Services
         private readonly OpenSettingsConfiguration _openSettingsConfiguration;
 
         public OpenSettingsNotificationSyncTimedService(
-            ILogger<OpenSettingsNotificationSyncTimedService> logger,
             IOptions<OpenSettingsNotificationSyncTimedServiceOptions> openSettingsNotificationSyncTimedServiceOptions,
             IOpenSettingsService openSettingsService,
-            OpenSettingsConfiguration openSettingsConfiguration) : base(logger, nameof(OpenSettingsNotificationSyncTimedService),
+            OpenSettingsConfiguration openSettingsConfiguration) : base(openSettingsConfiguration.LoggerFactory.CreateLogger<OpenSettingsNotificationSyncTimedService>(), nameof(OpenSettingsNotificationSyncTimedService),
             timedHostedServiceOptions => Configure(openSettingsNotificationSyncTimedServiceOptions.Value, timedHostedServiceOptions))
         {
             _openSettingsService = openSettingsService;

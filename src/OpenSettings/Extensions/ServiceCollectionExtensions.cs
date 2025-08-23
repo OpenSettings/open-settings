@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -121,7 +120,9 @@ namespace OpenSettings.Extensions
 
                 var taskQueue = taskQueueFactory.GetDataChangeQueue();
 
-                return new TaskQueueHostedService(sp.GetRequiredService<ILogger<TaskQueueHostedService>>(), "DataChangeQueueWorker", taskQueue);
+                var logger = sp.GetRequiredService<OpenSettingsConfiguration>().LoggerFactory.CreateLogger<TaskQueueHostedService>();
+
+                return new TaskQueueHostedService(logger, "DataChangeQueueWorker", taskQueue);
             });
 
             services.AddSingleton<IDataChangeService, DataChangeService>();
@@ -149,7 +150,9 @@ namespace OpenSettings.Extensions
 
                 var taskQueue = taskQueueFactory.GetNotificationQueue();
 
-                return new TaskQueueHostedService(sp.GetRequiredService<ILogger<TaskQueueHostedService>>(), "NotificationQueueWorker", taskQueue);
+                var logger = sp.GetRequiredService<OpenSettingsConfiguration>().LoggerFactory.CreateLogger<TaskQueueHostedService>();
+
+                return new TaskQueueHostedService(logger, "NotificationQueueWorker", taskQueue);
             });
 
             services.AddScoped<IAppGroupSqlService, AppGroupSqlService>();
@@ -335,7 +338,7 @@ namespace OpenSettings.Extensions
             services.Configure<TOptions>(section);
         }
 
-        private static IServiceCollection ConfigureSetting(this IServiceCollection services, IConfiguration configuration, ILocalSetting localSetting)
+        private static IServiceCollection ConfigureSetting(this IServiceCollection services, IConfiguration configuration, LocalSetting localSetting)
         {
             IConfigurationSection dataSection;
 

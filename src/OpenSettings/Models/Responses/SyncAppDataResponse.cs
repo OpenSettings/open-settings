@@ -84,15 +84,11 @@ namespace OpenSettings.Models.Responses
                 return null;
             }
 
-            var jsonFile = await JsonHelper.GetJsonFileAsync(OpenSettingsDefaults.Files.GeneratedOpenSettingsFilePath, cancellationToken);
+            var jsonFile = await JsonHelper.GetJsonFileAsync<JsonElement>(OpenSettingsDefaults.Files.GeneratedOpenSettingsFilePath, cancellationToken);
 
-            if (!jsonFile.TryGetValue(InstanceFullName, out var localSyncDataResponseObj) ||
-                !(localSyncDataResponseObj is JsonElement localSyncDataResponseJsonElement))
-            {
-                return null;
-            }
-
-            return localSyncDataResponseJsonElement.Deserialize<SyncAppDataResponse>();
+            return jsonFile.TryGetValue(InstanceFullName, out var localSyncDataResponseJsonElement)
+                ? localSyncDataResponseJsonElement.Deserialize<SyncAppDataResponse>()
+                : null;
         }
 
         private static ProviderInfo ConstructProviderInfo(OpenSettingsConfiguration openSettingsConfiguration, ConfigurationController controllerConfiguration)

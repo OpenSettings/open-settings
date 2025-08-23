@@ -74,13 +74,6 @@ namespace OpenSettings
             internal const string DefaultDocumentTitle = "OpenSettings Spa";
         }
 
-        public static class Flags
-        {
-            internal const bool IsDbLogEnabled = false;
-
-            internal const bool IsSensitiveDataLoggingEnabled = false;
-        }
-
         public static class Paging
         {
             internal const int MaxPageSize = 64;
@@ -173,6 +166,8 @@ namespace OpenSettings
         {
             internal const string Comma = ",";
 
+            internal const string CommaWithSpace = ", ";
+
             internal const string Column = ":";
 
             internal const string SlugReplacement = "$1-$2";
@@ -184,6 +179,8 @@ namespace OpenSettings
             internal const string Slash = "/";
 
             internal const string Dot = ".";
+
+            internal const char CommaChar = ',';
 
             internal const char SpaceChar = ' ';
 
@@ -416,6 +413,49 @@ namespace OpenSettings
             public static TimeSpan TokenExpirySafetyMargin { get; } = TimeSpan.FromSeconds(30);
 
             public static TimeSpan TokenExpiryTime { get; } = TimeSpan.FromHours(1);
+        }
+
+        public static class Flags
+        {
+            internal const bool IsDbLogEnabled = false;
+
+            internal const bool IsSensitiveDataLoggingEnabled = false;
+        }
+
+        internal static class EventIds
+        {
+            public static class LocalSettingsService // 1000-1049
+            {
+                public static readonly EventId SyncAppDataInitializationSucceed = new EventId(1000, nameof(SyncAppDataInitializationSucceed));
+                public static readonly EventId SyncAppDataInitializationFailed = new EventId(1001, nameof(SyncAppDataInitializationFailed));
+                public static readonly EventId UpdateLocalDataAndWriteToDiskFailedWhileDeserializing = new EventId(1002, nameof(UpdateLocalDataAndWriteToDiskFailedWhileDeserializing));
+                public static readonly EventId SettingsGeneratedAndShuttingDown = new EventId(1003, nameof(SettingsGeneratedAndShuttingDown));
+            }
+
+            public static class OpenSettingsRedisHostedService // 1050-1099
+            {
+                public static readonly EventId DataChangeNotified = new EventId(1050, nameof(DataChangeNotified));
+                public static readonly EventId RedisSubscriptionFailed = new EventId(1051, nameof(RedisSubscriptionFailed));
+            }
+
+            public static class ProviderCoordinationTimedService // 1100-1149
+            {
+                public static readonly EventId MasterTypeProviderNotFound = new EventId(1100, nameof(MasterTypeProviderNotFound));
+                public static readonly EventId MasterStale = new EventId(1101, nameof(MasterStale));
+                public static readonly EventId MasterHealthy = new EventId(1102, nameof(MasterHealthy));
+                public static readonly EventId FailedToStartServices = new EventId(1103, nameof(FailedToStartServices));
+                public static readonly EventId FailedToStopServices = new EventId(1104, nameof(FailedToStopServices));
+                public static readonly EventId ServicesStartedSuccessfully = new EventId(1105, nameof(ServicesStartedSuccessfully));
+                public static readonly EventId ServicesStoppedSuccessfully = new EventId(1106, nameof(ServicesStoppedSuccessfully));
+                public static readonly EventId BecameMasterSuccessfully = new EventId(1107, nameof(BecameMasterSuccessfully));
+            }
+
+            public static class ProviderOpenIdConnectEvents // 1150-1199
+            {
+                public static readonly EventId LoginFailedDueToNotFoundExternalUserId = new EventId(1150, nameof(LoginFailedDueToNotFoundExternalUserId));
+                public static readonly EventId LoginFailedDueToUserIsDisabled = new EventId(1151, nameof(LoginFailedDueToUserIsDisabled));
+                public static readonly EventId OpenIdConnectErrorOccurred = new EventId(1152, nameof(OpenIdConnectErrorOccurred));
+            }
         }
 
         /// <summary>

@@ -270,7 +270,7 @@ namespace OpenSettings.AspNetCore.Services
                 StateId = Guid.Parse(input.StateId),
                 Audience = input.ClientId.Value,
                 Issuer = _openSettingsConfiguration.Client.Id,
-                ProviderRegistryId = ProviderCoordinationTimedService.InstanceId,
+                ProviderRegistryId = ProviderCoordinationTimedService.ProviderRegistryId,
                 RemoteIpAddress = $"{httpContext.Connection.RemoteIpAddress}",
                 UserAgent = httpContext.Request.Headers.GetUserAgentOrDefault(),
                 AuthType = AuthType.OpenIdConnect,

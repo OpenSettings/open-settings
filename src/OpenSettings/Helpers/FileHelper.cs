@@ -31,9 +31,9 @@ namespace OpenSettings.Helpers
         }
 
 #if NETSTANDARD2_0
-        internal static void WriteSettingsToFile(string filePath, IDictionary<string, object> data)
+        internal static void WriteSettingsToFile(string filePath, Dictionary<string, object> data)
 #else
-        internal static async Task WriteSettingsToFileAsync(string filePath, IDictionary<string, object> data, CancellationToken cancellationToken = default)
+        internal static async Task WriteSettingsToFileAsync(string filePath, Dictionary<string, object> data, CancellationToken cancellationToken = default)
 #endif
         {
             if (filePath == null)

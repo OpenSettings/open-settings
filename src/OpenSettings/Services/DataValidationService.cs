@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using OpenSettings.Configurations;
 
 namespace OpenSettings.Services
 {
@@ -14,26 +15,26 @@ namespace OpenSettings.Services
 
         private readonly ILogger _logger;
 
-        public DataValidationService(ILogger<DataValidationService> logger)
+        public DataValidationService(OpenSettingsConfiguration openSettingsConfiguration)
         {
-            _logger = logger;
+            _logger = openSettingsConfiguration.LoggerFactory.CreateLogger<DataValidationService>();
         }
 
         public bool IsDataMappingValid(string jsonData, ICollection<PropertyInfoHelperModel> properties)
         {
-            var deserializedData = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonData);
+            var deserializedData = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(jsonData);
 
             return InternalIsDataMappingValid(deserializedData, properties);
         }
 
         public bool IsDataMappingValid(JsonDocument jsonDocument, ICollection<PropertyInfoHelperModel> properties)
         {
-            var deserializedData = jsonDocument.Deserialize<Dictionary<string, object>>();
+            var deserializedData = jsonDocument.Deserialize<Dictionary<string, JsonElement>>();
 
             return InternalIsDataMappingValid(deserializedData, properties);
         }
 
-        private bool InternalIsDataMappingValid(Dictionary<string, object> deserializedData, ICollection<PropertyInfoHelperModel> properties)
+        private bool InternalIsDataMappingValid(Dictionary<string, JsonElement> deserializedData, ICollection<PropertyInfoHelperModel> properties)
         {
             foreach (var propertyFromDb in properties)
             {
@@ -41,7 +42,7 @@ namespace OpenSettings.Services
 
                 if (deserializedData.TryGetValue(propertyName, out var propertyValue))
                 {
-                    if (propertyValue == null)
+                    if (propertyValue.ValueKind == JsonValueKind.Null)
                     {
                         if (propertyFromDb.CanBeNull)
                         {
@@ -55,18 +56,16 @@ namespace OpenSettings.Services
                     {
                         try
                         {
-                            var jsonElement = (JsonElement)propertyValue;
-
-                            if (jsonElement.ValueKind == JsonValueKind.Array)
+                            if (propertyValue.ValueKind == JsonValueKind.Array)
                             {
-                                var deserializedResult = DeserializeJsonElement(jsonElement, propertyFromDb.TypeFullName);
+                                var deserializedResult = DeserializeJsonElement(propertyValue, propertyFromDb.TypeFullName);
 
                                 if (deserializedResult != null)
                                 {
                                     continue;
                                 }
                             }
-
+                            
                             if (propertyFromDb.TypeName == NullableGenericTypeName)
                             {
                                 if (!ValidatePropertyValue(propertyValue, propertyFromDb.GenericTypeArguments.First()))
@@ -74,7 +73,7 @@ namespace OpenSettings.Services
                                     return false;
                                 }
                             }
-                            else if (!ValidateComplexType(JsonSerializer.Deserialize<Dictionary<string, object>>(propertyValue.ToString()), propertyFromDb))
+                            else if (!ValidateComplexType(propertyValue.Deserialize<Dictionary<string, JsonElement>>(), propertyFromDb))
                             {
                                 return false;
                             }
@@ -100,7 +99,7 @@ namespace OpenSettings.Services
             return true;
         }
 
-        private bool ValidateComplexType(Dictionary<string, object> complexData, PropertyInfoHelperModel propertyFromDb)
+        private bool ValidateComplexType(Dictionary<string, JsonElement> complexData, PropertyInfoHelperModel propertyFromDb)
         {
             if (complexData == null)
             {
@@ -118,7 +117,7 @@ namespace OpenSettings.Services
                 {
                     try
                     {
-                        var nestedComplexData = JsonSerializer.Deserialize<Dictionary<string, object>>(propertyValue.ToString());
+                        var nestedComplexData = propertyValue.Deserialize<Dictionary<string, JsonElement>>();
 
                         if (!ValidateComplexType(nestedComplexData, property))
                         {
@@ -144,60 +143,58 @@ namespace OpenSettings.Services
             return true;
         }
 
-        private static bool ValidatePropertyValue(object propertyValue, string typeName)
+        private static bool ValidatePropertyValue(JsonElement propertyValue, string typeName)
         {
-            var jsonElement = (JsonElement)propertyValue;
-
             switch (typeName)
             {
                 case "System.String":
-                    return jsonElement.ValueKind == JsonValueKind.String;
+                    return propertyValue.ValueKind == JsonValueKind.String;
 
                 case "System.Decimal":
-                    return jsonElement.ValueKind == JsonValueKind.Number && decimal.TryParse(jsonElement.GetRawText(), out _);
+                    return propertyValue.ValueKind == JsonValueKind.Number && decimal.TryParse(propertyValue.GetRawText(), out _);
 
                 case "System.Double":
-                    return jsonElement.ValueKind == JsonValueKind.Number && double.TryParse(jsonElement.GetRawText(), out _);
+                    return propertyValue.ValueKind == JsonValueKind.Number && double.TryParse(propertyValue.GetRawText(), out _);
 
                 case "System.Int64":
-                    return jsonElement.ValueKind == JsonValueKind.Number && long.TryParse(jsonElement.GetRawText(), out _);
+                    return propertyValue.ValueKind == JsonValueKind.Number && long.TryParse(propertyValue.GetRawText(), out _);
 
                 case "System.Int32":
-                    return jsonElement.ValueKind == JsonValueKind.Number && int.TryParse(jsonElement.GetRawText(), out _);
+                    return propertyValue.ValueKind == JsonValueKind.Number && int.TryParse(propertyValue.GetRawText(), out _);
 
                 case "System.Int16":
-                    return jsonElement.ValueKind == JsonValueKind.Number && short.TryParse(jsonElement.GetRawText(), out _);
+                    return propertyValue.ValueKind == JsonValueKind.Number && short.TryParse(propertyValue.GetRawText(), out _);
 
                 case "System.Single": // float
-                    return jsonElement.ValueKind == JsonValueKind.Number && float.TryParse(jsonElement.GetRawText(), out _);
+                    return propertyValue.ValueKind == JsonValueKind.Number && float.TryParse(propertyValue.GetRawText(), out _);
 
                 case "System.Byte":
-                    return jsonElement.ValueKind == JsonValueKind.Number && byte.TryParse(jsonElement.GetRawText(), out _);
+                    return propertyValue.ValueKind == JsonValueKind.Number && byte.TryParse(propertyValue.GetRawText(), out _);
 
                 case "System.Enum":
-                    return jsonElement.ValueKind == JsonValueKind.Number;
+                    return propertyValue.ValueKind == JsonValueKind.Number;
 
                 case "System.Guid":
-                    return jsonElement.ValueKind == JsonValueKind.String && Guid.TryParse(jsonElement.GetString(), out _);
+                    return propertyValue.ValueKind == JsonValueKind.String && Guid.TryParse(propertyValue.GetString(), out _);
 
                 case "System.Boolean":
-                    return jsonElement.ValueKind == JsonValueKind.False || jsonElement.ValueKind == JsonValueKind.True;
+                    return propertyValue.ValueKind == JsonValueKind.False || propertyValue.ValueKind == JsonValueKind.True;
 
                 case "System.DateTime":
-                    return jsonElement.ValueKind == JsonValueKind.String && DateTime.TryParse(jsonElement.GetString(), out _);
+                    return propertyValue.ValueKind == JsonValueKind.String && DateTime.TryParse(propertyValue.GetString(), out _);
 
                 case "System.TimeSpan":
-                    return jsonElement.ValueKind == JsonValueKind.String && TimeSpan.TryParse(jsonElement.GetString(), out _);
+                    return propertyValue.ValueKind == JsonValueKind.String && TimeSpan.TryParse(propertyValue.GetString(), out _);
 
                 case "System.Nullable`1":
-                    return jsonElement.ValueKind == JsonValueKind.Null;
+                    return propertyValue.ValueKind == JsonValueKind.Null;
 
                 case "System.Object":
-                    return jsonElement.ValueKind == JsonValueKind.Object;
+                    return propertyValue.ValueKind == JsonValueKind.Object;
 
                 case "System.Array": // Collections (IEnumerable<T>, Array<T>, List<T>, HashSet<T>, etc.)
                 case var _ when typeName.StartsWith("System.Collections.Generic.IEnumerable"):
-                    return jsonElement.ValueKind == JsonValueKind.Array;
+                    return propertyValue.ValueKind == JsonValueKind.Array;
 
                 default:
                     return false;

@@ -89,7 +89,7 @@ namespace OpenSettings.Models.Responses
             switch (responseDto.Data)
             {
                 case null:
-                    data = default(TData);
+                    data = default;
                     break;
                 case TData tData:
                     data = tData;

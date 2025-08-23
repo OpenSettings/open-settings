@@ -26,7 +26,7 @@ namespace OpenSettings.Domains.Sql.Entities
 
         /// <summary>
         /// The instance id of the provider service which processed the login.
-        /// This comes from <see cref="ProviderCoordinationTimedService.InstanceId"/> which corresponds the ProviderRegistry's id field.
+        /// This comes from <see cref="ProviderCoordinationTimedService.ProviderRegistryId"/> which corresponds the ProviderRegistry's id field.
         /// </summary>
         public Guid? ProviderRegistryId { get; set; }
 

@@ -232,7 +232,7 @@ namespace OpenSettings.Extensions
                 var passwordHasher = new PasswordHasher<AppSqlModel>();
 
                 var appsService = new AppsSqlService(
-                    openSettingsConfiguration.LoggerFactory.CreateLogger<AppsSqlService>(), identifierSqlService,
+                    identifierSqlService,
                     appGroupsSqlService, tagsSqlService, compressionProvider, passwordHasher, context,
                     openSettingsConfiguration, null);
 
@@ -241,7 +241,7 @@ namespace OpenSettings.Extensions
                     identifierSqlService,
                     compressionProvider,
                     context,
-                    new DataValidationService(openSettingsConfiguration.LoggerFactory.CreateLogger<DataValidationService>()),
+                    new DataValidationService(openSettingsConfiguration),
                     openSettingsConfiguration);
 
                 var localSettingsService = new LocalSettingsService(appsService, settingsService, openSettingsConfiguration);
