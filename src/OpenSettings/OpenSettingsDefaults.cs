@@ -17,7 +17,7 @@ namespace OpenSettings
     /// <summary>
     /// Provides constant values for OpenSettings.
     /// </summary>
-    public static class OpenSettingsDefaults
+    internal static class OpenSettingsDefaults
     {
         internal const string DefaultVersion = "1.0.0";
 
