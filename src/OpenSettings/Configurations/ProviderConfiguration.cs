@@ -86,7 +86,7 @@ namespace OpenSettings.Configurations
         internal bool IsDbInitialized { get; set; }
 
         /// <summary>
-        /// Gets or sets the license key. This property is ignored during JSON serialization.
+        /// Gets or sets the license key.
         /// </summary>
         /// <remarks>
         /// Behavior:
@@ -105,7 +105,6 @@ namespace OpenSettings.Configurations
         ///   </item>
         /// </list>
         /// </remarks>
-        [JsonIgnore]
         public string LicenseKey { get; set; }
 
         /// <summary>
