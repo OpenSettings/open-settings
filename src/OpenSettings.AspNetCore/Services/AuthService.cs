@@ -27,6 +27,9 @@ using OpenSettings.Services.Sql.Interfaces;
 
 namespace OpenSettings.AspNetCore.Services
 {
+    /// <summary>
+    /// Provides authentication for the provider.
+    /// </summary>
     internal sealed class AuthService : IAuthService
     {
         private readonly ILogger _logger;
@@ -36,6 +39,14 @@ namespace OpenSettings.AspNetCore.Services
         private readonly OpenSettingsConfiguration _openSettingsConfiguration;
         private readonly ProviderInfo _providerInfo;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AuthService"/> class.
+        /// </summary>
+        /// <param name="httpClientFactory">The http client factory.</param>
+        /// <param name="httpContextAccessor">The http context accessor.</param>
+        /// <param name="openSettingsMemoryCache">The open settings memory cache.</param>
+        /// <param name="openSettingsConfiguration">The open settings configuration.</param>
+        /// <param name="providerInfo">The provider info.</param>
         public AuthService(IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor, IOpenSettingsMemoryCache openSettingsMemoryCache, OpenSettingsConfiguration openSettingsConfiguration, ProviderInfo providerInfo)
         {
             _logger = openSettingsConfiguration.LoggerFactory.CreateLogger<AuthService>();

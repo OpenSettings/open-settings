@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace OpenSettings.AspNetCore.Authentication
 {
+    /// <summary>
+    /// Provides custom events for handling JWT Bearer authentication in OpenSettings for the consumer setup.
+    /// </summary>
     internal class ConsumerJwtBearerEvents : JwtBearerEvents
     {
         private ITokenService _tokenService;

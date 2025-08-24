@@ -14,6 +14,11 @@ namespace OpenSettings.Services
     {
         private readonly ILocalSettingsService _localSettingsService;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PollingSettingTimedService"/> class.
+        /// </summary>
+        /// <param name="localSettingsService">The local settings service.</param>
+        /// <param name="openSettingsConfiguration">The open settings configuration.</param>
         public PollingSettingTimedService(ILocalSettingsService localSettingsService, OpenSettingsConfiguration openSettingsConfiguration) : base(openSettingsConfiguration.LoggerFactory.CreateLogger<PollingSettingTimedService>(), nameof(PollingSettingTimedService),
             opts =>
             {

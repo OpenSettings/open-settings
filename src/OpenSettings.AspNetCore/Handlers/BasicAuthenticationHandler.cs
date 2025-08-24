@@ -16,6 +16,9 @@ using System.Threading.Tasks;
 
 namespace OpenSettings.AspNetCore.Handlers
 {
+    /// <summary>
+    /// Handles basic authentication for OpenSettings.
+    /// </summary>
     internal class BasicAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
     {
         private readonly ILogger _logger;
@@ -24,6 +27,16 @@ namespace OpenSettings.AspNetCore.Handlers
         private readonly OpenSettingsConfiguration _openSettingsConfiguration;
         private readonly bool _requiresAuthentication;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BasicAuthenticationHandler"/> class.
+        /// </summary>
+        /// <param name="appsService">The apps service.</param>
+        /// <param name="openSettingsMemoryCache">The open settings memory cache.</param>
+        /// <param name="options">The authentication scheme options.</param>
+        /// <param name="clock">The system clock.</param>
+        /// <param name="encoder">The url encoder.</param>
+        /// <param name="openSettingsConfiguration">The open settings configuration.</param>
+        /// <param name="providerInfo">The provider info.</param>
         public BasicAuthenticationHandler(
             IAppService appsService,
             IOpenSettingsMemoryCache openSettingsMemoryCache,

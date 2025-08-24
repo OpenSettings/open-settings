@@ -6,10 +6,17 @@ using System.Threading.Tasks;
 
 namespace OpenSettings.AspNetCore.Handlers
 {
+    /// <summary>
+    /// Handles requests from consumer to provider, adding necessary headers for authentication and caller type.
+    /// </summary>
     internal class UserConsumerToProviderRequestHandler : DelegatingHandler
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UserConsumerToProviderRequestHandler"/> class.
+        /// </summary>
+        /// <param name="httpContextAccessor">The http context accessor.</param>
         public UserConsumerToProviderRequestHandler(IHttpContextAccessor httpContextAccessor)
         {
             _httpContextAccessor = httpContextAccessor;

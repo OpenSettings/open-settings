@@ -21,6 +21,9 @@ using System.Threading.Tasks;
 
 namespace OpenSettings.AspNetCore.Authentication
 {
+    /// <summary>
+    /// Provides custom events for handling OpenIdConnect authentication in OpenSettings for the provider setup.
+    /// </summary>
     internal class ProviderOpenIdConnectEvents : OpenIdConnectEvents
     {
         public override Task SignedOutCallbackRedirect(RemoteSignOutContext context)

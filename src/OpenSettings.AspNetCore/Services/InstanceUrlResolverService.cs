@@ -9,12 +9,19 @@ using System.Net.Sockets;
 
 namespace OpenSettings.AspNetCore.Services
 {
+    /// <summary>
+    /// Provides functionality to resolve the Urls for the current instance of the application.
+    /// </summary>
     internal sealed class InstanceUrlResolverService : IInstanceUrlResolverService
     {
         private const string FallbackPort = "5000";
 
         private readonly IServerAddressesFeature _serverAddressesFeature;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InstanceUrlResolverService"/> class.
+        /// </summary>
+        /// <param name="server">The server.</param>
         public InstanceUrlResolverService(IServer server)
         {
             _serverAddressesFeature = server.Features.Get<IServerAddressesFeature>();
@@ -47,12 +54,12 @@ namespace OpenSettings.AspNetCore.Services
             {
                 var uri = new Uri(address);
 
-                if (string.Equals(uri.Scheme, "http", StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(uri.Scheme, OpenSettingsDefaults.Names.Http, StringComparison.OrdinalIgnoreCase))
                 {
                     hasHttp = true;
                 }
 
-                if (string.Equals(uri.Scheme, "https", StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(uri.Scheme, OpenSettingsDefaults.Names.Https, StringComparison.OrdinalIgnoreCase))
                 {
                     hasHttps = true;
                 }

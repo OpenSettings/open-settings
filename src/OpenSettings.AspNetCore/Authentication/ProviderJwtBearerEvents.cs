@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 
 namespace OpenSettings.AspNetCore.Authentication
 {
+    /// <summary>
+    /// Provides custom events for handling JWT Bearer authentication in OpenSettings for the provider setup.
+    /// </summary>
     internal class ProviderJwtBearerEvents : JwtBearerEvents
     {
         private ITokenSqlService _tokenSqlService;

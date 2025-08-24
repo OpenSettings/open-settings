@@ -46,9 +46,9 @@
         /// Middleware should be registered in the following order to ensure authentication works: 
         /// <code>
         /// app.UseRouting();
+        /// app.UseOpenSettings();
         /// app.UseAuthentication();
         /// app.UseAuthorization();
-        /// app.UseOpenSettings();
         /// app.MapControllers();
         /// </code>
         /// For more information, see <see href="https://learn.microsoft.com/en-us/aspnet/core/fundamentals/middleware/?view=aspnetcore-9.0#middleware-order">Asp.Net Core Middleware Order</see>

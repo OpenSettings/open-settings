@@ -20,16 +20,23 @@ using System.Threading.Tasks;
 
 namespace OpenSettings.AspNetCore.Services
 {
+    /// <summary>
+    /// Provides authentication for consumer.
+    /// </summary>
     internal sealed class AuthRestService : IAuthRestService
     {
-        private readonly IOpenSettingsMemoryCache _openSettingsMemoryCache;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly OpenSettingsConfiguration _openSettingsConfiguration;
 
-        public AuthRestService(IOpenSettingsMemoryCache openSettingsMemoryCache, IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor, OpenSettingsConfiguration openSettingsConfiguration)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AuthRestService"/> class.
+        /// </summary>
+        /// <param name="httpClientFactory">The http client factory</param>
+        /// <param name="httpContextAccessor">The http context accessor</param>
+        /// <param name="openSettingsConfiguration">The open settings configuration.</param>
+        public AuthRestService(IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor, OpenSettingsConfiguration openSettingsConfiguration)
         {
-            _openSettingsMemoryCache = openSettingsMemoryCache;
             _httpClientFactory = httpClientFactory;
             _httpContextAccessor = httpContextAccessor;
             _openSettingsConfiguration = openSettingsConfiguration;

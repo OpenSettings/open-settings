@@ -1,5 +1,4 @@
-﻿using Ogu.Compressions;
-using Ogu.Compressions.Abstractions;
+﻿using Ogu.Compressions.Abstractions;
 using OpenSettings.Configurations;
 using OpenSettings.Services;
 using OpenSettings.Services.Rest;
@@ -8,6 +7,9 @@ using System.Net.Http;
 
 namespace OpenSettings
 {
+    /// <summary>
+    /// Factory for creating <see cref="HttpClient"/> instances configured for OpenSettings provider communication.
+    /// </summary>
     internal class OpenSettingsHttpClientFactory : IHttpClientFactory, IDisposable
     {
         private HttpClient _httpClient;
@@ -17,6 +19,10 @@ namespace OpenSettings
 
         private readonly OpenSettingsConfiguration _openSettingsConfiguration;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="OpenSettingsHttpClientFactory"/> class with the specified configuration.
+        /// </summary>
+        /// <param name="openSettingsConfiguration">The open settings configuration.</param>
         public OpenSettingsHttpClientFactory(OpenSettingsConfiguration openSettingsConfiguration)
         {
             _openSettingsConfiguration = openSettingsConfiguration;

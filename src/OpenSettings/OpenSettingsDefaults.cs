@@ -95,6 +95,10 @@ namespace OpenSettings
             internal const string RedisSubscriber = "OpenSettings";
 
             internal const string Unknown = nameof(Unknown);
+
+            internal const string Https = "https";
+
+            internal const string Http = "http";
         }
 
         /// <summary>

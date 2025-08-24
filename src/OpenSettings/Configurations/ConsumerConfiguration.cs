@@ -94,6 +94,9 @@ namespace OpenSettings.Configurations
             RequestEncodings.AddToRequestHeaders(httpClient.DefaultRequestHeaders);
         }
 
+        /// <summary>
+        /// Gets a value indicating whether the OpenSettings generator mode is enabled for pre-generate settings.
+        /// </summary>
         internal static bool IsGeneratorModeEnabled
         {
             get

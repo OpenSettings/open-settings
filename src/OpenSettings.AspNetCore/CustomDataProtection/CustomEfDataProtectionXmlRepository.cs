@@ -10,7 +10,10 @@ using System.Xml.Linq;
 
 namespace OpenSettings.AspNetCore.CustomDataProtection
 {
-    public class CustomEfDataProtectionXmlRepository : IXmlRepository
+    /// <summary>
+    /// Custom implementation of <see cref="IXmlRepository"/> that uses Entity Framework to store and retrieve XML elements for data protection keys.
+    /// </summary>
+    internal class CustomEfDataProtectionXmlRepository : IXmlRepository
     {
         public virtual IReadOnlyCollection<XElement> GetAllElements()
         {
