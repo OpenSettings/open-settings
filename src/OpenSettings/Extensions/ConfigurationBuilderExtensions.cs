@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Ogu.Compressions;
-using Ogu.Compressions.Abstractions;
 using OpenSettings.Configurations;
 using OpenSettings.Domains.Sql.DataContext;
 using OpenSettings.Domains.Sql.Entities;
@@ -21,6 +19,7 @@ using System.Threading;
 using System.Threading.Tasks;
 #if NETSTANDARD2_0
 using OpenSettings.Extensions;
+using Ogu.Compressions.Abstractions;
 #endif
 
 namespace OpenSettings.Extensions

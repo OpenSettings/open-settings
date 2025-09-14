@@ -5,7 +5,6 @@ using Microsoft.Extensions.Logging.Abstractions;
 using OpenSettings.Configurations;
 using OpenSettings.Domains.Sql.Entities;
 using System.Diagnostics;
-using ZstdSharp;
 
 namespace OpenSettings.Domains.Sql.DataContext
 {

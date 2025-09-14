@@ -132,7 +132,7 @@ namespace OpenSettings.Domains.Sql.Entities
         /// <summary>
         /// A collection of historical records for this setting.
         /// </summary>
-        public virtual List<SettingHistorySqlModel> SettingHistories { get; set; } = new List<SettingHistorySqlModel>();
+        public virtual ICollection<SettingHistorySqlModel> SettingHistories { get; set; } = new List<SettingHistorySqlModel>();
 
         /// <summary>
         /// The identifier associated with this setting.

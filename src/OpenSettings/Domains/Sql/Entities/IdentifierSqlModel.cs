@@ -50,7 +50,7 @@ namespace OpenSettings.Domains.Sql.Entities
         /// <summary>
         /// A collection of app-identifier mappings.
         /// </summary>
-        public virtual List<AppIdentifierMappingSqlModel> AppIdentifierMappings { get; set; } = new List<AppIdentifierMappingSqlModel>();
+        public virtual ICollection<AppIdentifierMappingSqlModel> AppIdentifierMappings { get; set; } = new List<AppIdentifierMappingSqlModel>();
 
         /// <summary>
         /// The user who created this identifier.

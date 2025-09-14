@@ -50,7 +50,7 @@ namespace OpenSettings.Domains.Sql.Entities
         /// <summary>
         /// The list of apps associated with this app group.
         /// </summary>
-        public virtual List<AppSqlModel> Apps { get; set; } = new List<AppSqlModel>();
+        public virtual ICollection<AppSqlModel> Apps { get; set; } = new List<AppSqlModel>();
 
         /// <summary>
         /// The user who created this app group.

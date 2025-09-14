@@ -123,17 +123,27 @@ namespace OpenSettings.Configurations
         /// </value>
         public CompressionLevel CompressionLevel { get; set; } = CompressionLevel.Fastest;
 
-        internal async ValueTask InitializeDbAsync(OpenSettingsDbContext context, CancellationToken cancellationToken)
+        /// <summary>
+        /// Gets or sets whether database migrations are applied automatically on startup. Default is '<c>false</c>'.
+        /// </summary>
+        public bool DisableDatabaseMigrationsOnStartup { get; set; }
+
+        internal async ValueTask InitializeDbAsync(OpenSettingsDbContext context, CancellationToken cancellationToken = default)
         {
             if (IsDbInitialized)
             {
                 return;
             }
 
-            if (!context.Database.IsInMemory())
+            if (!DisableDatabaseMigrationsOnStartup &&
+                !context.Database.IsInMemory() && 
+                (!await context.Database.CanConnectAsync(cancellationToken) ||
+                 (await context.Database.GetPendingMigrationsAsync(cancellationToken)).Any()))
             {
                 await context.Database.MigrateAsync(cancellationToken);
             }
+
+            IsDbInitialized = true;
 
             Orm.DbProviderName = context.Database.ProviderName?.Split(OpenSettingsDefaults.Format.DotChar).LastOrDefault() ?? OpenSettingsDefaults.Names.Unknown;
         }

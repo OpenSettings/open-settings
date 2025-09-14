@@ -50,7 +50,7 @@ namespace OpenSettings.Domains.Sql.Entities
         /// <summary>
         /// The collection of app-tag mappings assigned to the tag.
         /// </summary>
-        public virtual List<AppTagMappingSqlModel> AppTagMappings { get; set; } = new List<AppTagMappingSqlModel>();
+        public virtual ICollection<AppTagMappingSqlModel> AppTagMappings { get; set; } = new List<AppTagMappingSqlModel>();
 
         /// <summary>
         /// The user who created this tag.
