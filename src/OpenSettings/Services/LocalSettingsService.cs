@@ -569,7 +569,7 @@ namespace OpenSettings.Services
             Exception exception = null;
             Random random = null;
 
-            var isMigrationEnabled = Helper.IsMigrationEnabled;
+            var isMigrationEnabled = Helper.IsMigrationEnabled();
 
             var deadline = _openSettingsConfiguration.SyncAppDataResilience.TotalTimeout.HasValue
                 ? DateTime.UtcNow + _openSettingsConfiguration.SyncAppDataResilience.TotalTimeout.Value

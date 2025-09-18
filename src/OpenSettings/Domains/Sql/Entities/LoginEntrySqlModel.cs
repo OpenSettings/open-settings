@@ -2,11 +2,9 @@
 using OpenSettings.Services;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OpenSettings.Domains.Sql.Entities
 {
-    [Table("LoginEntries")]
     public class LoginEntrySqlModel : EntityBase<Guid>
     {
         /// <summary>
@@ -23,14 +21,6 @@ namespace OpenSettings.Domains.Sql.Entities
         /// The audience which initiated the login.
         /// </summary>
         public Guid Audience { get; set; }
-
-        /// <summary>
-        /// The instance id of the provider service which processed the login.
-        /// This comes from <see cref="ProviderCoordinationTimedService.ProviderRegistryId"/> which corresponds the ProviderRegistry's id field.
-        /// </summary>
-        public Guid? ProviderRegistryId { get; set; }
-
-        public Guid? UserId { get; set; }
 
         public string RemoteIpAddress { get; set; }
 
@@ -60,13 +50,19 @@ namespace OpenSettings.Domains.Sql.Entities
         /// </summary>
         public Dictionary<string, object> Metadata { get; set; } = new Dictionary<string, object>();
 
+        public Guid? UserId { get; set; }
+
         /// <summary>
         /// The user who logged in.
         /// </summary>
-        [ForeignKey(nameof(UserId))]
         public virtual UserSqlModel User { get; set; }
 
-        [ForeignKey(nameof(ProviderRegistryId))]
+        /// <summary>
+        /// The instance id of the provider service which processed the login.
+        /// This comes from <see cref="ProviderCoordinationTimedService.ProviderRegistryId"/> which corresponds the ProviderRegistry's id field.
+        /// </summary>
+        public Guid? ProviderRegistryId { get; set; }
+
         public virtual ProviderRegistrySqlModel ProviderRegistry { get; set; }
     }
 }

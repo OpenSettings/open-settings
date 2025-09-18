@@ -434,7 +434,7 @@ namespace OpenSettings.Services.Sql
                         : ((IOrderedQueryable<LicenseSqlModel>)query).ThenByDescending(e => e.Key);
 
                 default:
-                    return query;
+                    return query.OrderBy(e => e.Id);
             }
         }
     }

@@ -17,12 +17,12 @@ using System.Threading.Tasks;
 
 namespace OpenSettings.Services.Sql
 {
-    internal sealed class TagSqlService : ITagSqlService
+    internal sealed class AppTagSqlService : ITagSqlService
     {
         private readonly OpenSettingsDbContext _context;
         private readonly ISortOrderSqlService _sortOrderService;
 
-        public TagSqlService(OpenSettingsDbContext context, ISortOrderSqlService sortOrderService)
+        public AppTagSqlService(OpenSettingsDbContext context, ISortOrderSqlService sortOrderService)
         {
             _context = context;
             _sortOrderService = sortOrderService;
@@ -30,7 +30,7 @@ namespace OpenSettings.Services.Sql
 
         public async Task<IResponse> GetPaginatedTagsAsync(GetPaginatedInput input, CancellationToken cancellationToken = default)
         {
-            var sortOrderBounds = await _sortOrderService.GetSortOrderBoundsAsync(_context.Tags, cancellationToken);
+            var sortOrderBounds = await _sortOrderService.GetSortOrderBoundsAsync(_context.AppTags, cancellationToken);
 
             if (sortOrderBounds == null)
             {
@@ -46,7 +46,7 @@ namespace OpenSettings.Services.Sql
             {
                 var searchLowercase = input.SearchTerm.ToLowerInvariant();
 
-                var filteredQuery = _context.Tags
+                var filteredQuery = _context.AppTags
                     .AsNoTracking()
                     .SearchBy(a => a.NameLowercase, searchLowercase, _context);
 
@@ -79,14 +79,14 @@ namespace OpenSettings.Services.Sql
 
         public async Task<IResponse> DeleteUnmappedTagsAsync(CancellationToken cancellationToken = default)
         {
-            var entities = await _context.Tags
+            var entities = await _context.AppTags
                 .AsNoTracking()
 #if !NETSTANDARD2_0
                 .AsSplitQuery()
 #endif
                 .Include(a => a.AppTagMappings)
                 .Where(a => !a.AppTagMappings.Any())
-                .Select(a => new TagSqlModel { Id = a.Id, RowVersion = a.RowVersion })
+                .Select(a => new AppTagSqlModel { Id = a.Id, RowVersion = a.RowVersion })
                 .ToArrayAsync(cancellationToken);
 
             if (entities.Length == 0)
@@ -94,7 +94,7 @@ namespace OpenSettings.Services.Sql
                 return HttpStatusCode.OK.ToSuccessResponse(new DeleteUnmappedItemsResponse { DeletedItemsCount = 0 });
             }
 
-            _context.Tags.RemoveRange(entities);
+            _context.AppTags.RemoveRange(entities);
 
             try
             {
@@ -119,7 +119,7 @@ namespace OpenSettings.Services.Sql
                 return await GetTagsBySearchAsync(input, cancellationToken);
             }
 
-            var query = _context.Tags.AsNoTracking();
+            var query = _context.AppTags.AsNoTracking();
 
             if (input.HasMappings.HasValue)
             {
@@ -158,9 +158,9 @@ namespace OpenSettings.Services.Sql
             var trimmedNameLowercase = trimmedName.ToLowerInvariant();
             var slug = trimmedName.ToSlug();
 
-            if (await _context.Tags.AsNoTracking().AnyAsync(s => s.Slug == slug, cancellationToken))
+            if (await _context.AppTags.AsNoTracking().AnyAsync(s => s.Slug == slug, cancellationToken))
             {
-                return ValidationFailures.AlreadyExists(nameof(TagSqlModel.Slug), slug).ToResponse();
+                return ValidationFailures.AlreadyExists(nameof(AppTagSqlModel.Slug), slug).ToResponse();
             }
 
             if (input.SetSortOrderPosition.HasValue)
@@ -168,20 +168,20 @@ namespace OpenSettings.Services.Sql
                 try
                 {
                     input.SortOrder = input.SetSortOrderPosition == SetSortOrderPosition.Bottom
-                        ? await _context.Tags.AsNoTracking().MaxAsync(s => s.SortOrder, cancellationToken) + OpenSettingsDefaults.SortOrderGap
-                        : await _context.Tags.AsNoTracking().MinAsync(s => s.SortOrder, cancellationToken) - OpenSettingsDefaults.SortOrderGap;
+                        ? await _context.AppTags.AsNoTracking().MaxAsync(s => s.SortOrder, cancellationToken) + OpenSettingsDefaults.SortOrderGap
+                        : await _context.AppTags.AsNoTracking().MinAsync(s => s.SortOrder, cancellationToken) - OpenSettingsDefaults.SortOrderGap;
                 }
                 catch (InvalidOperationException)
                 {
                     // ignored
                 }
             }
-            else if (await _context.Tags.AsNoTracking().AnyAsync(s => s.SortOrder == input.SortOrder, cancellationToken))
+            else if (await _context.AppTags.AsNoTracking().AnyAsync(s => s.SortOrder == input.SortOrder, cancellationToken))
             {
                 return HttpStatusCode.BadRequest.ToFailureResponse(Errors.DuplicateSortOrder);
             }
 
-            var entity = new TagSqlModel
+            var entity = new AppTagSqlModel
             {
                 Name = trimmedName,
                 NameLowercase = trimmedNameLowercase,
@@ -191,7 +191,7 @@ namespace OpenSettings.Services.Sql
                 CreatedById = input.CreatedById
             };
 
-            _context.Tags.Add(entity);
+            _context.AppTags.Add(entity);
 
             try
             {
@@ -249,7 +249,7 @@ namespace OpenSettings.Services.Sql
             var trimmedNameLowercase = trimmedName.ToLowerInvariant();
             var slug = trimmedName.ToSlug();
 
-            if (await _context.Tags.AsNoTracking().AnyAsync(s => s.Slug == slug && s.Id != tagId, cancellationToken))
+            if (await _context.AppTags.AsNoTracking().AnyAsync(s => s.Slug == slug && s.Id != tagId, cancellationToken))
             {
                 return HttpStatusCode.BadRequest.ToFailureResponse(Errors.TagAlreadyExists);
             }
@@ -260,13 +260,13 @@ namespace OpenSettings.Services.Sql
                 {
                     if (input.SetSortOrderPosition == SetSortOrderPosition.Bottom)
                     {
-                        var maxOrder = await _context.Tags.AsNoTracking().Where(s => s.Id != tagId).MaxAsync(s => s.SortOrder, cancellationToken);
+                        var maxOrder = await _context.AppTags.AsNoTracking().Where(s => s.Id != tagId).MaxAsync(s => s.SortOrder, cancellationToken);
 
                         input.SortOrder = input.SortOrder > maxOrder ? input.SortOrder : maxOrder + OpenSettingsDefaults.SortOrderGap;
                     }
                     else
                     {
-                        var minOrder = await _context.Tags.AsNoTracking().Where(s => s.Id != tagId).MinAsync(s => s.SortOrder, cancellationToken);
+                        var minOrder = await _context.AppTags.AsNoTracking().Where(s => s.Id != tagId).MinAsync(s => s.SortOrder, cancellationToken);
 
                         input.SortOrder = input.SortOrder < minOrder ? input.SortOrder : minOrder - OpenSettingsDefaults.SortOrderGap;
                     }
@@ -277,13 +277,13 @@ namespace OpenSettings.Services.Sql
                 }
             }
 
-            var entity = new TagSqlModel
+            var entity = new AppTagSqlModel
             {
                 Id = tagId,
                 RowVersion = input.RowVersion
             };
 
-            _context.Tags.Attach(entity);
+            _context.AppTags.Attach(entity);
 
             var currentTime = DateTime.UtcNow;
 
@@ -341,7 +341,7 @@ namespace OpenSettings.Services.Sql
 
             var tagId = tagIdRule.GetStoredValue<int>();
 
-            _context.Tags.Remove(new TagSqlModel { Id = tagId, RowVersion = input.RowVersion });
+            _context.AppTags.Remove(new AppTagSqlModel { Id = tagId, RowVersion = input.RowVersion });
 
             try
             {
@@ -370,11 +370,11 @@ namespace OpenSettings.Services.Sql
 
             var tagId = tagIdRule.GetStoredValue<int>();
 
-            var entity = await _context.Tags
+            var entity = await _context.AppTags
                 .AsNoTracking()
                 .Where(a => a.Id == tagId)
                 .OrderBy(a => a.Id)
-                .Select(a => new TagSqlModel
+                .Select(a => new AppTagSqlModel
                 {
                     Id = tagId,
                     SortOrder = a.SortOrder,
@@ -392,8 +392,8 @@ namespace OpenSettings.Services.Sql
                 return FailureResponses.Conflict(input.TagId, entity.RowVersion, input.RowVersion, false);
             }
 
-            var foundEntity = await _sortOrderService.FindNeighbour(_context.Tags, entity.Id, entity.SortOrder, input.Ascent)
-                .Select(a => new TagSqlModel
+            var foundEntity = await _sortOrderService.FindNeighbour(_context.AppTags, entity.Id, entity.SortOrder, input.Ascent)
+                .Select(a => new AppTagSqlModel
                 {
                     Id = a.Id,
                     SortOrder = a.SortOrder,
@@ -408,10 +408,10 @@ namespace OpenSettings.Services.Sql
 
             if (entity.SortOrder == foundEntity.SortOrder)
             {
-                return await _sortOrderService.ReorderAsync(_context.Tags, cancellationToken);
+                return await _sortOrderService.ReorderAsync(_context.AppTags, cancellationToken);
             }
 
-            _context.Tags.AttachRange(foundEntity, entity);
+            _context.AppTags.AttachRange(foundEntity, entity);
 
             var currentTime = DateTime.UtcNow;
             var rowVersion = currentTime.ToRowVersion();
@@ -459,10 +459,10 @@ namespace OpenSettings.Services.Sql
 
             var ids = new[] { sourceId, targetId };
 
-            var entities = await _context.Tags
+            var entities = await _context.AppTags
                 .AsNoTracking()
                 .Where(a => ids.Contains(a.Id))
-                .Select(a => new TagSqlModel
+                .Select(a => new AppTagSqlModel
                 {
                     Id = a.Id,
                     SortOrder = a.SortOrder,
@@ -490,11 +490,11 @@ namespace OpenSettings.Services.Sql
 
             if (sourceEntity.SortOrder == targetEntity.SortOrder)
             {
-                return await _sortOrderService.ReorderAsync(_context.Tags, cancellationToken);
+                return await _sortOrderService.ReorderAsync(_context.AppTags, cancellationToken);
             }
 
             var targetNeighbour = await _sortOrderService
-                .FindNeighbour(_context.Tags, targetEntity.Id, targetEntity.SortOrder, input.Ascent)
+                .FindNeighbour(_context.AppTags, targetEntity.Id, targetEntity.SortOrder, input.Ascent)
                 .Select(s => new { s.Id, Order = s.SortOrder })
                 .FirstOrDefaultAsync(cancellationToken);
 
@@ -522,18 +522,18 @@ namespace OpenSettings.Services.Sql
             var sourceNewSortOrder = (targetEntity.SortOrder + targetNeighbour.Order) / 2;
             var sourceOldSortOrder = sourceEntity.SortOrder;
 
-            var anyMatch = await _context.Tags.AsNoTracking().AnyAsync(s => s.SortOrder == sourceNewSortOrder, cancellationToken);
+            var anyMatch = await _context.AppTags.AsNoTracking().AnyAsync(s => s.SortOrder == sourceNewSortOrder, cancellationToken);
 
             if (anyMatch)
             {
-                return await _sortOrderService.ReorderAsync(_context.Tags, cancellationToken);
+                return await _sortOrderService.ReorderAsync(_context.AppTags, cancellationToken);
             }
 
             var currentTime = DateTime.UtcNow;
 
             var rowVersion = currentTime.ToRowVersion();
 
-            _context.Tags.Attach(sourceEntity);
+            _context.AppTags.Attach(sourceEntity);
 
             sourceEntity.SortOrder = sourceNewSortOrder;
             sourceEntity.UpdatedOn = currentTime;
@@ -570,11 +570,11 @@ namespace OpenSettings.Services.Sql
             var trimmedNameLowercase = name.ToLowerInvariant();
             var slug = name.ToSlug();
 
-            var entity = await _context.Tags
+            var entity = await _context.AppTags
                 .AsNoTracking()
                 .Where(a => a.Slug == slug)
                 .OrderBy(a => a.Id)
-                .Select(a => new TagSqlModel { Id = a.Id, Name = a.Name, SortOrder = a.SortOrder })
+                .Select(a => new AppTagSqlModel { Id = a.Id, Name = a.Name, SortOrder = a.SortOrder })
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (entity != null)
@@ -593,15 +593,15 @@ namespace OpenSettings.Services.Sql
             try
             {
                 sortOrder = setSortOrderPosition == SetSortOrderPosition.Bottom
-                    ? await _context.Tags.AsNoTracking().MaxAsync(s => s.SortOrder, cancellationToken) + OpenSettingsDefaults.SortOrderGap
-                    : await _context.Tags.AsNoTracking().MinAsync(s => s.SortOrder, cancellationToken) - OpenSettingsDefaults.SortOrderGap;
+                    ? await _context.AppTags.AsNoTracking().MaxAsync(s => s.SortOrder, cancellationToken) + OpenSettingsDefaults.SortOrderGap
+                    : await _context.AppTags.AsNoTracking().MinAsync(s => s.SortOrder, cancellationToken) - OpenSettingsDefaults.SortOrderGap;
             }
             catch(InvalidOperationException)
             {
                 sortOrder = 0;
             }
 
-            entity = new TagSqlModel
+            entity = new AppTagSqlModel
             {
                 Name = name,
                 NameLowercase = trimmedNameLowercase,
@@ -611,7 +611,7 @@ namespace OpenSettings.Services.Sql
                 CreatedOn = DateTime.UtcNow
             };
 
-            _context.Tags.Add(entity);
+            _context.AppTags.Add(entity);
 
             try
             {
@@ -637,7 +637,7 @@ namespace OpenSettings.Services.Sql
         {
             try
             {
-                var reorderResponse = await _sortOrderService.ReorderAsync(_context.Tags);
+                var reorderResponse = await _sortOrderService.ReorderAsync(_context.AppTags);
 
                 return HttpStatusCode.OK.ToSuccessResponse(reorderResponse);
             }
@@ -647,9 +647,9 @@ namespace OpenSettings.Services.Sql
             }
         }
 
-        private async Task<IResponse> GetTagByTagIdOrSlugAsync(Expression<Func<TagSqlModel, bool>> predicate, CancellationToken cancellationToken = default)
+        private async Task<IResponse> GetTagByTagIdOrSlugAsync(Expression<Func<AppTagSqlModel, bool>> predicate, CancellationToken cancellationToken = default)
         {
-            var entity = await _context.Tags
+            var entity = await _context.AppTags
                 .AsNoTracking()
                 .Where(predicate)
                 .OrderBy(a => a.Id)
@@ -669,7 +669,7 @@ namespace OpenSettings.Services.Sql
         {
             try
             {
-                var unfilteredQuery = _context.Tags.AsNoTracking();
+                var unfilteredQuery = _context.AppTags.AsNoTracking();
 
                 var unfilteredEntitiesQuery = unfilteredQuery
 #if !NETSTANDARD2_0
@@ -700,7 +700,7 @@ namespace OpenSettings.Services.Sql
         {
             var searchLowercase = input.SearchTerm.ToLowerInvariant();
 
-            var query = _context.Tags.AsNoTracking();
+            var query = _context.AppTags.AsNoTracking();
 
             var data = await query.SearchBy(a => a.NameLowercase, searchLowercase, _context)
                 .OrderBy(a => a.NameLowercase.IndexOf(searchLowercase))
@@ -716,8 +716,10 @@ namespace OpenSettings.Services.Sql
             return HttpStatusCode.OK.ToSuccessResponse(new GetTagsResponse(data));
         }
 
-        private static IQueryable<TagSqlModel> SortBy(IQueryable<TagSqlModel> entities, string sortBy, SortDirection sortDirection)
+        private static IQueryable<AppTagSqlModel> SortBy(IQueryable<AppTagSqlModel> entities, string sortBy, SortDirection sortDirection)
         {
+            sortBy = sortBy.Trim().ToLowerInvariant();
+
             switch (sortBy)
             {
                 case "id":
@@ -730,43 +732,45 @@ namespace OpenSettings.Services.Sql
                         ? entities.OrderByDescending(a => a.Name)
                         : entities.OrderBy(a => a.Name);
 
-                case "order":
+                case "sortorder":
                     return sortDirection == SortDirection.Desc
                         ? entities.OrderByDescending(a => a.SortOrder)
                         : entities.OrderBy(a => a.SortOrder);
 
-                case "mappingsCount":
+                case "mappingscount":
                     return sortDirection == SortDirection.Desc
                         ? entities.OrderByDescending(a => a.AppTagMappings.Count())
                         : entities.OrderBy(a => a.AppTagMappings.Count());
 
-                case "createdOn":
+                case "createdon":
                     return sortDirection == SortDirection.Desc
                         ? entities.OrderByDescending(a => a.CreatedOn)
                         : entities.OrderBy(a => a.CreatedOn);
 
-                case "createdBy":
+                case "createdby":
                     return sortDirection == SortDirection.Desc
                         ? entities.OrderByDescending(a => a.CreatedBy)
                         : entities.OrderBy(a => a.CreatedBy);
 
-                case "updatedOn":
+                case "updatedon":
                     return sortDirection == SortDirection.Desc
                         ? entities.OrderByDescending(a => a.UpdatedOn)
                         : entities.OrderBy(a => a.UpdatedOn);
 
-                case "updatedBy":
+                case "updatedby":
                     return sortDirection == SortDirection.Desc
                         ? entities.OrderByDescending(a => a.UpdatedBy)
                         : entities.OrderBy(a => a.UpdatedBy);
 
                 default:
-                    return entities;
+                    return entities.OrderBy(e => e.Id);
             }
         }
 
-        private static IOrderedQueryable<TagSqlModel> SortThenBy(IOrderedQueryable<TagSqlModel> orderedEntities, string sortBy, SortDirection sortDirection)
+        private static IOrderedQueryable<AppTagSqlModel> SortThenBy(IOrderedQueryable<AppTagSqlModel> orderedEntities, string sortBy, SortDirection sortDirection)
         {
+            sortBy = sortBy.Trim().ToLowerInvariant();
+
             switch (sortBy)
             {
                 case "id":
@@ -779,42 +783,42 @@ namespace OpenSettings.Services.Sql
                         ? orderedEntities.ThenByDescending(a => a.Name)
                         : orderedEntities.ThenBy(a => a.Name);
 
-                case "order":
+                case "sortorder":
                     return sortDirection == SortDirection.Desc
                         ? orderedEntities.ThenByDescending(a => a.SortOrder)
                         : orderedEntities.ThenBy(a => a.SortOrder);
 
-                case "mappingsCount":
+                case "mappingscount":
                     return sortDirection == SortDirection.Desc
                         ? orderedEntities.ThenByDescending(a => a.AppTagMappings.Count())
                         : orderedEntities.ThenBy(a => a.AppTagMappings.Count());
 
-                case "createdOn":
+                case "createdon":
                     return sortDirection == SortDirection.Desc
                         ? orderedEntities.ThenByDescending(a => a.CreatedOn)
                         : orderedEntities.ThenBy(a => a.CreatedOn);
 
-                case "createdBy":
+                case "createdby":
                     return sortDirection == SortDirection.Desc
                         ? orderedEntities.ThenByDescending(a => a.CreatedBy)
                         : orderedEntities.ThenBy(a => a.CreatedBy);
 
-                case "updatedOn":
+                case "updatedon":
                     return sortDirection == SortDirection.Desc
                         ? orderedEntities.ThenByDescending(a => a.UpdatedOn)
                         : orderedEntities.ThenBy(a => a.UpdatedOn);
 
-                case "updatedBy":
+                case "updatedby":
                     return sortDirection == SortDirection.Desc
                         ? orderedEntities.ThenByDescending(a => a.UpdatedBy)
                         : orderedEntities.ThenBy(a => a.UpdatedBy);
 
                 default:
-                    return orderedEntities;
+                    return orderedEntities.ThenBy(a => a.Id);
             }
         }
 
-        private static ModelForPaginatedResponseData MapToTagModelForPaginatedResponseData(TagSqlModel entity)
+        private static ModelForPaginatedResponseData MapToTagModelForPaginatedResponseData(AppTagSqlModel entity)
         {
             return new ModelForPaginatedResponseData
             {

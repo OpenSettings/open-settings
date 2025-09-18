@@ -1,11 +1,9 @@
-﻿using OpenSettings.Models;
-using StackExchange.Redis;
+﻿using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -32,7 +30,10 @@ namespace OpenSettings.Helpers
         /// Indicates whether the application is running in "Migration" mode.
         /// Used to determine if Entity Framework Core migration should be generated.
         /// </summary>
-        public static bool IsMigrationEnabled => Environment.GetCommandLineArgs().FirstOrDefault()?.Contains("ef.dll") ?? false;
+        public static bool IsMigrationEnabled()
+        {
+            return Environment.GetCommandLineArgs().FirstOrDefault()?.Contains("ef.dll") ?? false;
+        }
 
         public static string GetPublicCacheControlValue(double expiresInSeconds)
         {

@@ -14,8 +14,6 @@ namespace OpenSettings.Extensions
 
         private static readonly MethodInfo StringContainsMethod = typeof(string).GetMethod(nameof(string.Contains), new[] { typeof(string) });
 
-        private static readonly MemberExpression EfFunctionsProperty = Expression.Property(null, typeof(EF).GetProperty(nameof(EF.Functions)));
-
         public static bool IsInMemory(this DatabaseFacade database)
         {
             if (database == null)
@@ -25,6 +23,7 @@ namespace OpenSettings.Extensions
 
             return database.ProviderName == InMemoryProviderName;
         }
+
         internal static IQueryable<TEntity> SearchBy<TEntity>(
             this IQueryable<TEntity> query,
             IEnumerable<Expression<Func<TEntity, string>>> fieldSelectors,

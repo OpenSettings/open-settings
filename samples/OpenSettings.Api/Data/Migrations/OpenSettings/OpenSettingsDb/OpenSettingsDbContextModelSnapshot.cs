@@ -22,211 +22,7 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.AppGroupSqlModel", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<Guid?>("CreatedById")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NameLowercase")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<byte[]>("RowVersion")
-                        .IsConcurrencyToken()
-                        .HasColumnType("varbinary(max)");
-
-                    b.Property<string>("Slug")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("SortOrder")
-                        .HasColumnType("int");
-
-                    b.Property<Guid?>("UpdatedById")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("UpdatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CreatedById");
-
-                    b.HasIndex("NameLowercase")
-                        .IsUnique()
-                        .HasFilter("[NameLowercase] IS NOT NULL");
-
-                    b.HasIndex("Slug")
-                        .IsUnique()
-                        .HasFilter("[Slug] IS NOT NULL");
-
-                    b.HasIndex("SortOrder");
-
-                    b.HasIndex("UpdatedById");
-
-                    b.ToTable("AppGroups");
-                });
-
-            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.AppIdentifierMappingSqlModel", b =>
-                {
-                    b.Property<int>("AppId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("IdentifierId")
-                        .HasColumnType("int");
-
-                    b.Property<Guid?>("CreatedById")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<byte[]>("RowVersion")
-                        .IsConcurrencyToken()
-                        .HasColumnType("varbinary(max)");
-
-                    b.Property<int>("SortOrder")
-                        .HasColumnType("int");
-
-                    b.Property<Guid?>("UpdatedById")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("UpdatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("AppId", "IdentifierId");
-
-                    b.HasIndex("CreatedById");
-
-                    b.HasIndex("IdentifierId");
-
-                    b.HasIndex("SortOrder");
-
-                    b.HasIndex("UpdatedById");
-
-                    b.ToTable("AppIdentifierMappings");
-                });
-
-            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.AppSqlModel", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<Guid>("ClientId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("ClientIdLowercase")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ClientName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ClientNameLowercase")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<Guid?>("CreatedById")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("DisplayName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("DisplayNameLowercase")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("GroupId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("HashedClientSecret")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ImageUrl")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<byte[]>("RowVersion")
-                        .IsConcurrencyToken()
-                        .HasColumnType("varbinary(max)");
-
-                    b.Property<string>("Slug")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("SortOrder")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
-
-                    b.Property<Guid?>("UpdatedById")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("UpdatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("WikiUrl")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ClientId")
-                        .IsUnique();
-
-                    b.HasIndex("ClientNameLowercase");
-
-                    b.HasIndex("CreatedById");
-
-                    b.HasIndex("GroupId");
-
-                    b.HasIndex("Slug")
-                        .IsUnique()
-                        .HasFilter("[Slug] IS NOT NULL");
-
-                    b.HasIndex("UpdatedById");
-
-                    b.ToTable("Apps");
-                });
-
-            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.AppTagMappingSqlModel", b =>
-                {
-                    b.Property<int>("AppId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TagId")
-                        .HasColumnType("int");
-
-                    b.Property<Guid?>("CreatedById")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("AppId", "TagId");
-
-                    b.HasIndex("CreatedById");
-
-                    b.HasIndex("TagId");
-
-                    b.ToTable("AppTagMappings");
-                });
-
-            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.ConfigurationSqlModel", b =>
+            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.AppConfigurationSqlModel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -297,189 +93,10 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.HasIndex("AppId", "IdentifierId")
                         .IsUnique();
 
-                    b.ToTable("Configurations");
+                    b.ToTable("AppConfigurations", (string)null);
                 });
 
-            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.DataProtectionKey", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("ActivationDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("EncryptionAlgorithm")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("ExpiryDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("FriendlyName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("KeyId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("MasterKey")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("UpdatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ValidationAlgorithm")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Xml")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("DataProtectionKeys");
-                });
-
-            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.GlobalConfigurationHistorySqlModel", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("ClientId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("CompressionLevel")
-                        .HasColumnType("int");
-
-                    b.Property<int>("CompressionType")
-                        .HasColumnType("int");
-
-                    b.Property<Guid?>("CreatedById")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<byte[]>("Data")
-                        .HasColumnType("varbinary(max)");
-
-                    b.Property<int>("GlobalConfigurationId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("IdentifierId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Key")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("KeyLowercase")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid?>("RestoredById")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("RestoredOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<byte[]>("RowVersion")
-                        .IsConcurrencyToken()
-                        .HasColumnType("varbinary(max)");
-
-                    b.Property<int>("SerializerType")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Slug")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Version")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CreatedById");
-
-                    b.HasIndex("GlobalConfigurationId");
-
-                    b.HasIndex("RestoredById");
-
-                    b.HasIndex("Version");
-
-                    b.HasIndex("Slug", "GlobalConfigurationId")
-                        .IsUnique()
-                        .HasFilter("[Slug] IS NOT NULL");
-
-                    b.ToTable("GlobalConfigurationHistories");
-                });
-
-            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.GlobalConfigurationSqlModel", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<Guid?>("ClientId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("CompressionLevel")
-                        .HasColumnType("int");
-
-                    b.Property<int>("CompressionType")
-                        .HasColumnType("int");
-
-                    b.Property<Guid?>("CreatedById")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<byte[]>("Data")
-                        .HasColumnType("varbinary(max)");
-
-                    b.Property<int?>("IdentifierId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Key")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("KeyLowercase")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<byte[]>("RowVersion")
-                        .IsConcurrencyToken()
-                        .HasColumnType("varbinary(max)");
-
-                    b.Property<int>("SerializerType")
-                        .HasColumnType("int");
-
-                    b.Property<Guid?>("UpdatedById")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("UpdatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Version")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CreatedById");
-
-                    b.HasIndex("UpdatedById");
-
-                    b.HasIndex("KeyLowercase", "ClientId", "IdentifierId")
-                        .IsUnique()
-                        .HasFilter("[KeyLowercase] IS NOT NULL AND [ClientId] IS NOT NULL AND [IdentifierId] IS NOT NULL");
-
-                    b.ToTable("GlobalConfigurations");
-                });
-
-            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.IdentifierSqlModel", b =>
+            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.AppGroupSqlModel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -497,7 +114,7 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("NameLowercase")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
@@ -519,8 +136,6 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 
                     b.HasIndex("CreatedById");
 
-                    b.HasIndex("NameLowercase");
-
                     b.HasIndex("Slug")
                         .IsUnique()
                         .HasFilter("[Slug] IS NOT NULL");
@@ -529,10 +144,50 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 
                     b.HasIndex("UpdatedById");
 
-                    b.ToTable("Identifiers");
+                    b.ToTable("AppGroups", (string)null);
                 });
 
-            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.InstanceSqlModel", b =>
+            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.AppIdentifierMappingSqlModel", b =>
+                {
+                    b.Property<int>("AppId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("IdentifierId")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("CreatedById")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("UpdatedById")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("AppId", "IdentifierId");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("IdentifierId");
+
+                    b.HasIndex("SortOrder");
+
+                    b.HasIndex("UpdatedById");
+
+                    b.ToTable("AppIdentifierMappings", (string)null);
+                });
+
+            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.AppInstanceSqlModel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -604,10 +259,10 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         .IsUnique()
                         .HasFilter("[Slug] IS NOT NULL");
 
-                    b.ToTable("Instances");
+                    b.ToTable("AppInstances", (string)null);
                 });
 
-            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.LicenseSqlModel", b =>
+            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.AppSettingClassSqlModel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -615,276 +270,8 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("Edition")
+                    b.Property<int>("AppSettingId")
                         .HasColumnType("int");
-
-                    b.Property<DateTime?>("ExpiredOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("ExpiryDate")
-                        .HasColumnType("datetime2");
-
-                    b.PrimitiveCollection<string>("Features")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Holder")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("HolderLowercase")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<bool>("IsExpired")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsRevoked")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("IssuedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Key")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("NotBefore")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ReferenceId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ReferenceIdLowercase")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime?>("RevokedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("UpdatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Edition");
-
-                    b.HasIndex("HolderLowercase");
-
-                    b.HasIndex("IsExpired");
-
-                    b.HasIndex("ReferenceIdLowercase")
-                        .IsUnique()
-                        .HasFilter("[ReferenceIdLowercase] IS NOT NULL");
-
-                    b.ToTable("Licenses");
-                });
-
-            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.LockSqlModel", b =>
-                {
-                    b.Property<string>("Key")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime>("ExpiryDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Owner")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("Key");
-
-                    b.ToTable("Locks");
-                });
-
-            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.LoginEntrySqlModel", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("AccessToken")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset?>("AccessTokenExpiryDate")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid>("Audience")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("AuthMethod")
-                        .HasColumnType("int");
-
-                    b.Property<int>("AuthType")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsSuccessful")
-                        .HasColumnType("bit");
-
-                    b.Property<Guid>("Issuer")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Metadata")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid?>("ProviderRegistryId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("RefreshToken")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset?>("RefreshTokenExpiryDate")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("RemoteIpAddress")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Scopes")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("StateId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("UpdatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("UserAgent")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid?>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CreatedOn");
-
-                    b.HasIndex("ProviderRegistryId");
-
-                    b.HasIndex("StateId");
-
-                    b.HasIndex("UserId");
-
-                    b.HasIndex("StateId", "AuthMethod", "CreatedOn", "IsSuccessful");
-
-                    b.ToTable("LoginEntries");
-                });
-
-            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.NotificationSqlModel", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("CreatedById")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatorName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("ExpiredOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<TimeSpan?>("ExpiresIn")
-                        .HasColumnType("time");
-
-                    b.Property<bool>("IsExpired")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Message")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Metadata")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Source")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Title")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
-
-                    b.Property<Guid?>("UpdatedById")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("UpdatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CreatedById");
-
-                    b.HasIndex("UpdatedById");
-
-                    b.ToTable("Notifications");
-                });
-
-            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.ProviderRegistrySqlModel", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("ClientId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("ClientIdLowercase")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Host")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("InstanceDynamicId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("LastHeartbeatOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("PackVersion")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Port")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Region")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Scheme")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Version")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ClientIdLowercase");
-
-                    b.HasIndex("LastHeartbeatOn");
-
-                    b.HasIndex("Type");
-
-                    b.ToTable("ProviderRegistries");
-                });
-
-            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.SettingClassSqlModel", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<Guid?>("CreatedById")
                         .HasColumnType("uniqueidentifier");
@@ -910,9 +297,6 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.Property<byte[]>("RowVersion")
                         .HasColumnType("varbinary(max)");
 
-                    b.Property<int>("SettingId")
-                        .HasColumnType("int");
-
                     b.Property<Guid?>("UpdatedById")
                         .HasColumnType("uniqueidentifier");
 
@@ -921,17 +305,17 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreatedById");
-
-                    b.HasIndex("SettingId")
+                    b.HasIndex("AppSettingId")
                         .IsUnique();
+
+                    b.HasIndex("CreatedById");
 
                     b.HasIndex("UpdatedById");
 
-                    b.ToTable("SettingClasses");
+                    b.ToTable("AppSettingClasses", (string)null);
                 });
 
-            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.SettingHistorySqlModel", b =>
+            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.AppSettingHistorySqlModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -988,10 +372,10 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         .IsUnique()
                         .HasFilter("[Slug] IS NOT NULL");
 
-                    b.ToTable("SettingHistories");
+                    b.ToTable("AppSettingHistories", (string)null);
                 });
 
-            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.SettingSqlModel", b =>
+            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.AppSettingSqlModel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -1079,10 +463,127 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.HasIndex("AppId", "IdentifierId", "ComputedIdentifier")
                         .IsUnique();
 
-                    b.ToTable("Settings");
+                    b.ToTable("AppSettings", (string)null);
                 });
 
-            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.TagSqlModel", b =>
+            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.AppSqlModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("AppGroupId")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ClientIdLowercase")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ClientName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ClientNameLowercase")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<Guid?>("CreatedById")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DisplayName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DisplayNameLowercase")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("HashedClientSecret")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<string>("Slug")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("UpdatedById")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("WikiUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AppGroupId");
+
+                    b.HasIndex("ClientId")
+                        .IsUnique();
+
+                    b.HasIndex("ClientNameLowercase");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("Slug")
+                        .IsUnique()
+                        .HasFilter("[Slug] IS NOT NULL");
+
+                    b.HasIndex("UpdatedById");
+
+                    b.ToTable("Apps", (string)null);
+                });
+
+            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.AppTagMappingSqlModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AppId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("AppTagId")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("CreatedById")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AppId");
+
+                    b.HasIndex("AppTagId");
+
+                    b.HasIndex("CreatedById");
+
+                    b.ToTable("AppTagMappings", (string)null);
+                });
+
+            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.AppTagSqlModel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -1134,15 +635,65 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 
                     b.HasIndex("UpdatedById");
 
-                    b.ToTable("Tags");
+                    b.ToTable("AppTags", (string)null);
                 });
 
-            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.UserClaimMappingSqlModel", b =>
+            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.DataProtectionKeySqlModel", b =>
                 {
-                    b.Property<Guid>("UserId")
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("ActivationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("EncryptionAlgorithm")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("ExpiryDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("FriendlyName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("KeyId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("ClaimId")
+                    b.Property<string>("MasterKey")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ValidationAlgorithm")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Xml")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("DataProtectionKeys", (string)null);
+                });
+
+            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.GlobalConfigurationHistorySqlModel", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ClientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("CompressionLevel")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CompressionType")
                         .HasColumnType("int");
 
                     b.Property<Guid?>("CreatedById")
@@ -1151,13 +702,466 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("UserId", "ClaimId");
+                    b.Property<byte[]>("Data")
+                        .HasColumnType("varbinary(max)");
 
-                    b.HasIndex("ClaimId");
+                    b.Property<int>("GlobalConfigurationId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("IdentifierId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Key")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("KeyLowercase")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<Guid?>("RestoredById")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("RestoredOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<int>("SerializerType")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Slug")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Version")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
 
                     b.HasIndex("CreatedById");
 
-                    b.ToTable("UserClaimMappings");
+                    b.HasIndex("GlobalConfigurationId");
+
+                    b.HasIndex("RestoredById");
+
+                    b.HasIndex("Version");
+
+                    b.HasIndex("KeyLowercase", "ClientId", "IdentifierId")
+                        .IsUnique()
+                        .HasFilter("[KeyLowercase] IS NOT NULL AND [ClientId] IS NOT NULL AND [IdentifierId] IS NOT NULL");
+
+                    b.ToTable("GlobalConfigurationHistories", (string)null);
+                });
+
+            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.GlobalConfigurationSqlModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<Guid?>("ClientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("CompressionLevel")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CompressionType")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("CreatedById")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<byte[]>("Data")
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<int?>("IdentifierId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Key")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("KeyLowercase")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<int>("SerializerType")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("UpdatedById")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Version")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("UpdatedById");
+
+                    b.HasIndex("KeyLowercase", "ClientId", "IdentifierId")
+                        .IsUnique()
+                        .HasFilter("[KeyLowercase] IS NOT NULL AND [ClientId] IS NOT NULL AND [IdentifierId] IS NOT NULL");
+
+                    b.ToTable("GlobalConfigurations", (string)null);
+                });
+
+            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.IdentifierSqlModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<Guid?>("CreatedById")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NameLowercase")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<string>("Slug")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("UpdatedById")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("NameLowercase");
+
+                    b.HasIndex("Slug")
+                        .IsUnique()
+                        .HasFilter("[Slug] IS NOT NULL");
+
+                    b.HasIndex("SortOrder");
+
+                    b.HasIndex("UpdatedById");
+
+                    b.ToTable("Identifiers", (string)null);
+                });
+
+            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.LicenseSqlModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Edition")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("ExpiredOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("ExpiryDate")
+                        .HasColumnType("datetime2");
+
+                    b.PrimitiveCollection<string>("Features")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Holder")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("HolderLowercase")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<bool>("IsExpired")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsRevoked")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("IssuedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Key")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("NotBefore")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ReferenceId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ReferenceIdLowercase")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime?>("RevokedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Edition");
+
+                    b.HasIndex("HolderLowercase");
+
+                    b.HasIndex("IsExpired");
+
+                    b.HasIndex("ReferenceIdLowercase")
+                        .IsUnique()
+                        .HasFilter("[ReferenceIdLowercase] IS NOT NULL");
+
+                    b.ToTable("Licenses", (string)null);
+                });
+
+            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.LockSqlModel", b =>
+                {
+                    b.Property<string>("Key")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("ExpiryDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Owner")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Key");
+
+                    b.ToTable("Locks", (string)null);
+                });
+
+            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.LoginEntrySqlModel", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AccessToken")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset?>("AccessTokenExpiryDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("Audience")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("AuthMethod")
+                        .HasColumnType("int");
+
+                    b.Property<int>("AuthType")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsSuccessful")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid>("Issuer")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Metadata")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("ProviderRegistryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("RefreshToken")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset?>("RefreshTokenExpiryDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("RemoteIpAddress")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Scopes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("StateId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserAgent")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedOn");
+
+                    b.HasIndex("ProviderRegistryId");
+
+                    b.HasIndex("StateId");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("StateId", "AuthMethod", "CreatedOn", "IsSuccessful");
+
+                    b.ToTable("LoginEntries", (string)null);
+                });
+
+            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.NotificationSqlModel", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("CreatedById")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatorName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("ExpiredOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<TimeSpan?>("ExpiresIn")
+                        .HasColumnType("time");
+
+                    b.Property<bool>("IsExpired")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Message")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Metadata")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Source")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("UpdatedById")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("UpdatedById");
+
+                    b.ToTable("Notifications", (string)null);
+                });
+
+            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.ProviderRegistrySqlModel", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ClientIdLowercase")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Host")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("InstanceDynamicId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("LastHeartbeatOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("PackVersion")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Port")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Region")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Scheme")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Version")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClientIdLowercase");
+
+                    b.HasIndex("LastHeartbeatOn");
+
+                    b.HasIndex("Type");
+
+                    b.ToTable("ProviderRegistries", (string)null);
+                });
+
+            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.UserClaimMappingSqlModel", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("UserClaimId")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("CreatedById")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("UserId", "UserClaimId");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("UserClaimId");
+
+                    b.ToTable("UserClaimMappings", (string)null);
                 });
 
             modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.UserClaimSqlModel", b =>
@@ -1198,30 +1202,7 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         .IsUnique()
                         .HasFilter("[Slug] IS NOT NULL");
 
-                    b.ToTable("UserClaims");
-                });
-
-            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.UserGroupClaimMappingModel", b =>
-                {
-                    b.Property<int>("GroupId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ClaimId")
-                        .HasColumnType("int");
-
-                    b.Property<Guid?>("CreatedById")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("GroupId", "ClaimId");
-
-                    b.HasIndex("ClaimId");
-
-                    b.HasIndex("CreatedById");
-
-                    b.ToTable("UserGroupClaimMappings");
+                    b.ToTable("UserClaims", (string)null);
                 });
 
             modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.UserGroupMappingSqlModel", b =>
@@ -1229,7 +1210,7 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("GroupId")
+                    b.Property<int>("UserGroupId")
                         .HasColumnType("int");
 
                     b.Property<Guid?>("CreatedById")
@@ -1238,18 +1219,18 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("UserId", "GroupId");
+                    b.HasKey("UserId", "UserGroupId");
 
                     b.HasIndex("CreatedById");
 
-                    b.HasIndex("GroupId");
+                    b.HasIndex("UserGroupId");
 
-                    b.ToTable("UserGroupMappings");
+                    b.ToTable("UserGroupMappings", (string)null);
                 });
 
             modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.UserGroupNotificationMappingSqlModel", b =>
                 {
-                    b.Property<int>("GroupId")
+                    b.Property<int>("UserGroupId")
                         .HasColumnType("int");
 
                     b.Property<Guid>("NotificationId")
@@ -1261,13 +1242,13 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("GroupId", "NotificationId");
+                    b.HasKey("UserGroupId", "NotificationId");
 
                     b.HasIndex("CreatedById");
 
                     b.HasIndex("NotificationId");
 
-                    b.ToTable("UserGroupNotificationMappings");
+                    b.ToTable("UserGroupNotificationMappings", (string)null);
                 });
 
             modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.UserGroupSqlModel", b =>
@@ -1299,7 +1280,30 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         .IsUnique()
                         .HasFilter("[Slug] IS NOT NULL");
 
-                    b.ToTable("UserGroups");
+                    b.ToTable("UserGroups", (string)null);
+                });
+
+            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.UserGroupUserClaimMappingSqlModel", b =>
+                {
+                    b.Property<int>("UserGroupId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserClaimId")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("CreatedById")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("UserGroupId", "UserClaimId");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("UserClaimId");
+
+                    b.ToTable("UserGroupUserClaimMappings", (string)null);
                 });
 
             modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.UserNotificationMappingSqlModel", b =>
@@ -1343,53 +1347,7 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 
                     b.HasIndex("NotificationId");
 
-                    b.ToTable("UserNotificationMappings");
-                });
-
-            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.UserRoleClaimMappingModel", b =>
-                {
-                    b.Property<int>("RoleId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ClaimId")
-                        .HasColumnType("int");
-
-                    b.Property<Guid?>("CreatedById")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("RoleId", "ClaimId");
-
-                    b.HasIndex("ClaimId");
-
-                    b.HasIndex("CreatedById");
-
-                    b.ToTable("UserRoleClaimMappings");
-                });
-
-            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.UserRoleGroupMappingModel", b =>
-                {
-                    b.Property<int>("RoleId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("GroupId")
-                        .HasColumnType("int");
-
-                    b.Property<Guid?>("CreatedById")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("RoleId", "GroupId");
-
-                    b.HasIndex("CreatedById");
-
-                    b.HasIndex("GroupId");
-
-                    b.ToTable("UserRoleGroupMappings");
+                    b.ToTable("UserNotificationMappings", (string)null);
                 });
 
             modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.UserRoleMappingSqlModel", b =>
@@ -1397,7 +1355,7 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("RoleId")
+                    b.Property<int>("UserRoleId")
                         .HasColumnType("int");
 
                     b.Property<Guid?>("CreatedById")
@@ -1406,13 +1364,13 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("UserId", "RoleId");
+                    b.HasKey("UserId", "UserRoleId");
 
                     b.HasIndex("CreatedById");
 
-                    b.HasIndex("RoleId");
+                    b.HasIndex("UserRoleId");
 
-                    b.ToTable("UserRoleMappings");
+                    b.ToTable("UserRoleMappings", (string)null);
                 });
 
             modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.UserRoleSqlModel", b =>
@@ -1444,7 +1402,53 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         .IsUnique()
                         .HasFilter("[Slug] IS NOT NULL");
 
-                    b.ToTable("UserRoles");
+                    b.ToTable("UserRoles", (string)null);
+                });
+
+            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.UserRoleUserClaimMappingSqlModel", b =>
+                {
+                    b.Property<int>("UserRoleId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserClaimId")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("CreatedById")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("UserRoleId", "UserClaimId");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("UserClaimId");
+
+                    b.ToTable("UserRoleUserClaimMappings", (string)null);
+                });
+
+            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.UserRoleUserGroupMappingSqlModel", b =>
+                {
+                    b.Property<int>("UserRoleId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserGroupId")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("CreatedById")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("UserRoleId", "UserGroupId");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("UserGroupId");
+
+                    b.ToTable("UserRoleUserGroupMappings", (string)null);
                 });
 
             modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.UserSqlModel", b =>
@@ -1513,6 +1517,9 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.Property<string>("MiddleName")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("MiddleNameLowercase")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("PictureUrl")
                         .HasColumnType("nvarchar(max)");
 
@@ -1538,7 +1545,38 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         .IsUnique()
                         .HasFilter("[Slug] IS NOT NULL");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
+                });
+
+            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.AppConfigurationSqlModel", b =>
+                {
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.AppSqlModel", "App")
+                        .WithMany("AppConfigurations")
+                        .HasForeignKey("AppId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedById");
+
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.IdentifierSqlModel", "Identifier")
+                        .WithMany()
+                        .HasForeignKey("IdentifierId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "UpdatedBy")
+                        .WithMany()
+                        .HasForeignKey("UpdatedById");
+
+                    b.Navigation("App");
+
+                    b.Navigation("CreatedBy");
+
+                    b.Navigation("Identifier");
+
+                    b.Navigation("UpdatedBy");
                 });
 
             modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.AppGroupSqlModel", b =>
@@ -1587,60 +1625,82 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.Navigation("UpdatedBy");
                 });
 
-            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.AppSqlModel", b =>
-                {
-                    b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "CreatedBy")
-                        .WithMany()
-                        .HasForeignKey("CreatedById");
-
-                    b.HasOne("OpenSettings.Domains.Sql.Entities.AppGroupSqlModel", "Group")
-                        .WithMany("Apps")
-                        .HasForeignKey("GroupId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "UpdatedBy")
-                        .WithMany()
-                        .HasForeignKey("UpdatedById");
-
-                    b.Navigation("CreatedBy");
-
-                    b.Navigation("Group");
-
-                    b.Navigation("UpdatedBy");
-                });
-
-            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.AppTagMappingSqlModel", b =>
+            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.AppInstanceSqlModel", b =>
                 {
                     b.HasOne("OpenSettings.Domains.Sql.Entities.AppSqlModel", "App")
-                        .WithMany("AppTagMappings")
+                        .WithMany("AppInstances")
                         .HasForeignKey("AppId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "CreatedBy")
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.IdentifierSqlModel", "Identifier")
                         .WithMany()
-                        .HasForeignKey("CreatedById");
-
-                    b.HasOne("OpenSettings.Domains.Sql.Entities.TagSqlModel", "Tag")
-                        .WithMany("AppTagMappings")
-                        .HasForeignKey("TagId")
+                        .HasForeignKey("IdentifierId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("App");
 
-                    b.Navigation("CreatedBy");
-
-                    b.Navigation("Tag");
+                    b.Navigation("Identifier");
                 });
 
-            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.ConfigurationSqlModel", b =>
+            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.AppSettingClassSqlModel", b =>
+                {
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.AppSettingSqlModel", "AppSetting")
+                        .WithOne("AppSettingClass")
+                        .HasForeignKey("OpenSettings.Domains.Sql.Entities.AppSettingClassSqlModel", "AppSettingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedById");
+
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "UpdatedBy")
+                        .WithMany()
+                        .HasForeignKey("UpdatedById");
+
+                    b.Navigation("AppSetting");
+
+                    b.Navigation("CreatedBy");
+
+                    b.Navigation("UpdatedBy");
+                });
+
+            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.AppSettingHistorySqlModel", b =>
+                {
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedById");
+
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "RestoredBy")
+                        .WithMany()
+                        .HasForeignKey("RestoredById");
+
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.AppSettingSqlModel", "AppSetting")
+                        .WithMany("AppSettingHistories")
+                        .HasForeignKey("SettingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AppSetting");
+
+                    b.Navigation("CreatedBy");
+
+                    b.Navigation("RestoredBy");
+                });
+
+            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.AppSettingSqlModel", b =>
                 {
                     b.HasOne("OpenSettings.Domains.Sql.Entities.AppSqlModel", "App")
-                        .WithMany("Configurations")
+                        .WithMany("AppSettings")
                         .HasForeignKey("AppId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.AppSettingSqlModel", "CopiedFrom")
+                        .WithMany()
+                        .HasForeignKey("CopiedFromId");
 
                     b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "CreatedBy")
                         .WithMany()
@@ -1658,9 +1718,73 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 
                     b.Navigation("App");
 
+                    b.Navigation("CopiedFrom");
+
                     b.Navigation("CreatedBy");
 
                     b.Navigation("Identifier");
+
+                    b.Navigation("UpdatedBy");
+                });
+
+            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.AppSqlModel", b =>
+                {
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.AppGroupSqlModel", "AppGroup")
+                        .WithMany("Apps")
+                        .HasForeignKey("AppGroupId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedById");
+
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "UpdatedBy")
+                        .WithMany()
+                        .HasForeignKey("UpdatedById");
+
+                    b.Navigation("AppGroup");
+
+                    b.Navigation("CreatedBy");
+
+                    b.Navigation("UpdatedBy");
+                });
+
+            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.AppTagMappingSqlModel", b =>
+                {
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.AppSqlModel", "App")
+                        .WithMany("AppTagMappings")
+                        .HasForeignKey("AppId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.AppTagSqlModel", "AppTag")
+                        .WithMany("AppTagMappings")
+                        .HasForeignKey("AppTagId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedById");
+
+                    b.Navigation("App");
+
+                    b.Navigation("AppTag");
+
+                    b.Navigation("CreatedBy");
+                });
+
+            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.AppTagSqlModel", b =>
+                {
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedById");
+
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "UpdatedBy")
+                        .WithMany()
+                        .HasForeignKey("UpdatedById");
+
+                    b.Navigation("CreatedBy");
 
                     b.Navigation("UpdatedBy");
                 });
@@ -1718,25 +1842,6 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.Navigation("UpdatedBy");
                 });
 
-            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.InstanceSqlModel", b =>
-                {
-                    b.HasOne("OpenSettings.Domains.Sql.Entities.AppSqlModel", "App")
-                        .WithMany("Instances")
-                        .HasForeignKey("AppId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("OpenSettings.Domains.Sql.Entities.IdentifierSqlModel", "Identifier")
-                        .WithMany()
-                        .HasForeignKey("IdentifierId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("App");
-
-                    b.Navigation("Identifier");
-                });
-
             modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.LoginEntrySqlModel", b =>
                 {
                     b.HasOne("OpenSettings.Domains.Sql.Entities.ProviderRegistrySqlModel", "ProviderRegistry")
@@ -1746,8 +1851,7 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 
                     b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "User")
                         .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("UserId");
 
                     b.Navigation("ProviderRegistry");
 
@@ -1769,115 +1873,17 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.Navigation("UpdatedBy");
                 });
 
-            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.SettingClassSqlModel", b =>
-                {
-                    b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "CreatedBy")
-                        .WithMany()
-                        .HasForeignKey("CreatedById");
-
-                    b.HasOne("OpenSettings.Domains.Sql.Entities.SettingSqlModel", "Setting")
-                        .WithOne("SettingClass")
-                        .HasForeignKey("OpenSettings.Domains.Sql.Entities.SettingClassSqlModel", "SettingId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "UpdatedBy")
-                        .WithMany()
-                        .HasForeignKey("UpdatedById");
-
-                    b.Navigation("CreatedBy");
-
-                    b.Navigation("Setting");
-
-                    b.Navigation("UpdatedBy");
-                });
-
-            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.SettingHistorySqlModel", b =>
-                {
-                    b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "CreatedBy")
-                        .WithMany()
-                        .HasForeignKey("CreatedById");
-
-                    b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "RestoredBy")
-                        .WithMany()
-                        .HasForeignKey("RestoredById");
-
-                    b.HasOne("OpenSettings.Domains.Sql.Entities.SettingSqlModel", "Setting")
-                        .WithMany("SettingHistories")
-                        .HasForeignKey("SettingId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("CreatedBy");
-
-                    b.Navigation("RestoredBy");
-
-                    b.Navigation("Setting");
-                });
-
-            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.SettingSqlModel", b =>
-                {
-                    b.HasOne("OpenSettings.Domains.Sql.Entities.AppSqlModel", "App")
-                        .WithMany("Settings")
-                        .HasForeignKey("AppId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("OpenSettings.Domains.Sql.Entities.SettingSqlModel", "CopiedFrom")
-                        .WithMany()
-                        .HasForeignKey("CopiedFromId");
-
-                    b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "CreatedBy")
-                        .WithMany()
-                        .HasForeignKey("CreatedById");
-
-                    b.HasOne("OpenSettings.Domains.Sql.Entities.IdentifierSqlModel", "Identifier")
-                        .WithMany()
-                        .HasForeignKey("IdentifierId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "UpdatedBy")
-                        .WithMany()
-                        .HasForeignKey("UpdatedById");
-
-                    b.Navigation("App");
-
-                    b.Navigation("CopiedFrom");
-
-                    b.Navigation("CreatedBy");
-
-                    b.Navigation("Identifier");
-
-                    b.Navigation("UpdatedBy");
-                });
-
-            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.TagSqlModel", b =>
-                {
-                    b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "CreatedBy")
-                        .WithMany()
-                        .HasForeignKey("CreatedById");
-
-                    b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "UpdatedBy")
-                        .WithMany()
-                        .HasForeignKey("UpdatedById");
-
-                    b.Navigation("CreatedBy");
-
-                    b.Navigation("UpdatedBy");
-                });
-
             modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.UserClaimMappingSqlModel", b =>
                 {
-                    b.HasOne("OpenSettings.Domains.Sql.Entities.UserClaimSqlModel", "Claim")
-                        .WithMany("UserClaimMappings")
-                        .HasForeignKey("ClaimId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "CreatedBy")
                         .WithMany()
                         .HasForeignKey("CreatedById");
+
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.UserClaimSqlModel", "UserClaim")
+                        .WithMany("UserClaimMappings")
+                        .HasForeignKey("UserClaimId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "User")
                         .WithMany("UserClaimMappings")
@@ -1885,36 +1891,11 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Claim");
-
                     b.Navigation("CreatedBy");
 
                     b.Navigation("User");
-                });
 
-            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.UserGroupClaimMappingModel", b =>
-                {
-                    b.HasOne("OpenSettings.Domains.Sql.Entities.UserClaimSqlModel", "Claim")
-                        .WithMany("GroupClaimMappings")
-                        .HasForeignKey("ClaimId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "CreatedBy")
-                        .WithMany()
-                        .HasForeignKey("CreatedById");
-
-                    b.HasOne("OpenSettings.Domains.Sql.Entities.UserGroupSqlModel", "Group")
-                        .WithMany("GroupClaimMappings")
-                        .HasForeignKey("GroupId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Claim");
-
-                    b.Navigation("CreatedBy");
-
-                    b.Navigation("Group");
+                    b.Navigation("UserClaim");
                 });
 
             modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.UserGroupMappingSqlModel", b =>
@@ -1923,9 +1904,9 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         .WithMany()
                         .HasForeignKey("CreatedById");
 
-                    b.HasOne("OpenSettings.Domains.Sql.Entities.UserGroupSqlModel", "Group")
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.UserGroupSqlModel", "UserGroup")
                         .WithMany("UserGroupMappings")
-                        .HasForeignKey("GroupId")
+                        .HasForeignKey("UserGroupId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -1937,9 +1918,9 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 
                     b.Navigation("CreatedBy");
 
-                    b.Navigation("Group");
-
                     b.Navigation("User");
+
+                    b.Navigation("UserGroup");
                 });
 
             modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.UserGroupNotificationMappingSqlModel", b =>
@@ -1948,23 +1929,48 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         .WithMany()
                         .HasForeignKey("CreatedById");
 
-                    b.HasOne("OpenSettings.Domains.Sql.Entities.UserGroupSqlModel", "Group")
-                        .WithMany("GroupNotificationMappings")
-                        .HasForeignKey("GroupId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("OpenSettings.Domains.Sql.Entities.NotificationSqlModel", "Notification")
                         .WithMany("UserGroupNotificationMappings")
                         .HasForeignKey("NotificationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.UserGroupSqlModel", "UserGroup")
+                        .WithMany("UserGroupNotificationMappings")
+                        .HasForeignKey("UserGroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("CreatedBy");
 
-                    b.Navigation("Group");
-
                     b.Navigation("Notification");
+
+                    b.Navigation("UserGroup");
+                });
+
+            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.UserGroupUserClaimMappingSqlModel", b =>
+                {
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedById");
+
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.UserClaimSqlModel", "UserClaim")
+                        .WithMany("UserGroupUserClaimMappings")
+                        .HasForeignKey("UserClaimId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.UserGroupSqlModel", "UserGroup")
+                        .WithMany("UserGroupUserClaimMappings")
+                        .HasForeignKey("UserGroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CreatedBy");
+
+                    b.Navigation("UserClaim");
+
+                    b.Navigation("UserGroup");
                 });
 
             modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.UserNotificationMappingSqlModel", b =>
@@ -1992,67 +1998,11 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.UserRoleClaimMappingModel", b =>
-                {
-                    b.HasOne("OpenSettings.Domains.Sql.Entities.UserClaimSqlModel", "Claim")
-                        .WithMany("RoleClaimMappings")
-                        .HasForeignKey("ClaimId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "CreatedBy")
-                        .WithMany()
-                        .HasForeignKey("CreatedById");
-
-                    b.HasOne("OpenSettings.Domains.Sql.Entities.UserRoleSqlModel", "Role")
-                        .WithMany("RoleClaimMappings")
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Claim");
-
-                    b.Navigation("CreatedBy");
-
-                    b.Navigation("Role");
-                });
-
-            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.UserRoleGroupMappingModel", b =>
-                {
-                    b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "CreatedBy")
-                        .WithMany()
-                        .HasForeignKey("CreatedById");
-
-                    b.HasOne("OpenSettings.Domains.Sql.Entities.UserGroupSqlModel", "Group")
-                        .WithMany("RoleGroupMappings")
-                        .HasForeignKey("GroupId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("OpenSettings.Domains.Sql.Entities.UserRoleSqlModel", "Role")
-                        .WithMany("RoleGroupMappings")
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("CreatedBy");
-
-                    b.Navigation("Group");
-
-                    b.Navigation("Role");
-                });
-
             modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.UserRoleMappingSqlModel", b =>
                 {
                     b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "CreatedBy")
                         .WithMany()
                         .HasForeignKey("CreatedById");
-
-                    b.HasOne("OpenSettings.Domains.Sql.Entities.UserRoleSqlModel", "Role")
-                        .WithMany("UserRoleMappings")
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
 
                     b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "User")
                         .WithMany("UserRoleMappings")
@@ -2060,11 +2010,67 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.UserRoleSqlModel", "UserRole")
+                        .WithMany("UserRoleMappings")
+                        .HasForeignKey("UserRoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("CreatedBy");
 
-                    b.Navigation("Role");
-
                     b.Navigation("User");
+
+                    b.Navigation("UserRole");
+                });
+
+            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.UserRoleUserClaimMappingSqlModel", b =>
+                {
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedById");
+
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.UserClaimSqlModel", "UserClaim")
+                        .WithMany("UserRoleUserClaimMappings")
+                        .HasForeignKey("UserClaimId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.UserRoleSqlModel", "UserRole")
+                        .WithMany("UserRoleUserClaimMappings")
+                        .HasForeignKey("UserRoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CreatedBy");
+
+                    b.Navigation("UserClaim");
+
+                    b.Navigation("UserRole");
+                });
+
+            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.UserRoleUserGroupMappingSqlModel", b =>
+                {
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedById");
+
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.UserGroupSqlModel", "UserGroup")
+                        .WithMany("UserRoleUserGroupMappings")
+                        .HasForeignKey("UserGroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.UserRoleSqlModel", "UserRole")
+                        .WithMany("UserRoleUserGroupMappings")
+                        .HasForeignKey("UserRoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CreatedBy");
+
+                    b.Navigation("UserGroup");
+
+                    b.Navigation("UserRole");
                 });
 
             modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.AppGroupSqlModel", b =>
@@ -2072,17 +2078,29 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.Navigation("Apps");
                 });
 
+            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.AppSettingSqlModel", b =>
+                {
+                    b.Navigation("AppSettingClass");
+
+                    b.Navigation("AppSettingHistories");
+                });
+
             modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.AppSqlModel", b =>
                 {
+                    b.Navigation("AppConfigurations");
+
                     b.Navigation("AppIdentifierMappings");
 
+                    b.Navigation("AppInstances");
+
+                    b.Navigation("AppSettings");
+
                     b.Navigation("AppTagMappings");
+                });
 
-                    b.Navigation("Configurations");
-
-                    b.Navigation("Instances");
-
-                    b.Navigation("Settings");
+            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.AppTagSqlModel", b =>
+                {
+                    b.Navigation("AppTagMappings");
                 });
 
             modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.GlobalConfigurationSqlModel", b =>
@@ -2102,45 +2120,33 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.Navigation("UserNotificationMappings");
                 });
 
-            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.SettingSqlModel", b =>
-                {
-                    b.Navigation("SettingClass");
-
-                    b.Navigation("SettingHistories");
-                });
-
-            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.TagSqlModel", b =>
-                {
-                    b.Navigation("AppTagMappings");
-                });
-
             modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.UserClaimSqlModel", b =>
                 {
-                    b.Navigation("GroupClaimMappings");
-
-                    b.Navigation("RoleClaimMappings");
-
                     b.Navigation("UserClaimMappings");
+
+                    b.Navigation("UserGroupUserClaimMappings");
+
+                    b.Navigation("UserRoleUserClaimMappings");
                 });
 
             modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.UserGroupSqlModel", b =>
                 {
-                    b.Navigation("GroupClaimMappings");
-
-                    b.Navigation("GroupNotificationMappings");
-
-                    b.Navigation("RoleGroupMappings");
-
                     b.Navigation("UserGroupMappings");
+
+                    b.Navigation("UserGroupNotificationMappings");
+
+                    b.Navigation("UserGroupUserClaimMappings");
+
+                    b.Navigation("UserRoleUserGroupMappings");
                 });
 
             modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.UserRoleSqlModel", b =>
                 {
-                    b.Navigation("RoleClaimMappings");
-
-                    b.Navigation("RoleGroupMappings");
-
                     b.Navigation("UserRoleMappings");
+
+                    b.Navigation("UserRoleUserClaimMappings");
+
+                    b.Navigation("UserRoleUserGroupMappings");
                 });
 
             modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.UserSqlModel", b =>

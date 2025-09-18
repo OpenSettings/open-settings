@@ -63,20 +63,18 @@ namespace OpenSettings.Domains.Sql.Entities
         public Guid? CreatedById { get; set; }
 
         /// <summary>
+        /// The user who created this notification.
+        /// </summary>
+        public virtual UserSqlModel CreatedBy { get; set; }
+
+        /// <summary>
         /// The id of the user who last updated this notification.
         /// </summary>
         public Guid? UpdatedById { get; set; }
 
         /// <summary>
-        /// The user who created this notification.
-        /// </summary>
-        [ForeignKey(nameof(CreatedById))]
-        public virtual UserSqlModel CreatedBy { get; set; }
-
-        /// <summary>
         /// The user who last updated this notification.
         /// </summary>
-        [ForeignKey(nameof(UpdatedById))]
         public virtual UserSqlModel UpdatedBy { get; set; }
 
         /// <summary>

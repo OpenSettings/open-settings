@@ -184,6 +184,8 @@ namespace OpenSettings
 
             internal const string Dot = ".";
 
+            internal static char[] CommaArray = new char[] { CommaChar };
+
             internal const char CommaChar = ',';
 
             internal const char SpaceChar = ' ';

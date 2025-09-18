@@ -1,13 +1,11 @@
 ﻿using OpenSettings.Models;
 using System;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OpenSettings.Domains.Sql.Entities
 {
     /// <summary>
     /// Represents a license entity.
     /// </summary>
-    [Table("Licenses")]
     public class LicenseSqlModel : EntityBase<int>
     {
         /// <summary>

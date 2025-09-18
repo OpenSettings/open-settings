@@ -23,7 +23,7 @@ using System.Threading.Tasks;
 
 namespace OpenSettings.Services.Sql
 {
-    internal sealed class SettingsSqlService : ISettingsSqlService
+    internal sealed class AppSettingsSqlService : ISettingsSqlService
     {
         private readonly IDataChangeService _dataChangeService;
         private readonly IIdentifierService _identifiersService;
@@ -32,7 +32,7 @@ namespace OpenSettings.Services.Sql
         private readonly IDataValidationService _dataValidationService;
         private readonly OpenSettingsConfiguration _openSettingsConfiguration;
 
-        public SettingsSqlService(
+        public AppSettingsSqlService(
             IDataChangeService dataChangeService,
             IIdentifierService identifiersService,
             ICompressionProvider compressionProvider,
@@ -88,7 +88,7 @@ namespace OpenSettings.Services.Sql
 
         public async Task<IResponse> GetSettingsDataAsync(GetSettingsDataInput input, CancellationToken cancellationToken = default)
         {
-            var query = _context.Settings.AsNoTracking();
+            var query = _context.AppSettings.AsNoTracking();
 
             if (!string.IsNullOrWhiteSpace(input.AppId))
             {
@@ -177,12 +177,12 @@ namespace OpenSettings.Services.Sql
             var targetAppId = targetAppIdRule.GetStoredValue<int>();
             var identifierId = identifierIdRule.GetStoredValue<int>();
 
-            var sourceSetting = await _context.Settings
+            var sourceSetting = await _context.AppSettings
                 .AsNoTracking()
 #if !NETSTANDARD2_0
                 .AsSplitQuery()
 #endif
-                .Include(a => a.SettingClass)
+                .Include(a => a.AppSettingClass)
                 .Include(a => a.App).ThenInclude(a => a.AppIdentifierMappings).ThenInclude(a => a.Identifier)
                 .Where(a => a.Id == settingId)
                 .OrderBy(a => a.Id)
@@ -202,11 +202,11 @@ namespace OpenSettings.Services.Sql
                     a.RegistrationMode,
                     a.IsDraft,
                     a.IdentifierId,
-                    a.SettingClass.Namespace,
-                    a.SettingClass.Name,
-                    a.SettingClass.FullName,
-                    a.SettingClass.Identifier,
-                    a.SettingClass.Properties,
+                    a.AppSettingClass.Namespace,
+                    a.AppSettingClass.Name,
+                    a.AppSettingClass.FullName,
+                    a.AppSettingClass.Identifier,
+                    a.AppSettingClass.Properties,
                     Identifiers = a.App.AppIdentifierMappings.Select(m => new { m.IdentifierId, m.Identifier.Name, m.Identifier.SortOrder, MappingSortOrder = m.SortOrder }).ToArray(),
                 }).FirstOrDefaultAsync(cancellationToken);
 
@@ -346,12 +346,12 @@ namespace OpenSettings.Services.Sql
                 });
             }
 
-            var configuration = await _context.Configurations.AsNoTracking()
+            var configuration = await _context.AppConfigurations.AsNoTracking()
                 .AnyAsync(c => c.AppId == targetAppId && c.IdentifierId == identifierId, cancellationToken);
 
             if (!configuration)
             {
-                app.Configurations.Add(new ConfigurationSqlModel
+                app.AppConfigurations.Add(new AppConfigurationSqlModel
                 {
                     StoreInSeparateFile = false,
                     IgnoreOnFileChange = false,
@@ -366,7 +366,7 @@ namespace OpenSettings.Services.Sql
                 });
             }
 
-            var newSetting = new SettingSqlModel
+            var newSetting = new AppSettingSqlModel
             {
                 Data = sourceSetting.Data,
                 ComputedIdentifier = sourceSetting.ComputedIdentifier,
@@ -389,7 +389,7 @@ namespace OpenSettings.Services.Sql
                 UpdatedById = null,
                 RowVersion = Array.Empty<byte>(),
                 CreatedOn = currentTime,
-                SettingClass = new SettingClassSqlModel
+                AppSettingClass = new AppSettingClassSqlModel
                 {
                     Namespace = sourceSetting.Namespace,
                     Name = sourceSetting.Name,
@@ -399,7 +399,7 @@ namespace OpenSettings.Services.Sql
                 }
             };
 
-            app.Settings.Add(newSetting);
+            app.AppSettings.Add(newSetting);
 
             await _context.SaveChangesAsync(cancellationToken);
 
@@ -418,7 +418,7 @@ namespace OpenSettings.Services.Sql
                 {
                     Id = $"{newSetting.Id}",
                     ComputedIdentifier = sourceSetting.ComputedIdentifier,
-                    ClassId = $"{newSetting.SettingClass.Id}"
+                    ClassId = $"{newSetting.AppSettingClass.Id}"
                 }
             });
         }
@@ -434,7 +434,7 @@ namespace OpenSettings.Services.Sql
 
             var settingId = settingIdValidationRule.GetStoredValue<int>();
 
-            var entity = await _context.Settings
+            var entity = await _context.AppSettings
                 .AsNoTracking()
 #if !NETSTANDARD2_0
                 .AsSplitQuery()
@@ -481,19 +481,19 @@ namespace OpenSettings.Services.Sql
 
             var settingId = settingIdValidationRule.GetStoredValue<int>();
 
-            var entity = await _context.Settings
+            var entity = await _context.AppSettings
                 .AsNoTracking()
 #if !NETSTANDARD2_0
                 .AsSplitQuery()
 #endif
-                .Include(a => a.SettingClass)
+                .Include(a => a.AppSettingClass)
                 .Where(a => a.Id == settingId)
                 .OrderBy(a => a.Id)
                 .Select(a => new
                 {
                     a.CompressionType,
                     a.Data,
-                    a.SettingClass.Properties
+                    a.AppSettingClass.Properties
                 })
                 .FirstOrDefaultAsync(cancellationToken);
 
@@ -544,11 +544,11 @@ namespace OpenSettings.Services.Sql
 
             var settingId = settingIdValidationRule.GetStoredValue<int>();
 
-            var entity = await _context.Settings
+            var entity = await _context.AppSettings
                 .AsNoTracking()
                 .Where(s => s.Id == settingId)
                 .OrderBy(s => s.Id)
-                .Select(s => new SettingSqlModel
+                .Select(s => new AppSettingSqlModel
                 {
                     Id = settingId,
                     RowVersion = s.RowVersion
@@ -565,7 +565,21 @@ namespace OpenSettings.Services.Sql
                 return FailureResponses.Conflict($"{entity.Id}", entity.RowVersion, input.RowVersion, false);
             }
 
-            _context.Settings.Remove(entity);
+            var appSettings = await _context.AppSettings.AsNoTracking().Where(a => a.CopiedFromId == settingId).Select(a => new AppSettingSqlModel { Id = a.Id }).ToArrayAsync(cancellationToken);
+
+            if (appSettings.Length > 0)
+            {
+                foreach (var appSetting in appSettings)
+                {
+                    var entry = _context.Entry(appSetting);
+                    appSetting.CopiedFromId = null;
+                    entry.Property(e => e.CopiedFromId).IsModified = true;
+                }
+
+                await _context.SaveChangesAsync(cancellationToken);
+            }
+
+            _context.AppSettings.Remove(entity);
 
             await _context.SaveChangesAsync(cancellationToken);
 
@@ -581,13 +595,13 @@ namespace OpenSettings.Services.Sql
 #if !NETSTANDARD2_0
                 .AsSplitQuery()
 #endif
-                .Include(a => a.Settings).ThenInclude(s => s.Identifier)
-                .Include(a => a.Settings).ThenInclude(s => s.SettingClass)
+                .Include(a => a.AppSettings).ThenInclude(s => s.Identifier)
+                .Include(a => a.AppSettings).ThenInclude(s => s.AppSettingClass)
                 .Where(a => a.ClientId == input.ClientId)
                 .OrderBy(a => a.Id)
                 .Select(a => new
                 {
-                    Settings = a.Settings
+                    Settings = a.AppSettings
                         .Where(s => s.Identifier.NameLowercase == input.IdentifierName && input.LastUpdatedOn.HasValue ? s.UpdatedOn > input.LastUpdatedOn : s.UpdatedOn.HasValue)
                         .Select(s => new { s.ComputedIdentifier, s.UpdatedOn })
                         .ToArray()
@@ -619,12 +633,12 @@ namespace OpenSettings.Services.Sql
 
             var isDataExcluded = input.Excludes.Contains("data");
 
-            var entity = await _context.Settings
+            var entity = await _context.AppSettings
                 .AsNoTracking()
 #if !NETSTANDARD2_0
                 .AsSplitQuery()
 #endif
-                .Include(s => s.SettingClass)
+                .Include(s => s.AppSettingClass)
                 .Where(s => s.Id == settingId)
                 .OrderBy(s => s.Id)
                 .Select(s => new
@@ -641,11 +655,11 @@ namespace OpenSettings.Services.Sql
                     s.ComputedIdentifier,
                     s.Version,
                     SettingRowVersion = s.RowVersion,
-                    ClassId = s.SettingClass.Id,
-                    ClassNamespace = s.SettingClass.Namespace,
-                    ClassName = s.SettingClass.Name,
-                    ClassFullName = s.SettingClass.FullName,
-                    ClassRowVersion = s.SettingClass.RowVersion
+                    ClassId = s.AppSettingClass.Id,
+                    ClassNamespace = s.AppSettingClass.Namespace,
+                    ClassName = s.AppSettingClass.Name,
+                    ClassFullName = s.AppSettingClass.FullName,
+                    ClassRowVersion = s.AppSettingClass.RowVersion
                 })
                 .FirstOrDefaultAsync(cancellationToken);
 
@@ -685,21 +699,21 @@ namespace OpenSettings.Services.Sql
 
             var settingId = settingIdValidationRule.GetStoredValue<int>();
 
-            var entity = await _context.Settings
+            var entity = await _context.AppSettings
                 .AsNoTracking()
-                .Include(s => s.SettingClass)
+                .Include(s => s.AppSettingClass)
                 .Where(s => s.Id == settingId)
                 .OrderBy(s => s.Id)
-                .Select(s => new SettingSqlModel
+                .Select(s => new AppSettingSqlModel
                 {
                     Id = settingId,
                     ComputedIdentifier = s.ComputedIdentifier,
                     AppId = s.AppId,
                     IdentifierId = s.IdentifierId,
-                    SettingClass = new SettingClassSqlModel
+                    AppSettingClass = new AppSettingClassSqlModel
                     {
-                        Id = s.SettingClass.Id,
-                        RowVersion = s.SettingClass.RowVersion
+                        Id = s.AppSettingClass.Id,
+                        RowVersion = s.AppSettingClass.RowVersion
                     },
                     RowVersion = s.RowVersion
                 }).FirstOrDefaultAsync(cancellationToken);
@@ -722,12 +736,12 @@ namespace OpenSettings.Services.Sql
                 });
             }
 
-            if (!input.ClassRowVersion.SequenceEqual(entity.SettingClass.RowVersion))
+            if (!input.ClassRowVersion.SequenceEqual(entity.AppSettingClass.RowVersion))
             {
                 conflicts.Add(new ConflictModel
                 {
                     Id = "ClassId",
-                    CurrentRowVersion = entity.SettingClass.RowVersion,
+                    CurrentRowVersion = entity.AppSettingClass.RowVersion,
                     ProposedRowVersion = input.ClassRowVersion,
                     Deleted = false
                 });
@@ -740,7 +754,7 @@ namespace OpenSettings.Services.Sql
 
             if (input.ComputedIdentifier != entity.ComputedIdentifier)
             {
-                var hasDuplicateComputedIdentifier = await _context.Settings.AsNoTracking()
+                var hasDuplicateComputedIdentifier = await _context.AppSettings.AsNoTracking()
                     .Where(s => s.AppId == entity.AppId && s.IdentifierId == entity.IdentifierId &&
                                 s.ComputedIdentifier == input.ComputedIdentifier).AnyAsync(cancellationToken);
 
@@ -750,16 +764,16 @@ namespace OpenSettings.Services.Sql
                 }
             }
 
-            var identicalClassNameSettings = await _context.Settings
+            var identicalClassNameSettings = await _context.AppSettings
                 .AsNoTracking()
-                .Include(s => s.SettingClass)
+                .Include(s => s.AppSettingClass)
                 .Where(s =>
                     s.Id != entity.Id &&
                     s.AppId == entity.AppId &&
                     s.IdentifierId == entity.IdentifierId &&
-                    s.SettingClass.Name == input.ClassName)
+                    s.AppSettingClass.Name == input.ClassName)
                 .OrderBy(s => s.Id)
-                .Select(s => new SettingSqlModel
+                .Select(s => new AppSettingSqlModel
                 {
                     Id = s.Id,
                     IgnoreOnFileChange = s.IgnoreOnFileChange,
@@ -808,17 +822,17 @@ namespace OpenSettings.Services.Sql
                 }
             }
 
-            _context.Settings.Attach(entity);
+            _context.AppSettings.Attach(entity);
 
             var currentTime = DateTime.UtcNow;
             var rowVersion = currentTime.ToRowVersion();
 
-            entity.SettingClass.Namespace = input.ClassNamespace;
-            entity.SettingClass.Name = input.ClassName;
-            entity.SettingClass.FullName = input.ClassFullName;
-            entity.SettingClass.UpdatedOn = currentTime;
-            entity.SettingClass.UpdatedById = input.UpdatedById;
-            entity.SettingClass.RowVersion = rowVersion;
+            entity.AppSettingClass.Namespace = input.ClassNamespace;
+            entity.AppSettingClass.Name = input.ClassName;
+            entity.AppSettingClass.FullName = input.ClassFullName;
+            entity.AppSettingClass.UpdatedOn = currentTime;
+            entity.AppSettingClass.UpdatedById = input.UpdatedById;
+            entity.AppSettingClass.RowVersion = rowVersion;
 
             entity.ComputedIdentifier = input.ComputedIdentifier;
             entity.DataValidationDisabled = input.DataValidationDisabled;
@@ -829,7 +843,7 @@ namespace OpenSettings.Services.Sql
             entity.RegistrationMode = input.RegistrationMode;
             entity.RowVersion = rowVersion;
 
-            _context.MarkAsModified(entity.SettingClass,
+            _context.MarkAsModified(entity.AppSettingClass,
                 e => e.Namespace,
                 e => e.Name,
                 e => e.FullName,
@@ -871,21 +885,21 @@ namespace OpenSettings.Services.Sql
 
             var entity = await _context.Apps
                 .AsNoTracking()
-                .Include(a => a.Settings).ThenInclude(s => s.SettingClass)
+                .Include(a => a.AppSettings).ThenInclude(s => s.AppSettingClass)
                 .Where(a => a.Id == appId)
                 .OrderBy(a => a.Id)
                 .Select(a => new AppSqlModel
                 {
-                    Settings = a.Settings.Select(s => new SettingSqlModel
+                    AppSettings = a.AppSettings.Select(s => new AppSettingSqlModel
                     {
                         Id = s.Id,
                         ComputedIdentifier = s.ComputedIdentifier,
                         IdentifierId = s.IdentifierId,
                         IgnoreOnFileChange = s.IgnoreOnFileChange,
                         RowVersion = s.RowVersion,
-                        SettingClass = new SettingClassSqlModel
+                        AppSettingClass = new AppSettingClassSqlModel
                         {
-                            Name = s.SettingClass.Name
+                            Name = s.AppSettingClass.Name
                         }
                     }).ToList()
                 }).FirstOrDefaultAsync(cancellationToken);
@@ -895,11 +909,11 @@ namespace OpenSettings.Services.Sql
                 return HttpStatusCode.NotFound.ToFailureResponse(Errors.AppNotFound);
             }
 
-            if (entity.Settings.Count > 0)
+            if (entity.AppSettings.Count > 0)
             {
                 var hasChanges = false;
 
-                foreach (var entitySetting in entity.Settings)
+                foreach (var entitySetting in entity.AppSettings)
                 {
                     if (entitySetting.IdentifierId == identifierId &&
                         entitySetting.ComputedIdentifier == input.ComputedIdentifier)
@@ -907,7 +921,7 @@ namespace OpenSettings.Services.Sql
                         return HttpStatusCode.BadRequest.ToFailureResponse(Errors.DuplicateSetting);
                     }
 
-                    if (entitySetting.SettingClass.Name != input.ClassName ||
+                    if (entitySetting.AppSettingClass.Name != input.ClassName ||
                         entitySetting.IgnoreOnFileChange != true)
                     {
                         continue;
@@ -945,11 +959,11 @@ namespace OpenSettings.Services.Sql
 
             entity.Id = appId;
 
-            entity.Settings.Clear();
+            entity.AppSettings.Clear();
 
             _context.Apps.Attach(entity);
 
-            var setting = new SettingSqlModel
+            var setting = new AppSettingSqlModel
             {
                 CompressionType = _openSettingsConfiguration.Provider.CompressionType,
                 CompressionLevel = _openSettingsConfiguration.Provider.CompressionLevel,
@@ -962,7 +976,7 @@ namespace OpenSettings.Services.Sql
                 StoreInSeparateFile = input.StoreInSeparateFile,
                 IgnoreOnFileChange = input.StoreInSeparateFile ? input.IgnoreOnFileChange.GetValueOrDefault(false) : (bool?)null,
                 RegistrationMode = input.RegistrationMode,
-                SettingClass = new SettingClassSqlModel
+                AppSettingClass = new AppSettingClassSqlModel
                 {
                     Name = input.ClassName ?? string.Empty,
                     FullName = input.ClassFullName ?? string.Empty,
@@ -972,14 +986,14 @@ namespace OpenSettings.Services.Sql
                 }
             };
 
-            entity.Settings.Add(setting);
+            entity.AppSettings.Add(setting);
 
             await _context.SaveChangesAsync(cancellationToken);
 
             return HttpStatusCode.OK.ToSuccessResponse(new CreateSettingResponse
             {
                 SettingId = $"{setting.Id}",
-                ClassId = $"{setting.SettingClass.Id}"
+                ClassId = $"{setting.AppSettingClass.Id}"
             });
         }
 
@@ -999,14 +1013,14 @@ namespace OpenSettings.Services.Sql
 
             var jsonDocument = validJsonRule.GetStoredValue<JsonDocument>();
 
-            var entity = await _context.Settings
+            var entity = await _context.AppSettings
                 .AsNoTracking()
                 .Include(a => a.App)
-                .Include(a => a.SettingClass)
+                .Include(a => a.AppSettingClass)
                 .Include(a => a.Identifier)
                 .Where(a => a.Id == settingId)
                 .OrderBy(a => a.Id)
-                .Select(a => new SettingSqlModel
+                .Select(a => new AppSettingSqlModel
                 {
                     Id = settingId,
                     CompressionType = a.CompressionType,
@@ -1023,10 +1037,10 @@ namespace OpenSettings.Services.Sql
                         Id = a.App.Id,
                         ClientId = a.App.ClientId
                     },
-                    SettingClass = new SettingClassSqlModel
+                    AppSettingClass = new AppSettingClassSqlModel
                     {
                         Id = a.Id,
-                        Properties = a.SettingClass.Properties
+                        Properties = a.AppSettingClass.Properties
                     },
                     Identifier = new IdentifierSqlModel
                     {
@@ -1052,7 +1066,7 @@ namespace OpenSettings.Services.Sql
                 return HttpStatusCode.BadRequest.ToFailureResponse<UpdateSettingDataResponse, Errors>(Errors.NoChanges);
             }
 
-            if (!entity.DataValidationDisabled && !_dataValidationService.IsDataMappingValid(jsonDocument, entity.SettingClass.Properties))
+            if (!entity.DataValidationDisabled && !_dataValidationService.IsDataMappingValid(jsonDocument, entity.AppSettingClass.Properties))
             {
                 return HttpStatusCode.BadRequest.ToFailureResponse<UpdateSettingDataResponse, Errors>(Errors.InvalidSettingData);
             }
@@ -1063,11 +1077,11 @@ namespace OpenSettings.Services.Sql
 
             var previousVersion = entity.Version;
 
-            _context.Settings.Attach(entity);
+            _context.AppSettings.Attach(entity);
 
             if (!entity.DataRestored)
             {
-                var history = new SettingHistorySqlModel
+                var history = new AppSettingHistorySqlModel
                 {
                     CompressionType = entity.CompressionType,
                     CompressionLevel = entity.CompressionLevel,
@@ -1078,7 +1092,7 @@ namespace OpenSettings.Services.Sql
                     CreatedById = input.UpdatedById
                 };
 
-                entity.SettingHistories.Add(history);
+                entity.AppSettingHistories.Add(history);
             }
 
             entity.CompressionType = _openSettingsConfiguration.Provider.CompressionType;
@@ -1120,12 +1134,12 @@ namespace OpenSettings.Services.Sql
 #if !NETSTANDARD2_0
                 .AsSplitQuery()
 #endif
-                .Include(a => a.Settings).ThenInclude(a => a.SettingClass)
+                .Include(a => a.AppSettings).ThenInclude(a => a.AppSettingClass)
                 .Where(predicate)
                 .OrderBy(a => a.Id)
                 .Select(a => new
                 {
-                    Settings = a.Settings.Where(s => s.IdentifierId == identifierId).Select(s => new GetSettingsByAppAndIdentifierResponseSetting
+                    Settings = a.AppSettings.Where(s => s.IdentifierId == identifierId).Select(s => new GetSettingsByAppAndIdentifierResponseSetting
                     {
                         Id = $"{s.Id}",
                         ComputedIdentifier = s.ComputedIdentifier,
@@ -1134,10 +1148,10 @@ namespace OpenSettings.Services.Sql
                         DataRestored = s.DataRestored,
                         Class = new GetSettingsByAppAndIdentifierResponseSettingClass
                         {
-                            Id = $"{s.SettingClass.Id}",
-                            Name = s.SettingClass.Name,
-                            Namespace = s.SettingClass.Namespace,
-                            FullName = s.SettingClass.FullName
+                            Id = $"{s.AppSettingClass.Id}",
+                            Name = s.AppSettingClass.Name,
+                            Namespace = s.AppSettingClass.Namespace,
+                            FullName = s.AppSettingClass.FullName
                         }
                     }).ToArray()
                 }).FirstOrDefaultAsync(cancellationToken);
@@ -1152,7 +1166,7 @@ namespace OpenSettings.Services.Sql
 
         private async Task<bool> HasSomeSettingAsync(int appId, int IdentifierId, Guid computedIdentifier, CancellationToken cancellationToken)
         {
-            return await _context.Settings
+            return await _context.AppSettings
                 .AsNoTracking()
                 .Where(a => a.AppId == appId &&
                             a.ComputedIdentifier == computedIdentifier &&

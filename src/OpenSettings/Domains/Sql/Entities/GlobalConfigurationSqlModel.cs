@@ -57,9 +57,20 @@ namespace OpenSettings.Domains.Sql.Entities
         public string Version { get; set; }
 
         /// <summary>
+        /// A concurrency token used for tracking changes.  
+        /// Helps prevent conflicts during concurrent updates.
+        /// </summary>
+        public byte[] RowVersion { get; set; } = Array.Empty<byte>();
+
+        /// <summary>
         /// The id of the user who created this global configuration.
         /// </summary>
         public Guid? CreatedById { get; set; }
+
+        /// <summary>
+        /// The user who created this setting.
+        /// </summary>
+        public virtual UserSqlModel CreatedBy { get; set; }
 
         /// <summary>
         /// The id of the user who last updated this global configuration.
@@ -67,23 +78,10 @@ namespace OpenSettings.Domains.Sql.Entities
         public Guid? UpdatedById { get; set; }
 
         /// <summary>
-        /// A concurrency token used for tracking changes.  
-        /// Helps prevent conflicts during concurrent updates.
-        /// </summary>
-        public byte[] RowVersion { get; set; } = Array.Empty<byte>();
-
-        public virtual List<GlobalConfigurationHistorySqlModel> GlobalConfigurationHistories { get; set; } = new List<GlobalConfigurationHistorySqlModel>();
-
-        /// <summary>
-        /// The user who created this setting.
-        /// </summary>
-        [ForeignKey(nameof(CreatedById))]
-        public virtual UserSqlModel CreatedBy { get; set; }
-
-        /// <summary>
         /// The user who last updated this setting.
         /// </summary>
-        [ForeignKey(nameof(UpdatedById))]
         public virtual UserSqlModel UpdatedBy { get; set; }
+
+        public virtual ICollection<GlobalConfigurationHistorySqlModel> GlobalConfigurationHistories { get; set; } = new List<GlobalConfigurationHistorySqlModel>();
     }
 }

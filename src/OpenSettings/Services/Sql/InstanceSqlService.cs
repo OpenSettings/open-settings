@@ -39,7 +39,7 @@ namespace OpenSettings.Services.Sql
 #if !NETSTANDARD2_0
                 .AsSplitQuery()
 #endif
-                .Include(a => a.Instances).ThenInclude(i => i.Identifier)
+                .Include(a => a.AppInstances).ThenInclude(i => i.Identifier)
                 .Include(a => a.AppIdentifierMappings).ThenInclude(m => m.Identifier)
                 .Where(a => a.ClientId == input.ClientId)
                 .OrderBy(a => a.Id)
@@ -53,7 +53,7 @@ namespace OpenSettings.Services.Sql
                         {
                             IdentifierId = m.Id
                         }).FirstOrDefault(),
-                    IsInstanceExists = a.Instances.Any(i => i.NameLowercase == trimmedInstanceNameLowercase && i.Identifier.NameLowercase == identifierNameLowercase)
+                    IsInstanceExists = a.AppInstances.Any(i => i.NameLowercase == trimmedInstanceNameLowercase && i.Identifier.NameLowercase == identifierNameLowercase)
                 }).FirstOrDefaultAsync(cancellationToken);
 
             if (entity == null)
@@ -78,7 +78,7 @@ namespace OpenSettings.Services.Sql
                 return HttpStatusCode.NotFound.ToFailureResponse(Errors.AppIdentifierMappingNotFound);
             }
 
-            _context.Instances.Add(new InstanceSqlModel
+            _context.AppInstances.Add(new AppInstanceSqlModel
             {
                 Name = trimmedInstanceName,
                 NameLowercase = trimmedInstanceNameLowercase,
@@ -114,14 +114,14 @@ namespace OpenSettings.Services.Sql
 #if !NETSTANDARD2_0
                 .AsSplitQuery()
 #endif
-                .Include(a => a.Instances).ThenInclude(i => i.Identifier)
+                .Include(a => a.AppInstances).ThenInclude(i => i.Identifier)
                 .Where(a => a.ClientId == input.ClientId)
                 .OrderBy(a => a.Id)
                 .Select(a => new
                 {
                     a.HashedClientSecret,
-                    Instance = a.Instances.Where(i => i.NameLowercase == trimmedInstanceNameLowercase && i.Identifier.NameLowercase == identifierNameLowercase)
-                        .Select(i => new InstanceSqlModel
+                    Instance = a.AppInstances.Where(i => i.NameLowercase == trimmedInstanceNameLowercase && i.Identifier.NameLowercase == identifierNameLowercase)
+                        .Select(i => new AppInstanceSqlModel
                         {
                             Id = i.Id
                         }).FirstOrDefault()
@@ -144,7 +144,7 @@ namespace OpenSettings.Services.Sql
                 return HttpStatusCode.NotFound.ToFailureResponse(Errors.InstanceNotFound);
             }
 
-            _context.Instances.Attach(entity.Instance);
+            _context.AppInstances.Attach(entity.Instance);
 
             _context.MarkAsModified(entity.Instance,
                 e => e.Urls,
@@ -176,8 +176,8 @@ namespace OpenSettings.Services.Sql
 
             var instanceId = instanceIdRule.GetStoredValue<int>();
 
-            var entity = await _context.Instances.AsNoTracking().Where(i => i.Id == instanceId).OrderBy(i => i.Id)
-                .Select(i => new InstanceSqlModel
+            var entity = await _context.AppInstances.AsNoTracking().Where(i => i.Id == instanceId).OrderBy(i => i.Id)
+                .Select(i => new AppInstanceSqlModel
                 {
                     Id = instanceId
                 }).FirstOrDefaultAsync(cancellationToken);
@@ -187,7 +187,7 @@ namespace OpenSettings.Services.Sql
                 return HttpStatusCode.NotFound.ToFailureResponse(Errors.InstanceNotFound);
             }
 
-            _context.Instances.Remove(entity);
+            _context.AppInstances.Remove(entity);
 
             await _context.SaveChangesAsync(cancellationToken);
 
@@ -263,11 +263,11 @@ namespace OpenSettings.Services.Sql
 #if !NETSTANDARD2_0
                 .AsSplitQuery()
 #endif
-                .Include(a => a.Instances)
+                .Include(a => a.AppInstances)
                 .Where(predicate)
                 .Select(a => new
                 {
-                    Instances = a.Instances.Where(i => i.IdentifierId == identifierId).Select(i =>
+                    Instances = a.AppInstances.Where(i => i.IdentifierId == identifierId).Select(i =>
                         new GetInstancesResponseInstance
                         {
                             Id = $"{i.Id}",
@@ -301,15 +301,15 @@ namespace OpenSettings.Services.Sql
 #if !NETSTANDARD2_0
                 .AsSplitQuery()
 #endif
-                .Include(a => a.Instances)
+                .Include(a => a.AppInstances)
                 .Where(predicate)
                 .OrderBy(a => a.Id)
                 .Select(a => new
                 {
                     Instances = isValidIdentifierId
-                        ? a.Instances.Where(i => i.IdentifierId == identifierId).Select(i =>
+                        ? a.AppInstances.Where(i => i.IdentifierId == identifierId).Select(i =>
                             MapToGetInstancesResponseInstance(i, input.IdentifierIdOrSlug)).ToArray()
-                        : a.Instances.Select(i => MapToGetInstancesResponseInstance(i, input.IdentifierIdOrSlug))
+                        : a.AppInstances.Select(i => MapToGetInstancesResponseInstance(i, input.IdentifierIdOrSlug))
                             .ToArray()
 
                 }).FirstOrDefaultAsync(cancellationToken);
@@ -319,23 +319,23 @@ namespace OpenSettings.Services.Sql
                 : HttpStatusCode.OK.ToSuccessResponse(entity.Instances);
         }
 
-        private static GetInstancesResponseInstance MapToGetInstancesResponseInstance(InstanceSqlModel instance, string identifierId)
+        private static GetInstancesResponseInstance MapToGetInstancesResponseInstance(AppInstanceSqlModel appInstance, string identifierId)
         {
             return new GetInstancesResponseInstance
             {
-                Id = $"{instance.Id}",
-                DynamicId = instance.DynamicId,
+                Id = $"{appInstance.Id}",
+                DynamicId = appInstance.DynamicId,
                 IdentifierId = identifierId,
-                Name = instance.Name,
-                Urls = instance.Urls,
-                IsActive = instance.IsActive,
-                MachineName = instance.MachineName,
-                ReloadStrategies = instance.ReloadStrategies,
-                ServiceType = instance.ServiceType,
-                Version = instance.Version,
-                PackVersion = instance.PackVersion,
-                CreatedOn = instance.CreatedOn,
-                UpdatedOn = instance.UpdatedOn
+                Name = appInstance.Name,
+                Urls = appInstance.Urls,
+                IsActive = appInstance.IsActive,
+                MachineName = appInstance.MachineName,
+                ReloadStrategies = appInstance.ReloadStrategies,
+                ServiceType = appInstance.ServiceType,
+                Version = appInstance.Version,
+                PackVersion = appInstance.PackVersion,
+                CreatedOn = appInstance.CreatedOn,
+                UpdatedOn = appInstance.UpdatedOn
             };
         }
     }

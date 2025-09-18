@@ -90,14 +90,14 @@ namespace OpenSettings.Services.Sql
 #if !NETSTANDARD2_0
                 .AsSplitQuery()
 #endif
-                .Include(a => a.Configurations)
+                .Include(a => a.AppConfigurations)
                 .Include(a => a.AppIdentifierMappings)
                 .Where(a => a.Id == appId)
                 .Select(a => new AppSqlModel
                 {
                     Id = appId,
                     AppIdentifierMappings = a.AppIdentifierMappings.Where(m => m.IdentifierId == identifierId).ToList(),
-                    Configurations = a.Configurations.Where(c => c.IdentifierId == identifierId).ToList()
+                    AppConfigurations = a.AppConfigurations.Where(c => c.IdentifierId == identifierId).ToList()
                 })
                 .FirstOrDefaultAsync(cancellationToken);
 
@@ -115,9 +115,9 @@ namespace OpenSettings.Services.Sql
 
             var currentTime = DateTime.UtcNow;
 
-            if (app.Configurations.Count != 1)
+            if (app.AppConfigurations.Count != 1)
             {
-                app.Configurations.Add(new ConfigurationSqlModel
+                app.AppConfigurations.Add(new AppConfigurationSqlModel
                 {
                     StoreInSeparateFile = false,
                     IgnoreOnFileChange = false,

@@ -1,12 +1,10 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OpenSettings.Domains.Sql.Entities
 {
     /// <summary>
     /// Represents a user role entity.
     /// </summary>
-    [Table("UserRoles")]
     public class UserRoleSqlModel : EntityBase<int>
     {
         /// <summary>
@@ -28,7 +26,7 @@ namespace OpenSettings.Domains.Sql.Entities
         /// <summary>
         /// The collection of user role-claim mappings associated with this user role.
         /// </summary>
-        public virtual ICollection<UserRoleClaimMappingModel> RoleClaimMappings { get; set; } = new List<UserRoleClaimMappingModel>();
+        public virtual ICollection<UserRoleUserClaimMappingSqlModel> UserRoleUserClaimMappings { get; set; } = new List<UserRoleUserClaimMappingSqlModel>();
 
         /// <summary>
         /// The collection of user-role mappings associated with this user role.
@@ -38,6 +36,6 @@ namespace OpenSettings.Domains.Sql.Entities
         /// <summary>
         /// The collection of role-group mappings associated with this user role.
         /// </summary>
-        public virtual ICollection<UserRoleGroupMappingModel> RoleGroupMappings { get; set; } = new List<UserRoleGroupMappingModel>();
+        public virtual ICollection<UserRoleUserGroupMappingSqlModel> UserRoleUserGroupMappings { get; set; } = new List<UserRoleUserGroupMappingSqlModel>();
     }
 }

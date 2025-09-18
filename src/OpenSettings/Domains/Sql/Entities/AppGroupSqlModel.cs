@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OpenSettings.Domains.Sql.Entities
 {
     /// <summary>
     /// Represents an app group entity.
     /// </summary>
-    [Table("AppGroups")]
     public class AppGroupSqlModel : EntityBase<int>, IOrderedEntity
     {
         /// <summary>
@@ -27,16 +25,6 @@ namespace OpenSettings.Domains.Sql.Entities
         public string Slug { get; set; }
 
         /// <summary>
-        /// The id of the user who created this app group.
-        /// </summary>
-        public Guid? CreatedById { get; set; }
-
-        /// <summary>
-        /// The id of the user who last updated this app group.
-        /// </summary>
-        public Guid? UpdatedById { get; set; }
-
-        /// <summary>
         /// The sort order of this app group in a list.
         /// </summary>
         public int SortOrder { get; set; }
@@ -48,20 +36,28 @@ namespace OpenSettings.Domains.Sql.Entities
         public byte[] RowVersion { get; set; } = Array.Empty<byte>();
 
         /// <summary>
-        /// The list of apps associated with this app group.
+        /// The id of the user who created this app group.
         /// </summary>
-        public virtual ICollection<AppSqlModel> Apps { get; set; } = new List<AppSqlModel>();
+        public Guid? CreatedById { get; set; }
 
         /// <summary>
         /// The user who created this app group.
         /// </summary>
-        [ForeignKey(nameof(CreatedById))]
         public virtual UserSqlModel CreatedBy { get; set; }
+
+        /// <summary>
+        /// The id of the user who last updated this app group.
+        /// </summary>
+        public Guid? UpdatedById { get; set; }
 
         /// <summary>
         /// The user who last updated this app group.
         /// </summary>
-        [ForeignKey(nameof(UpdatedById))]
         public virtual UserSqlModel UpdatedBy { get; set; }
+
+        /// <summary>
+        /// The list of apps associated with this app group.
+        /// </summary>
+        public virtual ICollection<AppSqlModel> Apps { get; set; } = new List<AppSqlModel>();
     }
 }

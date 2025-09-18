@@ -68,8 +68,5 @@ namespace OpenSettings.Domains.Sql.Entities
         /// Used for determining availability and liveness.
         /// </summary>
         public DateTime LastHeartbeatOn { get; set; }
-
-        [NotMapped]
-        public override DateTime? UpdatedOn { get; set; }
     }
 }

@@ -1,10 +1,8 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OpenSettings.Domains.Sql.Entities
 {
-    [Table("DataProtectionKeys")]
-    public class DataProtectionKey : EntityBase<int>
+    public class DataProtectionKeySqlModel : EntityBase<int>
     {
         public Guid KeyId { get; set; }
 
@@ -14,12 +12,12 @@ namespace OpenSettings.Domains.Sql.Entities
         public string MasterKey { get; set; }
 
         /// <summary>
-        /// The friendly name of the <see cref="DataProtectionKey"/>.
+        /// The friendly name of the <see cref="DataProtectionKeySqlModel"/>.
         /// </summary>
         public string FriendlyName { get; set; }
 
         /// <summary>
-        /// The XML representation of the <see cref="DataProtectionKey"/>.
+        /// The XML representation of the <see cref="DataProtectionKeySqlModel"/>.
         /// </summary>
         public string Xml { get; set; }
 

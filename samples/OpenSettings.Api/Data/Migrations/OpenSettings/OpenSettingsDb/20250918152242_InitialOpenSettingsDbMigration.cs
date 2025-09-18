@@ -167,6 +167,7 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     GivenName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     GivenNameLowercase = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     MiddleName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    MiddleNameLowercase = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     FamilyName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     FamilyNameLowercase = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     FullName = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -195,12 +196,12 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    NameLowercase = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    NameLowercase = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Slug = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    UpdatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     SortOrder = table.Column<int>(type: "int", nullable: false),
                     RowVersion = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
+                    CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    UpdatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
@@ -214,6 +215,37 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_AppGroups_Users_UpdatedById",
+                        column: x => x.UpdatedById,
+                        principalTable: "Users",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AppTags",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    NameLowercase = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    Slug = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    SortOrder = table.Column<int>(type: "int", nullable: false),
+                    RowVersion = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
+                    CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    UpdatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AppTags", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AppTags_Users_CreatedById",
+                        column: x => x.CreatedById,
+                        principalTable: "Users",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_AppTags_Users_UpdatedById",
                         column: x => x.UpdatedById,
                         principalTable: "Users",
                         principalColumn: "Id");
@@ -234,9 +266,9 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     CompressionType = table.Column<int>(type: "int", nullable: false),
                     CompressionLevel = table.Column<int>(type: "int", nullable: false),
                     Version = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    RowVersion = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
                     CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     UpdatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
@@ -264,10 +296,10 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     NameLowercase = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     Slug = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    UpdatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     SortOrder = table.Column<int>(type: "int", nullable: false),
                     RowVersion = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
+                    CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    UpdatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
@@ -294,8 +326,6 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     StateId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Issuer = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Audience = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ProviderRegistryId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     RemoteIpAddress = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     UserAgent = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     AuthType = table.Column<int>(type: "int", nullable: false),
@@ -307,6 +337,8 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     Scopes = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     IsSuccessful = table.Column<bool>(type: "bit", nullable: false),
                     Metadata = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    ProviderRegistryId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
@@ -323,8 +355,7 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         name: "FK_LoginEntries_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.SetNull);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -362,51 +393,20 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 });
 
             migrationBuilder.CreateTable(
-                name: "Tags",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    NameLowercase = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    Slug = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    UpdatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    SortOrder = table.Column<int>(type: "int", nullable: false),
-                    RowVersion = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
-                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Tags", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Tags_Users_CreatedById",
-                        column: x => x.CreatedById,
-                        principalTable: "Users",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Tags_Users_UpdatedById",
-                        column: x => x.UpdatedById,
-                        principalTable: "Users",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "UserClaimMappings",
                 columns: table => new
                 {
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ClaimId = table.Column<int>(type: "int", nullable: false),
+                    UserClaimId = table.Column<int>(type: "int", nullable: false),
                     CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserClaimMappings", x => new { x.UserId, x.ClaimId });
+                    table.PrimaryKey("PK_UserClaimMappings", x => new { x.UserId, x.UserClaimId });
                     table.ForeignKey(
-                        name: "FK_UserClaimMappings_UserClaims_ClaimId",
-                        column: x => x.ClaimId,
+                        name: "FK_UserClaimMappings_UserClaims_UserClaimId",
+                        column: x => x.UserClaimId,
                         principalTable: "UserClaims",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -424,51 +424,20 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 });
 
             migrationBuilder.CreateTable(
-                name: "UserGroupClaimMappings",
-                columns: table => new
-                {
-                    GroupId = table.Column<int>(type: "int", nullable: false),
-                    ClaimId = table.Column<int>(type: "int", nullable: false),
-                    CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_UserGroupClaimMappings", x => new { x.GroupId, x.ClaimId });
-                    table.ForeignKey(
-                        name: "FK_UserGroupClaimMappings_UserClaims_ClaimId",
-                        column: x => x.ClaimId,
-                        principalTable: "UserClaims",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_UserGroupClaimMappings_UserGroups_GroupId",
-                        column: x => x.GroupId,
-                        principalTable: "UserGroups",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_UserGroupClaimMappings_Users_CreatedById",
-                        column: x => x.CreatedById,
-                        principalTable: "Users",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "UserGroupMappings",
                 columns: table => new
                 {
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    GroupId = table.Column<int>(type: "int", nullable: false),
+                    UserGroupId = table.Column<int>(type: "int", nullable: false),
                     CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserGroupMappings", x => new { x.UserId, x.GroupId });
+                    table.PrimaryKey("PK_UserGroupMappings", x => new { x.UserId, x.UserGroupId });
                     table.ForeignKey(
-                        name: "FK_UserGroupMappings_UserGroups_GroupId",
-                        column: x => x.GroupId,
+                        name: "FK_UserGroupMappings_UserGroups_UserGroupId",
+                        column: x => x.UserGroupId,
                         principalTable: "UserGroups",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -486,62 +455,31 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 });
 
             migrationBuilder.CreateTable(
-                name: "UserRoleClaimMappings",
+                name: "UserGroupUserClaimMappings",
                 columns: table => new
                 {
-                    RoleId = table.Column<int>(type: "int", nullable: false),
-                    ClaimId = table.Column<int>(type: "int", nullable: false),
+                    UserGroupId = table.Column<int>(type: "int", nullable: false),
+                    UserClaimId = table.Column<int>(type: "int", nullable: false),
                     CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserRoleClaimMappings", x => new { x.RoleId, x.ClaimId });
+                    table.PrimaryKey("PK_UserGroupUserClaimMappings", x => new { x.UserGroupId, x.UserClaimId });
                     table.ForeignKey(
-                        name: "FK_UserRoleClaimMappings_UserClaims_ClaimId",
-                        column: x => x.ClaimId,
+                        name: "FK_UserGroupUserClaimMappings_UserClaims_UserClaimId",
+                        column: x => x.UserClaimId,
                         principalTable: "UserClaims",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_UserRoleClaimMappings_UserRoles_RoleId",
-                        column: x => x.RoleId,
-                        principalTable: "UserRoles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_UserRoleClaimMappings_Users_CreatedById",
-                        column: x => x.CreatedById,
-                        principalTable: "Users",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "UserRoleGroupMappings",
-                columns: table => new
-                {
-                    RoleId = table.Column<int>(type: "int", nullable: false),
-                    GroupId = table.Column<int>(type: "int", nullable: false),
-                    CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_UserRoleGroupMappings", x => new { x.RoleId, x.GroupId });
-                    table.ForeignKey(
-                        name: "FK_UserRoleGroupMappings_UserGroups_GroupId",
-                        column: x => x.GroupId,
+                        name: "FK_UserGroupUserClaimMappings_UserGroups_UserGroupId",
+                        column: x => x.UserGroupId,
                         principalTable: "UserGroups",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_UserRoleGroupMappings_UserRoles_RoleId",
-                        column: x => x.RoleId,
-                        principalTable: "UserRoles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_UserRoleGroupMappings_Users_CreatedById",
+                        name: "FK_UserGroupUserClaimMappings_Users_CreatedById",
                         column: x => x.CreatedById,
                         principalTable: "Users",
                         principalColumn: "Id");
@@ -552,16 +490,16 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 columns: table => new
                 {
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    RoleId = table.Column<int>(type: "int", nullable: false),
+                    UserRoleId = table.Column<int>(type: "int", nullable: false),
                     CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserRoleMappings", x => new { x.UserId, x.RoleId });
+                    table.PrimaryKey("PK_UserRoleMappings", x => new { x.UserId, x.UserRoleId });
                     table.ForeignKey(
-                        name: "FK_UserRoleMappings_UserRoles_RoleId",
-                        column: x => x.RoleId,
+                        name: "FK_UserRoleMappings_UserRoles_UserRoleId",
+                        column: x => x.UserRoleId,
                         principalTable: "UserRoles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -576,6 +514,68 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserRoleUserClaimMappings",
+                columns: table => new
+                {
+                    UserRoleId = table.Column<int>(type: "int", nullable: false),
+                    UserClaimId = table.Column<int>(type: "int", nullable: false),
+                    CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserRoleUserClaimMappings", x => new { x.UserRoleId, x.UserClaimId });
+                    table.ForeignKey(
+                        name: "FK_UserRoleUserClaimMappings_UserClaims_UserClaimId",
+                        column: x => x.UserClaimId,
+                        principalTable: "UserClaims",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UserRoleUserClaimMappings_UserRoles_UserRoleId",
+                        column: x => x.UserRoleId,
+                        principalTable: "UserRoles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UserRoleUserClaimMappings_Users_CreatedById",
+                        column: x => x.CreatedById,
+                        principalTable: "Users",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserRoleUserGroupMappings",
+                columns: table => new
+                {
+                    UserRoleId = table.Column<int>(type: "int", nullable: false),
+                    UserGroupId = table.Column<int>(type: "int", nullable: false),
+                    CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserRoleUserGroupMappings", x => new { x.UserRoleId, x.UserGroupId });
+                    table.ForeignKey(
+                        name: "FK_UserRoleUserGroupMappings_UserGroups_UserGroupId",
+                        column: x => x.UserGroupId,
+                        principalTable: "UserGroups",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UserRoleUserGroupMappings_UserRoles_UserRoleId",
+                        column: x => x.UserRoleId,
+                        principalTable: "UserRoles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UserRoleUserGroupMappings_Users_CreatedById",
+                        column: x => x.CreatedById,
+                        principalTable: "Users",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -596,11 +596,11 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     WikiUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Type = table.Column<int>(type: "int", nullable: false),
-                    GroupId = table.Column<int>(type: "int", nullable: true),
-                    CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    UpdatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     SortOrder = table.Column<int>(type: "int", nullable: false),
                     RowVersion = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
+                    AppGroupId = table.Column<int>(type: "int", nullable: true),
+                    CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    UpdatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
@@ -608,8 +608,8 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 {
                     table.PrimaryKey("PK_Apps", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Apps_AppGroups_GroupId",
-                        column: x => x.GroupId,
+                        name: "FK_Apps_AppGroups_AppGroupId",
+                        column: x => x.AppGroupId,
                         principalTable: "AppGroups",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.SetNull);
@@ -631,7 +631,7 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Key = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    KeyLowercase = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    KeyLowercase = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     Data = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
                     ClientId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     IdentifierId = table.Column<int>(type: "int", nullable: true),
@@ -639,12 +639,12 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     CompressionType = table.Column<int>(type: "int", nullable: false),
                     CompressionLevel = table.Column<int>(type: "int", nullable: false),
                     Version = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    Slug = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    Slug = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    RestoredOn = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    RowVersion = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
                     GlobalConfigurationId = table.Column<int>(type: "int", nullable: false),
                     CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    RestoredOn = table.Column<DateTime>(type: "datetime2", nullable: true),
                     RestoredById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
@@ -672,14 +672,14 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "UserGroupNotificationMappings",
                 columns: table => new
                 {
-                    GroupId = table.Column<int>(type: "int", nullable: false),
+                    UserGroupId = table.Column<int>(type: "int", nullable: false),
                     NotificationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserGroupNotificationMappings", x => new { x.GroupId, x.NotificationId });
+                    table.PrimaryKey("PK_UserGroupNotificationMappings", x => new { x.UserGroupId, x.NotificationId });
                     table.ForeignKey(
                         name: "FK_UserGroupNotificationMappings_Notifications_NotificationId",
                         column: x => x.NotificationId,
@@ -687,8 +687,8 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_UserGroupNotificationMappings_UserGroups_GroupId",
-                        column: x => x.GroupId,
+                        name: "FK_UserGroupNotificationMappings_UserGroups_UserGroupId",
+                        column: x => x.UserGroupId,
                         principalTable: "UserGroups",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -705,13 +705,13 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 {
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     NotificationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     IsOpened = table.Column<bool>(type: "bit", nullable: false),
                     OpenedOn = table.Column<DateTime>(type: "datetime2", nullable: true),
                     IsViewed = table.Column<bool>(type: "bit", nullable: false),
                     ViewedOn = table.Column<DateTime>(type: "datetime2", nullable: true),
                     IsDismissed = table.Column<bool>(type: "bit", nullable: false),
                     DismissedOn = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
@@ -738,15 +738,66 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 });
 
             migrationBuilder.CreateTable(
+                name: "AppConfigurations",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    StoreInSeparateFile = table.Column<bool>(type: "bit", nullable: false),
+                    IgnoreIndividualStoreInSeparateFile = table.Column<bool>(type: "bit", nullable: false),
+                    IgnoreOnFileChange = table.Column<bool>(type: "bit", nullable: false),
+                    IgnoreIndividualIgnoreOnFileChange = table.Column<bool>(type: "bit", nullable: false),
+                    RegistrationMode = table.Column<int>(type: "int", nullable: false),
+                    IgnoreIndividualRegistrationMode = table.Column<bool>(type: "bit", nullable: false),
+                    Consumer = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Provider = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Controller = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Spa = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    RowVersion = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
+                    IdentifierId = table.Column<int>(type: "int", nullable: false),
+                    AppId = table.Column<int>(type: "int", nullable: false),
+                    CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    UpdatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AppConfigurations", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AppConfigurations_Apps_AppId",
+                        column: x => x.AppId,
+                        principalTable: "Apps",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_AppConfigurations_Identifiers_IdentifierId",
+                        column: x => x.IdentifierId,
+                        principalTable: "Identifiers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_AppConfigurations_Users_CreatedById",
+                        column: x => x.CreatedById,
+                        principalTable: "Users",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_AppConfigurations_Users_UpdatedById",
+                        column: x => x.UpdatedById,
+                        principalTable: "Users",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AppIdentifierMappings",
                 columns: table => new
                 {
                     AppId = table.Column<int>(type: "int", nullable: false),
                     IdentifierId = table.Column<int>(type: "int", nullable: false),
                     SortOrder = table.Column<int>(type: "int", nullable: false),
+                    RowVersion = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
                     CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     UpdatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
@@ -778,89 +829,7 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 });
 
             migrationBuilder.CreateTable(
-                name: "AppTagMappings",
-                columns: table => new
-                {
-                    AppId = table.Column<int>(type: "int", nullable: false),
-                    TagId = table.Column<int>(type: "int", nullable: false),
-                    CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AppTagMappings", x => new { x.AppId, x.TagId });
-                    table.ForeignKey(
-                        name: "FK_AppTagMappings_Apps_AppId",
-                        column: x => x.AppId,
-                        principalTable: "Apps",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_AppTagMappings_Tags_TagId",
-                        column: x => x.TagId,
-                        principalTable: "Tags",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_AppTagMappings_Users_CreatedById",
-                        column: x => x.CreatedById,
-                        principalTable: "Users",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Configurations",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    StoreInSeparateFile = table.Column<bool>(type: "bit", nullable: false),
-                    IgnoreIndividualStoreInSeparateFile = table.Column<bool>(type: "bit", nullable: false),
-                    IgnoreOnFileChange = table.Column<bool>(type: "bit", nullable: false),
-                    IgnoreIndividualIgnoreOnFileChange = table.Column<bool>(type: "bit", nullable: false),
-                    RegistrationMode = table.Column<int>(type: "int", nullable: false),
-                    IgnoreIndividualRegistrationMode = table.Column<bool>(type: "bit", nullable: false),
-                    Consumer = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Provider = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Controller = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Spa = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    IdentifierId = table.Column<int>(type: "int", nullable: false),
-                    AppId = table.Column<int>(type: "int", nullable: false),
-                    CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    UpdatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
-                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Configurations", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Configurations_Apps_AppId",
-                        column: x => x.AppId,
-                        principalTable: "Apps",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Configurations_Identifiers_IdentifierId",
-                        column: x => x.IdentifierId,
-                        principalTable: "Identifiers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Configurations_Users_CreatedById",
-                        column: x => x.CreatedById,
-                        principalTable: "Users",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Configurations_Users_UpdatedById",
-                        column: x => x.UpdatedById,
-                        principalTable: "Users",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Instances",
+                name: "AppInstances",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -886,15 +855,15 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Instances", x => x.Id);
+                    table.PrimaryKey("PK_AppInstances", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Instances_Apps_AppId",
+                        name: "FK_AppInstances_Apps_AppId",
                         column: x => x.AppId,
                         principalTable: "Apps",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Instances_Identifiers_IdentifierId",
+                        name: "FK_AppInstances_Identifiers_IdentifierId",
                         column: x => x.IdentifierId,
                         principalTable: "Identifiers",
                         principalColumn: "Id",
@@ -902,7 +871,7 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 });
 
             migrationBuilder.CreateTable(
-                name: "Settings",
+                name: "AppSettings",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -921,49 +890,82 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     IsDraft = table.Column<bool>(type: "bit", nullable: false),
                     IsCopied = table.Column<bool>(type: "bit", nullable: false),
                     CopiedOn = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    RowVersion = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
                     IdentifierId = table.Column<int>(type: "int", nullable: false),
                     AppId = table.Column<int>(type: "int", nullable: false),
                     CopiedFromId = table.Column<int>(type: "int", nullable: true),
                     CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     UpdatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Settings", x => x.Id);
+                    table.PrimaryKey("PK_AppSettings", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Settings_Apps_AppId",
+                        name: "FK_AppSettings_AppSettings_CopiedFromId",
+                        column: x => x.CopiedFromId,
+                        principalTable: "AppSettings",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_AppSettings_Apps_AppId",
                         column: x => x.AppId,
                         principalTable: "Apps",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Settings_Identifiers_IdentifierId",
+                        name: "FK_AppSettings_Identifiers_IdentifierId",
                         column: x => x.IdentifierId,
                         principalTable: "Identifiers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Settings_Settings_CopiedFromId",
-                        column: x => x.CopiedFromId,
-                        principalTable: "Settings",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Settings_Users_CreatedById",
+                        name: "FK_AppSettings_Users_CreatedById",
                         column: x => x.CreatedById,
                         principalTable: "Users",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_Settings_Users_UpdatedById",
+                        name: "FK_AppSettings_Users_UpdatedById",
                         column: x => x.UpdatedById,
                         principalTable: "Users",
                         principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
-                name: "SettingClasses",
+                name: "AppTagMappings",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    AppId = table.Column<int>(type: "int", nullable: false),
+                    AppTagId = table.Column<int>(type: "int", nullable: false),
+                    CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AppTagMappings", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AppTagMappings_AppTags_AppTagId",
+                        column: x => x.AppTagId,
+                        principalTable: "AppTags",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_AppTagMappings_Apps_AppId",
+                        column: x => x.AppId,
+                        principalTable: "Apps",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_AppTagMappings_Users_CreatedById",
+                        column: x => x.CreatedById,
+                        principalTable: "Users",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AppSettingClasses",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -972,37 +974,37 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     FullName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Namespace = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    SettingId = table.Column<int>(type: "int", nullable: false),
-                    CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    UpdatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     Properties = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     RowVersion = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
+                    AppSettingId = table.Column<int>(type: "int", nullable: false),
+                    CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    UpdatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SettingClasses", x => x.Id);
+                    table.PrimaryKey("PK_AppSettingClasses", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_SettingClasses_Settings_SettingId",
-                        column: x => x.SettingId,
-                        principalTable: "Settings",
+                        name: "FK_AppSettingClasses_AppSettings_AppSettingId",
+                        column: x => x.AppSettingId,
+                        principalTable: "AppSettings",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_SettingClasses_Users_CreatedById",
+                        name: "FK_AppSettingClasses_Users_CreatedById",
                         column: x => x.CreatedById,
                         principalTable: "Users",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_SettingClasses_Users_UpdatedById",
+                        name: "FK_AppSettingClasses_Users_UpdatedById",
                         column: x => x.UpdatedById,
                         principalTable: "Users",
                         principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
-                name: "SettingHistories",
+                name: "AppSettingHistories",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -1012,45 +1014,59 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     CompressionLevel = table.Column<int>(type: "int", nullable: false),
                     Version = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     Slug = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    RestoredOn = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    RowVersion = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
                     SettingId = table.Column<int>(type: "int", nullable: false),
                     CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    RestoredOn = table.Column<DateTime>(type: "datetime2", nullable: true),
                     RestoredById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SettingHistories", x => x.Id);
+                    table.PrimaryKey("PK_AppSettingHistories", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_SettingHistories_Settings_SettingId",
+                        name: "FK_AppSettingHistories_AppSettings_SettingId",
                         column: x => x.SettingId,
-                        principalTable: "Settings",
+                        principalTable: "AppSettings",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_SettingHistories_Users_CreatedById",
+                        name: "FK_AppSettingHistories_Users_CreatedById",
                         column: x => x.CreatedById,
                         principalTable: "Users",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_SettingHistories_Users_RestoredById",
+                        name: "FK_AppSettingHistories_Users_RestoredById",
                         column: x => x.RestoredById,
                         principalTable: "Users",
                         principalColumn: "Id");
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_AppGroups_CreatedById",
-                table: "AppGroups",
+                name: "IX_AppConfigurations_AppId_IdentifierId",
+                table: "AppConfigurations",
+                columns: new[] { "AppId", "IdentifierId" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AppConfigurations_CreatedById",
+                table: "AppConfigurations",
                 column: "CreatedById");
 
             migrationBuilder.CreateIndex(
-                name: "IX_AppGroups_NameLowercase",
+                name: "IX_AppConfigurations_IdentifierId",
+                table: "AppConfigurations",
+                column: "IdentifierId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AppConfigurations_UpdatedById",
+                table: "AppConfigurations",
+                column: "UpdatedById");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AppGroups_CreatedById",
                 table: "AppGroups",
-                column: "NameLowercase",
-                unique: true,
-                filter: "[NameLowercase] IS NOT NULL");
+                column: "CreatedById");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AppGroups_Slug",
@@ -1090,6 +1106,28 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 column: "UpdatedById");
 
             migrationBuilder.CreateIndex(
+                name: "IX_AppInstances_AppId_IdentifierId_Slug",
+                table: "AppInstances",
+                columns: new[] { "AppId", "IdentifierId", "Slug" },
+                unique: true,
+                filter: "[Slug] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AppInstances_IdentifierId",
+                table: "AppInstances",
+                column: "IdentifierId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AppInstances_NameLowercase",
+                table: "AppInstances",
+                column: "NameLowercase");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Apps_AppGroupId",
+                table: "Apps",
+                column: "AppGroupId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Apps_ClientId",
                 table: "Apps",
                 column: "ClientId",
@@ -1106,11 +1144,6 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 column: "CreatedById");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Apps_GroupId",
-                table: "Apps",
-                column: "GroupId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Apps_Slug",
                 table: "Apps",
                 column: "Slug",
@@ -1123,34 +1156,116 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 column: "UpdatedById");
 
             migrationBuilder.CreateIndex(
+                name: "IX_AppSettingClasses_AppSettingId",
+                table: "AppSettingClasses",
+                column: "AppSettingId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AppSettingClasses_CreatedById",
+                table: "AppSettingClasses",
+                column: "CreatedById");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AppSettingClasses_UpdatedById",
+                table: "AppSettingClasses",
+                column: "UpdatedById");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AppSettingHistories_CreatedById",
+                table: "AppSettingHistories",
+                column: "CreatedById");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AppSettingHistories_RestoredById",
+                table: "AppSettingHistories",
+                column: "RestoredById");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AppSettingHistories_SettingId",
+                table: "AppSettingHistories",
+                column: "SettingId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AppSettingHistories_Slug_SettingId",
+                table: "AppSettingHistories",
+                columns: new[] { "Slug", "SettingId" },
+                unique: true,
+                filter: "[Slug] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AppSettingHistories_Version",
+                table: "AppSettingHistories",
+                column: "Version");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AppSettings_AppId_IdentifierId_ComputedIdentifier",
+                table: "AppSettings",
+                columns: new[] { "AppId", "IdentifierId", "ComputedIdentifier" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AppSettings_CopiedFromId",
+                table: "AppSettings",
+                column: "CopiedFromId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AppSettings_CreatedById",
+                table: "AppSettings",
+                column: "CreatedById");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AppSettings_IdentifierId",
+                table: "AppSettings",
+                column: "IdentifierId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AppSettings_UpdatedById",
+                table: "AppSettings",
+                column: "UpdatedById");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AppTagMappings_AppId",
+                table: "AppTagMappings",
+                column: "AppId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AppTagMappings_AppTagId",
+                table: "AppTagMappings",
+                column: "AppTagId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_AppTagMappings_CreatedById",
                 table: "AppTagMappings",
                 column: "CreatedById");
 
             migrationBuilder.CreateIndex(
-                name: "IX_AppTagMappings_TagId",
-                table: "AppTagMappings",
-                column: "TagId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Configurations_AppId_IdentifierId",
-                table: "Configurations",
-                columns: new[] { "AppId", "IdentifierId" },
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Configurations_CreatedById",
-                table: "Configurations",
+                name: "IX_AppTags_CreatedById",
+                table: "AppTags",
                 column: "CreatedById");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Configurations_IdentifierId",
-                table: "Configurations",
-                column: "IdentifierId");
+                name: "IX_AppTags_NameLowercase",
+                table: "AppTags",
+                column: "NameLowercase",
+                unique: true,
+                filter: "[NameLowercase] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Configurations_UpdatedById",
-                table: "Configurations",
+                name: "IX_AppTags_Slug",
+                table: "AppTags",
+                column: "Slug",
+                unique: true,
+                filter: "[Slug] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AppTags_SortOrder",
+                table: "AppTags",
+                column: "SortOrder");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AppTags_UpdatedById",
+                table: "AppTags",
                 column: "UpdatedById");
 
             migrationBuilder.CreateIndex(
@@ -1164,16 +1279,16 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 column: "GlobalConfigurationId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_GlobalConfigurationHistories_KeyLowercase_ClientId_IdentifierId",
+                table: "GlobalConfigurationHistories",
+                columns: new[] { "KeyLowercase", "ClientId", "IdentifierId" },
+                unique: true,
+                filter: "[KeyLowercase] IS NOT NULL AND [ClientId] IS NOT NULL AND [IdentifierId] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_GlobalConfigurationHistories_RestoredById",
                 table: "GlobalConfigurationHistories",
                 column: "RestoredById");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_GlobalConfigurationHistories_Slug_GlobalConfigurationId",
-                table: "GlobalConfigurationHistories",
-                columns: new[] { "Slug", "GlobalConfigurationId" },
-                unique: true,
-                filter: "[Slug] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_GlobalConfigurationHistories_Version",
@@ -1223,23 +1338,6 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "IX_Identifiers_UpdatedById",
                 table: "Identifiers",
                 column: "UpdatedById");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Instances_AppId_IdentifierId_Slug",
-                table: "Instances",
-                columns: new[] { "AppId", "IdentifierId", "Slug" },
-                unique: true,
-                filter: "[Slug] IS NOT NULL");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Instances_IdentifierId",
-                table: "Instances",
-                column: "IdentifierId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Instances_NameLowercase",
-                table: "Instances",
-                column: "NameLowercase");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Licenses_Edition",
@@ -1314,112 +1412,14 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 column: "Type");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SettingClasses_CreatedById",
-                table: "SettingClasses",
-                column: "CreatedById");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_SettingClasses_SettingId",
-                table: "SettingClasses",
-                column: "SettingId",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_SettingClasses_UpdatedById",
-                table: "SettingClasses",
-                column: "UpdatedById");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_SettingHistories_CreatedById",
-                table: "SettingHistories",
-                column: "CreatedById");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_SettingHistories_RestoredById",
-                table: "SettingHistories",
-                column: "RestoredById");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_SettingHistories_SettingId",
-                table: "SettingHistories",
-                column: "SettingId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_SettingHistories_Slug_SettingId",
-                table: "SettingHistories",
-                columns: new[] { "Slug", "SettingId" },
-                unique: true,
-                filter: "[Slug] IS NOT NULL");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_SettingHistories_Version",
-                table: "SettingHistories",
-                column: "Version");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Settings_AppId_IdentifierId_ComputedIdentifier",
-                table: "Settings",
-                columns: new[] { "AppId", "IdentifierId", "ComputedIdentifier" },
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Settings_CopiedFromId",
-                table: "Settings",
-                column: "CopiedFromId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Settings_CreatedById",
-                table: "Settings",
-                column: "CreatedById");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Settings_IdentifierId",
-                table: "Settings",
-                column: "IdentifierId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Settings_UpdatedById",
-                table: "Settings",
-                column: "UpdatedById");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Tags_CreatedById",
-                table: "Tags",
-                column: "CreatedById");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Tags_NameLowercase",
-                table: "Tags",
-                column: "NameLowercase",
-                unique: true,
-                filter: "[NameLowercase] IS NOT NULL");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Tags_Slug",
-                table: "Tags",
-                column: "Slug",
-                unique: true,
-                filter: "[Slug] IS NOT NULL");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Tags_SortOrder",
-                table: "Tags",
-                column: "SortOrder");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Tags_UpdatedById",
-                table: "Tags",
-                column: "UpdatedById");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_UserClaimMappings_ClaimId",
-                table: "UserClaimMappings",
-                column: "ClaimId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_UserClaimMappings_CreatedById",
                 table: "UserClaimMappings",
                 column: "CreatedById");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserClaimMappings_UserClaimId",
+                table: "UserClaimMappings",
+                column: "UserClaimId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserClaims_Slug",
@@ -1429,24 +1429,14 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 filter: "[Slug] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserGroupClaimMappings_ClaimId",
-                table: "UserGroupClaimMappings",
-                column: "ClaimId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_UserGroupClaimMappings_CreatedById",
-                table: "UserGroupClaimMappings",
-                column: "CreatedById");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_UserGroupMappings_CreatedById",
                 table: "UserGroupMappings",
                 column: "CreatedById");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserGroupMappings_GroupId",
+                name: "IX_UserGroupMappings_UserGroupId",
                 table: "UserGroupMappings",
-                column: "GroupId");
+                column: "UserGroupId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserGroupNotificationMappings_CreatedById",
@@ -1466,6 +1456,16 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 filter: "[Slug] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_UserGroupUserClaimMappings_CreatedById",
+                table: "UserGroupUserClaimMappings",
+                column: "CreatedById");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserGroupUserClaimMappings_UserClaimId",
+                table: "UserGroupUserClaimMappings",
+                column: "UserClaimId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_UserNotificationMappings_CreatedById",
                 table: "UserNotificationMappings",
                 column: "CreatedById");
@@ -1476,34 +1476,14 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 column: "NotificationId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserRoleClaimMappings_ClaimId",
-                table: "UserRoleClaimMappings",
-                column: "ClaimId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_UserRoleClaimMappings_CreatedById",
-                table: "UserRoleClaimMappings",
-                column: "CreatedById");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_UserRoleGroupMappings_CreatedById",
-                table: "UserRoleGroupMappings",
-                column: "CreatedById");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_UserRoleGroupMappings_GroupId",
-                table: "UserRoleGroupMappings",
-                column: "GroupId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_UserRoleMappings_CreatedById",
                 table: "UserRoleMappings",
                 column: "CreatedById");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserRoleMappings_RoleId",
+                name: "IX_UserRoleMappings_UserRoleId",
                 table: "UserRoleMappings",
-                column: "RoleId");
+                column: "UserRoleId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserRoles_Slug",
@@ -1511,6 +1491,26 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 column: "Slug",
                 unique: true,
                 filter: "[Slug] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserRoleUserClaimMappings_CreatedById",
+                table: "UserRoleUserClaimMappings",
+                column: "CreatedById");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserRoleUserClaimMappings_UserClaimId",
+                table: "UserRoleUserClaimMappings",
+                column: "UserClaimId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserRoleUserGroupMappings_CreatedById",
+                table: "UserRoleUserGroupMappings",
+                column: "CreatedById");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserRoleUserGroupMappings_UserGroupId",
+                table: "UserRoleUserGroupMappings",
+                column: "UserGroupId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_Slug",
@@ -1524,22 +1524,28 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "AppConfigurations");
+
+            migrationBuilder.DropTable(
                 name: "AppIdentifierMappings");
 
             migrationBuilder.DropTable(
-                name: "AppTagMappings");
+                name: "AppInstances");
 
             migrationBuilder.DropTable(
-                name: "Configurations");
+                name: "AppSettingClasses");
+
+            migrationBuilder.DropTable(
+                name: "AppSettingHistories");
+
+            migrationBuilder.DropTable(
+                name: "AppTagMappings");
 
             migrationBuilder.DropTable(
                 name: "DataProtectionKeys");
 
             migrationBuilder.DropTable(
                 name: "GlobalConfigurationHistories");
-
-            migrationBuilder.DropTable(
-                name: "Instances");
 
             migrationBuilder.DropTable(
                 name: "Licenses");
@@ -1551,16 +1557,7 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "LoginEntries");
 
             migrationBuilder.DropTable(
-                name: "SettingClasses");
-
-            migrationBuilder.DropTable(
-                name: "SettingHistories");
-
-            migrationBuilder.DropTable(
                 name: "UserClaimMappings");
-
-            migrationBuilder.DropTable(
-                name: "UserGroupClaimMappings");
 
             migrationBuilder.DropTable(
                 name: "UserGroupMappings");
@@ -1569,28 +1566,31 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "UserGroupNotificationMappings");
 
             migrationBuilder.DropTable(
+                name: "UserGroupUserClaimMappings");
+
+            migrationBuilder.DropTable(
                 name: "UserNotificationMappings");
-
-            migrationBuilder.DropTable(
-                name: "UserRoleClaimMappings");
-
-            migrationBuilder.DropTable(
-                name: "UserRoleGroupMappings");
 
             migrationBuilder.DropTable(
                 name: "UserRoleMappings");
 
             migrationBuilder.DropTable(
-                name: "Tags");
+                name: "UserRoleUserClaimMappings");
+
+            migrationBuilder.DropTable(
+                name: "UserRoleUserGroupMappings");
+
+            migrationBuilder.DropTable(
+                name: "AppSettings");
+
+            migrationBuilder.DropTable(
+                name: "AppTags");
 
             migrationBuilder.DropTable(
                 name: "GlobalConfigurations");
 
             migrationBuilder.DropTable(
                 name: "ProviderRegistries");
-
-            migrationBuilder.DropTable(
-                name: "Settings");
 
             migrationBuilder.DropTable(
                 name: "Notifications");

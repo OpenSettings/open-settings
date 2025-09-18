@@ -5,11 +5,11 @@
         /// <summary>
         /// Indicates ascending order for sorting. 
         /// </summary>
-        Asc = 1,
+        Asc = 0,
 
         /// <summary>
         /// Indicates descending order for sorting. 
         /// </summary>
-        Desc = 2
+        Desc = 1
     }
 }

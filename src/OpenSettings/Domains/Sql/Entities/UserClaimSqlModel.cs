@@ -1,13 +1,10 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Security.Claims;
 
 namespace OpenSettings.Domains.Sql.Entities
 {
     /// <summary>
     /// Represents a user-claim entity.
     /// </summary>
-    [Table("UserClaims")]
     public class UserClaimSqlModel : EntityBase<int>
     {
         /// <summary>
@@ -44,37 +41,16 @@ namespace OpenSettings.Domains.Sql.Entities
         /// <summary>
         /// The collection of user group-claim mappings assigned to the user claim.
         /// </summary>
-        public virtual ICollection<UserGroupClaimMappingModel> GroupClaimMappings { get; set; } = new List<UserGroupClaimMappingModel>();
+        public virtual ICollection<UserGroupUserClaimMappingSqlModel> UserGroupUserClaimMappings { get; set; } = new List<UserGroupUserClaimMappingSqlModel>();
 
         /// <summary>
         /// The collection of user role-claim mappings assigned to the user claim.
         /// </summary>
-        public virtual ICollection<UserRoleClaimMappingModel> RoleClaimMappings { get; set; } = new List<UserRoleClaimMappingModel>();
+        public virtual ICollection<UserRoleUserClaimMappingSqlModel> UserRoleUserClaimMappings { get; set; } = new List<UserRoleUserClaimMappingSqlModel>();
 
         /// <summary>
         /// The collection of user-claim mappings assigned to the user claim.
         /// </summary>
         public virtual ICollection<UserClaimMappingSqlModel> UserClaimMappings { get; set; } = new List<UserClaimMappingSqlModel>();
-
-        /// <summary>
-        /// Converts the entity into a <see cref="Claim"/> instance.
-        /// </summary>
-        /// <returns>A new <see cref="Claim"/> object with the same type and value.</returns>
-        public virtual Claim ToClaim()
-        {
-            return new Claim(Type, Value);
-        }
-
-        /// <summary>
-        /// Initializes the entity's properties from the given claim.
-        /// </summary>
-        /// <param name="claim">The claim to extract data from.</param>
-        public virtual void InitializeFromClaim(Claim claim)
-        {
-            Type = claim.Type;
-            TypeLowercase = claim.Type.ToLowerInvariant();
-            Value = claim.Value;
-            ValueLowercase = claim.Value.ToLowerInvariant();
-        }
     }
 }

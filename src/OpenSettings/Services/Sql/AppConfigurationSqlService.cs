@@ -18,11 +18,11 @@ using System.Threading.Tasks;
 
 namespace OpenSettings.Services.Sql
 {
-    internal sealed class ConfigurationSqlService : IConfigurationSqlService
+    internal sealed class AppConfigurationSqlService : IConfigurationSqlService
     {
         private readonly OpenSettingsDbContext _context;
 
-        public ConfigurationSqlService(OpenSettingsDbContext context)
+        public AppConfigurationSqlService(OpenSettingsDbContext context)
         {
             _context = context;
         }
@@ -43,7 +43,7 @@ namespace OpenSettings.Services.Sql
             var appId = appIdRule.GetStoredValue<int>();
             var identifierId = identifierIdRule.GetStoredValue<int>();
 
-            var entity = await _context.Configurations
+            var entity = await _context.AppConfigurations
                 .AsNoTracking()
                 .Where(c =>
                     c.AppId == appId &&
@@ -79,12 +79,12 @@ namespace OpenSettings.Services.Sql
             var appId = appIdRule.GetStoredValue<int>();
             var identifierId = identifierIdRule.GetStoredValue<int>();
 
-            var entity = await _context.Configurations
+            var entity = await _context.AppConfigurations
                 .AsNoTracking()
                 .Where(c => 
                             c.AppId == appId &&
                             c.IdentifierId == identifierId)
-                .Select(c => new ConfigurationSqlModel
+                .Select(c => new AppConfigurationSqlModel
                 {
                     Id = c.Id,
                     RowVersion = c.RowVersion,

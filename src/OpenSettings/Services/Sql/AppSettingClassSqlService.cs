@@ -3,11 +3,11 @@ using OpenSettings.Services.Sql.Interfaces;
 
 namespace OpenSettings.Services.Sql
 {
-    internal sealed class SettingClassSqlService : ISettingClassSqlService
+    internal sealed class AppSettingClassSqlService : ISettingClassSqlService
     {
         private readonly OpenSettingsDbContext _context;
 
-        public SettingClassSqlService(OpenSettingsDbContext context)
+        public AppSettingClassSqlService(OpenSettingsDbContext context)
         {
             _context = context;
         }

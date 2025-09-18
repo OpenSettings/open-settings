@@ -1,7 +1,6 @@
 ﻿using Ogu.Compressions.Abstractions;
 using OpenSettings.Models;
 using System;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.IO.Compression;
 
 namespace OpenSettings.Domains.Sql.Entities
@@ -9,8 +8,7 @@ namespace OpenSettings.Domains.Sql.Entities
     /// <summary>
     /// Represents a setting history entity.
     /// </summary>
-    [Table("SettingHistories")]
-    public class SettingHistorySqlModel : EntityBase<Guid>
+    public class AppSettingHistorySqlModel : EntityBase<Guid>
     {
         /// <summary>
         /// The binary data associated with the setting history.
@@ -45,27 +43,9 @@ namespace OpenSettings.Domains.Sql.Entities
         public string Slug { get; set; }
 
         /// <summary>
-        /// The setting id associated with this setting history.
-        /// </summary>
-        public int SettingId { get; set; }
-
-        /// <summary>
-        /// The id of the user who created this setting history.
-        /// </summary>
-        public Guid? CreatedById { get; set; }
-
-        [NotMapped]
-        public override DateTime? UpdatedOn { get; set; }
-
-        /// <summary>
         /// The date and time when the entity was last restored, or <c>null</c> if never restored.
         /// </summary>
         public DateTime? RestoredOn { get; set; }
-
-        /// <summary>
-        /// The id of the user who last restored this setting history.
-        /// </summary>
-        public Guid? RestoredById { get; set; }
 
         /// <summary>
         /// A concurrency token used for tracking changes.  
@@ -73,19 +53,31 @@ namespace OpenSettings.Domains.Sql.Entities
         /// </summary>
         public byte[] RowVersion { get; set; } = Array.Empty<byte>();
 
-        [ForeignKey(nameof(SettingId))]
-        public virtual SettingSqlModel Setting { get; set; }
+        /// <summary>
+        /// The setting id associated with this setting history.
+        /// </summary>
+        public int SettingId { get; set; }
+
+        public virtual AppSettingSqlModel AppSetting { get; set; }
+
+        /// <summary>
+        /// The id of the user who created this setting history.
+        /// </summary>
+        public Guid? CreatedById { get; set; }
 
         /// <summary>
         /// The user who created this setting history.
         /// </summary>
-        [ForeignKey(nameof(CreatedById))]
         public virtual UserSqlModel CreatedBy { get; set; }
+
+        /// <summary>
+        /// The id of the user who last restored this setting history.
+        /// </summary>
+        public Guid? RestoredById { get; set; }
 
         /// <summary>
         /// The user who last restored this setting history.
         /// </summary>
-        [ForeignKey(nameof(RestoredById))]
         public virtual UserSqlModel RestoredBy { get; set; }
     }
 }

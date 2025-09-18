@@ -1,12 +1,10 @@
 ﻿using Ogu.Compressions.Abstractions;
 using OpenSettings.Models;
 using System;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.IO.Compression;
 
 namespace OpenSettings.Domains.Sql.Entities
 {
-    [Table("GlobalConfigurationHistories")]
     public class GlobalConfigurationHistorySqlModel : EntityBase<Guid>
     {
         /// <summary>
@@ -62,27 +60,9 @@ namespace OpenSettings.Domains.Sql.Entities
         public string Slug { get; set; }
 
         /// <summary>
-        /// The global configuration id associated with this global configuration history.
-        /// </summary>
-        public int GlobalConfigurationId { get; set; }
-
-        /// <summary>
-        /// The id of the user who created this global configuration history.
-        /// </summary>
-        public Guid? CreatedById { get; set; }
-
-        [NotMapped]
-        public override DateTime? UpdatedOn { get; set; }
-
-        /// <summary>
         /// The date and time when the entity was last restored, or <c>null</c> if never restored.
         /// </summary>
         public DateTime? RestoredOn { get; set; }
-
-        /// <summary>
-        /// The id of the user who last restored this global configuration history.
-        /// </summary>
-        public Guid? RestoredById { get; set; }
 
         /// <summary>
         /// A concurrency token used for tracking changes.  
@@ -90,19 +70,31 @@ namespace OpenSettings.Domains.Sql.Entities
         /// </summary>
         public byte[] RowVersion { get; set; } = Array.Empty<byte>();
 
-        [ForeignKey(nameof(GlobalConfigurationId))]
+        /// <summary>
+        /// The global configuration id associated with this global configuration history.
+        /// </summary>
+        public int GlobalConfigurationId { get; set; }
+
         public virtual GlobalConfigurationSqlModel GlobalConfiguration { get; set; }
+
+        /// <summary>
+        /// The id of the user who created this global configuration history.
+        /// </summary>
+        public Guid? CreatedById { get; set; }
 
         /// <summary>
         /// The user who created this global configuration history.
         /// </summary>
-        [ForeignKey(nameof(CreatedById))]
         public virtual UserSqlModel CreatedBy { get; set; }
+
+        /// <summary>
+        /// The id of the user who last restored this global configuration history.
+        /// </summary>
+        public Guid? RestoredById { get; set; }
 
         /// <summary>
         /// The user who last restored this global configuration history.
         /// </summary>
-        [ForeignKey(nameof(RestoredById))]
         public virtual UserSqlModel RestoredBy { get; set; }
     }
 }

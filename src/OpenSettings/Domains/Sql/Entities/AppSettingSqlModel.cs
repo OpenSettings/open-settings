@@ -2,13 +2,11 @@
 using OpenSettings.Models;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.IO.Compression;
 
 namespace OpenSettings.Domains.Sql.Entities
 {
-    [Table("Settings")]
-    public class SettingSqlModel : EntityBase<int>
+    public class AppSettingSqlModel : EntityBase<int>
     {
         /// <summary>
         /// The binary data associated with the setting.
@@ -94,31 +92,6 @@ namespace OpenSettings.Domains.Sql.Entities
         public DateTime? CopiedOn { get; set; }
 
         /// <summary>
-        /// The identifier associated with this setting.
-        /// </summary>
-        public int IdentifierId { get; set; }
-
-        /// <summary>
-        /// The app id associated with this setting.
-        /// </summary>
-        public int AppId { get; set; }
-
-        /// <summary>
-        /// The id of the setting from which this setting was copied or cloned.
-        /// </summary>
-        public int? CopiedFromId { get; set; }
-
-        /// <summary>
-        /// The id of the user who created this setting.
-        /// </summary>
-        public Guid? CreatedById { get; set; }
-
-        /// <summary>
-        /// The id of the user who last updated this setting.
-        /// </summary>
-        public Guid? UpdatedById { get; set; }
-
-        /// <summary>
         /// A concurrency token used for tracking changes.  
         /// Helps prevent conflicts during concurrent updates.
         /// </summary>
@@ -127,41 +100,61 @@ namespace OpenSettings.Domains.Sql.Entities
         /// <summary>
         /// The associated setting class that provides metadata for this setting.
         /// </summary>
-        public virtual SettingClassSqlModel SettingClass { get; set; }
-
-        /// <summary>
-        /// A collection of historical records for this setting.
-        /// </summary>
-        public virtual ICollection<SettingHistorySqlModel> SettingHistories { get; set; } = new List<SettingHistorySqlModel>();
+        public virtual AppSettingClassSqlModel AppSettingClass { get; set; }
 
         /// <summary>
         /// The identifier associated with this setting.
         /// </summary>
-        [ForeignKey(nameof(IdentifierId))]
+        public int IdentifierId { get; set; }
+
+        /// <summary>
+        /// The identifier associated with this setting.
+        /// </summary>
         public virtual IdentifierSqlModel Identifier { get; set; }
+
+        /// <summary>
+        /// The app id associated with this setting.
+        /// </summary>
+        public int AppId { get; set; }
 
         /// <summary>
         /// The app associated with this setting.
         /// </summary>
-        [ForeignKey(nameof(AppId))]
         public virtual AppSqlModel App { get; set; }
+
+        /// <summary>
+        /// The id of the setting from which this setting was copied or cloned.
+        /// </summary>
+        public int? CopiedFromId { get; set; }
 
         /// <summary>
         /// The setting from which this setting was copied or cloned.
         /// </summary>
-        [ForeignKey(nameof(CopiedFromId))]
-        public SettingSqlModel CopiedFrom { get; set; }
+        public virtual AppSettingSqlModel CopiedFrom { get; set; }
+
+        /// <summary>
+        /// The id of the user who created this setting.
+        /// </summary>
+        public Guid? CreatedById { get; set; }
 
         /// <summary>
         /// The user who created this setting.
         /// </summary>
-        [ForeignKey(nameof(CreatedById))]
         public virtual UserSqlModel CreatedBy { get; set; }
+
+        /// <summary>
+        /// The id of the user who last updated this setting.
+        /// </summary>
+        public Guid? UpdatedById { get; set; }
 
         /// <summary>
         /// The user who last updated this setting.
         /// </summary>
-        [ForeignKey(nameof(UpdatedById))]
         public virtual UserSqlModel UpdatedBy { get; set; }
+
+        /// <summary>
+        /// A collection of historical records for this setting.
+        /// </summary>
+        public virtual ICollection<AppSettingHistorySqlModel> AppSettingHistories { get; set; } = new List<AppSettingHistorySqlModel>();
     }
 }

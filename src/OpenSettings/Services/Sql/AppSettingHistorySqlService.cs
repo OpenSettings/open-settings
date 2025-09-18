@@ -18,14 +18,14 @@ using System.Threading.Tasks;
 
 namespace OpenSettings.Services.Sql
 {
-    internal sealed class SettingHistorySqlService : ISettingHistorySqlService
+    internal sealed class AppSettingHistorySqlService : ISettingHistorySqlService
     {
         private readonly IDataChangeService _dataChangeService;
         private readonly IDataValidationService _dataValidationService;
         private readonly ICompressionProvider _compressionProvider;
         private readonly OpenSettingsDbContext _context;
 
-        public SettingHistorySqlService(
+        public AppSettingHistorySqlService(
             IDataChangeService dataChangeService,
             IDataValidationService dataValidationService,
             ICompressionProvider compressionProvider,
@@ -48,7 +48,7 @@ namespace OpenSettings.Services.Sql
 
             var historyId = Guid.Parse(input.HistoryId);
 
-            var entity = await _context.SettingHistories
+            var entity = await _context.AppSettingHistories
                 .AsNoTracking()
                 .Where(s => s.Id == historyId)
                 .OrderBy(s => s.Id)
@@ -100,12 +100,12 @@ namespace OpenSettings.Services.Sql
 
             var isDataExcluded = input.Excludes.Contains("data");
 
-            var entities = await _context.SettingHistories
+            var entities = await _context.AppSettingHistories
                 .AsNoTracking()
 #if !NETSTANDARD2_0
                 .AsSplitQuery()
 #endif
-                .Include(s => s.Setting)
+                .Include(s => s.AppSetting)
                 .Where(s => s.SettingId == settingId)
                 .OrderByDescending(a => a.CreatedOn)
                 .Select(s => new
@@ -153,40 +153,40 @@ namespace OpenSettings.Services.Sql
 
             var historyId = Guid.Parse(input.HistoryId);
 
-            var entity = await _context.SettingHistories
+            var entity = await _context.AppSettingHistories
                 .AsNoTracking()
-                .Include(a => a.Setting).ThenInclude(a => a.App)
-                .Include(a => a.Setting).ThenInclude(a => a.Identifier)
+                .Include(a => a.AppSetting).ThenInclude(a => a.App)
+                .Include(a => a.AppSetting).ThenInclude(a => a.Identifier)
                 .Where(a => a.Id == historyId)
                 .OrderBy(a => a.Id)
-                .Select(a => new SettingHistorySqlModel
+                .Select(a => new AppSettingHistorySqlModel
                 {
                     Id = historyId,
                     Data = a.Data,
                     Version = a.Version,
                     RowVersion = a.RowVersion,
-                    Setting = new SettingSqlModel
+                    AppSetting = new AppSettingSqlModel
                     {
-                        Id = a.Setting.Id,
-                        CompressionType = a.Setting.CompressionType,
-                        CompressionLevel = a.Setting.CompressionLevel,
-                        Data = a.Setting.Data,
-                        ComputedIdentifier = a.Setting.ComputedIdentifier,
-                        DataValidationDisabled = a.Setting.DataValidationDisabled,
+                        Id = a.AppSetting.Id,
+                        CompressionType = a.AppSetting.CompressionType,
+                        CompressionLevel = a.AppSetting.CompressionLevel,
+                        Data = a.AppSetting.Data,
+                        ComputedIdentifier = a.AppSetting.ComputedIdentifier,
+                        DataValidationDisabled = a.AppSetting.DataValidationDisabled,
                         Identifier = new IdentifierSqlModel
                         {
-                            Name = a.Setting.Identifier.Name,
+                            Name = a.AppSetting.Identifier.Name,
                         },
-                        Version = a.Setting.Version,
-                        DataRestored = a.Setting.DataRestored,
-                        RowVersion = a.Setting.RowVersion,
+                        Version = a.AppSetting.Version,
+                        DataRestored = a.AppSetting.DataRestored,
+                        RowVersion = a.AppSetting.RowVersion,
                         App = new AppSqlModel
                         {
-                            ClientId = a.Setting.App.ClientId
+                            ClientId = a.AppSetting.App.ClientId
                         },
-                        SettingClass = new SettingClassSqlModel
+                        AppSettingClass = new AppSettingClassSqlModel
                         {
-                            Properties = a.Setting.SettingClass.Properties
+                            Properties = a.AppSetting.AppSettingClass.Properties
                         }
                     }
                 }).FirstOrDefaultAsync(cancellationToken);
@@ -196,7 +196,7 @@ namespace OpenSettings.Services.Sql
                 return HttpStatusCode.NotFound.ToFailureResponse<RestoreSettingHistoryResponse, Errors>(Errors.HistoryNotFound);
             }
 
-            if (entity.Version == entity.Setting.Version)
+            if (entity.Version == entity.AppSetting.Version)
             {
                 return HttpStatusCode.BadRequest.ToFailureResponse<RestoreSettingHistoryResponse, Errors>(Errors.HistoryAlreadyRestored);
             }
@@ -206,36 +206,36 @@ namespace OpenSettings.Services.Sql
                 return FailureResponses.Conflict<RestoreSettingHistoryResponse>($"{entity.Id}", entity.RowVersion, input.HistoryRowVersion, false);
             }
 
-            if (!input.SettingRowVersion.SequenceEqual(entity.Setting.RowVersion))
+            if (!input.SettingRowVersion.SequenceEqual(entity.AppSetting.RowVersion))
             {
-                return FailureResponses.Conflict<RestoreSettingHistoryResponse>($"{entity.Setting.Id}", entity.Setting.RowVersion, input.SettingRowVersion, false);
+                return FailureResponses.Conflict<RestoreSettingHistoryResponse>($"{entity.AppSetting.Id}", entity.AppSetting.RowVersion, input.SettingRowVersion, false);
             }
 
             var decompressedData = await _compressionProvider.DecompressToUtf8StringAsync(entity.Data, entity.CompressionType, cancellationToken);
 
-            if (!entity.Setting.DataValidationDisabled && !_dataValidationService.IsDataMappingValid(decompressedData, entity.Setting.SettingClass.Properties))
+            if (!entity.AppSetting.DataValidationDisabled && !_dataValidationService.IsDataMappingValid(decompressedData, entity.AppSetting.AppSettingClass.Properties))
             {
                 return HttpStatusCode.BadRequest.ToFailureResponse<RestoreSettingHistoryResponse, Errors>(Errors.InvalidSettingData);
             }
 
             var currentTime = DateTime.UtcNow;
             var rowVersion = currentTime.ToRowVersion();
-            var previousVersion = entity.Setting.Version;
+            var previousVersion = entity.AppSetting.Version;
 
-            var computedIdentifier = entity.Setting.ComputedIdentifier;
+            var computedIdentifier = entity.AppSetting.ComputedIdentifier;
 
-            var setting = new SettingSqlModel { Id = entity.Setting.Id, RowVersion = entity.Setting.RowVersion };
+            var setting = new AppSettingSqlModel { Id = entity.AppSetting.Id, RowVersion = entity.AppSetting.RowVersion };
 
-            _context.Settings.Attach(setting);
+            _context.AppSettings.Attach(setting);
 
-            var clientId = entity.Setting.App.ClientId;
-            var identifierName = entity.Setting.Identifier.Name;
+            var clientId = entity.AppSetting.App.ClientId;
+            var identifierName = entity.AppSetting.Identifier.Name;
 
-            if (entity.Setting.DataRestored)
+            if (entity.AppSetting.DataRestored)
             {
-                entity.Setting = null;
+                entity.AppSetting = null;
 
-                _context.SettingHistories.Attach(entity);
+                _context.AppSettingHistories.Attach(entity);
 
                 entity.RestoredById = input.UserId;
                 entity.RestoredOn = currentTime;
@@ -243,18 +243,18 @@ namespace OpenSettings.Services.Sql
             }
             else
             {
-                var history = new SettingHistorySqlModel
+                var history = new AppSettingHistorySqlModel
                 {
-                    CompressionType = entity.Setting.CompressionType,
-                    CompressionLevel = entity.Setting.CompressionLevel,
-                    Data = entity.Setting.Data,
+                    CompressionType = entity.AppSetting.CompressionType,
+                    CompressionLevel = entity.AppSetting.CompressionLevel,
+                    Data = entity.AppSetting.Data,
                     Version = previousVersion,
                     Slug = previousVersion.ToSlug(),
                     CreatedOn = currentTime,
                     RestoredById = input.UserId
                 };
 
-                setting.SettingHistories.Add(history);
+                setting.AppSettingHistories.Add(history);
             }
 
             setting.CompressionType = entity.CompressionType;
@@ -300,9 +300,9 @@ namespace OpenSettings.Services.Sql
             }
         }
 
-        private async Task<IResponse> GetSettingHistoryByIdOrSlugAsync(Expression<Func<SettingHistorySqlModel, bool>> predicate, CancellationToken cancellationToken = default)
+        private async Task<IResponse> GetSettingHistoryByIdOrSlugAsync(Expression<Func<AppSettingHistorySqlModel, bool>> predicate, CancellationToken cancellationToken = default)
         {
-            var entity = await _context.SettingHistories
+            var entity = await _context.AppSettingHistories
                 .AsNoTracking()
                 .Where(predicate)
                 .OrderBy(s => s.Id)

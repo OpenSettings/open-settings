@@ -40,7 +40,7 @@ namespace OpenSettings.AspNetCore.CustomDataProtection
             {
                 var keyId = element.Attribute("id")?.Value;
 
-                var newKey = new DataProtectionKey
+                var newKey = new DataProtectionKeySqlModel
                 {
                     KeyId = keyId == null ? Guid.Empty : Guid.Parse(keyId),
                     MasterKey = element.Descendants("masterKey").Elements("value").FirstOrDefault()?.Value,

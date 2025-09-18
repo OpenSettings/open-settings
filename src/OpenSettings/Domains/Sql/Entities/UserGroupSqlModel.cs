@@ -1,12 +1,10 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OpenSettings.Domains.Sql.Entities
 {
     /// <summary>
     /// Represents a user group entity.
     /// </summary>
-    [Table("UserGroups")]
     public class UserGroupSqlModel : EntityBase<int>
     {
         /// <summary>
@@ -28,12 +26,12 @@ namespace OpenSettings.Domains.Sql.Entities
         /// <summary>
         /// The collection of user group-claim mappings assigned to the user group.
         /// </summary>
-        public virtual ICollection<UserGroupClaimMappingModel> GroupClaimMappings { get; set; } = new List<UserGroupClaimMappingModel>();
+        public virtual ICollection<UserGroupUserClaimMappingSqlModel> UserGroupUserClaimMappings { get; set; } = new List<UserGroupUserClaimMappingSqlModel>();
 
         /// <summary>
         /// The collection of user role-group mappings assigned to the user group.
         /// </summary>
-        public virtual ICollection<UserRoleGroupMappingModel> RoleGroupMappings { get; set; } = new List<UserRoleGroupMappingModel>();
+        public virtual ICollection<UserRoleUserGroupMappingSqlModel> UserRoleUserGroupMappings { get; set; } = new List<UserRoleUserGroupMappingSqlModel>();
 
         /// <summary>
         /// The collection of user-group mappings assigned to the user group.
@@ -41,8 +39,8 @@ namespace OpenSettings.Domains.Sql.Entities
         public virtual ICollection<UserGroupMappingSqlModel> UserGroupMappings { get; set; } = new List<UserGroupMappingSqlModel>();
 
         /// <summary>
-        /// The collection of user group-notification mappings assigned to the user group.
+        /// The collection of user group-notification mappings associated with this notification.
         /// </summary>
-        public virtual ICollection<UserGroupNotificationMappingSqlModel> GroupNotificationMappings { get; set; } = new List<UserGroupNotificationMappingSqlModel>();
+        public virtual ICollection<UserGroupNotificationMappingSqlModel> UserGroupNotificationMappings { get; set; } = new List<UserGroupNotificationMappingSqlModel>();
     }
 }

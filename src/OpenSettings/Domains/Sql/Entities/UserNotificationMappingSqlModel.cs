@@ -1,12 +1,10 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OpenSettings.Domains.Sql.Entities
 {
     /// <summary>
     /// Represents a user-notification mapping entity.
     /// </summary>
-    [Table("UserNotificationMappings")]
     public class UserNotificationMappingSqlModel : EntityBase<int>
     {
         /// <summary>
@@ -18,11 +16,6 @@ namespace OpenSettings.Domains.Sql.Entities
         /// The id of the associated notification.
         /// </summary>
         public Guid NotificationId { get; set; }
-
-        /// <summary>
-        /// The id of the user who created this user notification mapping.
-        /// </summary>
-        public Guid? CreatedById { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether the notification has been opened.
@@ -61,22 +54,21 @@ namespace OpenSettings.Domains.Sql.Entities
         /// <summary>
         /// The user associated with this mapping.
         /// </summary>
-        [ForeignKey(nameof(UserId))]
         public virtual UserSqlModel User { get; set; }
 
         /// <summary>
         /// The notification associated with this mapping.
         /// </summary>
-        [ForeignKey(nameof(NotificationId))]
         public virtual NotificationSqlModel Notification { get; set; }
+
+        /// <summary>
+        /// The id of the user who created this user notification mapping.
+        /// </summary>
+        public Guid? CreatedById { get; set; }
 
         /// <summary>
         /// The user who created this user-notification mapping.
         /// </summary>
-        [ForeignKey(nameof(CreatedById))]
         public virtual UserSqlModel CreatedBy { get; set; }
-
-        [NotMapped]
-        public new int Id { get; set; }
     }
 }

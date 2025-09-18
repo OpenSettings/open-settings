@@ -2,14 +2,12 @@
 using OpenSettings.Models;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OpenSettings.Domains.Sql.Entities
 {
     /// <summary>
     /// Represents a user entity.
     /// </summary>
-    [Table("Users")]
     public class UserSqlModel : EntityBase<Guid>
     {
         /// <summary>
@@ -63,6 +61,11 @@ namespace OpenSettings.Domains.Sql.Entities
         public string GivenNameLowercase { get; set; }
 
         public string MiddleName { get; set; }
+
+        /// <summary>
+        /// The lowercase version of the <see cref="MiddleName"/>, typically used for case-insensitive comparisons.
+        /// </summary>
+        public string MiddleNameLowercase { get; set; }
 
         /// <summary>
         /// The family name 

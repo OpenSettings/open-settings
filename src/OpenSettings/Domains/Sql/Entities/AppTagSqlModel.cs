@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OpenSettings.Domains.Sql.Entities
 {
     /// <summary>
     /// Represents a tag entity.
     /// </summary>
-    [Table(("Tags"))]
-    public class TagSqlModel : EntityBase<int>, IOrderedEntity
+    public class AppTagSqlModel : EntityBase<int>, IOrderedEntity
     {
         /// <summary>
         /// The name of the tag.
@@ -27,16 +25,6 @@ namespace OpenSettings.Domains.Sql.Entities
         public string Slug { get; set; }
 
         /// <summary>
-        /// The id of the user who created this tag.
-        /// </summary>
-        public Guid? CreatedById { get; set; }
-
-        /// <summary>
-        /// The id of the user who last updated this tag.
-        /// </summary>
-        public Guid? UpdatedById { get; set; }
-
-        /// <summary>
         /// The sort order of this tag in a list.
         /// </summary>
         public int SortOrder { get; set; }
@@ -48,20 +36,28 @@ namespace OpenSettings.Domains.Sql.Entities
         public byte[] RowVersion { get; set; } = Array.Empty<byte>();
 
         /// <summary>
-        /// The collection of app-tag mappings assigned to the tag.
+        /// The id of the user who created this tag.
         /// </summary>
-        public virtual ICollection<AppTagMappingSqlModel> AppTagMappings { get; set; } = new List<AppTagMappingSqlModel>();
+        public Guid? CreatedById { get; set; }
 
         /// <summary>
         /// The user who created this tag.
         /// </summary>
-        [ForeignKey(nameof(CreatedById))]
         public virtual UserSqlModel CreatedBy { get; set; }
+
+        /// <summary>
+        /// The id of the user who last updated this tag.
+        /// </summary>
+        public Guid? UpdatedById { get; set; }
 
         /// <summary>
         /// The user who last updated this app group.
         /// </summary>
-        [ForeignKey(nameof(UpdatedById))]
         public virtual UserSqlModel UpdatedBy { get; set; }
+
+        /// <summary>
+        /// The collection of app-tag mappings assigned to the tag.
+        /// </summary>
+        public virtual ICollection<AppTagMappingSqlModel> AppTagMappings { get; set; } = new List<AppTagMappingSqlModel>();
     }
 }

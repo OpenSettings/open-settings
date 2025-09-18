@@ -12,13 +12,13 @@ namespace OpenSettings.Domains.Sql.DataContext
     {
         public OpenSettingsInternalDbContext(DbContextOptions<OpenSettingsInternalDbContext> opts) : base(opts) { }
 
-        public DbSet<SettingSqlModel> Settings { get; set; }
+        public DbSet<AppSettingSqlModel> AppSettings { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.UseOpenSettingsModelConfiguration();
 
-            modelBuilder.Entity<SettingSqlModel>().Ignore(n => n.RowVersion);
+            modelBuilder.Entity<AppSettingSqlModel>().Ignore(n => n.RowVersion);
 
             base.OnModelCreating(modelBuilder);
         }

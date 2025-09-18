@@ -160,7 +160,7 @@ namespace OpenSettings.Services.Sql
 
             if (await _context.AppGroups.AsNoTracking().AnyAsync(s => s.Slug == slug, cancellationToken))
             {
-                return ValidationFailures.AlreadyExists(nameof(TagSqlModel.Slug), slug).ToResponse();
+                return ValidationFailures.AlreadyExists(nameof(AppTagSqlModel.Slug), slug).ToResponse();
             }
 
             if (input.SetSortOrderPosition.HasValue)
@@ -732,6 +732,8 @@ namespace OpenSettings.Services.Sql
 
         private static IQueryable<AppGroupSqlModel> SortBy(IQueryable<AppGroupSqlModel> entities, string sortBy, SortDirection sortDirection)
         {
+            sortBy = sortBy.Trim().ToLowerInvariant();
+
             switch (sortBy)
             {
                 case "id":
@@ -744,38 +746,38 @@ namespace OpenSettings.Services.Sql
                         ? entities.OrderByDescending(a => a.Name)
                         : entities.OrderBy(a => a.Name);
 
-                case "order":
+                case "sortorder":
                     return sortDirection == SortDirection.Desc
                         ? entities.OrderByDescending(a => a.SortOrder)
                         : entities.OrderBy(a => a.SortOrder);
 
-                case "mappingsCount":
+                case "mappingscount":
                     return sortDirection == SortDirection.Desc
                         ? entities.OrderByDescending(a => a.Apps.Count())
                         : entities.OrderBy(a => a.Apps.Count());
 
-                case "createdOn":
+                case "createdon":
                     return sortDirection == SortDirection.Desc
                         ? entities.OrderByDescending(a => a.CreatedOn)
                         : entities.OrderBy(a => a.CreatedOn);
 
-                case "createdBy":
+                case "createdby":
                     return sortDirection == SortDirection.Desc
                         ? entities.OrderByDescending(a => a.CreatedBy)
                         : entities.OrderBy(a => a.CreatedBy);
 
-                case "updatedOn":
+                case "updatedon":
                     return sortDirection == SortDirection.Desc
                         ? entities.OrderByDescending(a => a.UpdatedOn)
                         : entities.OrderBy(a => a.UpdatedOn);
 
-                case "updatedBy":
+                case "updatedby":
                     return sortDirection == SortDirection.Desc
                         ? entities.OrderByDescending(a => a.UpdatedBy)
                         : entities.OrderBy(a => a.UpdatedBy);
 
                 default:
-                    return entities;
+                    return entities.OrderBy(a => a.Id);
             }
         }
 
@@ -795,38 +797,38 @@ namespace OpenSettings.Services.Sql
                         ? orderedEntities.ThenByDescending(a => a.Name)
                         : orderedEntities.ThenBy(a => a.Name);
 
-                case "order":
+                case "sortorder":
                     return sortDirection == SortDirection.Desc
                         ? orderedEntities.ThenByDescending(a => a.SortOrder)
                         : orderedEntities.ThenBy(a => a.SortOrder);
 
-                case "mappingsCount":
+                case "mappingscount":
                     return sortDirection == SortDirection.Desc
                         ? orderedEntities.ThenByDescending(a => a.Apps.Count())
                         : orderedEntities.ThenBy(a => a.Apps.Count());
 
-                case "createdOn":
+                case "createdon":
                     return sortDirection == SortDirection.Desc
                         ? orderedEntities.ThenByDescending(a => a.CreatedOn)
                         : orderedEntities.ThenBy(a => a.CreatedOn);
 
-                case "createdBy":
+                case "createdby":
                     return sortDirection == SortDirection.Desc
                         ? orderedEntities.ThenByDescending(a => a.CreatedBy)
                         : orderedEntities.ThenBy(a => a.CreatedBy);
 
-                case "updatedOn":
+                case "updatedon":
                     return sortDirection == SortDirection.Desc
                         ? orderedEntities.ThenByDescending(a => a.UpdatedOn)
                         : orderedEntities.ThenBy(a => a.UpdatedOn);
 
-                case "updatedBy":
+                case "updatedby":
                     return sortDirection == SortDirection.Desc
                         ? orderedEntities.ThenByDescending(a => a.UpdatedBy)
                         : orderedEntities.ThenBy(a => a.UpdatedBy);
 
                 default:
-                    return orderedEntities;
+                    return orderedEntities.ThenBy(a => a.Id);
             }
         }
 

@@ -30,7 +30,7 @@ namespace OpenSettings.Services.Sql
 
         public async Task<IResponse<ProviderInfo>> GetProviderAsync(CancellationToken cancellationToken = default)
         {
-            var entity = await _context.Configurations.AsNoTracking()
+            var entity = await _context.AppConfigurations.AsNoTracking()
                 .Include(e => e.App)
                 .Include(e => e.Identifier)
                 .Where(c => c.App.ClientId == _providerInfo.Client.Id &&

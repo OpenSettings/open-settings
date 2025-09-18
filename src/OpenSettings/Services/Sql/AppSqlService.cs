@@ -22,7 +22,6 @@ using System.Net;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using TagSqlModel = OpenSettings.Domains.Sql.Entities.TagSqlModel;
 
 namespace OpenSettings.Services.Sql
 {
@@ -132,16 +131,16 @@ namespace OpenSettings.Services.Sql
 #if !NETSTANDARD2_0
                 .AsSplitQuery()
 #endif
-                .Include(a => a.Group)
-                .Include(a => a.AppTagMappings).ThenInclude(a => a.Tag).AsQueryable();
+                .Include(a => a.AppGroup)
+                .Include(a => a.AppTagMappings).ThenInclude(a => a.AppTag).AsQueryable();
 
             if (int.TryParse(input.GroupId, out var appGroupId) && appGroupId > -2)
             {
                 query = appGroupId == -1
-                    ? query.Where(a => !a.GroupId.HasValue)
+                    ? query.Where(a => !a.AppGroupId.HasValue)
                     : appGroupId > 0
-                        ? query.Where(a => a.GroupId == appGroupId)
-                        : query.Where(a => a.GroupId.HasValue);
+                        ? query.Where(a => a.AppGroupId == appGroupId)
+                        : query.Where(a => a.AppGroupId.HasValue);
             }
 
             if (!string.IsNullOrWhiteSpace(input.SearchTerm))
@@ -157,11 +156,11 @@ namespace OpenSettings.Services.Sql
 
                 query = query
                     .SearchBy(fields, searchTermLowercase, _context)
-                    .OrderBy(a => a.ClientNameLowercase.IndexOf(searchTermLowercase)).ThenBy(a => a.Group.SortOrder);
+                    .OrderBy(a => a.ClientNameLowercase.IndexOf(searchTermLowercase)).ThenBy(a => a.AppGroup.SortOrder);
             }
             else
             {
-                query = query.OrderBy(a => a.Group.SortOrder);
+                query = query.OrderBy(a => a.AppGroup.SortOrder);
             }
 
             var entities = await GetGroupedAppsResponseApp(query).ToArrayAsync(cancellationToken);
@@ -212,7 +211,7 @@ namespace OpenSettings.Services.Sql
 
             var entity = await _context.Apps
                 .AsNoTracking()
-                .Include(a => a.AppTagMappings).ThenInclude(a => a.Tag)
+                .Include(a => a.AppTagMappings).ThenInclude(a => a.AppTag)
                 .Where(a => a.Id == appId)
                 .OrderBy(a => a.Id)
                 .Select(a => new AppSqlModel
@@ -224,12 +223,12 @@ namespace OpenSettings.Services.Sql
                     AppTagMappings = a.AppTagMappings.Select(t => new AppTagMappingSqlModel
                     {
                         AppId = t.AppId,
-                        TagId = t.TagId,
-                        Tag = new TagSqlModel
+                        AppTagId = t.AppTagId,
+                        AppTag = new AppTagSqlModel
                         {
-                            Id = t.Tag.Id,
-                            Name = t.Tag.Name,
-                            SortOrder = t.Tag.SortOrder
+                            Id = t.AppTag.Id,
+                            Name = t.AppTag.Name,
+                            SortOrder = t.AppTag.SortOrder
                         }
                     }).ToList()
                 }).FirstOrDefaultAsync(cancellationToken);
@@ -277,9 +276,9 @@ namespace OpenSettings.Services.Sql
 
             if (string.IsNullOrWhiteSpace(input.Group?.Name))
             {
-                entity.GroupId = null;
+                entity.AppGroupId = null;
 
-                _context.MarkAsModified(entity, e => e.GroupId);
+                _context.MarkAsModified(entity, e => e.AppGroupId);
             }
             else
             {
@@ -299,14 +298,14 @@ namespace OpenSettings.Services.Sql
 
                 _context.Attach(groupEntity);
 
-                entity.Group = groupEntity;
+                entity.AppGroup = groupEntity;
             }
 
-            var existingTagIds = new HashSet<int>(entity.AppTagMappings.Select(t => t.Tag.Id));
+            var existingTagIds = new HashSet<int>(entity.AppTagMappings.Select(t => t.AppTag.Id));
 
             var newTagIds = new HashSet<int>(input.Tags.Select(tag => int.TryParse(tag.Id, out var tagId) ? tagId : (int?)null).Where(tagId => tagId.HasValue).Select(tagId => tagId.Value));
 
-            var tagsToRemove = entity.AppTagMappings.Where(at => !newTagIds.Contains(at.TagId)).ToList();
+            var tagsToRemove = entity.AppTagMappings.Where(at => !newTagIds.Contains(at.AppTagId)).ToList();
 
             foreach (var tagToRemove in tagsToRemove)
             {
@@ -322,13 +321,13 @@ namespace OpenSettings.Services.Sql
 
                 if (tagId > 0 && !existingTagIds.Contains(tagId))
                 {
-                    var tagEntity = new TagSqlModel { Id = tagId, Name = tag.Name };
+                    var tagEntity = new AppTagSqlModel { Id = tagId, Name = tag.Name };
 
-                    _context.Tags.Attach(tagEntity);
+                    _context.AppTags.Attach(tagEntity);
 
                     entity.AppTagMappings.Add(new AppTagMappingSqlModel
                     {
-                        Tag = tagEntity,
+                        AppTag = tagEntity,
                         CreatedOn = currentTime
                     });
                 }
@@ -341,13 +340,13 @@ namespace OpenSettings.Services.Sql
                         return getOrCreateTag.ToResponse();
                     }
 
-                    var tagEntity = new TagSqlModel { Id = getOrCreateTag.Data.Id, Name = tag.Name };
+                    var tagEntity = new AppTagSqlModel { Id = getOrCreateTag.Data.Id, Name = tag.Name };
 
-                    _context.Tags.Attach(tagEntity);
+                    _context.AppTags.Attach(tagEntity);
 
                     entity.AppTagMappings.Add(new AppTagMappingSqlModel
                     {
-                        Tag = tagEntity,
+                        AppTag = tagEntity,
                         CreatedOn = currentTime
                     });
                 }
@@ -360,22 +359,22 @@ namespace OpenSettings.Services.Sql
                 DisplayName = entity.DisplayName,
                 ClientName = entity.ClientName,
                 Slug = entity.Slug,
-                Group = entity.Group == null
+                Group = entity.AppGroup == null
                     ? null
                     : new GetGroupedAppsResponseAppGroup
                     {
-                        Id = $"{entity.Group.Id}",
-                        Name = entity.Group.Name,
-                        SortOrder = entity.Group.SortOrder
+                        Id = $"{entity.AppGroup.Id}",
+                        Name = entity.AppGroup.Name,
+                        SortOrder = entity.AppGroup.SortOrder
                     },
                 Description = entity.Description,
                 ImageUrl = entity.ImageUrl,
                 WikiUrl = entity.WikiUrl,
                 Tags = entity.AppTagMappings.Select(a => new UpdateAppResponseTag
                 {
-                    Id = $"{a.Tag.Id}",
-                    Name = a.Tag.Name,
-                    SortOrder = a.Tag.SortOrder
+                    Id = $"{a.AppTag.Id}",
+                    Name = a.AppTag.Name,
+                    SortOrder = a.AppTag.SortOrder
                 }).ToArray(),
                 RowVersion = entity.RowVersion
             });
@@ -424,12 +423,12 @@ namespace OpenSettings.Services.Sql
         {
             input.IdentifierName = input.IdentifierName.Trim().ToLowerInvariant();
 
-            var query = _context.Settings.AsNoTracking()
+            var query = _context.AppSettings.AsNoTracking()
 #if !NETSTANDARD2_0
                 .AsSplitQuery()
 #endif
                 .Include(a => a.App)
-                .Include(a => a.SettingClass)
+                .Include(a => a.AppSettingClass)
                 .Include(a => a.Identifier)
                 .Where(a => a.App.ClientId == input.ClientId && a.Identifier.NameLowercase == input.IdentifierName);
 
@@ -601,8 +600,8 @@ namespace OpenSettings.Services.Sql
                 ClientName = trimmedClientName,
                 ClientNameLowercase = trimmedClientNameLowercase,
                 Slug = slug,
-                Settings = Array.Empty<SettingSqlModel>(),
-                Instances = Array.Empty<InstanceSqlModel>(),
+                AppSettings = Array.Empty<AppSettingSqlModel>(),
+                AppInstances = Array.Empty<AppInstanceSqlModel>(),
                 ClientId = input.Client.Id,
                 ClientIdLowercase = clientIdAsStringLowercase,
                 HashedClientSecret = hashedPassword,
@@ -630,14 +629,14 @@ namespace OpenSettings.Services.Sql
 
                 _context.Attach(groupEntity);
 
-                appSqlModel.Group = groupEntity;
+                appSqlModel.AppGroup = groupEntity;
             }
             else
             {
-                appSqlModel.GroupId = null;
+                appSqlModel.AppGroupId = null;
             }
 
-            var newTags = new List<TagSqlModel>();
+            var newTags = new List<AppTagSqlModel>();
 
             var existingTags = new HashSet<int>(input.Tags.Select(t =>
             {
@@ -660,7 +659,7 @@ namespace OpenSettings.Services.Sql
                 var trimmedTagNameLowercase = tagName.ToLowerInvariant();
                 var tagSlug = tagName.ToSlug();
 
-                newTags.Add(new TagSqlModel
+                newTags.Add(new AppTagSqlModel
                 {
                     Name = tagName, 
                     NameLowercase = trimmedTagNameLowercase, 
@@ -673,10 +672,10 @@ namespace OpenSettings.Services.Sql
 
             }).Where(t => t > 0));
 
-            var tagIdToTag = await _context.Tags
+            var tagIdToTag = await _context.AppTags
                 .AsNoTracking()
                 .Where(t => existingTags.Contains(t.Id))
-                .Select(t => new TagSqlModel { Id = t.Id, Name = t.Name, SortOrder = t.SortOrder })
+                .Select(t => new AppTagSqlModel { Id = t.Id, Name = t.Name, SortOrder = t.SortOrder })
                 .ToDictionaryAsync(t => t.Id, cancellationToken);
 
             var missingTags = string.Join(OpenSettingsDefaults.Format.Comma, existingTags.Except(tagIdToTag.Keys));
@@ -692,20 +691,20 @@ namespace OpenSettings.Services.Sql
 
                 try
                 {
-                    newTagSortOrderStartingPoint = await _context.Tags.AsNoTracking().MaxAsync(s => s.SortOrder, cancellationToken) + OpenSettingsDefaults.SortOrderGap;
+                    newTagSortOrderStartingPoint = await _context.AppTags.AsNoTracking().MaxAsync(s => s.SortOrder, cancellationToken) + OpenSettingsDefaults.SortOrderGap;
                 }
                 catch (InvalidOperationException)
                 {
                     newTagSortOrderStartingPoint = 0;
                 }
 
-                var tagEntityEntries = new List<EntityEntry<TagSqlModel>>(newTags.Count);
+                var tagEntityEntries = new List<EntityEntry<AppTagSqlModel>>(newTags.Count);
 
                 foreach (var tag in newTags)
                 {
                     tag.SortOrder = newTagSortOrderStartingPoint;
 
-                    tagEntityEntries.Add(_context.Tags.Add(tag));
+                    tagEntityEntries.Add(_context.AppTags.Add(tag));
 
                     newTagSortOrderStartingPoint += OpenSettingsDefaults.SortOrderGap;
                 }
@@ -720,11 +719,11 @@ namespace OpenSettings.Services.Sql
 
             foreach (var tagEntity in tagIdToTag.Values.Concat(newTags))
             {
-                _context.Tags.Attach(tagEntity);
+                _context.AppTags.Attach(tagEntity);
 
                 appSqlModel.AppTagMappings.Add(new AppTagMappingSqlModel
                 {
-                    Tag = tagEntity,
+                    AppTag = tagEntity,
                     CreatedOn = currentTime,
                     CreatedById = input.CreatedById
                 });
@@ -767,19 +766,19 @@ namespace OpenSettings.Services.Sql
                     Id = appSqlModel.ClientId,
                     Name = appSqlModel.ClientName
                 },
-                Group = appSqlModel.Group == null
+                Group = appSqlModel.AppGroup == null
                     ? null
                     : new GetGroupedAppsResponseAppGroup
                     {
-                        Id = $"{appSqlModel.Group.Id}",
-                        Name = appSqlModel.Group.Name,
-                        SortOrder = appSqlModel.Group.SortOrder
+                        Id = $"{appSqlModel.AppGroup.Id}",
+                        Name = appSqlModel.AppGroup.Name,
+                        SortOrder = appSqlModel.AppGroup.SortOrder
                     },
                 Tags = appSqlModel.AppTagMappings.Select(a => new GetGroupedAppsResponseAppTag
                 {
-                    Id = $"{a.Tag.Id}",
-                    Name = a.Tag.Name,
-                    SortOrder = a.Tag.SortOrder
+                    Id = $"{a.AppTag.Id}",
+                    Name = a.AppTag.Name,
+                    SortOrder = a.AppTag.SortOrder
                 }).ToArray(),
                 RowVersion = appSqlModel.RowVersion
             };
@@ -891,15 +890,15 @@ namespace OpenSettings.Services.Sql
 #if !NETSTANDARD2_0
                 .AsSplitQuery()
 #endif
-                .Include(a => a.Configurations)
-                .Include(a => a.Settings).ThenInclude(a => a.SettingClass)
-                .Include(a => a.Instances)
+                .Include(a => a.AppConfigurations)
+                .Include(a => a.AppSettings).ThenInclude(a => a.AppSettingClass)
+                .Include(a => a.AppInstances)
                 .Include(a => a.AppIdentifierMappings).ThenInclude(a => a.Identifier)
                 .Where(predicate)
                 .OrderBy(a => a.Id)
                 .Select(a => new
                 {
-                    Instances = a.Instances.Select(i => new
+                    Instances = a.AppInstances.Select(i => new
                     {
                         Id = $"{i.Id}",
                         i.DynamicId,
@@ -917,7 +916,7 @@ namespace OpenSettings.Services.Sql
                         i.CreatedOn,
                         i.UpdatedOn,
                     }).ToArray(),
-                    Configurations = a.Configurations.Select(c => new
+                    Configurations = a.AppConfigurations.Select(c => new
                     {
                         Id = $"{c.Id}",
                         c.StoreInSeparateFile,
@@ -930,7 +929,7 @@ namespace OpenSettings.Services.Sql
                         c.IdentifierId,
                         c.RowVersion
                     }).ToArray(),
-                    Settings = a.Settings.Select(s => new
+                    Settings = a.AppSettings.Select(s => new
                     {
                         Id = $"{s.Id}",
                         s.ComputedIdentifier,
@@ -944,11 +943,11 @@ namespace OpenSettings.Services.Sql
                         s.RowVersion,
                         Class = new GetGroupedAppDataResponseSettingClass
                         {
-                            Id = $"{s.SettingClass.Id}",
-                            Name = s.SettingClass.Name,
-                            Namespace = s.SettingClass.Namespace,
-                            FullName = s.SettingClass.FullName,
-                            RowVersion = s.SettingClass.RowVersion
+                            Id = $"{s.AppSettingClass.Id}",
+                            Name = s.AppSettingClass.Name,
+                            Namespace = s.AppSettingClass.Namespace,
+                            FullName = s.AppSettingClass.FullName,
+                            RowVersion = s.AppSettingClass.RowVersion
                         }
                     }).ToArray(),
                     AppIdentifierMappings = a.AppIdentifierMappings.Select(m =>
@@ -1088,8 +1087,8 @@ namespace OpenSettings.Services.Sql
 #if !NETSTANDARD2_0
                 .AsSplitQuery()
 #endif
-                .Include(a => a.Group)
-                .Include(a => a.AppTagMappings).ThenInclude(a => a.Tag)
+                .Include(a => a.AppGroup)
+                .Include(a => a.AppTagMappings).ThenInclude(a => a.AppTag)
                 .Where(predicate)
                 .OrderBy(a => a.Id);
 
@@ -1107,14 +1106,14 @@ namespace OpenSettings.Services.Sql
 #if !NETSTANDARD2_0
                 .AsSplitQuery()
 #endif
-                .Include(a => a.Settings).ThenInclude(a => a.SettingClass)
-                .Include(a => a.Instances)
+                .Include(a => a.AppSettings).ThenInclude(a => a.AppSettingClass)
+                .Include(a => a.AppInstances)
                 .Include(a => a.AppIdentifierMappings).ThenInclude(a => a.Identifier)
                 .Where(predicate)
                 .OrderBy(a => a.Id)
                 .Select(a => new
                 {
-                    Instances = a.Instances.Where(i => i.IdentifierId == identifierId).Select(i => new
+                    Instances = a.AppInstances.Where(i => i.IdentifierId == identifierId).Select(i => new
                     {
                         Id = $"{i.Id}",
                         i.DynamicId,
@@ -1132,7 +1131,7 @@ namespace OpenSettings.Services.Sql
                         i.CreatedOn,
                         i.UpdatedOn
                     }).ToArray(),
-                    Configuration = a.Configurations.Where(c => c.IdentifierId == identifierId).Select(c => new
+                    Configuration = a.AppConfigurations.Where(c => c.IdentifierId == identifierId).Select(c => new
                     {
                         Id = $"{c.Id}",
                         c.StoreInSeparateFile,
@@ -1143,7 +1142,7 @@ namespace OpenSettings.Services.Sql
                         c.IdentifierId,
                         c.RowVersion
                     }).FirstOrDefault(),
-                    Settings = a.Settings.Where(s => s.IdentifierId == identifierId).Select(s => new
+                    Settings = a.AppSettings.Where(s => s.IdentifierId == identifierId).Select(s => new
                     {
                         Id = $"{s.Id}",
                         s.ComputedIdentifier,
@@ -1156,11 +1155,11 @@ namespace OpenSettings.Services.Sql
                         s.RegistrationMode,
                         Class = new GetGroupedAppDataByIdentifierIdResponseSettingClass
                         {
-                            Id = $"{s.SettingClass.Id}",
-                            Name = s.SettingClass.Name,
-                            Namespace = s.SettingClass.Namespace,
-                            FullName = s.SettingClass.FullName,
-                            RowVersion = s.SettingClass.RowVersion
+                            Id = $"{s.AppSettingClass.Id}",
+                            Name = s.AppSettingClass.Name,
+                            Namespace = s.AppSettingClass.Namespace,
+                            FullName = s.AppSettingClass.FullName,
+                            RowVersion = s.AppSettingClass.RowVersion
                         }
                     }).ToArray(),
                     AppIdentifierMapping = a.AppIdentifierMappings.Where(m => m.Identifier.Id == identifierId).Select(m =>
@@ -1261,7 +1260,7 @@ namespace OpenSettings.Services.Sql
                     RegistrationMode = setting.RegistrationMode
                 });
 
-                return new SettingSqlModel
+                return new AppSettingSqlModel
                 {
                     CompressionType = _openSettingsConfiguration.Provider.CompressionType,
                     CompressionLevel = _openSettingsConfiguration.Provider.CompressionLevel,
@@ -1273,7 +1272,7 @@ namespace OpenSettings.Services.Sql
                     StoreInSeparateFile = setting.StoreInSeparateFile,
                     IgnoreOnFileChange = setting.IgnoreOnFileChange,
                     RegistrationMode = setting.RegistrationMode,
-                    SettingClass = new SettingClassSqlModel
+                    AppSettingClass = new AppSettingClassSqlModel
                     {
                         Identifier = setting.SettingClass.Identifier,
                         Name = setting.SettingClass.Name,
@@ -1302,7 +1301,7 @@ namespace OpenSettings.Services.Sql
 
             await Task.WhenAll(appSlugTask, settingsTask);
 
-            var configuration = new ConfigurationSqlModel
+            var configuration = new AppConfigurationSqlModel
             {
                 
                 IdentifierId = identifierId,
@@ -1321,7 +1320,7 @@ namespace OpenSettings.Services.Sql
                 configuration.Spa = input.Configuration.Spa;
             }
 
-            var instances = new List<InstanceSqlModel>(1);
+            var instances = new List<AppInstanceSqlModel>(1);
 
             if (input.Instance != null)
             {
@@ -1329,7 +1328,7 @@ namespace OpenSettings.Services.Sql
                 var trimmedInstanceNameLowercase = trimmedInstanceName.ToLowerInvariant();
                 var instanceSlug = trimmedInstanceName.ToSlug();
 
-                instances.Add(new InstanceSqlModel
+                instances.Add(new AppInstanceSqlModel
                 {
                     Name = trimmedInstanceName,
                     NameLowercase = trimmedInstanceNameLowercase,
@@ -1354,12 +1353,12 @@ namespace OpenSettings.Services.Sql
                 ClientName = trimmedClientName,
                 ClientNameLowercase = trimmedClientNameLowercase,
                 Slug = appSlugTask.Result,
-                Configurations = new ConfigurationSqlModel[]
+                AppConfigurations = new AppConfigurationSqlModel[]
                 {
                     configuration
                 },
-                Settings = settingsTask.Result,
-                Instances = instances,
+                AppSettings = settingsTask.Result,
+                AppInstances = instances,
                 AppIdentifierMappings = new AppIdentifierMappingSqlModel[]
                 {
                     new AppIdentifierMappingSqlModel
@@ -1507,11 +1506,11 @@ namespace OpenSettings.Services.Sql
                 var instanceNameLowercase = instanceName.ToLowerInvariant();
                 var instanceSlug = instanceName.ToSlug();
 
-                var instance = await _context.Instances
+                var instance = await _context.AppInstances
                     .AsNoTracking()
                     .Where(a => a.NameLowercase == instanceNameLowercase && a.IdentifierId == identifierId && a.AppId == appId)
                     .OrderBy(a => a.Id)
-                    .Select(a => new InstanceSqlModel
+                    .Select(a => new AppInstanceSqlModel
                     {
                         Id = a.Id
                     })
@@ -1519,7 +1518,7 @@ namespace OpenSettings.Services.Sql
 
                 if (instance == null)
                 {
-                    app.Instances.Add(new InstanceSqlModel
+                    app.AppInstances.Add(new AppInstanceSqlModel
                     {
                         Name = instanceName,
                         NameLowercase = instanceNameLowercase,
@@ -1541,7 +1540,7 @@ namespace OpenSettings.Services.Sql
                 }
                 else
                 {
-                    var instanceEntityEntry = _context.Instances.Attach(instance);
+                    var instanceEntityEntry = _context.AppInstances.Attach(instance);
 
                     instance.Name = instanceName;
                     instance.NameLowercase = instanceNameLowercase;
@@ -1578,10 +1577,10 @@ namespace OpenSettings.Services.Sql
                 }
             }
 
-            var configuration = await _context.Configurations
+            var configuration = await _context.AppConfigurations
                 .AsNoTracking()
                 .Where(c => c.AppId == appId && c.IdentifierId == identifierId)
-                .Select(c => new ConfigurationSqlModel
+                .Select(c => new AppConfigurationSqlModel
                 {
                     Id = c.Id,
                     StoreInSeparateFile = c.StoreInSeparateFile,
@@ -1595,7 +1594,7 @@ namespace OpenSettings.Services.Sql
 
             if (configuration == null)
             {
-                configuration = new ConfigurationSqlModel
+                configuration = new AppConfigurationSqlModel
                 {
                     IdentifierId = identifierId,
                     CreatedOn = currentTime,
@@ -1613,25 +1612,25 @@ namespace OpenSettings.Services.Sql
                     configuration.Spa = input.Configuration.Spa;
                 }
 
-                app.Configurations.Add(configuration);
+                app.AppConfigurations.Add(configuration);
             }
             else if(input.Configuration != null && configuration.Consumer.ProviderUrl != input.Configuration.Consumer.ProviderUrl)
             {
-                var configurationEntityEntry = _context.Configurations.Attach(configuration);
+                var configurationEntityEntry = _context.AppConfigurations.Attach(configuration);
 
                 configuration.Consumer.ProviderUrl = input.Configuration.Consumer.ProviderUrl;
 
                 configurationEntityEntry.MarkAsModified(c => c.Consumer);
             }
 
-            var computedIdentifierToSetting = await _context.Settings
+            var computedIdentifierToSetting = await _context.AppSettings
                 .AsNoTracking()
 #if !NETSTANDARD2_0
                 .AsSplitQuery()
 #endif
-                .Include(a => a.SettingClass)
+                .Include(a => a.AppSettingClass)
                 .Where(a => a.AppId == appId && a.IdentifierId == identifierId)
-                .Select(a => new SettingSqlModel
+                .Select(a => new AppSettingSqlModel
                 {
                     Id = a.Id,
                     Data = a.Data,
@@ -1646,16 +1645,16 @@ namespace OpenSettings.Services.Sql
                     RegistrationMode = a.RegistrationMode,
                     CreatedOn = a.CreatedOn,
                     //RowVersion = a.RowVersion,
-                    SettingClass = new SettingClassSqlModel
+                    AppSettingClass = new AppSettingClassSqlModel
                     {
-                        Id = a.SettingClass.Id,
-                        RowVersion = a.SettingClass.RowVersion
+                        Id = a.AppSettingClass.Id,
+                        RowVersion = a.AppSettingClass.RowVersion
                     }
                 }).ToDictionaryAsync(a => a.ComputedIdentifier, cancellationToken);
 
             using (var internalContext = OpenSettingsInternalDbContext.GetInstance(_openSettingsConfiguration.Provider, _openSettingsConfiguration.LoggerFactory))
             {
-                var settings = await HandleSettingsAsync(internalContext, input, classNameToCount, computedIdentifierToSetting, app.Settings, identifierId, currentTime, cancellationToken);
+                var settings = await HandleSettingsAsync(internalContext, input, classNameToCount, computedIdentifierToSetting, app.AppSettings, identifierId, currentTime, cancellationToken);
 
                 await Task.WhenAll(internalContext.SaveChangesAsync(cancellationToken), _context.SaveChangesAsync(cancellationToken));
 
@@ -1681,8 +1680,8 @@ namespace OpenSettings.Services.Sql
             OpenSettingsInternalDbContext internalContext,
             SyncAppDataInput input,
             Dictionary<string, int> classNameToCount,
-            Dictionary<Guid, SettingSqlModel> computedIdentifierToSetting,
-            ICollection<SettingSqlModel> settings,
+            Dictionary<Guid, AppSettingSqlModel> computedIdentifierToSetting,
+            ICollection<AppSettingSqlModel> settings,
             int identifierId,
             DateTime currentTime,
             CancellationToken cancellationToken)
@@ -1702,11 +1701,11 @@ namespace OpenSettings.Services.Sql
             return Task.WhenAll(tasks);
         }
 
-        private async Task<SyncAppDataResponseSetting> HandleExistingSettingAsync(OpenSettingsInternalDbContext internalContext, SettingSqlModel existingSetting, SyncAppDataInputSetting inputSetting, Guid? userId, DateTime currentTime, bool isUniqueClassName, CancellationToken cancellationToken)
+        private async Task<SyncAppDataResponseSetting> HandleExistingSettingAsync(OpenSettingsInternalDbContext internalContext, AppSettingSqlModel existingAppSetting, SyncAppDataInputSetting inputSetting, Guid? userId, DateTime currentTime, bool isUniqueClassName, CancellationToken cancellationToken)
         {
-            internalContext.Settings.Attach(existingSetting);
+            internalContext.AppSettings.Attach(existingAppSetting);
 
-            var decompressedData = await _compressionProvider.DecompressToUtf8StringAsync(existingSetting.Data, existingSetting.CompressionType, cancellationToken);
+            var decompressedData = await _compressionProvider.DecompressToUtf8StringAsync(existingAppSetting.Data, existingAppSetting.CompressionType, cancellationToken);
 
             var jsonMergeResult = JsonHelper.Merge(inputSetting.Data, decompressedData);
 
@@ -1720,26 +1719,26 @@ namespace OpenSettings.Services.Sql
 
                 if (decompressedData != data)
                 {
-                    if (!existingSetting.DataRestored)
+                    if (!existingAppSetting.DataRestored)
                     {
-                        existingSetting.SettingHistories.Add(new SettingHistorySqlModel
+                        existingAppSetting.AppSettingHistories.Add(new AppSettingHistorySqlModel
                         {
-                            Data = existingSetting.Data,
-                            Version = existingSetting.Version,
-                            Slug = existingSetting.Version.ToSlug(),
+                            Data = existingAppSetting.Data,
+                            Version = existingAppSetting.Version,
+                            Slug = existingAppSetting.Version.ToSlug(),
                             CreatedOn = currentTime,
                             CreatedById = userId
                         });
                     }
 
-                    existingSetting.CompressionType = _openSettingsConfiguration.Provider.CompressionType;
-                    existingSetting.CompressionLevel = _openSettingsConfiguration.Provider.CompressionLevel;
-                    existingSetting.Data = await _compressionProvider.CompressAsync(_openSettingsConfiguration.Provider.CompressionType, data, _openSettingsConfiguration.Provider.CompressionLevel, cancellationToken);
-                    existingSetting.Version = Helper.GenerateVersion(currentTime, existingSetting.CreatedOn);
-                    existingSetting.DataRestored = false;
-                    existingSetting.UpdatedOn = currentTime;
-                    existingSetting.UpdatedById = userId;
-                    existingSetting.RowVersion = rowVersion;
+                    existingAppSetting.CompressionType = _openSettingsConfiguration.Provider.CompressionType;
+                    existingAppSetting.CompressionLevel = _openSettingsConfiguration.Provider.CompressionLevel;
+                    existingAppSetting.Data = await _compressionProvider.CompressAsync(_openSettingsConfiguration.Provider.CompressionType, data, _openSettingsConfiguration.Provider.CompressionLevel, cancellationToken);
+                    existingAppSetting.Version = Helper.GenerateVersion(currentTime, existingAppSetting.CreatedOn);
+                    existingAppSetting.DataRestored = false;
+                    existingAppSetting.UpdatedOn = currentTime;
+                    existingAppSetting.UpdatedById = userId;
+                    existingAppSetting.RowVersion = rowVersion;
                 }
             }
             else
@@ -1747,33 +1746,33 @@ namespace OpenSettings.Services.Sql
                 data = decompressedData;
             }
 
-            if (existingSetting.StoreInSeparateFile && existingSetting.IgnoreOnFileChange == true && !isUniqueClassName)
+            if (existingAppSetting.StoreInSeparateFile && existingAppSetting.IgnoreOnFileChange == true && !isUniqueClassName)
             {
-                existingSetting.IgnoreOnFileChange = false;
+                existingAppSetting.IgnoreOnFileChange = false;
             }
 
-            existingSetting.SettingClass.Identifier = inputSetting.SettingClass.Identifier;
-            existingSetting.SettingClass.Name = inputSetting.SettingClass.Name;
-            existingSetting.SettingClass.FullName = inputSetting.SettingClass.FullName;
-            existingSetting.SettingClass.Namespace = inputSetting.SettingClass.Namespace;
-            existingSetting.SettingClass.Properties = inputSetting.SettingClass.Properties;
-            existingSetting.SettingClass.UpdatedOn = currentTime;
-            existingSetting.SettingClass.UpdatedById = userId;
-            existingSetting.SettingClass.RowVersion = rowVersion;
+            existingAppSetting.AppSettingClass.Identifier = inputSetting.SettingClass.Identifier;
+            existingAppSetting.AppSettingClass.Name = inputSetting.SettingClass.Name;
+            existingAppSetting.AppSettingClass.FullName = inputSetting.SettingClass.FullName;
+            existingAppSetting.AppSettingClass.Namespace = inputSetting.SettingClass.Namespace;
+            existingAppSetting.AppSettingClass.Properties = inputSetting.SettingClass.Properties;
+            existingAppSetting.AppSettingClass.UpdatedOn = currentTime;
+            existingAppSetting.AppSettingClass.UpdatedById = userId;
+            existingAppSetting.AppSettingClass.RowVersion = rowVersion;
 
             return new SyncAppDataResponseSetting
             {
-                ComputedIdentifier = existingSetting.ComputedIdentifier,
+                ComputedIdentifier = existingAppSetting.ComputedIdentifier,
                 Data = data,
-                StoreInSeparateFile = existingSetting.StoreInSeparateFile,
-                IgnoreOnFileChange = existingSetting.IgnoreOnFileChange,
-                RegistrationMode = existingSetting.RegistrationMode
+                StoreInSeparateFile = existingAppSetting.StoreInSeparateFile,
+                IgnoreOnFileChange = existingAppSetting.IgnoreOnFileChange,
+                RegistrationMode = existingAppSetting.RegistrationMode
             };
         }
 
-        private async Task<SyncAppDataResponseSetting> HandleNewSettingAsync(ICollection<SettingSqlModel> settings, SyncAppDataInputSetting inputSetting, int identifierId, Guid? userId, DateTime currentTime, bool isUniqueClassName, CancellationToken cancellationToken)
+        private async Task<SyncAppDataResponseSetting> HandleNewSettingAsync(ICollection<AppSettingSqlModel> settings, SyncAppDataInputSetting inputSetting, int identifierId, Guid? userId, DateTime currentTime, bool isUniqueClassName, CancellationToken cancellationToken)
         {
-            var newSetting = new SettingSqlModel
+            var newSetting = new AppSettingSqlModel
             {
                 CompressionType = _openSettingsConfiguration.Provider.CompressionType,
                 CompressionLevel = _openSettingsConfiguration.Provider.CompressionLevel,
@@ -1790,7 +1789,7 @@ namespace OpenSettings.Services.Sql
                     : null,
                 RegistrationMode = inputSetting.RegistrationMode,
                 IdentifierId = identifierId,
-                SettingClass = new SettingClassSqlModel
+                AppSettingClass = new AppSettingClassSqlModel
                 {
                     Identifier = inputSetting.SettingClass.Identifier,
                     Name = inputSetting.SettingClass.Name,
@@ -1831,19 +1830,19 @@ namespace OpenSettings.Services.Sql
                     Id = a.ClientId,
                     Name = a.ClientName
                 },
-                Group = a.GroupId.HasValue
+                Group = a.AppGroupId.HasValue
                     ? new GetAppResponseGroup
                     {
-                        Id = $"{a.Group.Id}",
-                        Name = a.Group.Name,
-                        SortOrder = a.Group.SortOrder
+                        Id = $"{a.AppGroup.Id}",
+                        Name = a.AppGroup.Name,
+                        SortOrder = a.AppGroup.SortOrder
                     }
                     : OpenSettingsDefaults.Caches.UngroupedAppsForGetAppResponse,
-                Tags = a.AppTagMappings.OrderBy(t => t.Tag.SortOrder).Select(t => new GetAppResponseTag
+                Tags = a.AppTagMappings.OrderBy(t => t.AppTag.SortOrder).Select(t => new GetAppResponseTag
                 {
-                    Id = $"{t.Tag.Id}",
-                    Name = t.Tag.Name,
-                    SortOrder = t.Tag.SortOrder
+                    Id = $"{t.AppTag.Id}",
+                    Name = t.AppTag.Name,
+                    SortOrder = t.AppTag.SortOrder
                 }).ToArray(),
                 RowVersion = a.RowVersion
             });
@@ -1864,19 +1863,19 @@ namespace OpenSettings.Services.Sql
                     Id = a.ClientId,
                     Name = a.ClientName
                 },
-                Group = a.GroupId.HasValue
+                Group = a.AppGroupId.HasValue
                     ? new GetGroupedAppsResponseAppGroup
                     {
-                        Id = $"{a.Group.Id}",
-                        Name = a.Group.Name,
-                        SortOrder = a.Group.SortOrder
+                        Id = $"{a.AppGroup.Id}",
+                        Name = a.AppGroup.Name,
+                        SortOrder = a.AppGroup.SortOrder
                     }
                     : OpenSettingsDefaults.Caches.UngroupedAppsForGetGroupedApps,
-                Tags = a.AppTagMappings.OrderBy(t => t.Tag.SortOrder).Select(t => new GetGroupedAppsResponseAppTag
+                Tags = a.AppTagMappings.OrderBy(t => t.AppTag.SortOrder).Select(t => new GetGroupedAppsResponseAppTag
                 {
-                    Id = $"{t.Tag.Id}",
-                    Name = t.Tag.Name,
-                    SortOrder = t.Tag.SortOrder
+                    Id = $"{t.AppTag.Id}",
+                    Name = t.AppTag.Name,
+                    SortOrder = t.AppTag.SortOrder
                 }).ToArray(),
                 RowVersion = a.RowVersion
             });

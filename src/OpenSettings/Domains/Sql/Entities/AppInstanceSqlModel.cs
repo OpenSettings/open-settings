@@ -1,15 +1,13 @@
 ﻿using OpenSettings.Models;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OpenSettings.Domains.Sql.Entities
 {
     /// <summary>
     /// Represents an instance entity.
     /// </summary>
-    [Table("Instances")]
-    public class InstanceSqlModel : EntityBase<int>
+    public class AppInstanceSqlModel : EntityBase<int>
     {
         /// <summary>
         /// The name of the instance.
@@ -95,20 +93,18 @@ namespace OpenSettings.Domains.Sql.Entities
         public int AppId { get; set; }
 
         /// <summary>
+        /// The app associated with this instance.
+        /// </summary>
+        public virtual AppSqlModel App { get; set; }
+
+        /// <summary>
         /// The identifier id associated with this instance.
         /// </summary>
         public int IdentifierId { get; set; }
 
         /// <summary>
-        /// The app associated with this instance.
-        /// </summary>
-        [ForeignKey(nameof(AppId))]
-        public virtual AppSqlModel App { get; set; }
-
-        /// <summary>
         /// The app associated with this identifier.
         /// </summary>
-        [ForeignKey(nameof(IdentifierId))]
         public virtual IdentifierSqlModel Identifier { get; set; }
     }
 }

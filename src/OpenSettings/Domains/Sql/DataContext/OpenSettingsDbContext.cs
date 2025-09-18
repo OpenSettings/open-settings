@@ -42,9 +42,9 @@ namespace OpenSettings.Domains.Sql.DataContext
         public DbSet<AppTagMappingSqlModel> AppTagMappings { get; set; }
 
         /// <summary>
-        /// Gets or sets the <see cref="DbSet{ConfigurationSqlModel}"/> for managing Configurations.
+        /// Gets or sets the <see cref="DbSet{AppConfigurationSqlModel}"/> for managing Configurations.
         /// </summary>
-        public DbSet<ConfigurationSqlModel> Configurations { get; set; }
+        public DbSet<AppConfigurationSqlModel> AppConfigurations { get; set; }
 
         /// <summary>
         /// Gets or sets the <see cref="DbSet{IdentifierSqlModel}"/> for managing Identifiers.
@@ -52,9 +52,9 @@ namespace OpenSettings.Domains.Sql.DataContext
         public DbSet<IdentifierSqlModel> Identifiers { get; set; }
 
         /// <summary>
-        /// Gets or sets the <see cref="DbSet{InstanceSqlModel}"/> for managing Instances.
+        /// Gets or sets the <see cref="DbSet{AppInstanceSqlModel}"/> for managing Instances.
         /// </summary>
-        public DbSet<InstanceSqlModel> Instances { get; set; }
+        public DbSet<AppInstanceSqlModel> AppInstances { get; set; }
 
         /// <summary>
         /// Gets or sets the <see cref="DbSet{LockSqlModel}"/> for managing Locks.
@@ -67,24 +67,24 @@ namespace OpenSettings.Domains.Sql.DataContext
         public DbSet<NotificationSqlModel> Notifications { get; set; }
 
         /// <summary>
-        /// Gets or sets the <see cref="DbSet{SettingClassSqlModel}"/> for managing SettingClasses.
+        /// Gets or sets the <see cref="DbSet{AppSettingClassSqlModel}"/> for managing SettingClasses.
         /// </summary>
-        public DbSet<SettingClassSqlModel> SettingClasses { get; set; }
+        public DbSet<AppSettingClassSqlModel> AppSettingClasses { get; set; }
 
         /// <summary>
         /// Gets or sets the <see cref="DbSet{SettingHistorySqlModel}"/> for managing SettingHistories.
         /// </summary>
-        public DbSet<SettingHistorySqlModel> SettingHistories { get; set; }
+        public DbSet<AppSettingHistorySqlModel> AppSettingHistories { get; set; }
 
         /// <summary>
         /// Gets or sets the <see cref="DbSet{SettingSqlModel}"/> for managing Settings.
         /// </summary>
-        public DbSet<SettingSqlModel> Settings { get; set; }
+        public DbSet<AppSettingSqlModel> AppSettings { get; set; }
 
         /// <summary>
-        /// Gets or sets the <see cref="DbSet{TagSqlModel}"/> for managing Tags.
+        /// Gets or sets the <see cref="DbSet{AppTagSqlModel}"/> for managing Tags.
         /// </summary>
-        public DbSet<TagSqlModel> Tags { get; set; }
+        public DbSet<AppTagSqlModel> AppTags { get; set; }
 
         /// <summary>
         /// Gets or sets the <see cref="DbSet{UserClaimMappingSqlModel}"/> for managing UserClaimMappings.
@@ -99,7 +99,7 @@ namespace OpenSettings.Domains.Sql.DataContext
         /// <summary>
         /// Gets or sets the <see cref="DbSet{UserGroupClaimMappingModel}"/> for managing UserGroupClaimMappings.
         /// </summary>
-        public DbSet<UserGroupClaimMappingModel> UserGroupClaimMappings { get; set; }
+        public DbSet<UserGroupUserClaimMappingSqlModel> UserGroupClaimMappings { get; set; }
 
         /// <summary>
         /// Gets or sets the <see cref="DbSet{UserGroupMappingSqlModel}"/> for managing UserGroupMappings.
@@ -124,12 +124,12 @@ namespace OpenSettings.Domains.Sql.DataContext
         /// <summary>
         /// Gets or sets the <see cref="DbSet{UserRoleClaimMappingModel}"/> for managing UserRoleClaimMappings.
         /// </summary>
-        public DbSet<UserRoleClaimMappingModel> UserRoleClaimMappings { get; set; }
+        public DbSet<UserRoleUserClaimMappingSqlModel> UserRoleClaimMappings { get; set; }
 
         /// <summary>
         /// Gets or sets the <see cref="DbSet{UserRoleGroupMappingModel}"/> for managing UserRoleGroupMappings.
         /// </summary>
-        public DbSet<UserRoleGroupMappingModel> UserRoleGroupMappings { get; set; }
+        public DbSet<UserRoleUserGroupMappingSqlModel> UserRoleGroupMappings { get; set; }
 
         /// <summary>
         /// Gets or sets the <see cref="DbSet{UserRoleMappingSqlModel}"/> for managing UserRoleMappings.
@@ -174,7 +174,7 @@ namespace OpenSettings.Domains.Sql.DataContext
         /// <summary>
         /// Gets or sets the <see cref="DbSet{DataProtectionKey}"/> for managing DataProtectionKeys.
         /// </summary>
-        public DbSet<DataProtectionKey> DataProtectionKeys { get; set; }
+        public DbSet<DataProtectionKeySqlModel> DataProtectionKeys { get; set; }
 
         public virtual void Detach(object entity)
         {

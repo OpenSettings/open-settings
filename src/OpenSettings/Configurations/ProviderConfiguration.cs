@@ -140,7 +140,7 @@ namespace OpenSettings.Configurations
                 (!await context.Database.CanConnectAsync(cancellationToken) ||
                  (await context.Database.GetPendingMigrationsAsync(cancellationToken)).Any()))
             {
-                await context.Database.MigrateAsync(cancellationToken);
+                 await context.Database.MigrateAsync(cancellationToken);
             }
 
             IsDbInitialized = true;

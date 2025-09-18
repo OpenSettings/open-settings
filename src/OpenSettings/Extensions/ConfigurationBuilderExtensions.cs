@@ -226,7 +226,7 @@ namespace OpenSettings.Extensions
 
                 var sortOrderSqlService = new SortOrderSqlService(new LockSqlService(context), context, openSettingsConfiguration);
                 var appGroupsSqlService = new AppGroupSqlService(context, sortOrderSqlService);
-                var tagsSqlService = new TagSqlService(context, sortOrderSqlService);
+                var tagsSqlService = new AppTagSqlService(context, sortOrderSqlService);
                 var identifierSqlService = new IdentifierSqlService(context, sortOrderSqlService);
                 var passwordHasher = new PasswordHasher<AppSqlModel>();
 
@@ -235,7 +235,7 @@ namespace OpenSettings.Extensions
                     appGroupsSqlService, tagsSqlService, compressionProvider, passwordHasher, context,
                     openSettingsConfiguration, null);
 
-                var settingsService = new SettingsSqlService(
+                var settingsService = new AppSettingsSqlService(
                     dataChangeService: null,
                     identifierSqlService,
                     compressionProvider,

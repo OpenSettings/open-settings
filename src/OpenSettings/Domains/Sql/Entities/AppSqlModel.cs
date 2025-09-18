@@ -1,14 +1,12 @@
 ﻿using OpenSettings.Models;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OpenSettings.Domains.Sql.Entities
 {
     /// <summary>
     /// Represents an app entity.
     /// </summary>
-    [Table("Apps")]
     public class AppSqlModel : EntityBase<int>
     {
         /// <summary>
@@ -73,21 +71,6 @@ namespace OpenSettings.Domains.Sql.Entities
         public AppType Type { get; set; }
 
         /// <summary>
-        /// The id of the group which associated with this app.
-        /// </summary>
-        public int? GroupId { get; set; }
-
-        /// <summary>
-        /// The id of the user who created this app.
-        /// </summary>
-        public Guid? CreatedById { get; set; }
-
-        /// <summary>
-        /// The id of the user who last updated this app.
-        /// </summary>
-        public Guid? UpdatedById { get; set; }
-
-        /// <summary>
         /// The sort order of this app in a list.
         /// </summary>
         public int SortOrder { get; set; }
@@ -99,37 +82,49 @@ namespace OpenSettings.Domains.Sql.Entities
         public byte[] RowVersion { get; set; } = Array.Empty<byte>();
 
         /// <summary>
+        /// The id of the group which associated with this app.
+        /// </summary>
+        public int? AppGroupId { get; set; }
+
+        /// <summary>
         /// The group which associated with this app.
         /// </summary>
-        [ForeignKey(nameof(GroupId))]
-        public AppGroupSqlModel Group { get; set; }
+        public AppGroupSqlModel AppGroup { get; set; }
+
+        /// <summary>
+        /// The id of the user who created this app.
+        /// </summary>
+        public Guid? CreatedById { get; set; }
 
         /// <summary>
         /// The user who created this app.
         /// </summary>
-        [ForeignKey(nameof(CreatedById))]
         public virtual UserSqlModel CreatedBy { get; set; }
+
+        /// <summary>
+        /// The id of the user who last updated this app.
+        /// </summary>
+        public Guid? UpdatedById { get; set; }
 
         /// <summary>
         /// The user who last updated this app.
         /// </summary>
-        [ForeignKey(nameof(UpdatedById))]
         public virtual UserSqlModel UpdatedBy { get; set; }
 
         /// <summary>
         /// A collection of configurations for this app.
         /// </summary>
-        public virtual ICollection<ConfigurationSqlModel> Configurations { get; set; } = new List<ConfigurationSqlModel>();
+        public virtual ICollection<AppConfigurationSqlModel> AppConfigurations { get; set; } = new List<AppConfigurationSqlModel>();
 
         /// <summary>
         /// A collection of settings for this app.
         /// </summary>
-        public virtual ICollection<SettingSqlModel> Settings { get; set; } = new List<SettingSqlModel>();
+        public virtual ICollection<AppSettingSqlModel> AppSettings { get; set; } = new List<AppSettingSqlModel>();
 
         /// <summary>
         /// A collection of instances for this app.
         /// </summary>
-        public virtual ICollection<InstanceSqlModel> Instances { get; set; } = new List<InstanceSqlModel>();
+        public virtual ICollection<AppInstanceSqlModel> AppInstances { get; set; } = new List<AppInstanceSqlModel>();
 
         /// <summary>
         /// A collection of app-identifier mappings for this app.

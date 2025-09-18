@@ -1,12 +1,10 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OpenSettings.Domains.Sql.Entities
 {
     /// <summary>
     /// Represents a lock entity.
     /// </summary>
-    [Table("Locks")]
     public class LockSqlModel
     {
         /// <summary>

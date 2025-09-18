@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Ogu.Extensions.Hosting.HostedServices;
+using OpenSettings.Configurations;
 using OpenSettings.Domains.Sql.DataContext;
 using OpenSettings.Domains.Sql.Entities;
 using OpenSettings.Models;
@@ -11,7 +12,6 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using OpenSettings.Configurations;
 
 namespace OpenSettings.Services
 {
