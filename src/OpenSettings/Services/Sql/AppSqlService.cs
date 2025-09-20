@@ -25,34 +25,34 @@ using System.Threading.Tasks;
 
 namespace OpenSettings.Services.Sql
 {
-    internal sealed class AppsSqlService : IAppSqlService
+    internal sealed class AppSqlService : IAppSqlService
     {
         private const string InitialSettingVersion = "0";
 
         private readonly ILogger _logger;
         private readonly IIdentifierSqlService _identifierSqlService;
         private readonly IAppGroupSqlService _appGroupSqlService;
-        private readonly ITagSqlService _tagsSqlService;
+        private readonly IAppTagSqlService _appTagSqlService;
         private readonly ICompressionProvider _compressionProvider;
         private readonly IPasswordHasher<AppSqlModel> _passwordHasher;
         private readonly OpenSettingsDbContext _context;
         private readonly OpenSettingsConfiguration _openSettingsConfiguration;
         private readonly ProviderInfo _providerInfo;
 
-        public AppsSqlService(
+        public AppSqlService(
             IIdentifierSqlService identifierSqlService,
             IAppGroupSqlService appGroupSqlService,
-            ITagSqlService tagsSqlService,
+            IAppTagSqlService appTagSqlService,
             ICompressionProvider compressionProvider,
             IPasswordHasher<AppSqlModel> passwordHasher,
             OpenSettingsDbContext context,
             OpenSettingsConfiguration openSettingsConfiguration,
             ProviderInfo providerInfo)
         {
-            _logger = openSettingsConfiguration.LoggerFactory.CreateLogger<AppsSqlService>();
+            _logger = openSettingsConfiguration.LoggerFactory.CreateLogger<AppSqlService>();
             _identifierSqlService = identifierSqlService;
             _appGroupSqlService = appGroupSqlService;
-            _tagsSqlService = tagsSqlService;
+            _appTagSqlService = appTagSqlService;
             _compressionProvider = compressionProvider;
             _passwordHasher = passwordHasher;
             _context = context;
@@ -134,7 +134,7 @@ namespace OpenSettings.Services.Sql
                 .Include(a => a.AppGroup)
                 .Include(a => a.AppTagMappings).ThenInclude(a => a.AppTag).AsQueryable();
 
-            if (int.TryParse(input.GroupId, out var appGroupId) && appGroupId > -2)
+            if (int.TryParse(input.AppGroupId, out var appGroupId) && appGroupId > -2)
             {
                 query = appGroupId == -1
                     ? query.Where(a => !a.AppGroupId.HasValue)
@@ -333,7 +333,7 @@ namespace OpenSettings.Services.Sql
                 }
                 else if (tagId == 0 && !string.IsNullOrWhiteSpace(tag.Name))
                 {
-                    var getOrCreateTag = await _tagsSqlService.GetOrCreateAsync(tag.Name, SetSortOrderPosition.Bottom, input.UpdatedById, cancellationToken);
+                    var getOrCreateTag = await _appTagSqlService.GetOrCreateAsync(tag.Name, SetSortOrderPosition.Bottom, input.UpdatedById, cancellationToken);
 
                     if (!getOrCreateTag.Success)
                     {

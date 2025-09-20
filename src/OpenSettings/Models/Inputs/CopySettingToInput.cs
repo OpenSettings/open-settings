@@ -4,7 +4,7 @@ namespace OpenSettings.Models.Inputs
 {
     public class CopySettingToInput
     {
-        public string SettingId { get; set; }
+        public string AppSettingId { get; set; }
 
         public string TargetAppId { get; set; }
 

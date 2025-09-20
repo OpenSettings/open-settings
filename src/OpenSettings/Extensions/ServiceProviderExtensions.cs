@@ -51,14 +51,14 @@ namespace OpenSettings.Extensions
             {
                 updateInstanceRequest.IsActive = true;
 
-                _ = instancesService.UpdateInstanceAsync(updateInstanceRequest, CancellationToken.None);
+                _ = instancesService.UpdateAppInstanceAsync(updateInstanceRequest, CancellationToken.None);
             });
 
             hostApplicationLifetime.ApplicationStopping.Register(() =>
             {
                 updateInstanceRequest.IsActive = false;
 
-                _ = instancesService.UpdateInstanceAsync(updateInstanceRequest, CancellationToken.None).ContinueWith((c) =>
+                _ = instancesService.UpdateAppInstanceAsync(updateInstanceRequest, CancellationToken.None).ContinueWith((c) =>
                 {
                     scope.Dispose();
 

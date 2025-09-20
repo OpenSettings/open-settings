@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Ogu.Response;
+using OpenSettings.AspNetCore.Extensions;
 using OpenSettings.AspNetCore.Models.Requests;
 using OpenSettings.Models;
 using OpenSettings.Models.Inputs;
@@ -7,11 +8,10 @@ using OpenSettings.Services.Interfaces;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using OpenSettings.AspNetCore.Extensions;
 
 namespace OpenSettings.AspNetCore.Controllers.v1
 {
-    [Route(OpenSettingsDefaults.Routes.V1.Notifications)]
+    [Route("")]
     public class NotificationsController : ControllerBase
     {
         private readonly INotificationService _notificationService;
@@ -21,7 +21,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             _notificationService = notificationService;
         }
 
-        [HttpGet]
+        [HttpGet(OpenSettingsDefaults.Routes.V1.NotificationsEndpoints.GetNotifications)]
         public async Task<IActionResult> GetNotifications(GetNotificationsRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
@@ -40,7 +40,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             return result.ToAction();
         }
 
-        [HttpGet("users/{UserId:guid}")]
+        [HttpGet(OpenSettingsDefaults.Routes.V1.NotificationsEndpoints.GetUserNotifications)]
         public async Task<IActionResult> GetUserNotifications(GetUserNotificationsRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
@@ -70,7 +70,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             return result.ToAction();
         }
 
-        [HttpPost]
+        [HttpPost(OpenSettingsDefaults.Routes.V1.NotificationsEndpoints.CreateNotification)]
         public async Task<IActionResult> CreateNotification(CreateNotificationRequest request,
             CancellationToken cancellationToken = default)
         {
@@ -92,7 +92,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             return result.ToAction();
         }
 
-        [HttpPost("users/{UserId}/open")]
+        [HttpPost(OpenSettingsDefaults.Routes.V1.NotificationsEndpoints.MarkNotificationsAsOpened)]
         public async Task<IActionResult> MarkNotificationsAsOpened(MarkNotificationsAsOpenedRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
@@ -115,7 +115,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             return result.ToAction();
         }
 
-        [HttpPost("{NotificationId}/users/{UserId}/view")]
+        [HttpPost(OpenSettingsDefaults.Routes.V1.NotificationsEndpoints.MarkNotificationAsViewed)]
         public async Task<IActionResult> MarkNotificationAsViewed(MarkNotificationAsRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
@@ -139,7 +139,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             return result.ToAction();
         }
 
-        [HttpPost("{NotificationId}/users/{UserId}/dismiss")]
+        [HttpPost(OpenSettingsDefaults.Routes.V1.NotificationsEndpoints.MarkNotificationAsDismissed)]
         public async Task<IActionResult> MarkNotificationAsDismissed(MarkNotificationAsRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
@@ -163,7 +163,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             return result.ToAction();
         }
 
-        [HttpPost("{NotificationId}/users/dispatch")]
+        [HttpPost(OpenSettingsDefaults.Routes.V1.NotificationsEndpoints.DispatchNotificationsToUsers)]
         public async Task<IActionResult> DispatchNotificationsToUsers(DispatchNotificationsToUsersRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)

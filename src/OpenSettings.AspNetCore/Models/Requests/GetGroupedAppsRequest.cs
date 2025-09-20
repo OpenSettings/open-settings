@@ -5,7 +5,7 @@ namespace OpenSettings.AspNetCore.Models.Requests
     public class GetGroupedAppsRequest
     {
         [FromQuery]
-        public string GroupId { get; set; }
+        public string AppGroupId { get; set; }
 
         [FromQuery]
         public string SearchTerm { get; set; }

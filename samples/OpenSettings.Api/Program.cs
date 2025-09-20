@@ -18,7 +18,7 @@ var openSettingsProviderConfiguration = new OpenSettingsConfiguration(ServiceTyp
             AllowOfflineAccess = true,
             Authority = "https://localhost:5001",
         },
-        RequiresAuthentication = true
+        RequiresAuthentication = false
     },
     Client = new ClientInfo(
         new Guid("adbdf741-bb4d-4673-b2a8-23e677fcf454"), // The unique identifier for the client.

@@ -1,7 +1,7 @@
 ﻿namespace OpenSettings.Models.Inputs
 {
-    public class GetSettingHistoryInput
+    public class GetAppSettingHistoryInput
     {
-         public string HistoryIdOrSlug { get; set; }
+         public string AppHistoryIdOrSlug { get; set; }
     }
 }

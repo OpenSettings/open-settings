@@ -6,6 +6,7 @@ using OpenSettings.Configurations;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Services.Interfaces;
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
@@ -61,7 +62,7 @@ namespace OpenSettings.AspNetCore.Extensions
                 updateInstanceRequest.IsActive = true;
                 updateInstanceRequest.Urls = urls;
 
-                _ = instancesService.UpdateInstanceAsync(updateInstanceRequest, CancellationToken.None).ContinueWith(
+                _ = instancesService.UpdateAppInstanceAsync(updateInstanceRequest, CancellationToken.None).ContinueWith(
                     (c) =>
                     {
                         if (c.IsFaulted)
@@ -73,7 +74,7 @@ namespace OpenSettings.AspNetCore.Extensions
 
                         if (result.Errors.Any(e => e.Code == $"{(int)Errors.InstanceNotFound}"))
                         {
-                            _ = instancesService.CreateInstanceAsync(new CreateInstanceInput(openSettingsConfiguration, isActive: true, urls), CancellationToken.None);
+                            _ = instancesService.CreateAppInstanceAsync(new CreateInstanceInput(openSettingsConfiguration, isActive: true, urls), CancellationToken.None);
                         }
                     });
             });
@@ -82,7 +83,7 @@ namespace OpenSettings.AspNetCore.Extensions
             {
                 updateInstanceRequest.IsActive = false;
 
-                _ = instancesService.UpdateInstanceAsync(updateInstanceRequest, CancellationToken.None).ContinueWith(c =>
+                _ = instancesService.UpdateAppInstanceAsync(updateInstanceRequest, CancellationToken.None).ContinueWith(c =>
                 {
                     if (c.IsFaulted)
                     {
@@ -95,7 +96,7 @@ namespace OpenSettings.AspNetCore.Extensions
 
                     if (result.Errors.Any(e => e.Code == $"{(int)Errors.InstanceNotFound}"))
                     {
-                        _ = instancesService.CreateInstanceAsync(new CreateInstanceInput(openSettingsConfiguration, isActive: false, urls), CancellationToken.None);
+                        _ = instancesService.CreateAppInstanceAsync(new CreateInstanceInput(openSettingsConfiguration, isActive: false, urls), CancellationToken.None);
                     }
 
                     scope.Dispose();
@@ -121,24 +122,27 @@ namespace OpenSettings.AspNetCore.Extensions
         private static IApplicationBuilder UseOpenSettingsSpa(this IApplicationBuilder app)
         {
 #if DEBUG
-            string[] GetLocalIPv4Address()
+            if (Debugger.IsAttached)
             {
-                var ipAddresses = NetworkInterface.GetAllNetworkInterfaces()
-                    .Where(n => n.OperationalStatus == OperationalStatus.Up)
-                    .SelectMany(networkInterface => networkInterface.GetIPProperties().UnicastAddresses)
-                    .Where(u => u.Address.AddressFamily == AddressFamily.InterNetwork).Select(i => $"http://{i.Address}:4200")
-                    .ToArray();
+                string[] GetLocalIPv4Address()
+                {
+                    var ipAddresses = NetworkInterface.GetAllNetworkInterfaces()
+                        .Where(n => n.OperationalStatus == OperationalStatus.Up)
+                        .SelectMany(networkInterface => networkInterface.GetIPProperties().UnicastAddresses)
+                        .Where(u => u.Address.AddressFamily == AddressFamily.InterNetwork).Select(i => $"http://{i.Address}:4200")
+                        .ToArray();
 
-                return ipAddresses.Length > 0 ? ipAddresses : throw new Exception("Ipv4 address couldn't found");
+                    return ipAddresses.Length > 0 ? ipAddresses : throw new Exception("Ipv4 address couldn't found");
+                }
+
+                var ipv4Address = GetLocalIPv4Address();
+
+                app.UseCors(p => p.WithOrigins(ipv4Address.Concat(new[]
+                {
+                    "http://localhost:4200",
+                    "http://0.0.0.0:4200"
+                }).ToArray()).AllowAnyMethod().AllowAnyHeader());
             }
-
-            var ipv4Address = GetLocalIPv4Address();
-
-            app.UseCors(p => p.WithOrigins(ipv4Address.Concat(new[]
-            {
-                "http://localhost:4200",
-                "http://0.0.0.0:4200"
-            }).ToArray()).AllowAnyMethod().AllowAnyHeader());
 #endif
             return app.UseMiddleware<OpenSettingsSpaMiddleware>();
         }

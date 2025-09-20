@@ -23,9 +23,9 @@ namespace OpenSettings.Services.Rest
             _httpClientFactory = httpClientFactory;
         }
 
-        public async Task<IResponse> GetPaginatedGroupsAsync(GetPaginatedInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetPaginatedAppGroupsAsync(GetPaginatedInput input, CancellationToken cancellationToken = default)
         {
-            throw new NotSupportedException(nameof(GetPaginatedGroupsAsync));
+            throw new NotSupportedException(nameof(GetPaginatedAppGroupsAsync));
 
             const string relativeUri = "v1/app-groups/paginated";
 
@@ -56,9 +56,9 @@ namespace OpenSettings.Services.Rest
             }
         }
 
-        public async Task<IResponse> DeleteUnmappedGroupsAsync(CancellationToken cancellationToken = default)
+        public async Task<IResponse> DeleteUnmappedAppGroupsAsync(CancellationToken cancellationToken = default)
         {
-            throw new NotSupportedException(nameof(DeleteUnmappedGroupsAsync));
+            throw new NotSupportedException(nameof(DeleteUnmappedAppGroupsAsync));
 
             const string relativeUri = "v1/app-groups/unmapped";
 
@@ -114,7 +114,7 @@ namespace OpenSettings.Services.Rest
             }
         }
 
-        public async Task<IResponse> GetGroupByIdAsync(GetGroupInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetAppGroupByIdAsync(GetGroupInput input, CancellationToken cancellationToken = default)
         {
             var relativeUri = $"v1/app-groups/{input.GroupIdOrSlug}";
 
@@ -124,7 +124,7 @@ namespace OpenSettings.Services.Rest
             }
         }
 
-        public async Task<IResponse> GetGroupBySlugAsync(GetGroupInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetAppGroupBySlugAsync(GetGroupInput input, CancellationToken cancellationToken = default)
         {
             var relativeUri = $"v1/app-groups/slug/{input.GroupIdOrSlug}";
 
@@ -134,11 +134,11 @@ namespace OpenSettings.Services.Rest
             }
         }
 
-        public async Task<IResponse> DeleteGroupAsync(DeleteGroupInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> DeleteAppGroupAsync(DeleteGroupInput input, CancellationToken cancellationToken = default)
         {
-            throw new NotSupportedException(nameof(DeleteGroupAsync));
+            throw new NotSupportedException(nameof(DeleteAppGroupAsync));
 
-            var relativeUri = $"v1/app-groups/{input.GroupId}?rowVersion={Uri.EscapeDataString(Convert.ToBase64String(input.RowVersion))}";
+            var relativeUri = $"v1/app-groups/{input.AppGroupId}?rowVersion={Uri.EscapeDataString(Convert.ToBase64String(input.RowVersion))}";
 
             using (var response = await HttpClient.DeleteAsync(relativeUri, cancellationToken))
             {
@@ -146,11 +146,11 @@ namespace OpenSettings.Services.Rest
             }
         }
 
-        public async Task<IResponse> UpdateGroupSortOrderAsync(UpdateGroupSortOrderInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> UpdateAppGroupSortOrderAsync(UpdateGroupSortOrderInput input, CancellationToken cancellationToken = default)
         {
-            throw new NotSupportedException(nameof(UpdateGroupAsync));
+            throw new NotSupportedException(nameof(UpdateAppGroupAsync));
 
-            var relativeUri = $"v1/app-groups/{input.GroupId}/sort-order?ascent={input.Ascent}&rowVersion={Uri.EscapeDataString(Convert.ToBase64String(input.RowVersion))}";
+            var relativeUri = $"v1/app-groups/{input.AppGroupId}/sort-order?ascent={input.Ascent}&rowVersion={Uri.EscapeDataString(Convert.ToBase64String(input.RowVersion))}";
 
             using (var jsonContent = JsonContent.Create(input))
             {
@@ -161,9 +161,9 @@ namespace OpenSettings.Services.Rest
             }
         }
 
-        public async Task<IResponse> DragGroupAsync(DragItemSortOrderInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> DragAppGroupAsync(DragItemSortOrderInput input, CancellationToken cancellationToken = default)
         {
-            throw new NotSupportedException(nameof(DragGroupAsync));
+            throw new NotSupportedException(nameof(DragAppGroupAsync));
 
             var relativeUri = $"v1/app-groups/{input.SourceId}/drag/{input.TargetId}?ascent={input.Ascent}&sourceRowVersion={Uri.EscapeDataString(Convert.ToBase64String(input.SourceRowVersion))}";
 
@@ -173,9 +173,9 @@ namespace OpenSettings.Services.Rest
             }
         }
 
-        public async Task<IResponse> UpdateGroupAsync(UpdateGroupInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> UpdateAppGroupAsync(UpdateGroupInput input, CancellationToken cancellationToken = default)
         {
-            var relativeUri = $"v1/app-groups/{input.GroupId}";
+            var relativeUri = $"v1/app-groups/{input.AppGroupId}";
 
             var body = new
             {
@@ -199,7 +199,7 @@ namespace OpenSettings.Services.Rest
             throw new NotSupportedException(nameof(GetOrCreateAsync));
         }
 
-        public async Task<IResponse> ReorderAsync()
+        public async Task<IResponse> ReorderAppGroupsAsync()
         {
             const string relativeUri = "v1/app-groups/reorder";
 

@@ -18,7 +18,7 @@ using System.Threading.Tasks;
 
 namespace OpenSettings.Services.Sql
 {
-    internal sealed class AppConfigurationSqlService : IConfigurationSqlService
+    internal sealed class AppConfigurationSqlService : IAppConfigurationSqlService
     {
         private readonly OpenSettingsDbContext _context;
 
@@ -27,7 +27,7 @@ namespace OpenSettings.Services.Sql
             _context = context;
         }
 
-        public async Task<IResponse> GetConfigurationByAppIdAndIdentifierIdAsync(GetConfigurationByAppAndIdentifierInput input,
+        public async Task<IResponse> GetAppConfigurationByAppIdAndIdentifierIdAsync(GetConfigurationByAppAndIdentifierInput input,
             CancellationToken cancellationToken = default)
         {
             var appIdRule = ValidationRules.GreaterThanRule(nameof(input.AppIdOrSlug), input.AppIdOrSlug, 0);
@@ -64,7 +64,7 @@ namespace OpenSettings.Services.Sql
                 : HttpStatusCode.OK.ToSuccessResponse(entity);
         }
 
-        public async Task<IResponse> PatchConfigurationAsync(PatchConfigurationInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> PatchAppConfigurationAsync(PatchConfigurationInput input, CancellationToken cancellationToken = default)
         {
             var appIdRule = ValidationRules.GreaterThanRule(nameof(input.AppId), input.AppId, 0);
             var identifierIdRule = ValidationRules.GreaterThanRule(nameof(input.IdentifierId), input.IdentifierId, 0);

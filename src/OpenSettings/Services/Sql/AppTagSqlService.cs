@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace OpenSettings.Services.Sql
 {
-    internal sealed class AppTagSqlService : ITagSqlService
+    internal sealed class AppTagSqlService : IAppTagSqlService
     {
         private readonly OpenSettingsDbContext _context;
         private readonly ISortOrderSqlService _sortOrderService;
@@ -28,7 +28,7 @@ namespace OpenSettings.Services.Sql
             _sortOrderService = sortOrderService;
         }
 
-        public async Task<IResponse> GetPaginatedTagsAsync(GetPaginatedInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetPaginatedAppTagsAsync(GetPaginatedInput input, CancellationToken cancellationToken = default)
         {
             var sortOrderBounds = await _sortOrderService.GetSortOrderBoundsAsync(_context.AppTags, cancellationToken);
 
@@ -77,7 +77,7 @@ namespace OpenSettings.Services.Sql
             }
         }
 
-        public async Task<IResponse> DeleteUnmappedTagsAsync(CancellationToken cancellationToken = default)
+        public async Task<IResponse> DeleteUnmappedAppTagsAsync(CancellationToken cancellationToken = default)
         {
             var entities = await _context.AppTags
                 .AsNoTracking()
@@ -112,7 +112,7 @@ namespace OpenSettings.Services.Sql
             }
         }
 
-        public async Task<IResponse> GetTagsAsync(GetTagsInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetAppTagsAsync(GetTagsInput input, CancellationToken cancellationToken = default)
         {
             if (!string.IsNullOrWhiteSpace(input.SearchTerm))
             {
@@ -145,7 +145,7 @@ namespace OpenSettings.Services.Sql
             return HttpStatusCode.OK.ToSuccessResponse(new GetTagsResponse(data));
         }
 
-        public async Task<IResponse> CreateTagAsync(CreateTagInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> CreateAppTagAsync(CreateTagInput input, CancellationToken cancellationToken = default)
         {
             var nameRule = ValidationRules.NotEmptyRule(nameof(input.Name), input.Name);
 
@@ -209,10 +209,10 @@ namespace OpenSettings.Services.Sql
                 return ex.ToResponse();
             }
         }
-      
-        public async Task<IResponse> GetTagByIdAsync(GetTagInput input, CancellationToken cancellationToken = default)
+
+        public async Task<IResponse> GetAppTagByIdAsync(GetTagInput input, CancellationToken cancellationToken = default)
         {
-            var tagIdRule = ValidationRules.GreaterThanRule("TagId", input.TagIdOrSlug, 0);
+            var tagIdRule = ValidationRules.GreaterThanRule("TagId", input.AppTagIdOrSlug, 0);
 
             if (tagIdRule.IsFailed())
             {
@@ -224,16 +224,16 @@ namespace OpenSettings.Services.Sql
             return await GetTagByTagIdOrSlugAsync(t => t.Id == tagId, cancellationToken);
         }
 
-        public Task<IResponse> GetTagBySlugAsync(GetTagInput input, CancellationToken cancellationToken = default)
+        public Task<IResponse> GetAppTagBySlugAsync(GetTagInput input, CancellationToken cancellationToken = default)
         {
-            input.TagIdOrSlug = input.TagIdOrSlug?.ToSlug();
+            input.AppTagIdOrSlug = input.AppTagIdOrSlug?.ToSlug();
 
-            return GetTagByTagIdOrSlugAsync(t => t.Slug == input.TagIdOrSlug, cancellationToken);
+            return GetTagByTagIdOrSlugAsync(t => t.Slug == input.AppTagIdOrSlug, cancellationToken);
         }
 
-        public async Task<IResponse> UpdateTagAsync(UpdateTagInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> UpdateAppTagAsync(UpdateTagInput input, CancellationToken cancellationToken = default)
         {
-            var tagIdRule = ValidationRules.GreaterThanRule(nameof(input.TagId), input.TagId, 0);
+            var tagIdRule = ValidationRules.GreaterThanRule(nameof(input.AppTagId), input.AppTagId, 0);
             var nameRule = ValidationRules.NotEmptyRule(nameof(input.Name), input.Name);
 
             var failure = new[] { tagIdRule, nameRule }.ValidateFirstOrDefault();
@@ -271,7 +271,7 @@ namespace OpenSettings.Services.Sql
                         input.SortOrder = input.SortOrder < minOrder ? input.SortOrder : minOrder - OpenSettingsDefaults.SortOrderGap;
                     }
                 }
-                catch(InvalidOperationException)
+                catch (InvalidOperationException)
                 {
                     // ignored
                 }
@@ -330,9 +330,9 @@ namespace OpenSettings.Services.Sql
             }
         }
 
-        public async Task<IResponse> DeleteTagAsync(DeleteTagInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> DeleteAppTagAsync(DeleteAppTagInput input, CancellationToken cancellationToken = default)
         {
-            var tagIdRule = ValidationRules.GreaterThanRule(nameof(input.TagId), input.TagId, 0);
+            var tagIdRule = ValidationRules.GreaterThanRule(nameof(input.AppTagId), input.AppTagId, 0);
 
             if (tagIdRule.IsFailed())
             {
@@ -341,7 +341,26 @@ namespace OpenSettings.Services.Sql
 
             var tagId = tagIdRule.GetStoredValue<int>();
 
-            _context.AppTags.Remove(new AppTagSqlModel { Id = tagId, RowVersion = input.RowVersion });
+            var appTag = await _context.AppTags
+                .AsNoTracking()
+                .Where(a => a.Id == tagId)
+                .Select(a => new AppTagSqlModel
+                {
+                    Id = tagId,
+                    RowVersion = a.RowVersion
+                }).FirstOrDefaultAsync(cancellationToken);
+
+            if (appTag == null)
+            {
+                return HttpStatusCode.OK.ToSuccessResponse();
+            }
+
+            if (!appTag.RowVersion.SequenceEqual(input.RowVersion))
+            {
+                return FailureResponses.Conflict($"{tagId}", appTag.RowVersion, input.RowVersion, false);
+            }
+
+            _context.AppTags.Remove(appTag);
 
             try
             {
@@ -359,9 +378,9 @@ namespace OpenSettings.Services.Sql
             }
         }
 
-        public async Task<IResponse> UpdateTagSortOrderAsync(UpdateTagSortOrderInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> UpdateAppTagSortOrderAsync(UpdateTagSortOrderInput input, CancellationToken cancellationToken = default)
         {
-            var tagIdRule = ValidationRules.GreaterThanRule(nameof(input.TagId), input.TagId, 0);
+            var tagIdRule = ValidationRules.GreaterThanRule(nameof(input.AppTagId), input.AppTagId, 0);
 
             if (tagIdRule.IsFailed())
             {
@@ -389,7 +408,7 @@ namespace OpenSettings.Services.Sql
 
             if (!input.RowVersion.SequenceEqual(entity.RowVersion))
             {
-                return FailureResponses.Conflict(input.TagId, entity.RowVersion, input.RowVersion, false);
+                return FailureResponses.Conflict(input.AppTagId, entity.RowVersion, input.RowVersion, false);
             }
 
             var foundEntity = await _sortOrderService.FindNeighbour(_context.AppTags, entity.Id, entity.SortOrder, input.Ascent)
@@ -442,7 +461,7 @@ namespace OpenSettings.Services.Sql
             }
         }
 
-        public async Task<IResponse> DragTagAsync(DragItemSortOrderInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> DragAppTagAsync(DragItemSortOrderInput input, CancellationToken cancellationToken = default)
         {
             var sourceIdRule = ValidationRules.GreaterThanRule(nameof(input.SourceId), input.SourceId, 0);
             var targetIdRule = ValidationRules.GreaterThanRule(nameof(input.TargetId), input.TargetId, 0);
@@ -596,7 +615,7 @@ namespace OpenSettings.Services.Sql
                     ? await _context.AppTags.AsNoTracking().MaxAsync(s => s.SortOrder, cancellationToken) + OpenSettingsDefaults.SortOrderGap
                     : await _context.AppTags.AsNoTracking().MinAsync(s => s.SortOrder, cancellationToken) - OpenSettingsDefaults.SortOrderGap;
             }
-            catch(InvalidOperationException)
+            catch (InvalidOperationException)
             {
                 sortOrder = 0;
             }
@@ -633,7 +652,7 @@ namespace OpenSettings.Services.Sql
             }
         }
 
-        public async Task<IResponse> ReorderAsync()
+        public async Task<IResponse> ReorderAppTagAsync()
         {
             try
             {

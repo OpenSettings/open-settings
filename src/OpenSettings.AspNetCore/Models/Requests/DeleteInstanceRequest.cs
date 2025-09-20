@@ -2,9 +2,9 @@
 
 namespace OpenSettings.AspNetCore.Models.Requests
 {
-    public class DeleteInstanceRequest
+    public class DeleteAppInstanceRequest
     {
         [FromRoute]
-        public string InstanceId { get; set; }
+        public string AppInstanceId { get; set; }
     }
 }

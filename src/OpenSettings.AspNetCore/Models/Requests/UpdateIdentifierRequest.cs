@@ -8,6 +8,6 @@ namespace OpenSettings.AspNetCore.Models.Requests
         public string IdentifierId { get; set; }
 
         [FromBody]
-        public UpdateIdentifierRequestBody Body { get; set; }
+        public UpdateAppIdentifierRequestBody Body { get; set; }
     }
 }

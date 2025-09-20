@@ -210,7 +210,7 @@ namespace OpenSettings.Extensions
                 using (var openSettingsHttpClientFactory = new OpenSettingsHttpClientFactory(openSettingsConfiguration))
                 {
                     var appsService = new AppRestService(openSettingsHttpClientFactory, openSettingsConfiguration);
-                    var settingsService = new SettingsRestService(dataChangeService: null, openSettingsHttpClientFactory, openSettingsConfiguration, providerInfo: null);
+                    var settingsService = new AppSettingRestService(dataChangeService: null, openSettingsHttpClientFactory, openSettingsConfiguration, providerInfo: null);
                     var localSettingsService = new LocalSettingsService(appsService, settingsService, openSettingsConfiguration);
 
                     await func(localSettingsService);
@@ -230,12 +230,12 @@ namespace OpenSettings.Extensions
                 var identifierSqlService = new IdentifierSqlService(context, sortOrderSqlService);
                 var passwordHasher = new PasswordHasher<AppSqlModel>();
 
-                var appsService = new AppsSqlService(
+                var appsService = new AppSqlService(
                     identifierSqlService,
                     appGroupsSqlService, tagsSqlService, compressionProvider, passwordHasher, context,
                     openSettingsConfiguration, null);
 
-                var settingsService = new AppSettingsSqlService(
+                var settingsService = new AppSettingSqlService(
                     dataChangeService: null,
                     identifierSqlService,
                     compressionProvider,

@@ -15,14 +15,14 @@ namespace OpenSettings.Domains.Sql.Configurations
 
             builder.HasKey(e => e.Id);
 
-            builder.HasIndex(e => new { e.Slug, e.SettingId }).IsUnique();
+            builder.HasIndex(e => new { e.Slug, SettingId = e.AppSettingId }).IsUnique();
             builder.HasIndex(e => e.Version);
 
             builder.Property(e => e.RowVersion).IsRowVersion().ValueGeneratedNever();
 
             builder.HasOne(e => e.AppSetting)
                 .WithMany(e => e.AppSettingHistories)
-                .HasForeignKey(e => e.SettingId)
+                .HasForeignKey(e => e.AppSettingId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasOne(e => e.CreatedBy)

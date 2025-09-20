@@ -4,7 +4,7 @@ namespace OpenSettings.Models.Inputs
 {
     public class RestoreSettingHistoryInput
     {
-        public string HistoryId { get; set; }
+        public string AppSettingHistoryId { get; set; }
 
         // For safety!
         public byte[] SettingRowVersion { get; set; } = Array.Empty<byte>();

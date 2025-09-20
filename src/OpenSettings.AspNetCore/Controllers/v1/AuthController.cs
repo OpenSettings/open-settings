@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace OpenSettings.AspNetCore.Controllers.v1
 {
-    [Route(OpenSettingsDefaults.Routes.V1.Auth)]
+    [Route("")]
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
@@ -18,7 +18,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             _authService = authService;
         }
 
-        [HttpPost("me")]
+        [HttpPost(OpenSettingsDefaults.Routes.V1.AuthEndpoints.GetMe)]
         [AllowAnonymous]
         public async Task<IActionResult> GetMe(GetMeRequest request)
         {
@@ -31,7 +31,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             return response.ToAction();
         }
 
-        [HttpGet("login")]
+        [HttpGet(OpenSettingsDefaults.Routes.V1.AuthEndpoints.Login)]
         [AllowAnonymous]
         public async Task<IActionResult> Login(LoginRequest request)
         {
@@ -46,7 +46,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             return new EmptyResult();
         }
 
-        [HttpGet("logout")]
+        [HttpGet(OpenSettingsDefaults.Routes.V1.AuthEndpoints.Logout)]
         [AllowAnonymous]
         public async Task<IActionResult> Logout(LogoutRequest request)
         {

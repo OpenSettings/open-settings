@@ -2,10 +2,10 @@
 
 namespace OpenSettings.AspNetCore.Models.Requests
 {
-    public class GetSettingByIdRequest
+    public class GetAppSettingByIdRequest
     {
         [FromRoute]
-        public string SettingId { get; set; }
+        public string AppSettingId { get; set; }
 
         [FromQuery]
         public string Excludes { get; set; }

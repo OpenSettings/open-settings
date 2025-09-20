@@ -4,18 +4,18 @@ using System.Linq;
 
 namespace OpenSettings.Models.Inputs
 {
-    public class GetSettingByIdInput
+    public class GetAppSettingByIdInput
     {
-        public GetSettingByIdInput(string settingId, string excludes)
+        public GetAppSettingByIdInput(string appSettingId, string excludes)
         {
-            SettingId = settingId;
+            AppSettingId = appSettingId;
             Excludes = string.IsNullOrWhiteSpace(excludes)
                 ? new HashSet<string>()
                 : new HashSet<string>(excludes.Split(OpenSettingsDefaults.Separators.CommaSeparator, StringSplitOptions.RemoveEmptyEntries)
                     .Select(e => e.Trim().ToLowerInvariant()).Where(e => e != string.Empty));
         }
 
-        public string SettingId { get; }
+        public string AppSettingId { get; }
 
         public HashSet<string> Excludes { get; }
     }

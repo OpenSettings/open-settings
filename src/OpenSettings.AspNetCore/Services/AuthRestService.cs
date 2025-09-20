@@ -67,7 +67,7 @@ namespace OpenSettings.AspNetCore.Services
 
                     var httpClient = GetProviderHttpClient();
 
-                    using (var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, $"{OpenSettingsDefaults.Routes.V1.Auth}/me{httpContext.Request.QueryString.Value}"))
+                    using (var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, $"{OpenSettingsDefaults.Routes.V1.AuthEndpoints.GetMe}{httpContext.Request.QueryString.Value}"))
                     {
                         using (var response = await httpClient.SendAsync(httpRequestMessage, cancellationToken))
                         {

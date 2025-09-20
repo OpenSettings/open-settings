@@ -4,7 +4,7 @@ namespace OpenSettings.Models.Inputs
 {
     public class UpdateSettingDataInput
     {
-        public string SettingId { get; set; }
+        public string AppSettingId { get; set; }
 
         public string Data { get; set; }
 

@@ -2,9 +2,9 @@
 
 namespace OpenSettings.AspNetCore.Models.Requests
 {
-    public class GetSettingHistoryDataRequest
+    public class GetAppSettingHistoryDataRequest
     {
         [FromRoute]
-        public string HistoryId { get; set; }
+        public string AppSettingHistoryId { get; set; }
     }
 }

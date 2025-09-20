@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace OpenSettings.AspNetCore.Controllers.v1
 {
-    [Route(OpenSettingsDefaults.Routes.V1.Users)]
+    [Route("")]
     public class UsersController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -19,7 +19,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             _userService = userService;
         }
 
-        [HttpPost]
+        [HttpPost(OpenSettingsDefaults.Routes.V1.UsersEndpoints.CreateUser)]
         public async Task<IActionResult> CreateUser(CreateUserRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
@@ -39,7 +39,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             return result.ToAction();
         }
 
-        [HttpGet("paginated")]
+        [HttpGet(OpenSettingsDefaults.Routes.V1.UsersEndpoints.GetPaginatedUsers)]
         public async Task<IActionResult> GetPaginatedUsers(GetPaginatedRequest request, CancellationToken cancellationToken = default)
         {
             if(!ModelState.IsValid)
@@ -54,33 +54,33 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             return result.ToAction();
         }
 
-        [HttpGet("{UserIdOrSlug}")]
-        public async Task<IActionResult> GetUserById(GetUserRequest request, CancellationToken cancellationToken = default)
+        [HttpGet(OpenSettingsDefaults.Routes.V1.UsersEndpoints.GetUserById)]
+        public async Task<IActionResult> GetUserById(GetUserByIdRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
             {
                 return ModelState.ToAction();
             }
 
-            var result = await _userService.GetUserByIdAsync(new GetUserInput { UserIdOrSlug = request.UserIdOrSlug }, cancellationToken);
+            var result = await _userService.GetUserByIdAsync(new GetUserInput { UserIdOrSlug = request.UserId }, cancellationToken);
 
             return result.ToAction();
         }
 
-        [HttpGet("slug/{UserIdOrSlug}")]
-        public async Task<IActionResult> GetUserBySlug(GetUserRequest request, CancellationToken cancellationToken = default)
+        [HttpGet(OpenSettingsDefaults.Routes.V1.UsersEndpoints.GetUserBySlug)]
+        public async Task<IActionResult> GetUserBySlug(GetUserBySlugRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
             {
                 return ModelState.ToAction();
             }
 
-            var result = await _userService.GetUserBySlugAsync(new GetUserInput { UserIdOrSlug = request.UserIdOrSlug }, cancellationToken);
+            var result = await _userService.GetUserBySlugAsync(new GetUserInput { UserIdOrSlug = request.UserSlug }, cancellationToken);
 
             return result.ToAction();
         }
 
-        [HttpPut("{UserId}")]
+        [HttpPut(OpenSettingsDefaults.Routes.V1.UsersEndpoints.UpdateUser)]
         public async Task<IActionResult> UpdateUser(UpdateUserRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
@@ -96,9 +96,8 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             return result.ToAction();
         }
 
-        [HttpDelete("{UserId}")]
-        public async Task<IActionResult> DeleteUser(DeleteUserRequest request,
-            CancellationToken cancellationToken = default)
+        [HttpDelete(OpenSettingsDefaults.Routes.V1.UsersEndpoints.DeleteUser)]
+        public async Task<IActionResult> DeleteUser(DeleteUserRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
             {

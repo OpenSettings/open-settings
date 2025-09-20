@@ -56,7 +56,7 @@ namespace OpenSettings.Domains.Sql.Entities
         /// <summary>
         /// The setting id associated with this setting history.
         /// </summary>
-        public int SettingId { get; set; }
+        public int AppSettingId { get; set; }
 
         public virtual AppSettingSqlModel AppSetting { get; set; }
 

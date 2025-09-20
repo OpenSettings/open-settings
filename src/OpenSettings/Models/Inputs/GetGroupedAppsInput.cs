@@ -2,7 +2,7 @@
 {
     public class GetGroupedAppsInput
     {
-        public string GroupId { get; set; }
+        public string AppGroupId { get; set; }
 
         public string SearchTerm { get; set; }
     }

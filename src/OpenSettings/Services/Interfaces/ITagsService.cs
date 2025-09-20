@@ -8,29 +8,29 @@ using System.Threading.Tasks;
 
 namespace OpenSettings.Services.Interfaces
 {
-    public interface ITagsService
+    public interface IAppTagService
     {
-        Task<IResponse> GetPaginatedTagsAsync(GetPaginatedInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> GetPaginatedAppTagsAsync(GetPaginatedInput input, CancellationToken cancellationToken = default);
 
-        Task<IResponse> DeleteUnmappedTagsAsync(CancellationToken cancellationToken = default);
+        Task<IResponse> DeleteUnmappedAppTagsAsync(CancellationToken cancellationToken = default);
 
-        Task<IResponse> GetTagsAsync(GetTagsInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> GetAppTagsAsync(GetTagsInput input, CancellationToken cancellationToken = default);
 
-        Task<IResponse> CreateTagAsync(CreateTagInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> CreateAppTagAsync(CreateTagInput input, CancellationToken cancellationToken = default);
 
-        Task<IResponse> GetTagByIdAsync(GetTagInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> GetAppTagByIdAsync(GetTagInput input, CancellationToken cancellationToken = default);
 
-        Task<IResponse> GetTagBySlugAsync(GetTagInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> GetAppTagBySlugAsync(GetTagInput input, CancellationToken cancellationToken = default);
 
-        Task<IResponse> UpdateTagAsync(UpdateTagInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> UpdateAppTagAsync(UpdateTagInput input, CancellationToken cancellationToken = default);
 
-        Task<IResponse> DeleteTagAsync(DeleteTagInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> DeleteAppTagAsync(DeleteAppTagInput input, CancellationToken cancellationToken = default);
 
-        Task<IResponse> UpdateTagSortOrderAsync(UpdateTagSortOrderInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> UpdateAppTagSortOrderAsync(UpdateTagSortOrderInput input, CancellationToken cancellationToken = default);
 
-        Task<IResponse> DragTagAsync(DragItemSortOrderInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> DragAppTagAsync(DragItemSortOrderInput input, CancellationToken cancellationToken = default);
 
-        Task<IResponse> ReorderAsync();
+        Task<IResponse> ReorderAppTagAsync();
 
         Task<IResponse<GetOrCreateResponse>> GetOrCreateAsync(string name, SetSortOrderPosition setSortOrderPosition, Guid? createdById, CancellationToken cancellationToken = default);
     }

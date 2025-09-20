@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace OpenSettings.AspNetCore.Controllers.v1
 {
-    [Route(OpenSettingsDefaults.Routes.V1.Licenses)]
+    [Route("")]
     public class LicensesController : ControllerBase
     {
         private readonly ILicenseService _licenseService;
@@ -19,7 +19,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             _licenseService = licenseService;
         }
 
-        [HttpGet("paginated")]
+        [HttpGet(OpenSettingsDefaults.Routes.V1.LicensesEndpoints.GetPaginatedLicenses)]
         public async Task<IActionResult> GetPaginatedLicenses(GetPaginatedLicensesRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
@@ -35,7 +35,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             return result.ToAction();
         }
 
-        [HttpGet("current")]
+        [HttpGet(OpenSettingsDefaults.Routes.V1.LicensesEndpoints.GetCurrentLicense)]
         public async Task<IActionResult> GetCurrentLicense(CancellationToken cancellationToken)
         {
             var result = await _licenseService.GetCurrentLicenseAsync(cancellationToken);
@@ -43,7 +43,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             return result.ToAction();
         }
 
-        [HttpPost]
+        [HttpPost(OpenSettingsDefaults.Routes.V1.LicensesEndpoints.SaveLicense)]
         public async Task<IActionResult> SaveLicense(SaveLicenseRequest request, CancellationToken cancellationToken)
         {
             var result = await _licenseService.SaveLicenseAsync(request.LicenseKey, cancellationToken);
@@ -51,7 +51,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             return result.ToAction();
         }
 
-        [HttpDelete("{ReferenceId}")]
+        [HttpDelete(OpenSettingsDefaults.Routes.V1.LicensesEndpoints.DeleteLicense)]
         public async Task<IActionResult> DeleteLicense(DeleteLicenseRequest request, CancellationToken cancellationToken)
         {
             var result = await _licenseService.DeleteLicenseAsync(new DeleteLicenseInput

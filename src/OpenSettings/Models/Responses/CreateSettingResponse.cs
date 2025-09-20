@@ -2,7 +2,7 @@
 {
     public class CreateSettingResponse
     {
-        public string SettingId { get; set; }
+        public string AppSettingId { get; set; }
 
         public string ClassId { get; set; }
     }

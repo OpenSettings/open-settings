@@ -2,6 +2,6 @@
 {
     public class GetSettingDataInput
     {
-        public string SettingId { get; set; }
+        public string AppSettingId { get; set; }
     }
 }

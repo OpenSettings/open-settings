@@ -3,10 +3,10 @@ using System;
 
 namespace OpenSettings.AspNetCore.Models.Requests
 {
-    public class DeleteSettingRequest
+    public class DeleteAppSettingRequest
     {
         [FromRoute]
-        public string SettingId { get; set; }
+        public string AppSettingId { get; set; }
 
         [FromQuery]
         public byte[] RowVersion { get; set; } = Array.Empty<byte>();

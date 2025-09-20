@@ -10,7 +10,7 @@ namespace OpenSettings.Models.Responses
 
         public string Slug { get; set; }
 
-        public string SettingId { get; set; }
+        public string AppSettingId { get; set; }
 
         public Guid? CreatedById { get; set; }
 

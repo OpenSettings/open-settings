@@ -8,7 +8,7 @@ namespace OpenSettings.Services.Interfaces
     {
         Task<GetConfigsResponse> GetConfigsAsync(CancellationToken cancellationToken = default);
 
-        Task<GetConfigsDataResponse> GetConfigsDataAsync(string configName, CancellationToken cancellationToken = default);
+        Task<GetConfigsDataResponse> GetConfigDataAsync(string configName, CancellationToken cancellationToken = default);
 
         Task<GetOpenSettingsNotificationsResponse> GetNotificationsAsync(CancellationToken cancellationToken = default);
     }

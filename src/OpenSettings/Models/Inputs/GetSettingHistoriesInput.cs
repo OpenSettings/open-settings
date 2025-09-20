@@ -6,16 +6,16 @@ namespace OpenSettings.Models.Inputs
 {
     public class GetSettingHistoriesInput
     {
-        public GetSettingHistoriesInput(string settingId, string excludes)
+        public GetSettingHistoriesInput(string appSettingId, string excludes)
         {
-            SettingId = settingId;
+            AppSettingId = appSettingId;
             Excludes = string.IsNullOrWhiteSpace(excludes)
                 ? new HashSet<string>()
                 : new HashSet<string>(excludes.Split(OpenSettingsDefaults.Separators.CommaSeparator, StringSplitOptions.RemoveEmptyEntries)
                     .Select(s => s.Trim().ToLowerInvariant()).Where(e => e != string.Empty));
         }
 
-        public string SettingId { get; }
+        public string AppSettingId { get; }
 
         public HashSet<string> Excludes { get; }
     }

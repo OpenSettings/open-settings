@@ -8,14 +8,14 @@ namespace OpenSettings.Services.Interfaces
 {
     public interface ISettingHistoryService
     {
-        Task<IResponse> GetSettingHistoryDataAsync(GetSettingHistoryDataInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> GetAppSettingHistoryDataAsync(GetAppSettingHistoryDataInput input, CancellationToken cancellationToken = default);
 
-        Task<IResponse> GetSettingHistoryByIdAsync(GetSettingHistoryInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> GetAppSettingHistoryByIdAsync(GetAppSettingHistoryInput input, CancellationToken cancellationToken = default);
 
-        Task<IResponse> GetSettingHistoryBySlugAsync(GetSettingHistoryInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> GetAppSettingHistoryBySlugAsync(GetAppSettingHistoryInput input, CancellationToken cancellationToken = default);
 
         Task<IResponse> GetSettingHistoriesAsync(GetSettingHistoriesInput input, CancellationToken cancellationToken = default);
 
-        Task<IResponse<RestoreSettingHistoryResponse>> RestoreSettingHistoryAsync(RestoreSettingHistoryInput input, CancellationToken cancellationToken = default);
+        Task<IResponse<RestoreSettingHistoryResponse>> RestoreAppSettingHistoryAsync(RestoreSettingHistoryInput input, CancellationToken cancellationToken = default);
     }
 }

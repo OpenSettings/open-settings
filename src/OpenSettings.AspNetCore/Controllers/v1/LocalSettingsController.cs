@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace OpenSettings.AspNetCore.Controllers.v1
 {
-    [Route(OpenSettingsDefaults.Routes.V1.LocalSettings)]
+    [Route("")]
     public class LocalSettingsController : ControllerBase
     {
         private readonly ILocalSettingsService _localSettingsService;
@@ -16,7 +16,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             _localSettingsService = localSettingsService;
         }
 
-        [HttpGet("{ComputedIdentifier:guid}")]
+        [HttpGet(OpenSettingsDefaults.Routes.V1.LocalSettingsEndpoints.GetLocalSettings)]
         public async Task<IActionResult> GetLocalSettings(GetLocalSettingsRequest request, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)

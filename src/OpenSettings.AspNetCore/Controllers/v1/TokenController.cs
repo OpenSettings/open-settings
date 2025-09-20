@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Ogu.Response;
 using OpenSettings.AspNetCore.Extensions;
 using OpenSettings.AspNetCore.Models.Requests;
-using OpenSettings.Configurations;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Services.Interfaces;
 using System.Threading;
@@ -11,19 +10,17 @@ using System.Threading.Tasks;
 
 namespace OpenSettings.AspNetCore.Controllers.v1
 {
-    [Route(OpenSettingsDefaults.Routes.V1.Token)]
+    [Route("")]
     public class TokenController : ControllerBase
     {
         private readonly ITokenService _tokenService;
-        private readonly OpenSettingsConfiguration _openSettingsConfiguration;
 
-        public TokenController(ITokenService tokenService, OpenSettingsConfiguration openSettingsConfiguration)
+        public TokenController(ITokenService tokenService)
         {
             _tokenService = tokenService;
-            _openSettingsConfiguration = openSettingsConfiguration;
         }
 
-        [HttpPost("machine")]
+        [HttpPost(OpenSettingsDefaults.Routes.V1.TokenEndpoints.GenerateTokenForMachine)]
         [AllowAnonymous]
         public async Task<IActionResult> GenerateTokenForMachine(GenerateMachineToMachineTokenRequest request, CancellationToken cancellationToken)
         {

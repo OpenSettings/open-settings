@@ -46,7 +46,7 @@ namespace OpenSettings.Domains.Sql.Configurations
 
             builder.HasMany(e => e.AppSettingHistories)
                 .WithOne(e => e.AppSetting)
-                .HasForeignKey(e => e.SettingId)
+                .HasForeignKey(e => e.AppSettingId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }

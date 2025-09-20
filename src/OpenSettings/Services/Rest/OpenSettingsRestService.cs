@@ -53,7 +53,7 @@ namespace OpenSettings.Services.Rest
             }
         }
 
-        public async Task<GetConfigsDataResponse> GetConfigsDataAsync(string configName, CancellationToken cancellationToken)
+        public async Task<GetConfigsDataResponse> GetConfigDataAsync(string configName, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(configName))
             {

@@ -1,6 +1,6 @@
 ﻿namespace OpenSettings.Models.Inputs
 {
-    public class GetSettingInput
+    public class GetSettingByIdInput
     {
         public string Id { get; set; }
     }

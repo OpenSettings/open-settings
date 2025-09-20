@@ -1,7 +1,7 @@
 ﻿namespace OpenSettings.Models.Inputs
 {
-    public class DeleteInstanceInput
+    public class DeleteAppInstanceInput
     {
-        public string InstanceId { get; set; }
+        public string AppInstanceId { get; set; }
     }
 }

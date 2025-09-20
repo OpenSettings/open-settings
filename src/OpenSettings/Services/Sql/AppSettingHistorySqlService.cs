@@ -18,7 +18,7 @@ using System.Threading.Tasks;
 
 namespace OpenSettings.Services.Sql
 {
-    internal sealed class AppSettingHistorySqlService : ISettingHistorySqlService
+    internal sealed class AppSettingHistorySqlService : IAppSettingHistorySqlService
     {
         private readonly IDataChangeService _dataChangeService;
         private readonly IDataValidationService _dataValidationService;
@@ -37,16 +37,16 @@ namespace OpenSettings.Services.Sql
             _context = context;
         }
 
-        public async Task<IResponse> GetSettingHistoryDataAsync(GetSettingHistoryDataInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetAppSettingHistoryDataAsync(GetAppSettingHistoryDataInput input, CancellationToken cancellationToken = default)
         {
-            var historyIdRule = ValidationRules.NotEmptyRule(nameof(input.HistoryId), input.HistoryId);
+            var historyIdRule = ValidationRules.NotEmptyRule(nameof(input.AppSettingHistoryId), input.AppSettingHistoryId);
 
             if (historyIdRule.IsFailed())
             {
                 return HttpStatusCode.BadRequest.ToFailureResponse(historyIdRule.Failure);
             }
 
-            var historyId = Guid.Parse(input.HistoryId);
+            var historyId = Guid.Parse(input.AppSettingHistoryId);
 
             var entity = await _context.AppSettingHistories
                 .AsNoTracking()
@@ -68,28 +68,28 @@ namespace OpenSettings.Services.Sql
                 });
         }
 
-        public async Task<IResponse> GetSettingHistoryByIdAsync(GetSettingHistoryInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetAppSettingHistoryByIdAsync(GetAppSettingHistoryInput input, CancellationToken cancellationToken = default)
         {
-            var historyIdRule = ValidationRules.NotEmptyRule("HistoryId", input.HistoryIdOrSlug);
+            var historyIdRule = ValidationRules.NotEmptyRule("HistoryId", input.AppHistoryIdOrSlug);
 
             if (historyIdRule.IsFailed())
             {
                 return HttpStatusCode.BadRequest.ToFailureResponse(historyIdRule.Failure);
             }
 
-            return await GetSettingHistoryByIdOrSlugAsync(s => s.Id == Guid.Parse(input.HistoryIdOrSlug), cancellationToken);
+            return await GetSettingHistoryByIdOrSlugAsync(s => s.Id == Guid.Parse(input.AppHistoryIdOrSlug), cancellationToken);
         }
 
-        public Task<IResponse> GetSettingHistoryBySlugAsync(GetSettingHistoryInput input, CancellationToken cancellationToken = default)
+        public Task<IResponse> GetAppSettingHistoryBySlugAsync(GetAppSettingHistoryInput input, CancellationToken cancellationToken = default)
         {
-            input.HistoryIdOrSlug = input.HistoryIdOrSlug?.ToSlug();
+            input.AppHistoryIdOrSlug = input.AppHistoryIdOrSlug?.ToSlug();
 
-            return GetSettingHistoryByIdOrSlugAsync(s => s.Slug == input.HistoryIdOrSlug, cancellationToken);
+            return GetSettingHistoryByIdOrSlugAsync(s => s.Slug == input.AppHistoryIdOrSlug, cancellationToken);
         }
 
         public async Task<IResponse> GetSettingHistoriesAsync(GetSettingHistoriesInput input, CancellationToken cancellationToken = default)
         {
-            var settingIdRule = ValidationRules.GreaterThanRule(nameof(input.SettingId), input.SettingId, 0);
+            var settingIdRule = ValidationRules.GreaterThanRule(nameof(input.AppSettingId), input.AppSettingId, 0);
 
             if (settingIdRule.IsFailed())
             {
@@ -106,7 +106,7 @@ namespace OpenSettings.Services.Sql
                 .AsSplitQuery()
 #endif
                 .Include(s => s.AppSetting)
-                .Where(s => s.SettingId == settingId)
+                .Where(s => s.AppSettingId == settingId)
                 .OrderByDescending(a => a.CreatedOn)
                 .Select(s => new
                 {
@@ -116,7 +116,7 @@ namespace OpenSettings.Services.Sql
                     s.CompressionLevel,
                     s.Version,
                     s.Slug,
-                    s.SettingId,
+                    SettingId = s.AppSettingId,
                     s.CreatedById,
                     s.RestoredById,
                     s.RowVersion,
@@ -142,16 +142,16 @@ namespace OpenSettings.Services.Sql
             return HttpStatusCode.OK.ToSuccessResponse(settingHistoriesResponse);
         }
 
-        public async Task<IResponse<RestoreSettingHistoryResponse>> RestoreSettingHistoryAsync(RestoreSettingHistoryInput input, CancellationToken cancellationToken)
+        public async Task<IResponse<RestoreSettingHistoryResponse>> RestoreAppSettingHistoryAsync(RestoreSettingHistoryInput input, CancellationToken cancellationToken)
         {
-            var historyIdRule = ValidationRules.NotEmptyRule(nameof(input.HistoryId), input.HistoryId);
+            var historyIdRule = ValidationRules.NotEmptyRule(nameof(input.AppSettingHistoryId), input.AppSettingHistoryId);
 
             if (historyIdRule.IsFailed())
             {
                 return historyIdRule.Failure.ToResponse<RestoreSettingHistoryResponse>();
             }
 
-            var historyId = Guid.Parse(input.HistoryId);
+            var historyId = Guid.Parse(input.AppSettingHistoryId);
 
             var entity = await _context.AppSettingHistories
                 .AsNoTracking()
@@ -313,7 +313,7 @@ namespace OpenSettings.Services.Sql
                     s.CompressionLevel,
                     s.Version,
                     s.Slug,
-                    SettingId = $"{s.SettingId}",
+                    SettingId = $"{s.AppSettingId}",
                     s.CreatedById,
                     s.RestoredById,
                     s.RowVersion,
@@ -328,7 +328,7 @@ namespace OpenSettings.Services.Sql
                     Data = await _compressionProvider.DecompressToUtf8StringAsync(entity.Data, entity.CompressionType, cancellationToken),
                     Version = entity.Version,
                     Slug = entity.Slug,
-                    SettingId = entity.SettingId,
+                    AppSettingId = entity.SettingId,
                     CreatedById = entity.CreatedById,
                     RestoredById = entity.RestoredById,
                     RowVersion = entity.RowVersion,

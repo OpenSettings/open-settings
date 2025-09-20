@@ -1,15 +1,15 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Ogu.Response;
+using OpenSettings.AspNetCore.Extensions;
 using OpenSettings.AspNetCore.Models.Requests;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Services.Interfaces;
 using System.Threading;
 using System.Threading.Tasks;
-using OpenSettings.AspNetCore.Extensions;
 
 namespace OpenSettings.AspNetCore.Controllers.v1
 {
-    [Route(OpenSettingsDefaults.Routes.V1.Identifiers)]
+    [Route("")]
     public class IdentifiersController : ControllerBase
     {
         private readonly IIdentifierService _identifierService;
@@ -19,7 +19,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             _identifierService = identifierService;
         }
 
-        [HttpGet]
+        [HttpGet(OpenSettingsDefaults.Routes.V1.IdentifiersEndpoints.GetIdentifiers)]
         public async Task<IActionResult> GetIdentifiers(GetIdentifiersRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
@@ -37,7 +37,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             return result.ToAction();
         }
 
-        [HttpPost]
+        [HttpPost(OpenSettingsDefaults.Routes.V1.IdentifiersEndpoints.CreateIdentifier)]
         public async Task<IActionResult> CreateIdentifier(CreateIdentifierRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
@@ -56,7 +56,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             return result.ToAction();
         }
 
-        [HttpGet("paginated")]
+        [HttpGet(OpenSettingsDefaults.Routes.V1.IdentifiersEndpoints.GetPaginatedIdentifiers)]
         public async Task<IActionResult> GetPaginatedIdentifiers(GetPaginatedRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
@@ -69,7 +69,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             return result.ToAction();
         }
 
-        [HttpDelete("unmapped")]
+        [HttpDelete(OpenSettingsDefaults.Routes.V1.IdentifiersEndpoints.DeleteUnmappedIdentifiers)]
         public async Task<IActionResult> DeleteUnmappedIdentifiers(CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
@@ -82,33 +82,33 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             return result.ToAction();
         }
 
-        [HttpGet("{IdentifierIdOrSlug}")]
-        public async Task<IActionResult> GetIdentifierById(GetIdentifierRequest request, CancellationToken cancellationToken = default)
+        [HttpGet(OpenSettingsDefaults.Routes.V1.IdentifiersEndpoints.GetIdentifierById)]
+        public async Task<IActionResult> GetIdentifierById(GetIdentifierByIdRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
             {
                 return ModelState.ToAction();
             }
 
-            var result = await _identifierService.GetIdentifierByIdAsync(new GetIdentifierInput { IdentifierIdOrSlug = request.IdentifierIdOrSlug }, cancellationToken);
+            var result = await _identifierService.GetIdentifierByIdAsync(new GetIdentifierInput { IdentifierIdOrSlug = request.IdentifierId }, cancellationToken);
 
             return result.ToAction();
         }
 
-        [HttpGet("slug/{IdentifierIdOrSlug}")]
-        public async Task<IActionResult> GetIdentifierBySlug(GetIdentifierRequest request, CancellationToken cancellationToken = default)
+        [HttpGet(OpenSettingsDefaults.Routes.V1.IdentifiersEndpoints.GetIdentifierBySlug)]
+        public async Task<IActionResult> GetIdentifierBySlug(GetIdentifierBySlugRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
             {
                 return ModelState.ToAction();
             }
 
-            var result = await _identifierService.GetIdentifierBySlugAsync(new GetIdentifierInput { IdentifierIdOrSlug = request.IdentifierIdOrSlug }, cancellationToken);
+            var result = await _identifierService.GetIdentifierBySlugAsync(new GetIdentifierInput { IdentifierIdOrSlug = request.IdentifierSlug }, cancellationToken);
 
             return result.ToAction();
         }
 
-        [HttpPut("{IdentifierId}")]
+        [HttpPut(OpenSettingsDefaults.Routes.V1.IdentifiersEndpoints.UpdateIdentifier)]
         public async Task<IActionResult> UpdateIdentifier(UpdateIdentifierRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
@@ -129,7 +129,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             return result.ToAction();
         }
 
-        [HttpDelete("{IdentifierId}")]
+        [HttpDelete(OpenSettingsDefaults.Routes.V1.IdentifiersEndpoints.DeleteIdentifier)]
         public async Task<IActionResult> DeleteIdentifier(DeleteIdentifierRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
@@ -146,7 +146,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             return result.ToAction();
         }
 
-        [HttpPost("{IdentifierId}/sort-order")]
+        [HttpPost(OpenSettingsDefaults.Routes.V1.IdentifiersEndpoints.UpdateIdentifierSortOrder)]
         public async Task<IActionResult> UpdateIdentifierSortOrder(UpdateIdentifierSortOrderRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
@@ -165,7 +165,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             return result.ToAction();
         }
 
-        [HttpPost("{SourceId}/drag/{TargetId}")]
+        [HttpPost(OpenSettingsDefaults.Routes.V1.IdentifiersEndpoints.DragIdentifier)]
         public async Task<IActionResult> DragIdentifier(DragItemSortOrderRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
@@ -185,7 +185,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             return result.ToAction();
         }
 
-        [HttpPost("reorder")]
+        [HttpPost(OpenSettingsDefaults.Routes.V1.IdentifiersEndpoints.ReorderIdentifiers)]
         public async Task<IActionResult> ReorderIdentifiers()
         {
             var result = await _identifierService.ReorderAsync();

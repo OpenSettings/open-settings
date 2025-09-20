@@ -2,9 +2,9 @@
 
 namespace OpenSettings.Models.Inputs
 {
-    public class DeleteTagInput
+    public class DeleteAppTagInput
     {
-        public string TagId { get; set; }
+        public string AppTagId { get; set; }
 
         public byte[] RowVersion { get; set; } = Array.Empty<byte>();
     }

@@ -4,7 +4,7 @@ namespace OpenSettings.Models.Inputs
 {
     public class UpdateSettingInput
     {
-        public string SettingId { get; set; }
+        public string AppSettingId { get; set; }
 
         public Guid ComputedIdentifier { get; set; }
 

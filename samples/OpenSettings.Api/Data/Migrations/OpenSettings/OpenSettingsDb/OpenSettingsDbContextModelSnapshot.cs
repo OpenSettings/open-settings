@@ -321,6 +321,9 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<int>("AppSettingId")
+                        .HasColumnType("int");
+
                     b.Property<int>("CompressionLevel")
                         .HasColumnType("int");
 
@@ -349,9 +352,6 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.Property<int>("SerializerType")
                         .HasColumnType("int");
 
-                    b.Property<int>("SettingId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Slug")
                         .HasColumnType("nvarchar(450)");
 
@@ -360,15 +360,15 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AppSettingId");
+
                     b.HasIndex("CreatedById");
 
                     b.HasIndex("RestoredById");
 
-                    b.HasIndex("SettingId");
-
                     b.HasIndex("Version");
 
-                    b.HasIndex("Slug", "SettingId")
+                    b.HasIndex("Slug", "AppSettingId")
                         .IsUnique()
                         .HasFilter("[Slug] IS NOT NULL");
 
@@ -1669,6 +1669,12 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 
             modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.AppSettingHistorySqlModel", b =>
                 {
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.AppSettingSqlModel", "AppSetting")
+                        .WithMany("AppSettingHistories")
+                        .HasForeignKey("AppSettingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "CreatedBy")
                         .WithMany()
                         .HasForeignKey("CreatedById");
@@ -1676,12 +1682,6 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "RestoredBy")
                         .WithMany()
                         .HasForeignKey("RestoredById");
-
-                    b.HasOne("OpenSettings.Domains.Sql.Entities.AppSettingSqlModel", "AppSetting")
-                        .WithMany("AppSettingHistories")
-                        .HasForeignKey("SettingId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
 
                     b.Navigation("AppSetting");
 

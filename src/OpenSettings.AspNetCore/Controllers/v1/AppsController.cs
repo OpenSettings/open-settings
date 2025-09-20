@@ -11,25 +11,25 @@ using System.Threading.Tasks;
 
 namespace OpenSettings.AspNetCore.Controllers.v1
 {
-    [Route(OpenSettingsDefaults.Routes.V1.Apps)]
+    [Route("")]
     public class AppsController : ControllerBase
     {
         private readonly IAppService _appsService;
-        private readonly ISettingsService _settingService;
-        private readonly IInstanceService _instancesService;
+        private readonly IAppSettingService _appSettingService;
+        private readonly IInstanceService _appInstanceService;
         private readonly IAppIdentifierMappingService _appIdentifierMappingsService;
-        private readonly IConfigurationService _configurationsService;
+        private readonly IAppConfigurationService _appConfigurationService;
 
-        public AppsController(IAppService appsService, ISettingsService settingService, IInstanceService instancesService, IAppIdentifierMappingService appIdentifierMappingsService, IConfigurationService configurationsService)
+        public AppsController(IAppService appsService, IAppSettingService appSettingService, IInstanceService appInstanceService, IAppIdentifierMappingService appIdentifierMappingsService, IAppConfigurationService appConfigurationService)
         {
             _appsService = appsService;
-            _settingService = settingService;
-            _instancesService = instancesService;
+            _appSettingService = appSettingService;
+            _appInstanceService = appInstanceService;
             _appIdentifierMappingsService = appIdentifierMappingsService;
-            _configurationsService = configurationsService;
+            _appConfigurationService = appConfigurationService;
         }
 
-        [HttpGet]
+        [HttpGet(OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetApps)]
         public async Task<IActionResult> GetApps(GetAppsRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
@@ -45,7 +45,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             return result.ToAction();
         }
 
-        [HttpPost]
+        [HttpPost(OpenSettingsDefaults.Routes.V1.AppsEndpoints.CreateApp)]
         public async Task<IActionResult> CreateApp(CreateAppRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
@@ -86,7 +86,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             return result.ToAction();
         }
 
-        [HttpGet("grouped")]
+        [HttpGet(OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetGroupedApps)]
         public async Task<IActionResult> GetGroupedApps(GetGroupedAppsRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
@@ -96,14 +96,14 @@ namespace OpenSettings.AspNetCore.Controllers.v1
 
             var result = await _appsService.GetGroupedAppsAsync(new GetGroupedAppsInput
             {
-                GroupId = request.GroupId,
+                AppGroupId = request.AppGroupId,
                 SearchTerm = request.SearchTerm
             }, cancellationToken);
 
             return result.ToAction();
         }
 
-        [HttpPost("{ClientId:guid}/identifiers/{IdentifierName}/fetch-data")]
+        [HttpPost(OpenSettingsDefaults.Routes.V1.AppsEndpoints.FetchAppData)]
         public async Task<IActionResult> FetchAppData(FetchAppDataRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
@@ -127,7 +127,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             return Ok(result);
         }
 
-        [HttpPost("{ClientId:guid}/identifiers/{IdentifierName}/sync-data")]
+        [HttpPost(OpenSettingsDefaults.Routes.V1.AppsEndpoints.SyncAppData)]
         [Authorize(AuthenticationSchemes = OpenSettingsDefaults.AuthSchemes.Basic)]
         public async Task<IActionResult> SyncAppData(SyncAppDataRequest request, CancellationToken cancellationToken = default)
         {
@@ -159,8 +159,8 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             return result.ToAction();
         }
 
-        [HttpGet("{AppIdOrSlug}")]
-        public async Task<IActionResult> GetAppById(GetAppRequest request, CancellationToken cancellationToken = default)
+        [HttpGet(OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetAppById)]
+        public async Task<IActionResult> GetAppById(GetAppByIdRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
             {
@@ -169,14 +169,14 @@ namespace OpenSettings.AspNetCore.Controllers.v1
 
             var result = await _appsService.GetAppByIdAsync(new GetAppInput
             {
-                AppIdOrSlug = request.AppIdOrSlug
+                AppIdOrSlug = request.AppId
             }, cancellationToken);
 
             return result.ToAction();
         }
 
-        [HttpGet("slug/{AppIdOrSlug}")]
-        public async Task<IActionResult> GetAppBySlug(GetAppRequest request, CancellationToken cancellationToken = default)
+        [HttpGet(OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetAppBySlug)]
+        public async Task<IActionResult> GetAppBySlug(GetAppBySlugRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
             {
@@ -185,13 +185,13 @@ namespace OpenSettings.AspNetCore.Controllers.v1
 
             var result = await _appsService.GetAppBySlugAsync(new GetAppInput
             {
-                AppIdOrSlug = request.AppIdOrSlug
+                AppIdOrSlug = request.Slug
             }, cancellationToken);
 
             return result.ToAction();
         }
 
-        [HttpPut("{AppId}")]
+        [HttpPut(OpenSettingsDefaults.Routes.V1.AppsEndpoints.UpdateApp)]
         public async Task<IActionResult> UpdateApp(UpdateAppRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
@@ -226,7 +226,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             return response.ToAction();
         }
 
-        [HttpDelete("{AppId}")]
+        [HttpDelete(OpenSettingsDefaults.Routes.V1.AppsEndpoints.DeleteApp)]
         public async Task<IActionResult> DeleteApp(DeleteAppRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
@@ -244,7 +244,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             return result.ToAction();
         }
 
-        [HttpGet("{AppIdOrSlug}/grouped")]
+        [HttpGet(OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetGroupedAppDataByAppId)]
         public async Task<IActionResult> GetGroupedAppDataByAppId(GetGroupedAppDataByAppRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
@@ -257,7 +257,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             return result.ToAction();
         }
 
-        [HttpGet("slug/{AppIdOrSlug}/grouped")]
+        [HttpGet(OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetGroupedAppDataByAppSlug)]
         public async Task<IActionResult> GetGroupedAppDataByAppSlug(GetGroupedAppDataByAppRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
@@ -270,49 +270,49 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             return result.ToAction();
         }
 
-        [HttpGet("{AppIdOrAppSlug}/instances")]
-        public async Task<IActionResult> GetInstancesByAppId(GetInstancesByAppRequest request, CancellationToken cancellationToken = default)
+        [HttpGet(OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetAppInstancesByAppId)]
+        public async Task<IActionResult> GetAppInstancesByAppId(GetAppInstancesByAppIdRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
             {
                 return ModelState.ToAction();
             }
 
-            var result = await _instancesService.GetInstancesByAppIdAsync(new GetInstancesInput
+            var result = await _appInstanceService.GetAppInstancesByAppIdAsync(new GetInstancesInput
             {
-                AppIdOrSlug = request.AppIdOrAppSlug,
+                AppIdOrSlug = request.AppId,
                 IdentifierIdOrSlug = request.IdentifierId
             }, cancellationToken);
 
             return result.ToAction();
         }
 
-        [HttpGet("slug/{AppIdOrAppSlug}/instances")]
-        public async Task<IActionResult> GetInstancesByAppSlug(GetInstancesByAppRequest request, CancellationToken cancellationToken = default)
+        [HttpGet(OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetAppInstancesByAppSlug)]
+        public async Task<IActionResult> GetAppInstancesByAppSlug(GetAppInstancesByAppSlugRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
             {
                 return ModelState.ToAction();
             }
 
-            var result = await _instancesService.GetInstancesByAppSlugAsync(new GetInstancesInput
+            var result = await _appInstanceService.GetAppInstancesByAppSlugAsync(new GetInstancesInput
             {
-                AppIdOrSlug = request.AppIdOrAppSlug,
+                AppIdOrSlug = request.AppSlug,
                 IdentifierIdOrSlug = request.IdentifierId
             }, cancellationToken);
 
             return result.ToAction();
         }
 
-        [HttpPost("{ClientId:guid}/instances")]
-        public async Task<IActionResult> CreateInstance(CreateInstanceRequest request)
+        [HttpPost(OpenSettingsDefaults.Routes.V1.AppsEndpoints.CreateAppInstance)]
+        public async Task<IActionResult> CreateAppInstance(CreateAppInstanceRequest request)
         {
             if (!ModelState.IsValid)
             {
                 return ModelState.ToAction();
             }
 
-            var result = await _instancesService.CreateInstanceAsync(new CreateInstanceInput
+            var result = await _appInstanceService.CreateAppInstanceAsync(new CreateInstanceInput
             {
                 ClientId = request.ClientId,
                 ClientSecret = request.Body.ClientSecret,
@@ -334,15 +334,15 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             return result.ToAction();
         }
 
-        [HttpPut("{ClientId:guid}/instances")]
-        public async Task<IActionResult> UpdateInstance(UpdateInstanceRequest request)
+        [HttpPut(OpenSettingsDefaults.Routes.V1.AppsEndpoints.UpdateAppInstance)]
+        public async Task<IActionResult> UpdateAppInstance(UpdateAppInstanceRequest request)
         {
             if (!ModelState.IsValid)
             {
                 return ModelState.ToAction();
             }
 
-            var result = await _instancesService.UpdateInstanceAsync(new UpdateInstanceInput
+            var result = await _appInstanceService.UpdateAppInstanceAsync(new UpdateInstanceInput
             {
                 ClientId = request.ClientId,
                 ClientSecret = request.Body.ClientSecret,
@@ -357,7 +357,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             return result.ToAction();
         }
 
-        [HttpPost("{ClientId:guid}/registered")]
+        [HttpPost(OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetRegisteredApp)]
         public async Task<IActionResult> GetRegisteredApp(GetRegisteredAppRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
@@ -374,7 +374,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             return result.ToAction();
         }
 
-        [HttpGet("{AppIdOrSlug}/identifiers")]
+        [HttpGet(OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetAppIdentifierMappingsByAppId)]
         public async Task<IActionResult> GetAppIdentifierMappingsByAppId(GetAppIdentifierMappingsRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
@@ -388,8 +388,8 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             return result.ToAction();
         }
 
-        [HttpGet("slug/{AppIdOrSlug}/identifiers")]
-        public async Task<IActionResult> GetAppIdentifierMappingsByAppSlugAsync(GetAppIdentifierMappingsRequest request, CancellationToken cancellationToken = default)
+        [HttpGet(OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetAppIdentifierMappingsByAppSlug)]
+        public async Task<IActionResult> GetAppIdentifierMappingsByAppSlug(GetAppIdentifierMappingsRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
             {
@@ -404,7 +404,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             return result.ToAction();
         }
 
-        [HttpPost("{AppId}/identifiers")]
+        [HttpPost(OpenSettingsDefaults.Routes.V1.AppsEndpoints.CreateAppIdentifierMapping)]
         public async Task<IActionResult> CreateAppIdentifierMapping(CreateAppIdentifierMappingRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
@@ -429,7 +429,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             return result.ToAction();
         }
 
-        [HttpGet("{AppIdOrSlug}/identifiers/{IdentifierIdOrSlug}")]
+        [HttpGet(OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetAppIdentifierMappingByAppIdAndIdentifierId)]
         public async Task<IActionResult> GetAppIdentifierMappingByAppIdAndIdentifierId(GetAppIdentifierMappingByAppAndIdentifierRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
@@ -446,7 +446,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             return result.ToAction();
         }
 
-        [HttpGet("slug/{AppIdOrSlug}/identifiers/{IdentifierIdOrSlug}")]
+        [HttpGet(OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetAppIdentifierMappingByAppSlugAndIdentifierSlug)]
         public async Task<IActionResult> GetAppIdentifierMappingByAppSlugAndIdentifierSlug(GetAppIdentifierMappingByAppAndIdentifierRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
@@ -463,15 +463,15 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             return result.ToAction();
         }
 
-        [HttpGet("{AppIdOrSlug}/identifiers/{IdentifierIdOrSlug}/configuration")]
-        public async Task<IActionResult> GetConfigurationByAppIdAndIdentifierId(GetConfigurationByAppAndIdentifierRequest request, CancellationToken cancellationToken = default)
+        [HttpGet(OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetAppConfigurationByAppIdAndIdentifierId)]
+        public async Task<IActionResult> GetAppConfigurationByAppIdAndIdentifierId(GetConfigurationByAppAndIdentifierRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
             {
                 return ModelState.ToAction();
             }
 
-            var result = await _configurationsService.GetConfigurationByAppIdAndIdentifierIdAsync(new GetConfigurationByAppAndIdentifierInput
+            var result = await _appConfigurationService.GetAppConfigurationByAppIdAndIdentifierIdAsync(new GetConfigurationByAppAndIdentifierInput
             {
                 AppIdOrSlug = request.AppIdOrSlug,
                 IdentifierIdOrSlug = request.IdentifierIdOrSlug
@@ -480,15 +480,15 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             return result.ToAction();
         }
 
-        [HttpPatch("{AppId}/identifiers/{IdentifierId}/configuration")]
-        public async Task<IActionResult> PatchConfiguration(PatchConfigurationRequest request, CancellationToken cancellationToken = default)
+        [HttpPatch(OpenSettingsDefaults.Routes.V1.AppsEndpoints.PatchAppConfiguration)]
+        public async Task<IActionResult> PatchAppConfiguration(PatchConfigurationRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
             {
                 return ModelState.ToAction();
             }
 
-            var result = await _configurationsService.PatchConfigurationAsync(new PatchConfigurationInput
+            var result = await _appConfigurationService.PatchAppConfigurationAsync(new PatchConfigurationInput
             {
                 AppId = request.AppId,
                 IdentifierId = request.IdentifierId,
@@ -499,7 +499,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             return result.ToAction();
         }
 
-        [HttpDelete("{AppId}/identifiers/{IdentifierId}")]
+        [HttpDelete(OpenSettingsDefaults.Routes.V1.AppsEndpoints.DeleteAppIdentifierMapping)]
         public async Task<IActionResult> DeleteAppIdentifierMapping(DeleteAppIdentifierMappingRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
@@ -518,49 +518,49 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             return result.ToAction();
         }
 
-        [HttpGet("{AppIdOrSlug}/identifiers/{IdentifierIdOrSlug}/instances")]
-        public async Task<IActionResult> GetInstancesByAppIdAndIdentifierId(GetInstancesByAppAndIdentifierRequest request, CancellationToken cancellationToken = default)
+        [HttpGet(OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetAppInstancesByAppIdAndIdentifierId)]
+        public async Task<IActionResult> GetAppInstancesByAppIdAndIdentifierId(GetAppInstancesByAppIdAndIdentifierIdRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
             {
                 return ModelState.ToAction();
             }
 
-            var result = await _instancesService.GetInstancesByAppIdAndIdentifierIdAsync(new GetInstancesInput
+            var result = await _appInstanceService.GetAppInstancesByAppIdAndIdentifierIdAsync(new GetInstancesInput
             {
-                AppIdOrSlug = request.AppIdOrSlug,
-                IdentifierIdOrSlug = request.IdentifierIdOrSlug
+                AppIdOrSlug = request.AppId,
+                IdentifierIdOrSlug = request.IdentifierId
             }, cancellationToken);
 
             return result.ToAction();
         }
 
-        [HttpGet("slug/{AppIdOrSlug}/identifiers/{IdentifierIdOrSlug}/instances")]
-        public async Task<IActionResult> GetInstancesByAppSlugAndIdentifierSlug(GetInstancesByAppAndIdentifierRequest request, CancellationToken cancellationToken = default)
+        [HttpGet(OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetAppInstancesByAppSlugAndIdentifierSlug)]
+        public async Task<IActionResult> GetAppInstancesByAppSlugAndIdentifierSlug(GetAppInstancesByAppSlugAndIdentifierSlugRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
             {
                 return ModelState.ToAction();
             }
 
-            var result = await _instancesService.GetInstancesByAppSlugAndIdentifierSlugAsync(new GetInstancesInput
+            var result = await _appInstanceService.GetAppInstancesByAppSlugAndIdentifierSlugAsync(new GetInstancesInput
             {
-                AppIdOrSlug = request.AppIdOrSlug,
-                IdentifierIdOrSlug = request.IdentifierIdOrSlug
+                AppIdOrSlug = request.AppSlug,
+                IdentifierIdOrSlug = request.IdentifierSlug
             }, cancellationToken);
 
             return result.ToAction();
         }
 
-        [HttpGet("{AppIdOrAppSlug}/identifiers/{IdentifierIdOrSlug}/settings")]
-        public async Task<IActionResult> GetSettingsByAppIdAndIdentifierId(GetSettingsByAppAndIdentifierRequest request, CancellationToken cancellationToken = default)
+        [HttpGet(OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetAppSettingsByAppIdAndIdentifierId)]
+        public async Task<IActionResult> GetAppSettingsByAppIdAndIdentifierId(GetSettingsByAppAndIdentifierRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
             {
                 return ModelState.ToAction();
             }
 
-            var result = await _settingService.GetSettingsByAppIdAndIdentifierIdAsync(
+            var result = await _appSettingService.GetAppSettingsByAppIdAndIdentifierIdAsync(
                 new GetSettingsByAppAndIdentifierInput
                 {
                     AppIdOrSlug = request.AppIdOrAppSlug,
@@ -570,15 +570,15 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             return result.ToAction();
         }
 
-        [HttpGet("slug/{AppIdOrAppSlug}/identifiers/{IdentifierIdOrSlug}/settings")]
-        public async Task<IActionResult> GetSettingsByAppSlugAndIdentifierSlug(GetSettingsByAppAndIdentifierRequest request, CancellationToken cancellationToken = default)
+        [HttpGet(OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetAppSettingsByAppSlugAndIdentifierSlug)]
+        public async Task<IActionResult> GetAppSettingsByAppSlugAndIdentifierSlug(GetSettingsByAppAndIdentifierRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
             {
                 return ModelState.ToAction();
             }
 
-            var result = await _settingService.GetSettingsByAppSlugAndIdentifierSlugAsync(
+            var result = await _appSettingService.GetAppSettingsByAppSlugAndIdentifierSlugAsync(
                 new GetSettingsByAppAndIdentifierInput
                 {
                     AppIdOrSlug = request.AppIdOrAppSlug,
@@ -588,8 +588,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             return result.ToAction();
         }
 
-
-        [HttpPut("{AppId}/identifiers/{IdentifierId}/sort-order")]
+        [HttpPut(OpenSettingsDefaults.Routes.V1.AppsEndpoints.UpdateAppIdentifierMappingSortOrder)]
         public async Task<IActionResult> UpdateAppIdentifierMappingSortOrder(UpdateAppIdentifierMappingSortOrderRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
@@ -608,7 +607,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             return result.ToAction();
         }
 
-        [HttpGet("{AppIdOrSlug}/identifiers/{IdentifierIdOrSlug}/grouped")]
+        [HttpGet(OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetGroupedAppDataByAppIdAndIdentifierId)]
         public async Task<IActionResult> GetGroupedAppDataByAppIdAndIdentifierId(GetGroupedAppDataByAppAndIdentifierRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
@@ -621,7 +620,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             return result.ToAction();
         }
 
-        [HttpGet("slug/{AppIdOrSlug}/identifiers/{IdentifierIdOrSlug}/grouped")]
+        [HttpGet(OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetGroupedAppDataByAppSlugAndIdentifierSlug)]
         public async Task<IActionResult> GetGroupedAppDataByAppSlugAndIdentifierSlug(GetGroupedAppDataByAppAndIdentifierRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
@@ -633,17 +632,16 @@ namespace OpenSettings.AspNetCore.Controllers.v1
 
             return result.ToAction();
         }
-
-
-        [HttpGet("{AppId}/settings/data")]
-        public async Task<IActionResult> GetSettingsData(GetSettingsDataRequest request, CancellationToken cancellationToken = default)
+        
+        [HttpGet(OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetAppSettingsData)]
+        public async Task<IActionResult> GetAppSettingsData(GetSettingsDataRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
             {
                 return ModelState.ToAction();
             }
 
-            var result = await _settingService.GetSettingsDataAsync(new GetSettingsDataInput
+            var result = await _appSettingService.GetAppSettingsDataAsync(new GetSettingsDataInput
             {
                 AppId = request.AppId,
                 IdentifierId = request.IdentifierId,

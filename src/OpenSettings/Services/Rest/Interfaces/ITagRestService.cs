@@ -2,5 +2,5 @@
 
 namespace OpenSettings.Services.Rest.Interfaces
 {
-    public interface ITagRestService : ITagsService { }
+    public interface IAppTagRestService : IAppTagService { }
 }

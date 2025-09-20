@@ -57,7 +57,7 @@ namespace OpenSettings.Services
             };
         }
 
-        public async Task<GetConfigsDataResponse> GetConfigsDataAsync(string configName, CancellationToken cancellationToken = default)
+        public async Task<GetConfigsDataResponse> GetConfigDataAsync(string configName, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(configName))
             {
@@ -140,7 +140,7 @@ namespace OpenSettings.Services
 
         public async Task<GetOpenSettingsNotificationsResponse> GetNotificationsAsync(CancellationToken cancellationToken = default)
         {
-            var openSettingsConfigResponse = await GetConfigsDataAsync(NotificationsConfigName, cancellationToken);
+            var openSettingsConfigResponse = await GetConfigDataAsync(NotificationsConfigName, cancellationToken);
 
             var idToOpenSettingNotification = openSettingsConfigResponse?.Data == null
                 ? new Dictionary<Guid, GetOpenSettingsNotificationsResponseNotification>()

@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Ogu.Response;
 using Ogu.Response.Abstractions;
 using OpenSettings.Configurations;

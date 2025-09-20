@@ -1,11 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using OpenSettings.AspNetCore.Models.Requests;
 using OpenSettings.Services.Interfaces;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace OpenSettings.AspNetCore.Controllers.v1
 {
-    [Route(OpenSettingsDefaults.Routes.V1.OpenSettings)]
+    [Route("")]
     public class OpenSettingsController : ControllerBase
     {
         private readonly IOpenSettingsService _openSettingsService;
@@ -15,7 +16,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             _openSettingsService = openSettingsService;
         }
 
-        [HttpGet("configs")]
+        [HttpGet(OpenSettingsDefaults.Routes.V1.OpenSettingsEndpoints.GetConfigs)]
         public async Task<IActionResult> GetConfigs(CancellationToken cancellationToken = default)
         {
             var configs = await _openSettingsService.GetConfigsAsync(cancellationToken);
@@ -30,10 +31,10 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             return Ok(configs.Data);
         }
 
-        [HttpGet("configs-data/{configName}")]
-        public async Task<IActionResult> GetConfigsData([FromRoute] string configName, CancellationToken cancellationToken = default)
+        [HttpGet(OpenSettingsDefaults.Routes.V1.OpenSettingsEndpoints.GetConfigData)]
+        public async Task<IActionResult> GetConfigData(GetConfigDataRequest request, CancellationToken cancellationToken = default)
         {
-            var config = await _openSettingsService.GetConfigsDataAsync(configName, cancellationToken);
+            var config = await _openSettingsService.GetConfigDataAsync(request.ConfigName, cancellationToken);
 
             if (config == null)
             {

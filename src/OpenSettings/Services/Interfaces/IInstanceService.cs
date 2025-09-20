@@ -7,18 +7,18 @@ namespace OpenSettings.Services.Interfaces
 {
     public interface IInstanceService
     {
-        Task<IResponse> CreateInstanceAsync(CreateInstanceInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> CreateAppInstanceAsync(CreateInstanceInput input, CancellationToken cancellationToken = default);
 
-        Task<IResponse> UpdateInstanceAsync(UpdateInstanceInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> UpdateAppInstanceAsync(UpdateInstanceInput input, CancellationToken cancellationToken = default);
 
-        Task<IResponse> DeleteInstanceAsync(DeleteInstanceInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> DeleteAppInstanceAsync(DeleteAppInstanceInput input, CancellationToken cancellationToken = default);
 
-        Task<IResponse> GetInstancesByAppIdAsync(GetInstancesInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> GetAppInstancesByAppIdAsync(GetInstancesInput input, CancellationToken cancellationToken = default);
 
-        Task<IResponse> GetInstancesByAppSlugAsync(GetInstancesInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> GetAppInstancesByAppSlugAsync(GetInstancesInput input, CancellationToken cancellationToken = default);
 
-        Task<IResponse> GetInstancesByAppIdAndIdentifierIdAsync(GetInstancesInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> GetAppInstancesByAppIdAndIdentifierIdAsync(GetInstancesInput input, CancellationToken cancellationToken = default);
 
-        Task<IResponse> GetInstancesByAppSlugAndIdentifierSlugAsync(GetInstancesInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> GetAppInstancesByAppSlugAndIdentifierSlugAsync(GetInstancesInput input, CancellationToken cancellationToken = default);
     }
 }

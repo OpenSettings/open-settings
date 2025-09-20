@@ -39,14 +39,14 @@ namespace OpenSettings.Services
         private static readonly ConcurrentDictionary<string, CurrentSettingsData> IdentifierNameToCurrentSettingsData = new ConcurrentDictionary<string, CurrentSettingsData>();
 
         private readonly IAppService _appsService;
-        private readonly ISettingsService _settingService;
+        private readonly IAppSettingService _appSettingService;
         private readonly ILogger _logger;
         private readonly OpenSettingsConfiguration _openSettingsConfiguration;
 
-        public LocalSettingsService(IAppService appsService, ISettingsService settingService, OpenSettingsConfiguration openSettingsConfiguration)
+        public LocalSettingsService(IAppService appsService, IAppSettingService appSettingService, OpenSettingsConfiguration openSettingsConfiguration)
         {
             _appsService = appsService;
-            _settingService = settingService;
+            _appSettingService = appSettingService;
             _logger = openSettingsConfiguration.LoggerFactory.CreateLogger<LocalSettingsService>();
             _openSettingsConfiguration = openSettingsConfiguration;
         }
@@ -297,7 +297,7 @@ namespace OpenSettings.Services
                 return false;
             }
 
-            var settingsLastUpdatedClassComputedIdentifiers = await _settingService.GetSettingsLastUpdatedComputedIdentifiersAsync(
+            var settingsLastUpdatedClassComputedIdentifiers = await _appSettingService.GetAppSettingsLastUpdatedComputedIdentifiersAsync(
                 new GetSettingsLastUpdatedComputedIdentifiersInput
                 {
                     ClientId = _openSettingsConfiguration.Client.Id,
@@ -369,7 +369,7 @@ namespace OpenSettings.Services
 #else
             var settingsData = IdentifierNameToCurrentSettingsData.GetValueOrDefault(_openSettingsConfiguration.IdentifierNameLowercase);
 #endif
-            var settingsLastUpdatedClassComputedIdentifiers = await _settingService.GetSettingsLastUpdatedComputedIdentifiersAsync(
+            var settingsLastUpdatedClassComputedIdentifiers = await _appSettingService.GetAppSettingsLastUpdatedComputedIdentifiersAsync(
                 new GetSettingsLastUpdatedComputedIdentifiersInput
                 {
                     ClientId = _openSettingsConfiguration.Client.Id,

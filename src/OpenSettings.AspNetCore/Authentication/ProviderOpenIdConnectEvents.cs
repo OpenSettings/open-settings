@@ -242,7 +242,7 @@ namespace OpenSettings.AspNetCore.Authentication
 
                 var openSettingsConfiguration = httpContext.RequestServices.GetRequiredService<OpenSettingsConfiguration>();
 
-                var apiLoginRelativeRoute = $"/{openSettingsConfiguration.Controller.Route}/{OpenSettingsDefaults.Routes.V1.Auth}/{OpenSettingsDefaults.Routes.V1.AuthEndpoints.Login}";
+                var apiLoginRelativeRoute = $"/{openSettingsConfiguration.Controller.Route}/{OpenSettingsDefaults.Routes.V1.AuthEndpoints.Login}";
 
                 _instance = new ProviderOpenIdConnectEventsContext(
                     openSettingsConfiguration.LoggerFactory.CreateLogger<ProviderOpenIdConnectEvents>(),

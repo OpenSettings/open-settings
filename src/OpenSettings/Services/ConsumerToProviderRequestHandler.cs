@@ -28,7 +28,7 @@ namespace OpenSettings.Services
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            if (false && (!request.RequestUri?.LocalPath.EndsWith(OpenSettingsDefaults.Routes.V1.Token) ?? false))
+            if (false && (!request.RequestUri?.LocalPath.EndsWith(OpenSettingsDefaults.Routes.V1.TokenEndpoints.Base) ?? false))
             {
                 request.Headers.Authorization = await GenerateTokenForMachineAsync(cancellationToken);
                 request.Headers.TryAddWithoutValidation(OpenSettingsDefaults.Headers.AuthMethod, nameof(AuthMethod.Jwt));

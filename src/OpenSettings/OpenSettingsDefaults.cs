@@ -230,89 +230,245 @@ namespace OpenSettings
             /// </summary>
             public static class V1
             {
-                /// <summary>
-                /// The AppGroupsController base route.
-                /// </summary>
-                public const string AppGroups = "v1/app-groups";
+                public static class AppGroupsEndpoints
+                {
+                    /// <summary>
+                    /// The AppGroupsController base route.
+                    /// </summary>
+                    public const string Base = "v1/app-groups";
 
-                /// <summary>
-                /// The AppsController base route.
-                /// </summary>
-                public const string Apps = "v1/apps";
+                    public const string GetAppGroups = Base; // GET
+                    public const string CreateAppGroup = Base; // POST
+                    public const string GetPaginatedAppGroups = Base + "/paginated"; // GET
+                    public const string GetAppGroupById = Base + "/{AppGroupId}"; // GET
+                    public const string GetAppGroupBySlug = Base + "/slug/{AppGroupSlug}"; // GET
+                    public const string UpdateAppGroup = Base + "/{AppGroupId}"; // PUT
+                    public const string UpdateAppGroupSortOrder = Base + "/{AppGroupId}/sort-order"; // POST
+                    public const string DragAppGroup = Base + "/{SourceId}/drag/{TargetId}"; // POST
+                    public const string ReorderAppGroup = Base + "/reorder"; // POST
+                    public const string DeleteAppGroup = Base + "/{AppGroupId}"; // DELETE
+                    public const string DeleteUnmappedAppGroups = Base + "/unmapped"; // DELETE
+                }
 
-                /// <summary>
-                /// The AuthController base route.
-                /// </summary>
-                public const string Auth = "v1/auth";
+                public static class AppInstancesEndpoints
+                {
+                    /// <summary>
+                    /// The InstancesController base route.
+                    /// </summary>
+                    public const string Base = "v1/app-instances";
+
+                    public const string DeleteAppInstance = Base + "/{AppInstanceId}"; // DELETE
+                }
+
+                public static class AppsEndpoints
+                {
+                    /// <summary>
+                    /// The AppsController base route.
+                    /// </summary>
+                    public const string Base = "v1/apps";
+
+                    public const string GetApps = Base; // GET
+                    public const string CreateApp = Base; // POST
+                    public const string GetGroupedApps = Base + "/grouped"; // GET
+                    public const string FetchAppData = Base + "/{ClientId:guid}/identifiers/{IdentifierName}/fetch-data"; // POST
+                    public const string SyncAppData = Base + "/{ClientId:guid}/identifiers/{IdentifierName}/sync-data"; // POST
+                    public const string GetAppById = Base + "/{AppId}"; // GET
+                    public const string GetAppBySlug = Base + "/slug/{AppSlug}"; // GET
+                    public const string UpdateApp = Base + "/{AppId}"; // PUT
+                    public const string DeleteApp = Base + "/{AppId}"; // DELETE
+                    public const string GetGroupedAppDataByAppId = Base + "/{AppId}/grouped"; // GET
+                    public const string GetGroupedAppDataByAppSlug = Base + "/slug/{AppSlug}/grouped"; // GET
+                    public const string GetAppInstancesByAppId = Base + "/{AppId}/instances"; // GET
+                    public const string GetAppInstancesByAppSlug = Base + "/slug/{AppSlug}/instances"; // GET
+                    public const string CreateAppInstance = Base + "/{ClientId:guid}/instances"; // POST
+                    public const string UpdateAppInstance = Base + "/{ClientId:guid}/instances"; // PUT
+                    public const string GetRegisteredApp = Base + "/{ClientId:guid}/registered"; // GET
+                    public const string GetAppIdentifierMappingsByAppId = Base + "/{AppId}/identifiers"; // GET
+                    public const string GetAppIdentifierMappingsByAppSlug = Base + "/slug/{AppSlug}/identifiers"; // GET
+                    public const string CreateAppIdentifierMapping = Base + "/{AppId}/identifiers"; // POST
+                    public const string GetAppIdentifierMappingByAppIdAndIdentifierId = Base + "/{AppId}/identifiers/{IdentifierId}"; // GET
+                    public const string GetAppIdentifierMappingByAppSlugAndIdentifierSlug = Base + "/slug/{AppSlug}/identifiers/{IdentifierSlug}"; // GET
+                    public const string GetAppConfigurationByAppIdAndIdentifierId = Base + "/{AppId}/identifiers/{IdentifierId}/configuration"; // GET
+                    public const string PatchAppConfiguration = Base + "/{AppId}/identifiers/{IdentifierId}/configuration"; // PATCH
+                    public const string DeleteAppIdentifierMapping = Base + "/{AppId}/identifiers/{IdentifierId}"; // DELETE
+                    public const string GetAppInstancesByAppIdAndIdentifierId = Base + "/{AppId}/identifiers/{IdentifierId}/instances"; // GET
+                    public const string GetAppInstancesByAppSlugAndIdentifierSlug = Base + "/slug/{AppSlug}/identifiers/{IdentifierSlug}/instances"; // GET
+                    public const string GetAppSettingsByAppIdAndIdentifierId = Base + "/{AppId}/identifiers/{IdentifierId}/settings"; // GET
+                    public const string GetAppSettingsByAppSlugAndIdentifierSlug = Base + "/slug/{AppSlug}/identifiers/{IdentifierSlug}/settings"; // GET
+                    public const string UpdateAppIdentifierMappingSortOrder = Base + "/{AppId}/identifiers/{IdentifierId}/sort-order"; // PUT
+                    public const string GetGroupedAppDataByAppIdAndIdentifierId = Base + "/{AppId}/identifiers/{IdentifierId}/grouped"; // GET
+                    public const string GetGroupedAppDataByAppSlugAndIdentifierSlug = Base + "/slug/{AppSlug}/identifiers/{IdentifierSlug}/grouped"; // GET
+                    public const string GetAppSettingsData = Base + "/{AppId}/settings/data"; // GET
+                }
+
+                public static class AppSettingHistoriesEndpoints
+                {
+                    /// <summary>
+                    /// The AppSettingHistoriesController base route.
+                    /// </summary>
+                    public const string Base = "v1/app-setting-histories";
+
+                    public const string GetAppSettingHistoryData = Base + "/{AppSettingHistoryId}/data";
+                    public const string GetAppSettingHistoryById = Base + "/{AppSettingHistoryId}";
+                    public const string GetAppSettingHistoryBySlug = Base + "/slug/{AppSettingHistorySlug}";
+                    public const string RestoreAppSettingHistory = Base + "/{AppSettingHistoryId}/restore";
+                }
+
+                public static class AppSettingsEndpoints
+                {
+                    /// <summary>
+                    /// The SettingsController base route.
+                    /// </summary>
+                    public const string Base = "v1/app-settings";
+
+                    public const string CreateAppSetting = Base;
+                    public const string GetAppSettingsLastUpdatedComputedIdentifiers = Base + "/latest-updates";
+                    public const string GetAppSettingById = Base + "/{AppSettingId}";
+                    public const string UpdateAppSetting = Base + "/{AppSettingId}";
+                    public const string DeleteAppSetting = Base + "/{AppSettingId}";
+                    public const string GetAppSettingHistories = Base + "/{AppSettingId}/histories";
+                    public const string CopyAppSettingTo = Base + "/{AppSettingId}/copy";
+                    public const string GetAppSettingData = Base + "/{AppSettingId}/data";
+                    public const string UpdateAppSettingData = Base + "/{AppSettingId}/data";
+                }
+
+                public static class AppTagsEndpoints
+                {
+                    /// <summary>
+                    /// The TagsController base route.
+                    /// </summary>
+                    public const string Base = "v1/app-tags";
+
+                    public const string GetAppTags = Base;
+                    public const string CreateAppTag = Base;
+                    public const string GetPaginatedAppTags = Base + "/paginated";
+                    public const string DeleteUnmappedAppTags = Base + "/unmapped";
+                    public const string GetAppTagById = Base + "/{AppTagId}";
+                    public const string GetAppTagBySlug = Base + "/slug/{AppTagSlug}";
+                    public const string UpdateAppTag = Base + "/{AppTagId}";
+                    public const string DeleteAppTag = Base + "/{AppTagId}";
+                    public const string UpdateAppTagSortOrder = Base + "/{AppTagId}/sort-order";
+                    public const string DragAppTag = Base + "/{SourceId}/drag/{TargetId}";
+                    public const string ReorderAppTag = Base + "/reorder";
+                }
 
                 public static class AuthEndpoints
                 {
-                    public const string Login = "login";
+                    /// <summary>
+                    /// The AuthController base route.
+                    /// </summary>
+                    public const string Base = "v1/auth";
+
+                    public const string GetMe = Base + "/me";
+                    public const string Login = Base + "/login";
+                    public const string Logout = Base + "/logout";
                 }
 
-                /// <summary>
-                /// The IdentifiersController base route.
-                /// </summary> 
-                public const string Identifiers = "v1/identifiers";
+                public static class IdentifiersEndpoints
+                {
+                    /// <summary>
+                    /// The IdentifiersController base route.
+                    /// </summary> 
+                    public const string Base = "v1/identifiers";
 
-                /// <summary>
-                /// The InstancesController base route.
-                /// </summary>
-                public const string Instances = "v1/instances";
+                    public const string GetIdentifiers = Base;
+                    public const string CreateIdentifier = Base;
+                    public const string GetPaginatedIdentifiers = Base + "/paginated";
+                    public const string DeleteUnmappedIdentifiers = Base + "/unmapped";
+                    public const string GetIdentifierById = Base + "/{IdentifierId}";
+                    public const string GetIdentifierBySlug = Base + "/slug/{IdentifierSlug}";
+                    public const string UpdateIdentifier = Base + "/{IdentifierId}";
+                    public const string DeleteIdentifier = Base + "/{IdentifierId}";
+                    public const string UpdateIdentifierSortOrder = Base + "/{IdentifierId}/sort-order";
+                    public const string DragIdentifier = Base + "/{SourceId}/drag/{TargetId}";
+                    public const string ReorderIdentifiers = Base + "/reorder";
+                }
 
-                /// <summary>
-                /// The LicensesController base route.
-                /// </summary>
-                public const string Licenses = "v1/licenses";
+                public static class LicensesEndpoints
+                {
+                    /// <summary>
+                    /// The LicensesController base route.
+                    /// </summary>
+                    public const string Base = "v1/licenses";
 
-                /// <summary>
-                /// The LocalSettingsController base route.
-                /// </summary>
-                public const string LocalSettings = "v1/local-settings";
+                    public const string GetPaginatedLicenses = Base + "/paginated"; // GET
+                    public const string GetCurrentLicense = Base + "/current"; // GET
+                    public const string SaveLicense = Base; // POST
+                    public const string DeleteLicense = Base + "/{ReferenceId}"; // DELETE
+                }
 
-                /// <summary>
-                /// The NotificationsController base route.
-                /// </summary>
-                public const string Notifications = "v1/notifications";
+                public static class LocalSettingsEndpoints
+                {
+                    /// <summary>
+                    /// The LocalSettingsController base route.
+                    /// </summary>
+                    public const string Base = "v1/local-settings";
 
-                /// <summary>
-                /// The OpenSettingsController base route.
-                /// </summary>
-                public const string OpenSettings = "v1/open-settings";
+                    public const string GetLocalSettings = Base + "/{ComputedIdentifier:guid}"; // GET
+                }
 
-                /// <summary>
-                /// The ProviderController base route.
-                /// </summary>
-                public const string Provider = "v1/provider";
+                public static class NotificationsEndpoints
+                {
+                    /// <summary>
+                    /// The NotificationsController base route.
+                    /// </summary>
+                    public const string Base = "v1/notifications";
 
-                /// <summary>
-                /// The SettingHistoriesController base route.
-                /// </summary>
-                public const string SettingHistories = "v1/setting-histories";
+                    public const string GetNotifications = Base; // GET
+                    public const string GetUserNotifications = Base + "/users/{UserId:guid}"; // GET
+                    public const string CreateNotification = Base; // POST
+                    public const string MarkNotificationsAsOpened = Base + "/users/{UserId:guid}/open"; // POST
+                    public const string MarkNotificationAsViewed = Base + "/{NotificationId:guid}/users/{UserId:guid}/view"; // POST
+                    public const string MarkNotificationAsDismissed = Base + "/{NotificationId:guid}/users/{UserId:guid}/dismiss"; // POST
+                    public const string DispatchNotificationsToUsers = Base + "/{NotificationId:guid}/users/dispatch"; // POST
+                }
 
-                /// <summary>
-                /// The SettingsController base route.
-                /// </summary>
-                public const string Settings = "v1/settings";
+                public static class OpenSettingsEndpoints
+                {
+                    /// <summary>
+                    /// The OpenSettingsController base route.
+                    /// </summary>
+                    public const string Base = "v1/open-settings";
 
-                /// <summary>
-                /// The TagsController base route.
-                /// </summary>
-                public const string Tags = "v1/tags";
+                    public const string GetConfigs = Base + "/configs"; // GET
+                    public const string GetConfigData = Base + "/configs-data/{ConfigName}"; // GET
+                }
 
-                /// <summary>
-                /// The UsersController base route.
-                /// </summary>
-                public const string Users = "v1/users";
+                public static class ProviderEndpoints
+                {
+                    /// <summary>
+                    /// The ProviderController base route.
+                    /// </summary>
+                    public const string Base = "v1/provider";
 
-                /// <summary>
-                /// The TokenController base route.
-                /// </summary>
-                public const string Token = "v1/token";
+                    public const string GetProvider = Base; // GET
+                    public const string GetPrimaryProvider = Base + "/primary"; // GET
+                }
 
                 public static class TokenEndpoints
                 {
-                    public const string GetPublicJwks = "jwks";
+                    /// <summary>
+                    /// The TokenController base route.
+                    /// </summary>
+                    public const string Base = "v1/token";
+
+                    public const string GenerateTokenForMachine = Base + "/machine";
+                    public const string GetPublicJwks = Base + "/jwks";
+                }
+
+                public static class UsersEndpoints
+                {
+                    /// <summary>
+                    /// The UsersController base route.
+                    /// </summary>
+                    public const string Base = "v1/users";
+
+                    public const string CreateUser = Base; // POST
+                    public const string GetPaginatedUsers = Base + "/paginated"; // GET
+                    public const string GetUserById = Base + "/{UserId}"; // GET
+                    public const string GetUserBySlug = Base + "/slug/{UserSlug}"; // GET
+                    public const string UpdateUser = Base + "/{UserId}"; // PUT
+                    public const string DeleteUser = Base + "/{UserId}"; // DELETE
                 }
             }
         }

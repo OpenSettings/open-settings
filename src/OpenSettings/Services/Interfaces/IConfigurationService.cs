@@ -5,10 +5,10 @@ using System.Threading.Tasks;
 
 namespace OpenSettings.Services.Interfaces
 {
-    public interface IConfigurationService
+    public interface IAppConfigurationService
     {
-        Task<IResponse> GetConfigurationByAppIdAndIdentifierIdAsync(GetConfigurationByAppAndIdentifierInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> GetAppConfigurationByAppIdAndIdentifierIdAsync(GetConfigurationByAppAndIdentifierInput input, CancellationToken cancellationToken = default);
 
-        Task<IResponse> PatchConfigurationAsync(PatchConfigurationInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> PatchAppConfigurationAsync(PatchConfigurationInput input, CancellationToken cancellationToken = default);
     }
 }

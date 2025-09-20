@@ -2,5 +2,5 @@
 
 namespace OpenSettings.Services.Rest.Interfaces
 {
-    public interface IConfigurationRestService : IConfigurationService { }
+    public interface IAppConfigurationRestService : IAppConfigurationService { }
 }
