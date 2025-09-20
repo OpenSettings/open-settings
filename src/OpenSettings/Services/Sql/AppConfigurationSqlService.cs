@@ -27,7 +27,7 @@ namespace OpenSettings.Services.Sql
             _context = context;
         }
 
-        public async Task<IResponse> GetAppConfigurationByAppIdAndIdentifierIdAsync(GetConfigurationByAppAndIdentifierInput input,
+        public async Task<IResponse> GetAppConfigurationByAppIdAndIdentifierIdAsync(GetAppConfigurationByAppAndIdentifierInput input,
             CancellationToken cancellationToken = default)
         {
             var appIdRule = ValidationRules.GreaterThanRule(nameof(input.AppIdOrSlug), input.AppIdOrSlug, 0);

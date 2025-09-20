@@ -245,27 +245,27 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         }
 
         [HttpGet(OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetGroupedAppDataByAppId)]
-        public async Task<IActionResult> GetGroupedAppDataByAppId(GetGroupedAppDataByAppRequest request, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> GetGroupedAppDataByAppId(GetGroupedAppDataByAppIdRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
             {
                 return ModelState.ToAction();
             }
 
-            var result = await _appsService.GetGroupedAppDataByAppIdAsync(new GetGroupedAppDataByAppInput { AppIdOrSlug = request.AppIdOrSlug }, cancellationToken);
+            var result = await _appsService.GetGroupedAppDataByAppIdAsync(new GetGroupedAppDataByAppInput { AppIdOrSlug = request.AppId }, cancellationToken);
 
             return result.ToAction();
         }
 
         [HttpGet(OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetGroupedAppDataByAppSlug)]
-        public async Task<IActionResult> GetGroupedAppDataByAppSlug(GetGroupedAppDataByAppRequest request, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> GetGroupedAppDataByAppSlug(GetGroupedAppDataByAppSlugRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
             {
                 return ModelState.ToAction();
             }
 
-            var result = await _appsService.GetGroupedAppDataByAppSlugAsync(new GetGroupedAppDataByAppInput { AppIdOrSlug = request.AppIdOrSlug }, cancellationToken);
+            var result = await _appsService.GetGroupedAppDataByAppSlugAsync(new GetGroupedAppDataByAppInput { AppIdOrSlug = request.AppSlug }, cancellationToken);
 
             return result.ToAction();
         }
@@ -430,7 +430,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         }
 
         [HttpGet(OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetAppIdentifierMappingByAppIdAndIdentifierId)]
-        public async Task<IActionResult> GetAppIdentifierMappingByAppIdAndIdentifierId(GetAppIdentifierMappingByAppAndIdentifierRequest request, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> GetAppIdentifierMappingByAppIdAndIdentifierId(GetAppIdentifierMappingByAppIdAndIdentifierIdRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
             {
@@ -439,15 +439,15 @@ namespace OpenSettings.AspNetCore.Controllers.v1
 
             var result = await _appIdentifierMappingsService.GetAppIdentifierMappingByAppIdAndIdentifierIdAsync(new GetAppIdentifierMappingByAppAndIdentifierInput
             {
-                AppIdOrSlug = request.AppIdOrSlug,
-                IdentifierIdOrSlug = request.IdentifierIdOrSlug
+                AppIdOrSlug = request.AppId,
+                IdentifierIdOrSlug = request.IdentifierId
             }, cancellationToken);
 
             return result.ToAction();
         }
 
         [HttpGet(OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetAppIdentifierMappingByAppSlugAndIdentifierSlug)]
-        public async Task<IActionResult> GetAppIdentifierMappingByAppSlugAndIdentifierSlug(GetAppIdentifierMappingByAppAndIdentifierRequest request, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> GetAppIdentifierMappingByAppSlugAndIdentifierSlug(GetAppIdentifierMappingByAppSlugAndIdentifierSlugRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
             {
@@ -456,25 +456,25 @@ namespace OpenSettings.AspNetCore.Controllers.v1
 
             var result = await _appIdentifierMappingsService.GetAppIdentifierMappingByAppSlugAndIdentifierSlugAsync(new GetAppIdentifierMappingByAppAndIdentifierInput
             {
-                AppIdOrSlug = request.AppIdOrSlug,
-                IdentifierIdOrSlug = request.IdentifierIdOrSlug
+                AppIdOrSlug = request.AppSlug,
+                IdentifierIdOrSlug = request.IdentifierSlug
             }, cancellationToken);
 
             return result.ToAction();
         }
 
         [HttpGet(OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetAppConfigurationByAppIdAndIdentifierId)]
-        public async Task<IActionResult> GetAppConfigurationByAppIdAndIdentifierId(GetConfigurationByAppAndIdentifierRequest request, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> GetAppConfigurationByAppIdAndIdentifierId(GetAppConfigurationByAppIdAndIdentifierIdRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
             {
                 return ModelState.ToAction();
             }
 
-            var result = await _appConfigurationService.GetAppConfigurationByAppIdAndIdentifierIdAsync(new GetConfigurationByAppAndIdentifierInput
+            var result = await _appConfigurationService.GetAppConfigurationByAppIdAndIdentifierIdAsync(new GetAppConfigurationByAppAndIdentifierInput
             {
-                AppIdOrSlug = request.AppIdOrSlug,
-                IdentifierIdOrSlug = request.IdentifierIdOrSlug
+                AppIdOrSlug = request.AppId,
+                IdentifierIdOrSlug = request.IdentifierId
             }, cancellationToken);
 
             return result.ToAction();
@@ -608,33 +608,33 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         }
 
         [HttpGet(OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetGroupedAppDataByAppIdAndIdentifierId)]
-        public async Task<IActionResult> GetGroupedAppDataByAppIdAndIdentifierId(GetGroupedAppDataByAppAndIdentifierRequest request, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> GetGroupedAppDataByAppIdAndIdentifierId(GetGroupedAppDataByAppIdAndIdentifierIdRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
             {
                 return ModelState.ToAction();
             }
 
-            var result = await _appsService.GetGroupedAppDataByAppIdAndIdentifierIdAsync(new GetGroupedAppDataByAppAndIdentifierInput { AppIdOrSlug = request.AppIdOrSlug, IdentifierIdOrSlug = request.IdentifierIdOrSlug }, cancellationToken);
+            var result = await _appsService.GetGroupedAppDataByAppIdAndIdentifierIdAsync(new GetGroupedAppDataByAppAndIdentifierInput { AppIdOrSlug = request.AppId, IdentifierIdOrSlug = request.IdentifierId }, cancellationToken);
 
             return result.ToAction();
         }
 
         [HttpGet(OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetGroupedAppDataByAppSlugAndIdentifierSlug)]
-        public async Task<IActionResult> GetGroupedAppDataByAppSlugAndIdentifierSlug(GetGroupedAppDataByAppAndIdentifierRequest request, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> GetGroupedAppDataByAppSlugAndIdentifierSlug(GetGroupedAppDataByAppSlugAndIdentifierSlugRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
             {
                 return ModelState.ToAction();
             }
 
-            var result = await _appsService.GetGroupedAppDataByAppSlugAndIdentifierSlugAsync(new GetGroupedAppDataByAppAndIdentifierInput { AppIdOrSlug = request.AppIdOrSlug, IdentifierIdOrSlug = request.IdentifierIdOrSlug }, cancellationToken);
+            var result = await _appsService.GetGroupedAppDataByAppSlugAndIdentifierSlugAsync(new GetGroupedAppDataByAppAndIdentifierInput { AppIdOrSlug = request.AppSlug, IdentifierIdOrSlug = request.IdentifierSlug }, cancellationToken);
 
             return result.ToAction();
         }
         
         [HttpGet(OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetAppSettingsData)]
-        public async Task<IActionResult> GetAppSettingsData(GetSettingsDataRequest request, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> GetAppSettingsData(GetAppSettingsDataRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
             {

@@ -1,6 +1,6 @@
 ﻿namespace OpenSettings.Models.Inputs
 {
-    public class GetConfigurationByAppAndIdentifierInput
+    public class GetAppConfigurationByAppAndIdentifierInput
     {
         public string AppIdOrSlug { get; set; }
 

@@ -2,7 +2,7 @@
 
 namespace OpenSettings.AspNetCore.Models.Requests
 {
-    public class GetAppIdentifierMappingByAppSlugAndIdentifierSlugRequest
+    public class GetGroupedAppDataByAppSlugAndIdentifierSlugRequest
     {
         [FromRoute]
         public string AppSlug { get; set; }

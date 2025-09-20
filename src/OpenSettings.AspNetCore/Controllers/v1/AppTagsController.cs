@@ -125,7 +125,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         }
 
         [HttpDelete(OpenSettingsDefaults.Routes.V1.AppTagsEndpoints.DeleteAppTag)]
-        public async Task<IActionResult> DeleteAppTag(DeleteTagRequest request, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> DeleteAppTag(DeleteAppTagRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
             {

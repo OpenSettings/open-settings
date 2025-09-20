@@ -20,7 +20,7 @@ namespace OpenSettings.Services.Rest
             _httpClientFactory = httpClientFactory;
         }
 
-        public async Task<IResponse> GetAppConfigurationByAppIdAndIdentifierIdAsync(GetConfigurationByAppAndIdentifierInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetAppConfigurationByAppIdAndIdentifierIdAsync(GetAppConfigurationByAppAndIdentifierInput input, CancellationToken cancellationToken = default)
         {
             var relativeUri = $"v1/apps/{input.AppIdOrSlug}/identifiers/{input.IdentifierIdOrSlug}/configuration";
 

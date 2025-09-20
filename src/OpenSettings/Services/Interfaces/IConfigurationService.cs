@@ -7,7 +7,7 @@ namespace OpenSettings.Services.Interfaces
 {
     public interface IAppConfigurationService
     {
-        Task<IResponse> GetAppConfigurationByAppIdAndIdentifierIdAsync(GetConfigurationByAppAndIdentifierInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> GetAppConfigurationByAppIdAndIdentifierIdAsync(GetAppConfigurationByAppAndIdentifierInput input, CancellationToken cancellationToken = default);
 
         Task<IResponse> PatchAppConfigurationAsync(PatchConfigurationInput input, CancellationToken cancellationToken = default);
     }
