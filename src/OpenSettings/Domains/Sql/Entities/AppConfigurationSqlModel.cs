@@ -6,8 +6,10 @@ namespace OpenSettings.Domains.Sql.Entities
     /// <summary>
     /// Represents a configuration entity.
     /// </summary>
-    public class AppConfigurationSqlModel : EntityBase<int>
+    public class AppConfigurationSqlModel : EntityBase<Guid>
     {
+        public Guid? TenantId { get; set; }
+
         /// <summary>
         /// Determines whether the configuration should be stored in a separate file.
         /// </summary>
@@ -72,7 +74,7 @@ namespace OpenSettings.Domains.Sql.Entities
         /// <summary>
         /// The identifier associated with this configuration.
         /// </summary>
-        public int IdentifierId { get; set; }
+        public Guid IdentifierId { get; set; }
 
         /// <summary>
         /// The identifier associated with this configuration.
@@ -82,7 +84,7 @@ namespace OpenSettings.Domains.Sql.Entities
         /// <summary>
         /// The app id associated with this configuration.
         /// </summary>
-        public int AppId { get; set; }
+        public Guid AppId { get; set; }
 
         /// <summary>
         /// The application associated with this configuration.

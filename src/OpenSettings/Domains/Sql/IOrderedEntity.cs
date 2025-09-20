@@ -10,7 +10,7 @@ namespace OpenSettings.Domains.Sql
         /// <summary>
         /// The unique identifier for the entity.
         /// </summary>
-        int Id { get; set; }
+        Guid Id { get; set; }
 
         /// <summary>
         /// The sort order of this entity in a list.

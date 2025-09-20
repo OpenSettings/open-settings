@@ -4,7 +4,7 @@ namespace OpenSettings.Models.Inputs
 {
     public class UpdateIdentifierSortOrderInput
     {
-        public string IdentifierId { get; set; }
+        public Guid IdentifierId { get; set; }
 
         public bool Ascent { get; set; }
 

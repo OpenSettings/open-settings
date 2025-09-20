@@ -5,12 +5,14 @@ namespace OpenSettings.Domains.Sql.Entities
     /// <summary>
     /// Represents an app-tag mapping entity.
     /// </summary>
-    public class AppTagMappingSqlModel : EntityBase<int>
+    public class AppTagMappingSqlModel : EntityBase<Guid>
     {
+        public Guid? TenantId { get; set; }
+
         /// <summary>
         /// The id of the associated app.
         /// </summary>
-        public int AppId { get; set; }
+        public Guid AppId { get; set; }
 
         /// <summary>
         /// The app associated with this mapping.
@@ -20,7 +22,7 @@ namespace OpenSettings.Domains.Sql.Entities
         /// <summary>
         /// The id of the associated tag.
         /// </summary>
-        public int AppTagId { get; set; }
+        public Guid AppTagId { get; set; }
 
         /// <summary>
         /// The tag associated with this mapping.

@@ -1,10 +1,12 @@
-﻿namespace OpenSettings.Models.Responses
+﻿using System;
+
+namespace OpenSettings.Models.Responses
 {
     public class CreateAppIdentifierMappingResponse
     {
         public int MappingSortOrder { get; set; }
 
-        public string AppId { get; set; }
+        public Guid AppId { get; set; }
 
         public CreateAppIdentifierMappingResponseIdentifier Identifier { get; set; }
     }

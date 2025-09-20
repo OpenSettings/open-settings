@@ -8,6 +8,8 @@ namespace OpenSettings.Domains.Sql.Entities
     /// </summary>
     public class LicenseSqlModel : EntityBase<int>
     {
+        public Guid? TenantId { get; set; }
+
         /// <summary>
         /// The unique reference identifier for the license.
         /// </summary>

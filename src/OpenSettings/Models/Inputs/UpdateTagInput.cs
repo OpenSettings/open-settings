@@ -4,7 +4,7 @@ namespace OpenSettings.Models.Inputs
 {
     public class UpdateTagInput
     {
-        public string AppTagId { get; set; }
+        public Guid AppTagId { get; set; }
 
         public string Name { get; set; }
 

@@ -1,12 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace OpenSettings.Domains.Sql.Entities
 {
     /// <summary>
     /// Represents a user role entity.
     /// </summary>
-    public class UserRoleSqlModel : EntityBase<int>
+    public class UserRoleSqlModel : EntityBase<Guid>
     {
+        public Guid? TenantId { get; set; }
+
         /// <summary>
         /// The name of the user role.
         /// </summary>

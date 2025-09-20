@@ -7,5 +7,7 @@ namespace OpenSettings.Models.Inputs
         public Guid ClientId { get; set; }
 
         public Guid ClientSecret { get; set; }
+
+        public Guid? TenantId { get; set; }
     }
 }

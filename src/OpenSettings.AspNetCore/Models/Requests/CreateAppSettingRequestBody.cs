@@ -6,16 +6,16 @@ namespace OpenSettings.AspNetCore.Models.Requests
 {
     public class CreateAppSettingRequestBody
     {
-        [Required(AllowEmptyStrings = false)]
-        public string AppId { get; set; }
+        [Required]
+        public Guid AppId { get; set; }
 
         public string Data { get; set; }
 
         [Required(AllowEmptyStrings = false)]
         public Guid ComputedIdentifier { get; set; }
 
-        [Required(AllowEmptyStrings = false)]
-        public string IdentifierId { get; set; }
+        [Required]
+        public Guid IdentifierId { get; set; }
 
         public CreateAppSettingRequestBodyClass Class { get; set; }
 

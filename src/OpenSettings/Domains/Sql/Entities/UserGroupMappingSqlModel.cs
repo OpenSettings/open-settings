@@ -5,8 +5,10 @@ namespace OpenSettings.Domains.Sql.Entities
     /// <summary>
     /// Represents a user-group mapping entity.
     /// </summary>
-    public class UserGroupMappingSqlModel : EntityBase<int>
+    public class UserGroupMappingSqlModel : EntityBase<Guid>
     {
+        public Guid? TenantId { get; set; }
+
         /// <summary>
         /// The id of the associated user.
         /// </summary>
@@ -15,7 +17,7 @@ namespace OpenSettings.Domains.Sql.Entities
         /// <summary>
         /// The id of the associated user group.
         /// </summary>
-        public int UserGroupId { get; set; }
+        public Guid UserGroupId { get; set; }
 
         /// <summary>
         /// The user associated with this mapping.

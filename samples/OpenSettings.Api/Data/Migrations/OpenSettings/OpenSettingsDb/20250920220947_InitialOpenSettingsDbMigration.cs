@@ -39,6 +39,7 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     ReferenceId = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ReferenceIdLowercase = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     Features = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -66,6 +67,7 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 columns: table => new
                 {
                     Key = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     Owner = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     ExpiryDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
@@ -101,8 +103,8 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "UserClaims",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     Type = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     TypeLowercase = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Value = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -121,8 +123,8 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "UserGroups",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     NameLowercase = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Slug = table.Column<string>(type: "nvarchar(450)", nullable: true),
@@ -138,8 +140,8 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "UserRoles",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     NameLowercase = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Slug = table.Column<string>(type: "nvarchar(450)", nullable: true),
@@ -156,6 +158,7 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     AuthType = table.Column<int>(type: "int", nullable: false),
                     IdentityProvider = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ExternalId = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -193,8 +196,8 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "AppGroups",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     NameLowercase = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Slug = table.Column<string>(type: "nvarchar(450)", nullable: true),
@@ -224,8 +227,8 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "AppTags",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     NameLowercase = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     Slug = table.Column<string>(type: "nvarchar(450)", nullable: true),
@@ -255,13 +258,13 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "GlobalConfigurations",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     Key = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     KeyLowercase = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     Data = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
                     ClientId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    IdentifierId = table.Column<int>(type: "int", nullable: true),
+                    IdentifierId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     SerializerType = table.Column<int>(type: "int", nullable: false),
                     CompressionType = table.Column<int>(type: "int", nullable: false),
                     CompressionLevel = table.Column<int>(type: "int", nullable: false),
@@ -291,8 +294,8 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "Identifiers",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     NameLowercase = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     Slug = table.Column<string>(type: "nvarchar(450)", nullable: true),
@@ -323,6 +326,7 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     StateId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Issuer = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Audience = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -363,6 +367,7 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     Title = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Message = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Type = table.Column<int>(type: "int", nullable: false),
@@ -397,7 +402,8 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 columns: table => new
                 {
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UserClaimId = table.Column<int>(type: "int", nullable: false),
+                    UserClaimId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
@@ -428,7 +434,8 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 columns: table => new
                 {
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UserGroupId = table.Column<int>(type: "int", nullable: false),
+                    UserGroupId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
@@ -458,8 +465,9 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "UserGroupUserClaimMappings",
                 columns: table => new
                 {
-                    UserGroupId = table.Column<int>(type: "int", nullable: false),
-                    UserClaimId = table.Column<int>(type: "int", nullable: false),
+                    UserGroupId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserClaimId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
@@ -490,7 +498,8 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 columns: table => new
                 {
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UserRoleId = table.Column<int>(type: "int", nullable: false),
+                    UserRoleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
@@ -520,8 +529,9 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "UserRoleUserClaimMappings",
                 columns: table => new
                 {
-                    UserRoleId = table.Column<int>(type: "int", nullable: false),
-                    UserClaimId = table.Column<int>(type: "int", nullable: false),
+                    UserRoleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserClaimId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
@@ -551,8 +561,9 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "UserRoleUserGroupMappings",
                 columns: table => new
                 {
-                    UserRoleId = table.Column<int>(type: "int", nullable: false),
-                    UserGroupId = table.Column<int>(type: "int", nullable: false),
+                    UserRoleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserGroupId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
@@ -582,8 +593,8 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "Apps",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     DisplayName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     DisplayNameLowercase = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ClientName = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -598,7 +609,7 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     Type = table.Column<int>(type: "int", nullable: false),
                     SortOrder = table.Column<int>(type: "int", nullable: false),
                     RowVersion = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
-                    AppGroupId = table.Column<int>(type: "int", nullable: true),
+                    AppGroupId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     UpdatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -630,11 +641,12 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     Key = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     KeyLowercase = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     Data = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
                     ClientId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    IdentifierId = table.Column<int>(type: "int", nullable: true),
+                    IdentifierId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     SerializerType = table.Column<int>(type: "int", nullable: false),
                     CompressionType = table.Column<int>(type: "int", nullable: false),
                     CompressionLevel = table.Column<int>(type: "int", nullable: false),
@@ -642,7 +654,7 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     Slug = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     RestoredOn = table.Column<DateTime>(type: "datetime2", nullable: true),
                     RowVersion = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
-                    GlobalConfigurationId = table.Column<int>(type: "int", nullable: false),
+                    GlobalConfigurationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     RestoredById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false)
@@ -672,8 +684,9 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "UserGroupNotificationMappings",
                 columns: table => new
                 {
-                    UserGroupId = table.Column<int>(type: "int", nullable: false),
+                    UserGroupId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     NotificationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
@@ -705,6 +718,7 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 {
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     NotificationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     IsOpened = table.Column<bool>(type: "bit", nullable: false),
                     OpenedOn = table.Column<DateTime>(type: "datetime2", nullable: true),
                     IsViewed = table.Column<bool>(type: "bit", nullable: false),
@@ -741,8 +755,8 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "AppConfigurations",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     StoreInSeparateFile = table.Column<bool>(type: "bit", nullable: false),
                     IgnoreIndividualStoreInSeparateFile = table.Column<bool>(type: "bit", nullable: false),
                     IgnoreOnFileChange = table.Column<bool>(type: "bit", nullable: false),
@@ -754,8 +768,8 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     Controller = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Spa = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     RowVersion = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
-                    IdentifierId = table.Column<int>(type: "int", nullable: false),
-                    AppId = table.Column<int>(type: "int", nullable: false),
+                    IdentifierId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    AppId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     UpdatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -792,8 +806,9 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "AppIdentifierMappings",
                 columns: table => new
                 {
-                    AppId = table.Column<int>(type: "int", nullable: false),
-                    IdentifierId = table.Column<int>(type: "int", nullable: false),
+                    AppId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    IdentifierId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     SortOrder = table.Column<int>(type: "int", nullable: false),
                     RowVersion = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
                     CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
@@ -834,6 +849,7 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     NameLowercase = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     Slug = table.Column<string>(type: "nvarchar(450)", nullable: true),
@@ -848,8 +864,8 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     ReloadStrategies = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ServiceType = table.Column<int>(type: "int", nullable: false),
                     DataAccessType = table.Column<int>(type: "int", nullable: true),
-                    AppId = table.Column<int>(type: "int", nullable: false),
-                    IdentifierId = table.Column<int>(type: "int", nullable: false),
+                    AppId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    IdentifierId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
@@ -874,8 +890,8 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "AppSettings",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     Data = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
                     ComputedIdentifier = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     SerializerType = table.Column<int>(type: "int", nullable: false),
@@ -891,9 +907,9 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     IsCopied = table.Column<bool>(type: "bit", nullable: false),
                     CopiedOn = table.Column<DateTime>(type: "datetime2", nullable: true),
                     RowVersion = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
-                    IdentifierId = table.Column<int>(type: "int", nullable: false),
-                    AppId = table.Column<int>(type: "int", nullable: false),
-                    CopiedFromId = table.Column<int>(type: "int", nullable: true),
+                    IdentifierId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    AppId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CopiedFromId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     UpdatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -935,10 +951,10 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "AppTagMappings",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    AppId = table.Column<int>(type: "int", nullable: false),
-                    AppTagId = table.Column<int>(type: "int", nullable: false),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    AppId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    AppTagId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
@@ -968,15 +984,15 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "AppSettingClasses",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     Identifier = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     FullName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Namespace = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Properties = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     RowVersion = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
-                    AppSettingId = table.Column<int>(type: "int", nullable: false),
+                    AppSettingId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     UpdatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -1008,6 +1024,7 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     Data = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
                     SerializerType = table.Column<int>(type: "int", nullable: false),
                     CompressionType = table.Column<int>(type: "int", nullable: false),
@@ -1016,7 +1033,7 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     Slug = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     RestoredOn = table.Column<DateTime>(type: "datetime2", nullable: true),
                     RowVersion = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
-                    AppSettingId = table.Column<int>(type: "int", nullable: false),
+                    AppSettingId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     RestoredById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false)

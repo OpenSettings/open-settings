@@ -4,9 +4,9 @@ namespace OpenSettings.Models.Inputs
 {
     public class CreateSettingInput
     {
-        public string AppId { get; set; }
+        public Guid AppId { get; set; }
 
-        public string IdentifierId { get; set; }
+        public Guid IdentifierId { get; set; }
 
         public Guid ComputedIdentifier { get; set; }
 

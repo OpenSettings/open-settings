@@ -4,7 +4,7 @@ namespace OpenSettings.Models.Inputs
 {
     public class UpdateGroupSortOrderInput
     {
-        public string AppGroupId { get; set; }
+        public Guid AppGroupId { get; set; }
 
         public bool Ascent { get; set; }
 

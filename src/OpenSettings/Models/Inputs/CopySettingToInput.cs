@@ -4,14 +4,14 @@ namespace OpenSettings.Models.Inputs
 {
     public class CopySettingToInput
     {
-        public string AppSettingId { get; set; }
+        public Guid AppSettingId { get; set; }
 
-        public string TargetAppId { get; set; }
+        public Guid TargetAppId { get; set; }
 
         /// <summary>
         /// IdentifierId can be null, then IdentifierName will be created
         /// </summary>
-        public string IdentifierId { get; set; }
+        public Guid? IdentifierId { get; set; }
 
         /// <summary>
         /// If IdentifierName and IdentifierId is empty then return an error

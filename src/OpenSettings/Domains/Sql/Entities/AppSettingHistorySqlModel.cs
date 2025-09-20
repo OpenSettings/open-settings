@@ -10,6 +10,8 @@ namespace OpenSettings.Domains.Sql.Entities
     /// </summary>
     public class AppSettingHistorySqlModel : EntityBase<Guid>
     {
+        public Guid? TenantId { get; set; }
+
         /// <summary>
         /// The binary data associated with the setting history.
         /// </summary>
@@ -56,7 +58,7 @@ namespace OpenSettings.Domains.Sql.Entities
         /// <summary>
         /// The setting id associated with this setting history.
         /// </summary>
-        public int AppSettingId { get; set; }
+        public Guid AppSettingId { get; set; }
 
         public virtual AppSettingSqlModel AppSetting { get; set; }
 

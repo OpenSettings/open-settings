@@ -5,8 +5,10 @@ namespace OpenSettings.Domains.Sql.Entities
     /// <summary>
     /// Represents a user-role mapping entity.
     /// </summary>
-    public class UserRoleMappingSqlModel : EntityBase<int>
+    public class UserRoleMappingSqlModel : EntityBase<Guid>
     {
+        public Guid? TenantId { get; set; }
+
         /// <summary>
         /// The id of the associated user.
         /// </summary>
@@ -15,7 +17,7 @@ namespace OpenSettings.Domains.Sql.Entities
         /// <summary>
         /// The id of the associated user role.
         /// </summary>
-        public int UserRoleId { get; set; }
+        public Guid UserRoleId { get; set; }
 
         /// <summary>
         /// The user associated with this mapping.

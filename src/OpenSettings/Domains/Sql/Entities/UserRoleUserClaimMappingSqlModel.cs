@@ -5,17 +5,19 @@ namespace OpenSettings.Domains.Sql.Entities
     /// <summary>
     /// Represents a user role-claim mapping entity.
     /// </summary>
-    public class UserRoleUserClaimMappingSqlModel : EntityBase<int>
+    public class UserRoleUserClaimMappingSqlModel : EntityBase<Guid>
     {
+        public Guid? TenantId { get; set; }
+
         /// <summary>
         /// The id of the associated user role.
         /// </summary>
-        public int UserRoleId { get; set; }
+        public Guid UserRoleId { get; set; }
 
         /// <summary>
         /// The id of the associated user claim.
         /// </summary>
-        public int UserClaimId { get; set; }
+        public Guid UserClaimId { get; set; }
 
         /// <summary>
         /// The user role associated with this mapping.

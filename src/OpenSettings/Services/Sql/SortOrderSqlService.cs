@@ -29,11 +29,11 @@ namespace OpenSettings.Services.Sql
             _clientId = openSettingsConfiguration.Client.Id;
         }
 
-        public IQueryable<T> FindNeighbour<T>(DbSet<T> items, int id, int order, bool ascent) where T : class, IOrderedEntity, new()
+        public IQueryable<T> FindNeighbour<T>(DbSet<T> items, Guid id, int sortOrder, bool ascent) where T : class, IOrderedEntity, new()
         {
             return ascent
-                ? items.AsNoTracking().Where(a => a.SortOrder >= order && a.Id != id).OrderBy(a => a.SortOrder)
-                : items.AsNoTracking().Where(a => a.SortOrder <= order && a.Id != id).OrderByDescending(a => a.SortOrder);
+                ? items.AsNoTracking().Where(a => a.SortOrder >= sortOrder && a.Id != id).OrderBy(a => a.SortOrder)
+                : items.AsNoTracking().Where(a => a.SortOrder <= sortOrder && a.Id != id).OrderByDescending(a => a.SortOrder);
         }
 
         public async Task<IResponse> ReorderAsync<T>(DbSet<T> items, CancellationToken cancellationToken) where T : class, IOrderedEntity, new()

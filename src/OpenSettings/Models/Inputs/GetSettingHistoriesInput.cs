@@ -6,7 +6,7 @@ namespace OpenSettings.Models.Inputs
 {
     public class GetSettingHistoriesInput
     {
-        public GetSettingHistoriesInput(string appSettingId, string excludes)
+        public GetSettingHistoriesInput(Guid appSettingId, string excludes)
         {
             AppSettingId = appSettingId;
             Excludes = string.IsNullOrWhiteSpace(excludes)
@@ -15,7 +15,7 @@ namespace OpenSettings.Models.Inputs
                     .Select(s => s.Trim().ToLowerInvariant()).Where(e => e != string.Empty));
         }
 
-        public string AppSettingId { get; }
+        public Guid AppSettingId { get; }
 
         public HashSet<string> Excludes { get; }
     }

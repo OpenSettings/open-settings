@@ -5,8 +5,10 @@ namespace OpenSettings.Domains.Sql.Entities
     /// <summary>
     /// Represents a user-claim mapping entity.
     /// </summary>
-    public class UserClaimMappingSqlModel : EntityBase<int>
+    public class UserClaimMappingSqlModel : EntityBase<Guid>
     {
+        public Guid? TenantId { get; set; }
+
         /// <summary>
         /// The id of the associated user.
         /// </summary>
@@ -15,7 +17,7 @@ namespace OpenSettings.Domains.Sql.Entities
         /// <summary>
         /// The id of the associated user claim.
         /// </summary>
-        public int UserClaimId { get; set; }
+        public Guid UserClaimId { get; set; }
 
         /// <summary>
         /// The user associated with this mapping.

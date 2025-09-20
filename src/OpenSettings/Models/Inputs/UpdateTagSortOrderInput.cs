@@ -4,7 +4,7 @@ namespace OpenSettings.Models.Inputs
 {
     public class UpdateTagSortOrderInput
     {
-        public string AppTagId { get; set; }
+        public Guid AppTagId { get; set; }
 
         public bool Ascent { get; set; }
 

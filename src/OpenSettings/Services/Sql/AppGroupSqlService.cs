@@ -210,18 +210,9 @@ namespace OpenSettings.Services.Sql
             }
         }
 
-        public async Task<IResponse> GetAppGroupByIdAsync(GetGroupInput input, CancellationToken cancellationToken = default)
+        public Task<IResponse> GetAppGroupByIdAsync(GetGroupInput input, CancellationToken cancellationToken = default)
         {
-            var groupIdRule = ValidationRules.GreaterThanRule("GroupId", input.GroupIdOrSlug, 0);
-
-            if (groupIdRule.IsFailed())
-            {
-                return groupIdRule.Failure.ToResponse();
-            }
-
-            var id = groupIdRule.GetStoredValue<int>();
-
-            return await GetGroupByIdOrSlugAsync(g => g.Id == id, cancellationToken);
+            return GetGroupByIdOrSlugAsync(g => g.Id == Guid.Parse(input.GroupIdOrSlug), cancellationToken);
         }
 
         public Task<IResponse> GetAppGroupBySlugAsync(GetGroupInput input, CancellationToken cancellationToken = default)
@@ -233,23 +224,18 @@ namespace OpenSettings.Services.Sql
 
         public async Task<IResponse> UpdateAppGroupAsync(UpdateGroupInput input, CancellationToken cancellationToken = default)
         {
-            var groupIdRule = ValidationRules.GreaterThanRule(nameof(input.AppGroupId), input.AppGroupId, 0);
             var nameRule = ValidationRules.NotEmptyRule(nameof(input.Name), input.Name);
 
-            var failure = new[] { groupIdRule, nameRule }.ValidateFirstOrDefault();
-
-            if (failure != null)
+            if (nameRule.IsFailed())
             {
-                return failure.ToResponse();
+                return nameRule.Failure.ToResponse();
             }
-
-            var groupId = groupIdRule.GetStoredValue<int>();
 
             var trimmedName = input.Name.Trim();
             var trimmedNameLowercase = trimmedName.ToLowerInvariant();
             var slug = trimmedName.ToSlug();
 
-            if (await _context.AppGroups.AsNoTracking().AnyAsync(s => s.Slug == slug && s.Id != groupId, cancellationToken))
+            if (await _context.AppGroups.AsNoTracking().AnyAsync(s => s.Slug == slug && s.Id != input.AppGroupId, cancellationToken))
             {
                 return HttpStatusCode.BadRequest.ToFailureResponse(Errors.GroupAlreadyExists);
             }
@@ -260,13 +246,13 @@ namespace OpenSettings.Services.Sql
                 {
                     if (input.SetSortOrderPosition == SetSortOrderPosition.Bottom)
                     {
-                        var maxOrder = await _context.AppGroups.AsNoTracking().Where(s => s.Id != groupId).MaxAsync(s => s.SortOrder, cancellationToken);
+                        var maxOrder = await _context.AppGroups.AsNoTracking().Where(s => s.Id != input.AppGroupId).MaxAsync(s => s.SortOrder, cancellationToken);
 
                         input.SortOrder = input.SortOrder > maxOrder ? input.SortOrder : maxOrder + OpenSettingsDefaults.SortOrderGap;
                     }
                     else
                     {
-                        var minOrder = await _context.AppGroups.AsNoTracking().Where(s => s.Id != groupId).MinAsync(s => s.SortOrder, cancellationToken);
+                        var minOrder = await _context.AppGroups.AsNoTracking().Where(s => s.Id != input.AppGroupId).MinAsync(s => s.SortOrder, cancellationToken);
 
                         input.SortOrder = input.SortOrder < minOrder ? input.SortOrder : minOrder - OpenSettingsDefaults.SortOrderGap;
                     }
@@ -279,7 +265,7 @@ namespace OpenSettings.Services.Sql
 
             var entity = new AppGroupSqlModel
             {
-                Id = groupId,
+                Id = input.AppGroupId,
                 RowVersion = input.RowVersion
             };
 
@@ -332,16 +318,7 @@ namespace OpenSettings.Services.Sql
 
         public async Task<IResponse> DeleteAppGroupAsync(DeleteGroupInput input, CancellationToken cancellationToken = default)
         {
-            var groupIdRule = ValidationRules.GreaterThanRule(nameof(input.AppGroupId), input.AppGroupId, 0);
-
-            if (groupIdRule.IsFailed())
-            {
-                return HttpStatusCode.BadRequest.ToFailureResponse(groupIdRule.Failure);
-            }
-
-            var groupId = groupIdRule.GetStoredValue<int>();
-
-            _context.AppGroups.Remove(new AppGroupSqlModel { Id = groupId, RowVersion = input.RowVersion });
+            _context.AppGroups.Remove(new AppGroupSqlModel { Id = input.AppGroupId, RowVersion = input.RowVersion });
 
             try
             {
@@ -361,22 +338,13 @@ namespace OpenSettings.Services.Sql
 
         public async Task<IResponse> UpdateAppGroupSortOrderAsync(UpdateGroupSortOrderInput input, CancellationToken cancellationToken = default)
         {
-            var groupIdRule = ValidationRules.GreaterThanRule(nameof(input.AppGroupId), input.AppGroupId, 0);
-
-            if (groupIdRule.IsFailed())
-            {
-                return HttpStatusCode.BadRequest.ToFailureResponse(groupIdRule.Failure);
-            }
-
-            var groupId = groupIdRule.GetStoredValue<int>();
-
             var entity = await _context.AppGroups
                 .AsNoTracking()
-                .Where(a => a.Id == groupId)
+                .Where(a => a.Id == input.AppGroupId)
                 .OrderBy(a => a.Id)
                 .Select(a => new AppGroupSqlModel
                 {
-                    Id = groupId,
+                    Id = input.AppGroupId,
                     SortOrder = a.SortOrder,
                     RowVersion = a.RowVersion
                 })
@@ -389,7 +357,7 @@ namespace OpenSettings.Services.Sql
 
             if (!input.RowVersion.SequenceEqual(entity.RowVersion))
             {
-                return FailureResponses.Conflict(input.AppGroupId, entity.RowVersion, input.RowVersion, false);
+                return FailureResponses.Conflict($"{input.AppGroupId}", entity.RowVersion, input.RowVersion, false);
             }
 
             var foundEntity = await _sortOrderService.FindNeighbour(_context.AppGroups, entity.Id, entity.SortOrder, input.Ascent)
@@ -458,20 +426,7 @@ namespace OpenSettings.Services.Sql
 
         public async Task<IResponse> DragAppGroupAsync(DragItemSortOrderInput input, CancellationToken cancellationToken = default)
         {
-            var sourceIdRule = ValidationRules.GreaterThanRule(nameof(input.SourceId), input.SourceId, 0);
-            var targetIdRule = ValidationRules.GreaterThanRule(nameof(input.TargetId), input.TargetId, 0);
-
-            var failure = new[] { sourceIdRule, targetIdRule }.ValidateFirstOrDefault();
-
-            if (failure != null)
-            {
-                return HttpStatusCode.BadRequest.ToFailureResponse(failure);
-            }
-
-            var sourceId = sourceIdRule.GetStoredValue<int>();
-            var targetId = targetIdRule.GetStoredValue<int>();
-
-            var ids = new int[] { sourceId, targetId };
+            var ids = new Guid[] { input.SourceId, input.TargetId };
 
             var entities = await _context.AppGroups
                 .AsNoTracking()
@@ -483,7 +438,7 @@ namespace OpenSettings.Services.Sql
                     RowVersion = a.RowVersion
                 }).ToArrayAsync(cancellationToken);
 
-            var sourceEntity = entities.FirstOrDefault(a => a.Id == sourceId);
+            var sourceEntity = entities.FirstOrDefault(a => a.Id == input.SourceId);
 
             if (sourceEntity == null)
             {
@@ -492,10 +447,10 @@ namespace OpenSettings.Services.Sql
 
             if (!input.SourceRowVersion.SequenceEqual(sourceEntity.RowVersion))
             {
-                return FailureResponses.Conflict(input.SourceId, sourceEntity.RowVersion, input.SourceRowVersion, false);
+                return FailureResponses.Conflict($"{input.SourceId}", sourceEntity.RowVersion, input.SourceRowVersion, false);
             }
 
-            var targetEntity = entities.FirstOrDefault(a => a.Id == targetId);
+            var targetEntity = entities.FirstOrDefault(a => a.Id == input.TargetId);
 
             if (targetEntity == null)
             {
@@ -516,7 +471,7 @@ namespace OpenSettings.Services.Sql
             {
                 targetNeighbour = new
                 {
-                    Id = 0,
+                    Id = Guid.Empty,
                     Order = input.Ascent ? targetEntity.SortOrder + OpenSettingsDefaults.SortOrderGap : targetEntity.SortOrder - OpenSettingsDefaults.SortOrderGap
                 };
             }

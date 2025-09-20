@@ -8,8 +8,10 @@ using System.IO.Compression;
 namespace OpenSettings.Domains.Sql.Entities
 {
     [Table("GlobalConfigurations")]
-    public class GlobalConfigurationSqlModel : EntityBase<int>
+    public class GlobalConfigurationSqlModel : EntityBase<Guid>
     {
+        public Guid? TenantId { get; set; }
+
         /// <summary>
         /// The key of the global configuration.
         /// </summary>
@@ -33,7 +35,7 @@ namespace OpenSettings.Domains.Sql.Entities
         /// <summary>
         /// The identifier associated with this global configuration if any.
         /// </summary>
-        public int? IdentifierId { get; set; }
+        public Guid? IdentifierId { get; set; }
 
         /// <summary>
         /// Defines the serialization type used for data serialization and deserialization.

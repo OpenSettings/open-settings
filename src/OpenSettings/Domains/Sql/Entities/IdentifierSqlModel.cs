@@ -6,8 +6,10 @@ namespace OpenSettings.Domains.Sql.Entities
     /// <summary>
     /// Represents an identifier entity.
     /// </summary>
-    public class IdentifierSqlModel : EntityBase<int>, IOrderedEntity
+    public class IdentifierSqlModel : EntityBase<Guid>, IOrderedEntity
     {
+        public Guid? TenantId { get; set; }
+
         /// <summary>
         /// The name of the identifier.
         /// </summary>

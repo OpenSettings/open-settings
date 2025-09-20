@@ -1,11 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
 
 namespace OpenSettings.AspNetCore.Models.Requests
 {
     public class CreateAppIdentifierMappingRequestBodyIdentifier
     {
-        [Required(AllowEmptyStrings = false)]
-        public string Id { get; set; }
+        public Guid? Id { get; set; }
 
         public string Name { get; set; }
     }

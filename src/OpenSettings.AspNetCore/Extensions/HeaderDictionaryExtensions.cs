@@ -18,7 +18,7 @@ namespace OpenSettings.AspNetCore.Extensions
         {
             return TryGetHeaderValue(headerDictionary, OpenSettingsDefaults.Headers.PackVersion, out var value) ? value : null;
         }
-      
+
         internal static CallerType GetCallerTypeHeaderValueOrDefault(this IHeaderDictionary headerDictionary)
         {
             return TryGetHeaderValue(headerDictionary, OpenSettingsDefaults.Headers.CallerType,
@@ -53,9 +53,17 @@ namespace OpenSettings.AspNetCore.Extensions
                 : null;
         }
 
+        internal static Guid? GetTenantIdHeaderValueOrDefault(this IHeaderDictionary headerDictionary)
+        {
+            return TryGetHeaderValue(headerDictionary, OpenSettingsDefaults.Headers.TenantId,
+                out var tenantIdAsString) && Guid.TryParse(tenantIdAsString, out var tenantId)
+                ? (Guid?)tenantId
+                : null;
+        }
+
         internal static AuthenticationHeaderValue GetAuthenticationHeaderValueFromAuthorizationHeader(this IHeaderDictionary headerDictionary)
         {
-            return TryGetHeaderValue(headerDictionary, OpenSettingsDefaults.Headers.Authorization, out var authorizationHeaderValueAsString) && 
+            return TryGetHeaderValue(headerDictionary, OpenSettingsDefaults.Headers.Authorization, out var authorizationHeaderValueAsString) &&
                    AuthenticationHeaderValue.TryParse(authorizationHeaderValueAsString, out var authorizationHeaderValue) ? authorizationHeaderValue : null;
         }
 

@@ -6,8 +6,10 @@ using System.IO.Compression;
 
 namespace OpenSettings.Domains.Sql.Entities
 {
-    public class AppSettingSqlModel : EntityBase<int>
+    public class AppSettingSqlModel : EntityBase<Guid>
     {
+        public Guid? TenantId { get; set; }
+
         /// <summary>
         /// The binary data associated with the setting.
         /// </summary>
@@ -105,7 +107,7 @@ namespace OpenSettings.Domains.Sql.Entities
         /// <summary>
         /// The identifier associated with this setting.
         /// </summary>
-        public int IdentifierId { get; set; }
+        public Guid IdentifierId { get; set; }
 
         /// <summary>
         /// The identifier associated with this setting.
@@ -115,7 +117,7 @@ namespace OpenSettings.Domains.Sql.Entities
         /// <summary>
         /// The app id associated with this setting.
         /// </summary>
-        public int AppId { get; set; }
+        public Guid AppId { get; set; }
 
         /// <summary>
         /// The app associated with this setting.
@@ -125,7 +127,7 @@ namespace OpenSettings.Domains.Sql.Entities
         /// <summary>
         /// The id of the setting from which this setting was copied or cloned.
         /// </summary>
-        public int? CopiedFromId { get; set; }
+        public Guid? CopiedFromId { get; set; }
 
         /// <summary>
         /// The setting from which this setting was copied or cloned.

@@ -30,24 +30,11 @@ namespace OpenSettings.Services.Sql
         public async Task<IResponse> GetAppConfigurationByAppIdAndIdentifierIdAsync(GetAppConfigurationByAppAndIdentifierInput input,
             CancellationToken cancellationToken = default)
         {
-            var appIdRule = ValidationRules.GreaterThanRule(nameof(input.AppIdOrSlug), input.AppIdOrSlug, 0);
-            var identifierIdRule = ValidationRules.GreaterThanRule(nameof(input.IdentifierIdOrSlug), input.IdentifierIdOrSlug, 0);
-
-            var failure = new ValidationRule[] { appIdRule, identifierIdRule }.ValidateFirstOrDefault();
-
-            if (failure != null)
-            {
-                return failure.ToResponse();
-            }
-
-            var appId = appIdRule.GetStoredValue<int>();
-            var identifierId = identifierIdRule.GetStoredValue<int>();
-
             var entity = await _context.AppConfigurations
                 .AsNoTracking()
                 .Where(c =>
-                    c.AppId == appId &&
-                    c.IdentifierId == identifierId)
+                    c.AppId == Guid.Parse(input.AppIdOrSlug) &&
+                    c.IdentifierId == Guid.Parse(input.IdentifierIdOrSlug))
                 .Select(c => new GetConfigurationByAppAndIdentifierResponse
                 {
                     Id = $"{c.Id}",
@@ -66,24 +53,11 @@ namespace OpenSettings.Services.Sql
 
         public async Task<IResponse> PatchAppConfigurationAsync(PatchConfigurationInput input, CancellationToken cancellationToken = default)
         {
-            var appIdRule = ValidationRules.GreaterThanRule(nameof(input.AppId), input.AppId, 0);
-            var identifierIdRule = ValidationRules.GreaterThanRule(nameof(input.IdentifierId), input.IdentifierId, 0);
-
-            var failure = new ValidationRule[] { appIdRule, identifierIdRule }.ValidateFirstOrDefault();
-
-            if (failure != null)
-            {
-                return failure.ToResponse();
-            }
-
-            var appId = appIdRule.GetStoredValue<int>();
-            var identifierId = identifierIdRule.GetStoredValue<int>();
-
             var entity = await _context.AppConfigurations
                 .AsNoTracking()
                 .Where(c => 
-                            c.AppId == appId &&
-                            c.IdentifierId == identifierId)
+                            c.AppId == input.AppId &&
+                            c.IdentifierId == input.IdentifierId)
                 .Select(c => new AppConfigurationSqlModel
                 {
                     Id = c.Id,

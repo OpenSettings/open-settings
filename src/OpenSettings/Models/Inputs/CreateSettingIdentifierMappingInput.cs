@@ -4,7 +4,7 @@ namespace OpenSettings.Models.Inputs
 {
     public class CreateAppIdentifierMappingInput
     {
-        public string AppId { get; set; }
+        public Guid AppId { get; set; }
 
         public SetSortOrderPosition SetSortOrderPosition { get; set; }
 

@@ -50,20 +50,7 @@ namespace OpenSettings.Services.Sql
 
         public async Task<IResponse> GetAppSettingsByAppIdAndIdentifierIdAsync(GetSettingsByAppAndIdentifierInput input, CancellationToken cancellationToken = default)
         {
-            var appIdValidationRule = ValidationRules.GreaterThanRule("AppId", input.AppIdOrSlug, 0);
-            var identifierIdValidationRule = ValidationRules.GreaterThanRule("IdentifierId", input.IdentifierIdOrSlug, 0);
-
-            var failure = new ValidationRule[] { appIdValidationRule, identifierIdValidationRule }.ValidateFirstOrDefault();
-
-            if (failure != null)
-            {
-                return failure.ToResponse();
-            }
-
-            var appId = appIdValidationRule.GetStoredValue<int>();
-            var identifierId = identifierIdValidationRule.GetStoredValue<int>();
-
-            return await GetSettingsByAppAndIdentifierAsync(a => a.Id == appId, identifierId, cancellationToken);
+            return await GetSettingsByAppAndIdentifierAsync(a => a.Id == Guid.Parse(input.AppIdOrSlug), Guid.Parse(input.IdentifierIdOrSlug), cancellationToken);
         }
 
         public async Task<IResponse> GetAppSettingsByAppSlugAndIdentifierSlugAsync(GetSettingsByAppAndIdentifierInput input, CancellationToken cancellationToken = default)
@@ -92,38 +79,19 @@ namespace OpenSettings.Services.Sql
 
             if (!string.IsNullOrWhiteSpace(input.AppId))
             {
-                var appIdRule = ValidationRules.GreaterThanRule(nameof(input.AppId), input.AppId, 0);
-
-                if (appIdRule.IsFailed())
-                {
-                    return appIdRule.Failure.ToResponse();
-                }
-
-                var appId = appIdRule.GetStoredValue<int>();
-
-                query = query.Where(s => s.AppId == appId);
+                query = query.Where(s => s.AppId == Guid.Parse(input.AppId));
             }
 
             if (!string.IsNullOrWhiteSpace(input.IdentifierId))
             {
-                var IdentifierIdRule = ValidationRules.GreaterThanRule(nameof(input.IdentifierId),
-                    input.IdentifierId, 0);
-
-                if (IdentifierIdRule.IsFailed())
-                {
-                    return IdentifierIdRule.Failure.ToResponse();
-                }
-
-                var IdentifierId = IdentifierIdRule.GetStoredValue<int>();
-
-                query = query.Where(s => s.IdentifierId == IdentifierId);
+                query = query.Where(s => s.IdentifierId == Guid.Parse(input.IdentifierId));
             }
 
             if (!string.IsNullOrWhiteSpace(input.Ids))
             {
                 var idArray = input.Ids
                     .Split(OpenSettingsDefaults.Separators.CommaSeparator, StringSplitOptions.RemoveEmptyEntries)
-                    .Select(i => int.TryParse(i, out var parsedId) ? (int?)parsedId : null)
+                    .Select(i => Guid.TryParse(i, out var parsedId) ? (Guid?)parsedId : null)
                     .Where(i => i.HasValue)
                     .Select(i => i.Value)
                     .ToArray();
@@ -162,21 +130,6 @@ namespace OpenSettings.Services.Sql
 
         public async Task<IResponse> CopyAppSettingToAsync(CopySettingToInput input, CancellationToken cancellationToken = default)
         {
-            var settingIdRule = ValidationRules.GreaterThanRule(nameof(input.AppSettingId), input.AppSettingId, 0);
-            var targetAppIdRule = ValidationRules.GreaterThanRule(nameof(input.TargetAppId), input.TargetAppId, 0);
-            var identifierIdRule = ValidationRules.GreaterThanRule(nameof(input.IdentifierId), input.IdentifierId, -1);
-
-            var validationFailure = new[] { settingIdRule, targetAppIdRule, identifierIdRule }.ValidateFirstOrDefault();
-
-            if (validationFailure != null)
-            {
-                return HttpStatusCode.BadRequest.ToFailureResponse(validationFailure);
-            }
-
-            var settingId = settingIdRule.GetStoredValue<int>();
-            var targetAppId = targetAppIdRule.GetStoredValue<int>();
-            var identifierId = identifierIdRule.GetStoredValue<int>();
-
             var sourceSetting = await _context.AppSettings
                 .AsNoTracking()
 #if !NETSTANDARD2_0
@@ -184,7 +137,7 @@ namespace OpenSettings.Services.Sql
 #endif
                 .Include(a => a.AppSettingClass)
                 .Include(a => a.App).ThenInclude(a => a.AppIdentifierMappings).ThenInclude(a => a.Identifier)
-                .Where(a => a.Id == settingId)
+                .Where(a => a.Id == input.AppSettingId)
                 .OrderBy(a => a.Id)
                 .Select(a => new
                 {
@@ -219,7 +172,7 @@ namespace OpenSettings.Services.Sql
             string appSlug;
             var identifierIdToIdentifier = sourceSetting.Identifiers.ToDictionary(s => s.IdentifierId);
 
-            if (sourceSetting.AppId != targetAppId)
+            if (sourceSetting.AppId != input.TargetAppId)
             {
                 var targetApp = await _context.Apps
                     .AsNoTracking()
@@ -227,7 +180,7 @@ namespace OpenSettings.Services.Sql
                     .AsSplitQuery()
 #endif
                     .Include(a => a.AppIdentifierMappings).ThenInclude(a => a.Identifier)
-                    .Where(a => a.Id == targetAppId)
+                    .Where(a => a.Id == input.TargetAppId)
                     .OrderBy(a => a.Id)
                     .Select(a => new
                     {
@@ -245,7 +198,7 @@ namespace OpenSettings.Services.Sql
                 appSlug = targetApp.Slug;
                 identifierIdToIdentifier = targetApp.Identifiers.ToDictionary(s => s.IdentifierId);
             }
-            else if (sourceSetting.IdentifierId == identifierId)
+            else if (sourceSetting.IdentifierId == input.IdentifierId)
             {
                 return HttpStatusCode.BadRequest.ToFailureResponse(Errors.DuplicateSetting);
             }
@@ -259,9 +212,9 @@ namespace OpenSettings.Services.Sql
             int identifierSortOrder;
             int identifierMappingSortOrder;
 
-            if (identifierId > 0)
+            if (input.IdentifierId.HasValue && input.IdentifierId != Guid.Empty)
             {
-                var identifierEntity = await _context.Identifiers.AsNoTracking().Where(i => i.Id == identifierId)
+                var identifierEntity = await _context.Identifiers.AsNoTracking().Where(i => i.Id == input.IdentifierId.Value)
                     .OrderBy(i => i.Id).Select(
                         i => new
                         {
@@ -275,14 +228,14 @@ namespace OpenSettings.Services.Sql
 
                 identifierSortOrder = identifierEntity.SortOrder;
 
-                var hasSomeSetting = await HasSomeSettingAsync(targetAppId, identifierId, sourceSetting.ComputedIdentifier, cancellationToken);
+                var hasSomeSetting = await HasSomeSettingAsync(input.TargetAppId, input.IdentifierId.Value, sourceSetting.ComputedIdentifier, cancellationToken);
 
                 if (hasSomeSetting)
                 {
                     return HttpStatusCode.BadRequest.ToFailureResponse(Errors.DuplicateTargetSetting);
                 }
             }
-            else if (identifierId == 0 && !string.IsNullOrWhiteSpace(input.IdentifierName))
+            else if (!string.IsNullOrWhiteSpace(input.IdentifierName))
             {
                 var identifierGetOrCreateResponse = await _identifiersService.GetOrCreateAsync(input.IdentifierName, SetSortOrderPosition.Bottom, input.UserId, cancellationToken);
 
@@ -291,13 +244,13 @@ namespace OpenSettings.Services.Sql
                     return identifierGetOrCreateResponse.ToResponse();
                 }
 
-                identifierId = identifierGetOrCreateResponse.Data.Id;
+                input.IdentifierId = identifierGetOrCreateResponse.Data.Id;
                 identifierName = identifierGetOrCreateResponse.Data.Name;
                 identifierSortOrder = identifierGetOrCreateResponse.Data.SortOrder;
 
                 if (!identifierGetOrCreateResponse.Data.IsNewlyCreated)
                 {
-                    var hasSomeSetting = await HasSomeSettingAsync(targetAppId, identifierId, sourceSetting.ComputedIdentifier, cancellationToken);
+                    var hasSomeSetting = await HasSomeSettingAsync(input.TargetAppId, input.IdentifierId.Value, sourceSetting.ComputedIdentifier, cancellationToken);
 
                     if (hasSomeSetting)
                     {
@@ -312,11 +265,11 @@ namespace OpenSettings.Services.Sql
 
             var currentTime = DateTime.UtcNow;
 
-            var app = new AppSqlModel { Id = targetAppId };
+            var app = new AppSqlModel { Id = input.TargetAppId };
 
             _context.Apps.Attach(app);
 
-            if (identifierIdToIdentifier.TryGetValue(identifierId, out var identifier))
+            if (identifierIdToIdentifier.TryGetValue(input.IdentifierId.Value, out var identifier))
             {
                 identifierName = identifier.Name;
                 identifierSortOrder = identifier.SortOrder;
@@ -328,7 +281,7 @@ namespace OpenSettings.Services.Sql
                 {
                     identifierMappingSortOrder =
                         await _context.AppIdentifierMappings.AsNoTracking()
-                            .Where(a => a.AppId == targetAppId)
+                            .Where(a => a.AppId == input.TargetAppId)
                             .MaxAsync(s => s.SortOrder, cancellationToken) + OpenSettingsDefaults.SortOrderGap;
                 }
                 catch (InvalidOperationException)
@@ -339,7 +292,7 @@ namespace OpenSettings.Services.Sql
                 app.AppIdentifierMappings.Add(new AppIdentifierMappingSqlModel
                 {
                     AppId = sourceSetting.AppId,
-                    IdentifierId = identifierId,
+                    IdentifierId = input.IdentifierId.Value,
                     SortOrder = identifierMappingSortOrder,
                     CreatedOn = currentTime,
                     CreatedById = input.UserId
@@ -347,7 +300,7 @@ namespace OpenSettings.Services.Sql
             }
 
             var configuration = await _context.AppConfigurations.AsNoTracking()
-                .AnyAsync(c => c.AppId == targetAppId && c.IdentifierId == identifierId, cancellationToken);
+                .AnyAsync(c => c.AppId == input.TargetAppId && c.IdentifierId == input.IdentifierId.Value, cancellationToken);
 
             if (!configuration)
             {
@@ -360,7 +313,7 @@ namespace OpenSettings.Services.Sql
                     Provider = new ConfigurationProvider(),
                     Controller = new ConfigurationController(),
                     Spa = new ConfigurationSpa(),
-                    IdentifierId = identifierId,
+                    IdentifierId = input.IdentifierId.Value,
                     CreatedOn = currentTime,
                     CreatedById = input.UserId
                 });
@@ -382,9 +335,9 @@ namespace OpenSettings.Services.Sql
                 IsDraft = sourceSetting.IsDraft,
                 IsCopied = true,
                 CopiedOn = currentTime,
-                IdentifierId = identifierId,
+                IdentifierId = input.IdentifierId.Value,
                 AppId = sourceSetting.AppId,
-                CopiedFromId = settingId,
+                CopiedFromId = input.AppSettingId,
                 CreatedById = input.UserId,
                 UpdatedById = null,
                 RowVersion = Array.Empty<byte>(),
@@ -425,21 +378,12 @@ namespace OpenSettings.Services.Sql
 
         public async Task<IResponse> GetAppSettingByIdAsync(GetSettingByIdInput input, CancellationToken cancellationToken = default)
         {
-            var settingIdValidationRule = ValidationRules.GreaterThanRule(nameof(input.Id), input.Id, 0);
-
-            if (settingIdValidationRule.IsFailed())
-            {
-                return HttpStatusCode.BadRequest.ToFailureResponse(settingIdValidationRule.Failure);
-            }
-
-            var settingId = settingIdValidationRule.GetStoredValue<int>();
-
             var entity = await _context.AppSettings
                 .AsNoTracking()
 #if !NETSTANDARD2_0
                 .AsSplitQuery()
 #endif
-                .Where(s => s.Id == settingId)
+                .Where(s => s.Id == input.AppSettingId)
                 .OrderBy(s => s.Id)
                 .Select(s => new GetSettingResponse
                 {
@@ -472,22 +416,13 @@ namespace OpenSettings.Services.Sql
 
         public async Task<IResponse> GetAppSettingDataAsync(GetSettingDataInput input, CancellationToken cancellationToken = default)
         {
-            var settingIdValidationRule = ValidationRules.GreaterThanRule(nameof(input.AppSettingId), input.AppSettingId, 0);
-
-            if (settingIdValidationRule.IsFailed())
-            {
-                return HttpStatusCode.BadRequest.ToFailureResponse(settingIdValidationRule.Failure);
-            }
-
-            var settingId = settingIdValidationRule.GetStoredValue<int>();
-
             var entity = await _context.AppSettings
                 .AsNoTracking()
 #if !NETSTANDARD2_0
                 .AsSplitQuery()
 #endif
                 .Include(a => a.AppSettingClass)
-                .Where(a => a.Id == settingId)
+                .Where(a => a.Id == input.AppSettingId)
                 .OrderBy(a => a.Id)
                 .Select(a => new
                 {
@@ -535,22 +470,13 @@ namespace OpenSettings.Services.Sql
 
         public async Task<IResponse> DeleteAppSettingAsync(DeleteSettingInput input, CancellationToken cancellationToken = default)
         {
-            var settingIdValidationRule = ValidationRules.GreaterThanRule(nameof(input.AppSettingId), input.AppSettingId, 0);
-
-            if (settingIdValidationRule.IsFailed())
-            {
-                return HttpStatusCode.BadRequest.ToFailureResponse(settingIdValidationRule.Failure);
-            }
-
-            var settingId = settingIdValidationRule.GetStoredValue<int>();
-
             var entity = await _context.AppSettings
                 .AsNoTracking()
-                .Where(s => s.Id == settingId)
+                .Where(s => s.Id == input.AppSettingId)
                 .OrderBy(s => s.Id)
                 .Select(s => new AppSettingSqlModel
                 {
-                    Id = settingId,
+                    Id = input.AppSettingId,
                     RowVersion = s.RowVersion
                 })
                 .FirstOrDefaultAsync(cancellationToken);
@@ -565,7 +491,7 @@ namespace OpenSettings.Services.Sql
                 return FailureResponses.Conflict($"{entity.Id}", entity.RowVersion, input.RowVersion, false);
             }
 
-            var appSettings = await _context.AppSettings.AsNoTracking().Where(a => a.CopiedFromId == settingId).Select(a => new AppSettingSqlModel { Id = a.Id }).ToArrayAsync(cancellationToken);
+            var appSettings = await _context.AppSettings.AsNoTracking().Where(a => a.CopiedFromId == input.AppSettingId).Select(a => new AppSettingSqlModel { Id = a.Id }).ToArrayAsync(cancellationToken);
 
             if (appSettings.Length > 0)
             {
@@ -622,15 +548,6 @@ namespace OpenSettings.Services.Sql
 
         public async Task<IResponse> GetAppSettingByIdAsync(GetAppSettingByIdInput input, CancellationToken cancellationToken = default)
         {
-            var settingIdRule = ValidationRules.GreaterThanRule(nameof(input.AppSettingId), input.AppSettingId, 0);
-
-            if (settingIdRule.IsFailed())
-            {
-                return settingIdRule.Failure.ToResponse();
-            }
-
-            var settingId = settingIdRule.GetStoredValue<int>();
-
             var isDataExcluded = input.Excludes.Contains("data");
 
             var entity = await _context.AppSettings
@@ -639,7 +556,7 @@ namespace OpenSettings.Services.Sql
                 .AsSplitQuery()
 #endif
                 .Include(s => s.AppSettingClass)
-                .Where(s => s.Id == settingId)
+                .Where(s => s.Id == input.AppSettingId)
                 .OrderBy(s => s.Id)
                 .Select(s => new
                 {
@@ -690,23 +607,14 @@ namespace OpenSettings.Services.Sql
 
         public async Task<IResponse> UpdateSettingAsync(UpdateSettingInput input, CancellationToken cancellationToken = default)
         {
-            var settingIdValidationRule = ValidationRules.GreaterThanRule(nameof(input.AppSettingId), input.AppSettingId, 0);
-
-            if (settingIdValidationRule.IsFailed())
-            {
-                return HttpStatusCode.BadRequest.ToFailureResponse(settingIdValidationRule.Failure);
-            }
-
-            var settingId = settingIdValidationRule.GetStoredValue<int>();
-
             var entity = await _context.AppSettings
                 .AsNoTracking()
                 .Include(s => s.AppSettingClass)
-                .Where(s => s.Id == settingId)
+                .Where(s => s.Id == input.AppSettingId)
                 .OrderBy(s => s.Id)
                 .Select(s => new AppSettingSqlModel
                 {
-                    Id = settingId,
+                    Id = input.AppSettingId,
                     ComputedIdentifier = s.ComputedIdentifier,
                     AppId = s.AppId,
                     IdentifierId = s.IdentifierId,
@@ -868,25 +776,20 @@ namespace OpenSettings.Services.Sql
 
         public async Task<IResponse> CreateAppSettingAsync(CreateSettingInput input, CancellationToken cancellationToken = default)
         {
-            var appIdRule = ValidationRules.GreaterThanRule(nameof(input.AppId), input.AppId, 0);
             var computedIdentifierRule = ValidationRules.NotEmptyRule(nameof(input.ComputedIdentifier), input.ComputedIdentifier);
-            var identifierIdRule = ValidationRules.GreaterThanRule(nameof(input.IdentifierId), input.IdentifierId, 0);
             var validJsonRule = InternalExtensions.ValidJsonRule(nameof(input.Data), input.Data, storeParsedValue: false);
 
-            var failure = new[] { appIdRule, computedIdentifierRule, identifierIdRule, validJsonRule }.ValidateFirstOrDefault();
+            var failure = new[] { computedIdentifierRule, validJsonRule }.ValidateFirstOrDefault();
 
             if (failure != null)
             {
                 return failure.ToResponse();
             }
 
-            var appId = appIdRule.GetStoredValue<int>();
-            var identifierId = identifierIdRule.GetStoredValue<int>();
-
             var entity = await _context.Apps
                 .AsNoTracking()
                 .Include(a => a.AppSettings).ThenInclude(s => s.AppSettingClass)
-                .Where(a => a.Id == appId)
+                .Where(a => a.Id == input.AppId)
                 .OrderBy(a => a.Id)
                 .Select(a => new AppSqlModel
                 {
@@ -915,7 +818,7 @@ namespace OpenSettings.Services.Sql
 
                 foreach (var entitySetting in entity.AppSettings)
                 {
-                    if (entitySetting.IdentifierId == identifierId &&
+                    if (entitySetting.IdentifierId == input.IdentifierId &&
                         entitySetting.ComputedIdentifier == input.ComputedIdentifier)
                     {
                         return HttpStatusCode.BadRequest.ToFailureResponse(Errors.DuplicateSetting);
@@ -957,7 +860,7 @@ namespace OpenSettings.Services.Sql
 
             var currentTime = DateTime.UtcNow;
 
-            entity.Id = appId;
+            entity.Id = input.AppId;
 
             entity.AppSettings.Clear();
 
@@ -969,7 +872,7 @@ namespace OpenSettings.Services.Sql
                 CompressionLevel = _openSettingsConfiguration.Provider.CompressionLevel,
                 Data = await _compressionProvider.CompressAsync(_openSettingsConfiguration.Provider.CompressionType, input.Data, _openSettingsConfiguration.Provider.CompressionLevel, cancellationToken),
                 ComputedIdentifier = input.ComputedIdentifier,
-                IdentifierId = identifierId,
+                IdentifierId = input.IdentifierId,
                 Version = "0",
                 CreatedOn = currentTime,
                 CreatedById = input.CreatedById,
@@ -999,17 +902,12 @@ namespace OpenSettings.Services.Sql
 
         public async Task<IResponse<UpdateSettingDataResponse>> UpdateAppSettingDataAsync(UpdateSettingDataInput input, CancellationToken cancellationToken)
         {
-            var settingIdValidationRule = ValidationRules.GreaterThanRule(nameof(input.AppSettingId), input.AppSettingId, 0);
             var validJsonRule = InternalExtensions.ValidJsonRule(nameof(input.Data), input.Data, storeParsedValue: true);
 
-            var failure = new ValidationRule[] { settingIdValidationRule, validJsonRule }.ValidateFirstOrDefault();
-
-            if (failure != null)
+            if (validJsonRule.IsFailed())
             {
-                return failure.ToResponse<UpdateSettingDataResponse>();
+                return validJsonRule.Failure.ToResponse<UpdateSettingDataResponse>();
             }
-
-            var settingId = settingIdValidationRule.GetStoredValue<int>();
 
             var jsonDocument = validJsonRule.GetStoredValue<JsonDocument>();
 
@@ -1018,11 +916,11 @@ namespace OpenSettings.Services.Sql
                 .Include(a => a.App)
                 .Include(a => a.AppSettingClass)
                 .Include(a => a.Identifier)
-                .Where(a => a.Id == settingId)
+                .Where(a => a.Id == input.AppSettingId)
                 .OrderBy(a => a.Id)
                 .Select(a => new AppSettingSqlModel
                 {
-                    Id = settingId,
+                    Id = input.AppSettingId,
                     CompressionType = a.CompressionType,
                     CompressionLevel = a.CompressionLevel,
                     Data = a.Data,
@@ -1127,7 +1025,7 @@ namespace OpenSettings.Services.Sql
             });
         }
 
-        private async Task<IResponse> GetSettingsByAppAndIdentifierAsync(Expression<Func<AppSqlModel, bool>> predicate, int identifierId, CancellationToken cancellationToken = default)
+        private async Task<IResponse> GetSettingsByAppAndIdentifierAsync(Expression<Func<AppSqlModel, bool>> predicate, Guid identifierId, CancellationToken cancellationToken = default)
         {
             var entity = await _context.Apps
                 .AsNoTracking()
@@ -1164,13 +1062,13 @@ namespace OpenSettings.Services.Sql
             return HttpStatusCode.OK.ToSuccessResponse(entity.Settings);
         }
 
-        private async Task<bool> HasSomeSettingAsync(int appId, int IdentifierId, Guid computedIdentifier, CancellationToken cancellationToken)
+        private async Task<bool> HasSomeSettingAsync(Guid appId, Guid identifierId, Guid computedIdentifier, CancellationToken cancellationToken)
         {
             return await _context.AppSettings
                 .AsNoTracking()
                 .Where(a => a.AppId == appId &&
                             a.ComputedIdentifier == computedIdentifier &&
-                            a.IdentifierId == IdentifierId)
+                            a.IdentifierId == identifierId)
                 .AnyAsync(cancellationToken);
         }
     }

@@ -121,13 +121,13 @@ namespace OpenSettings.Services.Sql
 
             var query = _context.Identifiers.AsNoTracking();
 
-            if (int.TryParse(input.AppId, out var castedAppId) && castedAppId != 0)
+            if (input.AppId.HasValue && input.AppId != Guid.Empty)
             {
                 query = query
                     .Include(a => a.AppIdentifierMappings)
                     .Where(a => input.IsAppMapped
-                        ? a.AppIdentifierMappings.Any(m => m.AppId == castedAppId)
-                        : a.AppIdentifierMappings.All(m => m.AppId != castedAppId));
+                        ? a.AppIdentifierMappings.Any(m => m.AppId == input.AppId.Value)
+                        : a.AppIdentifierMappings.All(m => m.AppId != input.AppId.Value));
             }
 
             var data = await query
@@ -210,16 +210,7 @@ namespace OpenSettings.Services.Sql
 
         public async Task<IResponse> GetIdentifierByIdAsync(GetIdentifierInput input, CancellationToken cancellationToken = default)
         {
-            var identifierIdRule = ValidationRules.GreaterThanRule(nameof(input.IdentifierIdOrSlug), input.IdentifierIdOrSlug, 0);
-
-            if (identifierIdRule.IsFailed())
-            {
-                return identifierIdRule.Failure.ToResponse();
-            }
-
-            var identifierId = identifierIdRule.GetStoredValue<int>();
-
-            return await GetIdentifierByIdOrSlugAsync(s => s.Id == identifierId, cancellationToken);
+            return await GetIdentifierByIdOrSlugAsync(s => s.Id == Guid.Parse(input.IdentifierIdOrSlug), cancellationToken);
         }
 
         public Task<IResponse> GetIdentifierBySlugAsync(GetIdentifierInput input, CancellationToken cancellationToken = default)
@@ -231,23 +222,18 @@ namespace OpenSettings.Services.Sql
 
         public async Task<IResponse> UpdateIdentifierAsync(UpdateIdentifierInput input, CancellationToken cancellationToken = default)
         {
-            var identifierIdRule = ValidationRules.GreaterThanRule(nameof(input.IdentifierId), input.IdentifierId, 0);
             var nameRule = ValidationRules.NotEmptyRule(nameof(input.Name), input.Name);
 
-            var failure = new[] { identifierIdRule, nameRule }.ValidateFirstOrDefault();
-
-            if (failure != null)
+            if (nameRule.IsFailed())
             {
-                return failure.ToResponse();
+                return nameRule.Failure.ToResponse();
             }
-
-            var id = identifierIdRule.GetStoredValue<int>();
 
             var trimmedName = input.Name.Trim();
             var trimmedNameLowercase = trimmedName.ToLowerInvariant();
             var slug = trimmedName.ToSlug();
 
-            if (await _context.Identifiers.AsNoTracking().AnyAsync(s => s.Slug == slug && s.Id != id, cancellationToken))
+            if (await _context.Identifiers.AsNoTracking().AnyAsync(s => s.Slug == slug && s.Id != input.IdentifierId, cancellationToken))
             {
                 return HttpStatusCode.BadRequest.ToFailureResponse(Errors.IdentifierAlreadyExists);
             }
@@ -258,13 +244,13 @@ namespace OpenSettings.Services.Sql
                 {
                     if (input.SetSortOrderPosition == SetSortOrderPosition.Bottom)
                     {
-                        var maxOrder = await _context.Identifiers.AsNoTracking().Where(s => s.Id != id).MaxAsync(s => s.SortOrder, cancellationToken);
+                        var maxOrder = await _context.Identifiers.AsNoTracking().Where(s => s.Id != input.IdentifierId).MaxAsync(s => s.SortOrder, cancellationToken);
 
                         input.SortOrder = input.SortOrder > maxOrder ? input.SortOrder : maxOrder + OpenSettingsDefaults.SortOrderGap;
                     }
                     else
                     {
-                        var minOrder = await _context.Identifiers.AsNoTracking().Where(s => s.Id != id).MinAsync(s => s.SortOrder, cancellationToken);
+                        var minOrder = await _context.Identifiers.AsNoTracking().Where(s => s.Id != input.IdentifierId).MinAsync(s => s.SortOrder, cancellationToken);
 
                         input.SortOrder = input.SortOrder < minOrder ? input.SortOrder : minOrder - OpenSettingsDefaults.SortOrderGap;
                     }
@@ -277,7 +263,7 @@ namespace OpenSettings.Services.Sql
 
             var entity = new IdentifierSqlModel
             {
-                Id = id,
+                Id = input.IdentifierId,
                 RowVersion = input.RowVersion
             };
 
@@ -330,16 +316,7 @@ namespace OpenSettings.Services.Sql
 
         public async Task<IResponse> DeleteIdentifierAsync(DeleteIdentifierInput input, CancellationToken cancellationToken = default)
         {
-            var identifierIdRule = ValidationRules.GreaterThanRule(nameof(input.IdentifierId), input.IdentifierId, 0);
-
-            if (identifierIdRule.IsFailed())
-            {
-                return HttpStatusCode.BadRequest.ToFailureResponse(identifierIdRule.Failure);
-            }
-
-            var identifierId = identifierIdRule.GetStoredValue<int>();
-
-            _context.Identifiers.Remove(new IdentifierSqlModel { Id = identifierId, RowVersion = input.RowVersion });
+            _context.Identifiers.Remove(new IdentifierSqlModel { Id = input.IdentifierId, RowVersion = input.RowVersion });
 
             try
             {
@@ -359,22 +336,13 @@ namespace OpenSettings.Services.Sql
 
         public async Task<IResponse> UpdateIdentifierSortOrderAsync(UpdateIdentifierSortOrderInput input, CancellationToken cancellationToken = default)
         {
-            var identifierIdRule = ValidationRules.GreaterThanRule(nameof(input.IdentifierId), input.IdentifierId, 0);
-
-            if (identifierIdRule.IsFailed())
-            {
-                return HttpStatusCode.BadRequest.ToFailureResponse(identifierIdRule.Failure);
-            }
-
-            var identifierId = identifierIdRule.GetStoredValue<int>();
-
             var entity = await _context.Identifiers
                 .AsNoTracking()
-                .Where(a => a.Id == identifierId)
+                .Where(a => a.Id == input.IdentifierId)
                 .OrderBy(a => a.Id)
                 .Select(a => new IdentifierSqlModel
                 {
-                    Id = identifierId,
+                    Id = input.IdentifierId,
                     SortOrder = a.SortOrder,
                     RowVersion = a.RowVersion 
                 })
@@ -387,7 +355,7 @@ namespace OpenSettings.Services.Sql
 
             if (!input.RowVersion.SequenceEqual(entity.RowVersion))
             {
-                return FailureResponses.Conflict(input.IdentifierId, entity.RowVersion, input.RowVersion, false);
+                return FailureResponses.Conflict($"{input.IdentifierId}", entity.RowVersion, input.RowVersion, false);
             }
 
             var foundEntity = await _sortOrderService.FindNeighbour(_context.Identifiers, entity.Id, entity.SortOrder, input.Ascent)
@@ -442,20 +410,7 @@ namespace OpenSettings.Services.Sql
 
         public async Task<IResponse> DragIdentifierAsync(DragItemSortOrderInput input, CancellationToken cancellationToken = default)
         {
-            var sourceIdRule = ValidationRules.GreaterThanRule(nameof(input.SourceId), input.SourceId, 0);
-            var targetIdRule = ValidationRules.GreaterThanRule(nameof(input.TargetId), input.TargetId, 0);
-
-            var failure = new[] { sourceIdRule, targetIdRule }.ValidateFirstOrDefault();
-
-            if (failure != null)
-            {
-                return HttpStatusCode.BadRequest.ToFailureResponse(failure);
-            }
-
-            var sourceId = sourceIdRule.GetStoredValue<int>();
-            var targetId = targetIdRule.GetStoredValue<int>();
-
-            var ids = new[] { sourceId, targetId };
+            var ids = new[] { input.SourceId, input.TargetId };
 
             var entities = await _context.Identifiers
                 .AsNoTracking()
@@ -467,7 +422,7 @@ namespace OpenSettings.Services.Sql
                     RowVersion = a.RowVersion
                 }).ToArrayAsync(cancellationToken);
 
-            var sourceEntity = entities.FirstOrDefault(a => a.Id == sourceId);
+            var sourceEntity = entities.FirstOrDefault(a => a.Id == input.SourceId);
 
             if (sourceEntity == null)
             {
@@ -476,10 +431,10 @@ namespace OpenSettings.Services.Sql
 
             if (!input.SourceRowVersion.SequenceEqual(sourceEntity.RowVersion))
             {
-                return FailureResponses.Conflict(input.SourceId, sourceEntity.RowVersion, input.SourceRowVersion, false);
+                return FailureResponses.Conflict($"{input.SourceId}", sourceEntity.RowVersion, input.SourceRowVersion, false);
             }
 
-            var targetEntity = entities.FirstOrDefault(a => a.Id == targetId);
+            var targetEntity = entities.FirstOrDefault(a => a.Id == input.TargetId);
 
             if (targetEntity == null)
             {
@@ -500,7 +455,7 @@ namespace OpenSettings.Services.Sql
             {
                 targetNeighbour = new
                 {
-                    Id = 0,
+                    Id = Guid.Empty,
                     Order = input.Ascent ? targetEntity.SortOrder + OpenSettingsDefaults.SortOrderGap : targetEntity.SortOrder - OpenSettingsDefaults.SortOrderGap
                 };
             }
@@ -601,6 +556,7 @@ namespace OpenSettings.Services.Sql
 
             entity = new IdentifierSqlModel
             {
+                Id = Guid.NewGuid(),
                 Name = name,
                 NameLowercase = nameLowercase,
                 Slug = slug,
@@ -700,13 +656,13 @@ namespace OpenSettings.Services.Sql
 
             var query = _context.Identifiers.AsNoTracking();
 
-            if (int.TryParse(input.AppId, out var castedAppId) && castedAppId != 0)
+            if (input.AppId.HasValue && input.AppId != Guid.Empty)
             {
                 query = query
                     .Include(a => a.AppIdentifierMappings)
                     .Where(a => input.IsAppMapped
-                        ? a.AppIdentifierMappings.Any(m => m.AppId == castedAppId)
-                        : a.AppIdentifierMappings.All(m => m.AppId != castedAppId));
+                        ? a.AppIdentifierMappings.Any(m => m.AppId == input.AppId.Value)
+                        : a.AppIdentifierMappings.All(m => m.AppId != input.AppId.Value));
             }
 
             var data = await query.SearchBy(a => a.NameLowercase, searchLowercase, _context)
@@ -719,7 +675,6 @@ namespace OpenSettings.Services.Sql
                     SortOrder = a.SortOrder,
                     RowVersion = a.RowVersion
                 }).ToArrayAsync(cancellationToken);
-
 
             return HttpStatusCode.OK.ToSuccessResponse(new GetIdentifiersResponse(data));
         }

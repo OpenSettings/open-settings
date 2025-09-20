@@ -1,12 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace OpenSettings.Domains.Sql.Entities
 {
     /// <summary>
     /// Represents a user-claim entity.
     /// </summary>
-    public class UserClaimSqlModel : EntityBase<int>
+    public class UserClaimSqlModel : EntityBase<Guid>
     {
+        public Guid? TenantId { get; set; }
+
         /// <summary>
         /// The claim type.
         /// </summary>

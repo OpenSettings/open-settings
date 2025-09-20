@@ -1,8 +1,10 @@
-﻿namespace OpenSettings.Models.Responses
+﻿using System;
+
+namespace OpenSettings.Models.Responses
 {
     public class GetOrCreateResponse
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
 
         public string Name { get; set; }
 

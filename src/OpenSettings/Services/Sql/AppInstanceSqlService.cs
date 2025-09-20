@@ -196,16 +196,7 @@ namespace OpenSettings.Services.Sql
 
         public async Task<IResponse> GetAppInstancesByAppIdAsync(GetInstancesInput input, CancellationToken cancellationToken = default)
         {
-            var appIdRule = ValidationRules.GreaterThanRule("AppId", input.AppIdOrSlug, 0);
-
-            if (appIdRule.IsFailed())
-            {
-                return appIdRule.Failure.ToResponse();
-            }
-
-            var appId = appIdRule.GetStoredValue<int>();
-
-            return await GetInstancesByAppIdOrAppSlugAsync(a => a.Id == appId, input, cancellationToken);
+            return await GetInstancesByAppIdOrAppSlugAsync(a => a.Id == Guid.Parse(input.AppIdOrSlug), input, cancellationToken);
         }
 
         public Task<IResponse> GetAppInstancesByAppSlugAsync(GetInstancesInput input, CancellationToken cancellationToken = default)
@@ -217,23 +208,12 @@ namespace OpenSettings.Services.Sql
 
         public async Task<IResponse> GetAppInstancesByAppIdAndIdentifierIdAsync(GetInstancesInput input, CancellationToken cancellationToken = default)
         {
-            var appIdRule = ValidationRules.GreaterThanRule("AppId", input.AppIdOrSlug, 0);
-            var identifierIdRule = ValidationRules.GreaterThanRule("IdentifierId", input.IdentifierIdOrSlug, 0);
-
-            var failure = new ValidationRule[] { appIdRule, identifierIdRule }.ValidateFirstOrDefault();
-
-            if (failure != null)
-            {
-                return failure.ToResponse();
-            }
-
-            var appId = appIdRule.GetStoredValue<int>();
-            var identifierId = identifierIdRule.GetStoredValue<int>();
+            var identifierId = Guid.Parse(input.IdentifierIdOrSlug);
 
             var isIdentifierExists = await _context.Identifiers.AsNoTracking().AnyAsync(s => s.Id == identifierId, cancellationToken);
 
             return isIdentifierExists
-                ? await GetInstancesByAppAndIdentifierAsync(a => a.Id == appId, identifierId, cancellationToken)
+                ? await GetInstancesByAppAndIdentifierAsync(a => a.Id == Guid.Parse(input.AppIdOrSlug), identifierId, cancellationToken)
                 : HttpStatusCode.NotFound.ToFailureResponse(Errors.IdentifierNotFound);
         }
 
@@ -256,7 +236,7 @@ namespace OpenSettings.Services.Sql
             return await GetInstancesByAppAndIdentifierAsync(a => a.Slug == input.AppIdOrSlug, identifier.Id, cancellationToken);
         }
 
-        private async Task<IResponse> GetInstancesByAppAndIdentifierAsync(Expression<Func<AppSqlModel, bool>> predicate, int identifierId, CancellationToken cancellationToken = default)
+        private async Task<IResponse> GetInstancesByAppAndIdentifierAsync(Expression<Func<AppSqlModel, bool>> predicate, Guid identifierId, CancellationToken cancellationToken = default)
         {
             var entity = await _context.Apps
                 .AsNoTracking()
@@ -294,7 +274,7 @@ namespace OpenSettings.Services.Sql
 
         private async Task<IResponse> GetInstancesByAppIdOrAppSlugAsync(Expression<Func<AppSqlModel, bool>> predicate, GetInstancesInput input, CancellationToken cancellationToken = default)
         {
-            var isValidIdentifierId = int.TryParse(input.IdentifierIdOrSlug, out var identifierId);
+            var isValidIdentifierId = Guid.TryParse(input.IdentifierIdOrSlug, out var identifierId);
 
             var entity = await _context.Apps
                 .AsNoTracking()

@@ -161,6 +161,11 @@ namespace OpenSettings
             /// The header name used to represent the pack version score in OpenSettings.
             /// </summary>
             public const string PackVersionScore = "x-os-pack-version-score";
+
+            /// <summary>
+            /// THe header name used to represent the tenant id in OpenSettings.
+            /// </summary>
+            public const string TenantId = "x-os-tenant-id";
         }
 
         /// <summary>
@@ -504,6 +509,8 @@ namespace OpenSettings
         /// </summary>
         public static class ClaimTypes
         {
+            public const string TenantId = "tenant_id";
+
             public const string DbUserId = "db_user_id";
 
             public const string DbUserDisplayName = "db_user_displayName";

@@ -4,7 +4,7 @@ namespace OpenSettings.Models.Inputs
 {
     public class DeleteAppInput
     {
-        public string AppId { get; set; }
+        public Guid AppId { get; set; }
 
         public byte[] RowVersion { get; set; } = Array.Empty<byte>();
 

@@ -7,7 +7,7 @@ namespace OpenSettings.AspNetCore.Models.Requests
     public class UpdateTagSortOrderRequest
     {
         [FromRoute]
-        public string AppTagId { get; set; }
+        public Guid AppTagId { get; set; }
 
         [FromQuery]
         public bool Ascent { get; set; }

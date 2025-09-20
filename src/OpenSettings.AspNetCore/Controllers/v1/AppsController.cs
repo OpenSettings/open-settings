@@ -96,7 +96,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
 
             var result = await _appsService.GetGroupedAppsAsync(new GetGroupedAppsInput
             {
-                AppGroupId = request.AppGroupId,
+                AppGroupId = request.GroupId,
                 SearchTerm = request.SearchTerm
             }, cancellationToken);
 

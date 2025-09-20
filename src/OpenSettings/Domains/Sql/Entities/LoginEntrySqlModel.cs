@@ -7,6 +7,8 @@ namespace OpenSettings.Domains.Sql.Entities
 {
     public class LoginEntrySqlModel : EntityBase<Guid>
     {
+        public Guid? TenantId { get; set; }
+
         /// <summary>
         /// The state id which relevant to login.
         /// </summary>

@@ -10,6 +10,8 @@ namespace OpenSettings.Domains.Sql.Entities
     /// </summary>
     public class UserSqlModel : EntityBase<Guid>
     {
+        public Guid? TenantId { get; set; }
+
         /// <summary>
         /// The authentication type used by the user (e.g., "Machine", "OpenIdConnect").
         /// </summary>

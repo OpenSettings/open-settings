@@ -10,6 +10,8 @@ namespace OpenSettings.Models
 
         public Guid UserId { get; set; }
 
+        public Guid TenantId { get; set; }
+
         public string DisplayName { get; set; }
 
         public string UserInitials { get; set; }
@@ -23,6 +25,7 @@ namespace OpenSettings.Models
             var claims = new List<Claim>
             {
                 new Claim(OpenSettingsDefaults.ClaimTypes.JsonTokenId, $"{JsonTokenId}"),
+                new Claim(OpenSettingsDefaults.ClaimTypes.TenantId, $"{TenantId}"),
                 new Claim(OpenSettingsDefaults.ClaimTypes.DbUserId, $"{UserId}"),
                 new Claim(OpenSettingsDefaults.ClaimTypes.DbUserDisplayName, DisplayName ?? string.Empty),
                 new Claim(OpenSettingsDefaults.ClaimTypes.DbUserInitials, UserInitials ?? Helpers.Helper.GetInitials(DisplayName)),

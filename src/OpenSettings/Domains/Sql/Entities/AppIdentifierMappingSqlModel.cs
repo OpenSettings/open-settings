@@ -1,13 +1,14 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OpenSettings.Domains.Sql.Entities
 {
     /// <summary>
     /// Represents an app-identifier mapping entity.
     /// </summary>
-    public class AppIdentifierMappingSqlModel : EntityBase<int>
+    public class AppIdentifierMappingSqlModel : EntityBase<Guid>
     {
+        public Guid? TenantId { get; set; }
+
         /// <summary>
         /// The sort order of this mapping in a list.
         /// </summary>
@@ -22,7 +23,7 @@ namespace OpenSettings.Domains.Sql.Entities
         /// <summary>
         /// The id of the associated app.
         /// </summary>
-        public int AppId { get; set; }
+        public Guid AppId { get; set; }
 
         /// <summary>
         /// The app associated with this mapping.
@@ -32,7 +33,7 @@ namespace OpenSettings.Domains.Sql.Entities
         /// <summary>
         /// The id of the associated identifier.
         /// </summary>
-        public int IdentifierId { get; set; }
+        public Guid IdentifierId { get; set; }
 
         /// <summary>
         /// The identifier associated with this mapping.
@@ -58,8 +59,5 @@ namespace OpenSettings.Domains.Sql.Entities
         /// The user who last updated this app-identifier mapping.
         /// </summary>
         public virtual UserSqlModel UpdatedBy { get; set; }
-
-        [NotMapped]
-        public new int Id { get; set; }
     }
 }

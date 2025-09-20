@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System;
+using Microsoft.AspNetCore.Mvc;
 
 namespace OpenSettings.AspNetCore.Models.Requests
 {
@@ -8,7 +9,7 @@ namespace OpenSettings.AspNetCore.Models.Requests
         public string SearchTerm { get; set; }
 
         [FromQuery]
-        public string AppId { get; set; }
+        public Guid? AppId { get; set; }
 
         [FromQuery]
         public bool IsAppMapped { get; set; }

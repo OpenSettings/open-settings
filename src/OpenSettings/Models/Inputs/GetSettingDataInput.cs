@@ -1,7 +1,9 @@
-﻿namespace OpenSettings.Models.Inputs
+﻿using System;
+
+namespace OpenSettings.Models.Inputs
 {
     public class GetSettingDataInput
     {
-        public string AppSettingId { get; set; }
+        public Guid AppSettingId { get; set; }
     }
 }

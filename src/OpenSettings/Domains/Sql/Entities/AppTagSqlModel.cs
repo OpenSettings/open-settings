@@ -6,8 +6,10 @@ namespace OpenSettings.Domains.Sql.Entities
     /// <summary>
     /// Represents a tag entity.
     /// </summary>
-    public class AppTagSqlModel : EntityBase<int>, IOrderedEntity
+    public class AppTagSqlModel : EntityBase<Guid>, IOrderedEntity
     {
+        public Guid? TenantId { get; set; }
+
         /// <summary>
         /// The name of the tag.
         /// </summary>

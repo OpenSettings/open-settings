@@ -89,15 +89,6 @@ namespace OpenSettings.Services.Sql
 
         public async Task<IResponse> GetSettingHistoriesAsync(GetSettingHistoriesInput input, CancellationToken cancellationToken = default)
         {
-            var settingIdRule = ValidationRules.GreaterThanRule(nameof(input.AppSettingId), input.AppSettingId, 0);
-
-            if (settingIdRule.IsFailed())
-            {
-                return HttpStatusCode.BadRequest.ToFailureResponse(settingIdRule.Failure);
-            }
-
-            var settingId = settingIdRule.GetStoredValue<int>();
-
             var isDataExcluded = input.Excludes.Contains("data");
 
             var entities = await _context.AppSettingHistories
@@ -106,7 +97,7 @@ namespace OpenSettings.Services.Sql
                 .AsSplitQuery()
 #endif
                 .Include(s => s.AppSetting)
-                .Where(s => s.AppSettingId == settingId)
+                .Where(s => s.AppSettingId == input.AppSettingId)
                 .OrderByDescending(a => a.CreatedOn)
                 .Select(s => new
                 {

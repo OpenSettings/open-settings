@@ -6,8 +6,10 @@ namespace OpenSettings.Domains.Sql.Entities
     /// <summary>
     /// Represents an app group entity.
     /// </summary>
-    public class AppGroupSqlModel : EntityBase<int>, IOrderedEntity
+    public class AppGroupSqlModel : EntityBase<Guid>, IOrderedEntity
     {
+        public Guid? TenantId { get; set; }
+
         /// <summary>
         /// The name of the app group.
         /// </summary>

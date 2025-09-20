@@ -1,8 +1,10 @@
-﻿namespace OpenSettings.AspNetCore.Models.Requests
+﻿using System;
+
+namespace OpenSettings.AspNetCore.Models.Requests
 {
     public class CopyAppSettingToRequestBody
     {
-        public string TargetAppId { get; set; }
+        public Guid TargetAppId { get; set; }
 
         public CopySettingToRequestBodyIdentifier Identifier { get; set; }
     }

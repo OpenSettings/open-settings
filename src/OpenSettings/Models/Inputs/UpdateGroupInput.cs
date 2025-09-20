@@ -6,7 +6,7 @@ namespace OpenSettings.Models.Inputs
     public class UpdateGroupInput
     {
         [JsonIgnore]
-        public string AppGroupId { get; set; }
+        public Guid AppGroupId { get; set; }
 
         public string Name { get; set; }
 

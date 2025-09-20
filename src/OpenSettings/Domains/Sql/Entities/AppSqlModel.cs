@@ -7,8 +7,10 @@ namespace OpenSettings.Domains.Sql.Entities
     /// <summary>
     /// Represents an app entity.
     /// </summary>
-    public class AppSqlModel : EntityBase<int>
+    public class AppSqlModel : EntityBase<Guid>
     {
+        public Guid? TenantId { get; set; }
+
         /// <summary>
         /// The display name of the app, typically used for open settings spa.
         /// </summary>
@@ -84,7 +86,7 @@ namespace OpenSettings.Domains.Sql.Entities
         /// <summary>
         /// The id of the group which associated with this app.
         /// </summary>
-        public int? AppGroupId { get; set; }
+        public Guid? AppGroupId { get; set; }
 
         /// <summary>
         /// The group which associated with this app.

@@ -11,6 +11,8 @@ namespace OpenSettings.Configurations
     /// </summary>
     public class ConsumerConfiguration
     {
+        public Guid? TenantId { get; set; }
+
         private string _providerUrl;
 
         /// <summary>
@@ -90,6 +92,11 @@ namespace OpenSettings.Configurations
             httpClient.DefaultRequestHeaders.TryAddWithoutValidation(OpenSettingsDefaults.Headers.ClientId, $"{clientInfo.Id}");
             httpClient.DefaultRequestHeaders.TryAddWithoutValidation(OpenSettingsDefaults.Headers.PackVersion, OpenSettingsAssemblyInfo.Instance.PackInfo.Version);
             httpClient.DefaultRequestHeaders.TryAddWithoutValidation(OpenSettingsDefaults.Headers.PackVersionScore, $"{OpenSettingsAssemblyInfo.Instance.PackInfo.Score}");
+
+            if (TenantId.HasValue)
+            {
+                httpClient.DefaultRequestHeaders.TryAddWithoutValidation(OpenSettingsDefaults.Headers.TenantId, $"{TenantId.Value}");
+            }
             
             RequestEncodings.AddToRequestHeaders(httpClient.DefaultRequestHeaders);
         }

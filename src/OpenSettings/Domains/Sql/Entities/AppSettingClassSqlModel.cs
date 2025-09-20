@@ -7,8 +7,10 @@ namespace OpenSettings.Domains.Sql.Entities
     /// <summary>
     /// Represents a setting class entity.
     /// </summary>
-    public class AppSettingClassSqlModel : EntityBase<int>
+    public class AppSettingClassSqlModel : EntityBase<Guid>
     {
+        public Guid? TenantId { get; set; }
+
         /// <summary>
         /// The class type identifier.
         /// </summary>
@@ -43,7 +45,7 @@ namespace OpenSettings.Domains.Sql.Entities
         /// <summary>
         /// The id of the associated setting.
         /// </summary>
-        public int AppSettingId { get; set; }
+        public Guid AppSettingId { get; set; }
 
         /// <summary>
         /// The setting associated with this setting class.

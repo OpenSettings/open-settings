@@ -1,12 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace OpenSettings.Domains.Sql.Entities
 {
     /// <summary>
     /// Represents a user group entity.
     /// </summary>
-    public class UserGroupSqlModel : EntityBase<int>
+    public class UserGroupSqlModel : EntityBase<Guid>
     {
+        public Guid? TenantId { get; set; }
+
         /// <summary>
         /// The name of the user group.
         /// </summary>

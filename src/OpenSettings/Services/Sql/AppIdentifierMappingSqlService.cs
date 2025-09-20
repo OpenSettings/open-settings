@@ -35,21 +35,9 @@ namespace OpenSettings.Services.Sql
 
         public async Task<IResponse> CreateAppIdentifierMappingAsync(CreateAppIdentifierMappingInput input, CancellationToken cancellationToken = default)
         {
-            var identifierIdRule = ValidationRules.GreaterThanRule("IdentifierId", input.Identifier.Id, -1);
-            var appIdRule = ValidationRules.GreaterThanRule(nameof(input.AppId), input.AppId, 0);
-
-            var failure = new ValidationRule[] { identifierIdRule, appIdRule }.ValidateFirstOrDefault();
-
-            if (failure != null)
-            {
-                return failure.ToResponse();
-            }
-
-            var identifierId = identifierIdRule.GetStoredValue<int>();
-            var appId = appIdRule.GetStoredValue<int>();
             int identifierSortOrder;
 
-            if (identifierId == 0)
+            if (input.Identifier.Id == null || input.Identifier.Id == Guid.Empty)
             {
                 var identifierNameRule = ValidationRules.NotEmptyRule("IdentifierName", input.Identifier.Name);
 
@@ -67,14 +55,14 @@ namespace OpenSettings.Services.Sql
 
                 var identifier = identifierResponse.Data;
 
-                identifierId = identifier.Id;
+                input.Identifier.Id = identifier.Id;
                 identifierSortOrder = identifier.SortOrder;
             }
             else
             {
                 var identifier = await _context.Identifiers
                     .AsNoTracking()
-                    .Where(s => s.Id == identifierId)
+                    .Where(s => s.Id == input.Identifier.Id)
                     .Select(s => new { s.SortOrder })
                     .FirstOrDefaultAsync(cancellationToken);
 
@@ -92,12 +80,12 @@ namespace OpenSettings.Services.Sql
 #endif
                 .Include(a => a.AppConfigurations)
                 .Include(a => a.AppIdentifierMappings)
-                .Where(a => a.Id == appId)
+                .Where(a => a.Id == input.AppId)
                 .Select(a => new AppSqlModel
                 {
-                    Id = appId,
-                    AppIdentifierMappings = a.AppIdentifierMappings.Where(m => m.IdentifierId == identifierId).ToList(),
-                    AppConfigurations = a.AppConfigurations.Where(c => c.IdentifierId == identifierId).ToList()
+                    Id = input.AppId,
+                    AppIdentifierMappings = a.AppIdentifierMappings.Where(m => m.IdentifierId == input.Identifier.Id).ToList(),
+                    AppConfigurations = a.AppConfigurations.Where(c => c.IdentifierId == input.Identifier.Id).ToList()
                 })
                 .FirstOrDefaultAsync(cancellationToken);
 
@@ -126,22 +114,22 @@ namespace OpenSettings.Services.Sql
                     Provider = new ConfigurationProvider(),
                     Controller = new ConfigurationController(),
                     Spa = new ConfigurationSpa(),
-                    IdentifierId = identifierId,
+                    IdentifierId = input.Identifier.Id.Value,
                     CreatedOn = currentTime,
                     CreatedById = input.UserId
                 });
             }
-            
+
             int mappingSortOrder;
 
             try
             {
                 mappingSortOrder = input.SetSortOrderPosition == SetSortOrderPosition.Bottom
                     ? await _context.AppIdentifierMappings.AsNoTracking()
-                        .Where(a => a.AppId == appId)
+                        .Where(a => a.AppId == input.AppId)
                         .MaxAsync(s => s.SortOrder, cancellationToken) + OpenSettingsDefaults.SortOrderGap
                     : await _context.AppIdentifierMappings.AsNoTracking()
-                        .Where(a => a.AppId == appId)
+                        .Where(a => a.AppId == input.AppId)
                         .MinAsync(s => s.SortOrder, cancellationToken) - OpenSettingsDefaults.SortOrderGap;
             }
             catch (InvalidOperationException)
@@ -151,8 +139,8 @@ namespace OpenSettings.Services.Sql
 
             var entity = new AppIdentifierMappingSqlModel
             {
-                AppId = appId,
-                IdentifierId = identifierId,
+                AppId = input.AppId,
+                IdentifierId = input.Identifier.Id.Value,
                 SortOrder = mappingSortOrder,
                 CreatedOn = currentTime,
                 CreatedById = input.UserId
@@ -167,7 +155,7 @@ namespace OpenSettings.Services.Sql
                 AppId = input.AppId,
                 Identifier = new CreateAppIdentifierMappingResponseIdentifier
                 {
-                    Id = $"{identifierId}",
+                    Id = input.Identifier.Id.Value,
                     SortOrder = identifierSortOrder,
                     MappingSortOrder = mappingSortOrder,
                 }
@@ -176,19 +164,6 @@ namespace OpenSettings.Services.Sql
 
         public async Task<IResponse> GetAppIdentifierMappingByAppIdAndIdentifierIdAsync(GetAppIdentifierMappingByAppAndIdentifierInput input, CancellationToken cancellationToken = default)
         {
-            var appIdRule = ValidationRules.GreaterThanRule("AppId", input.AppIdOrSlug, 0);
-            var identifierIdRule = ValidationRules.GreaterThanRule("IdentifierId", input.IdentifierIdOrSlug, 0);
-
-            var failure = new ValidationRule[] { appIdRule, identifierIdRule }.ValidateFirstOrDefault();
-
-            if (failure != null)
-            {
-                return failure.ToResponse();
-            }
-
-            var appId = appIdRule.GetStoredValue<int>();
-            var identifierId = identifierIdRule.GetStoredValue<int>();
-
             var entity = await _context.AppIdentifierMappings
                 .AsNoTracking()
 #if !NETSTANDARD2_0
@@ -196,7 +171,7 @@ namespace OpenSettings.Services.Sql
 #endif
                 .Include(a => a.App)
                 .Include(a => a.Identifier)
-                .Where(a => a.AppId == appId && a.IdentifierId == identifierId)
+                .Where(a => a.AppId == Guid.Parse(input.AppIdOrSlug) && a.IdentifierId == Guid.Parse(input.IdentifierIdOrSlug))
                 .Select(a => new GetAppIdentifierMappingByAppAndIdentifierResponse
                 {
                     MappingSortOrder = a.SortOrder,
@@ -245,16 +220,7 @@ namespace OpenSettings.Services.Sql
 
         public async Task<IResponse> GetAppIdentifierMappingsByAppIdAsync(GetAppIdentifierMappingsInput input, CancellationToken cancellationToken)
         {
-            var appIdRule = ValidationRules.GreaterThanRule("AppId", input.AppIdOrSlug, 0);
-
-            if (appIdRule.IsFailed())
-            {
-                return appIdRule.Failure.ToResponse();
-            }
-
-            var appId = appIdRule.GetStoredValue<int>();
-
-            return await GetAppIdentifierMappingsByAppAsync(a => a.Id == appId, cancellationToken);
+            return await GetAppIdentifierMappingsByAppAsync(a => a.Id == Guid.Parse(input.AppIdOrSlug), cancellationToken);
         }
 
         public Task<IResponse> GetAppIdentifierMappingsByAppSlugAsync(GetAppIdentifierMappingsInput input, CancellationToken cancellationToken)
@@ -321,24 +287,11 @@ namespace OpenSettings.Services.Sql
 
         public async Task<IResponse> DeleteAppIdentifierMappingAsync(DeleteAppIdentifierMappingInput input, CancellationToken cancellationToken = default)
         {
-            var appIdRule = ValidationRules.GreaterThanRule(nameof(input.AppId), input.AppId, 0);
-            var identifierIdRule = ValidationRules.GreaterThanRule(nameof(input.IdentifierId), input.IdentifierId, 0);
-
-            var failure = new ValidationRule[] { appIdRule, identifierIdRule }.ValidateFirstOrDefault();
-
-            if (failure != null)
-            {
-                return failure.ToResponse();
-            }
-
-            var appId = appIdRule.GetStoredValue<int>();
-            var identifierId = identifierIdRule.GetStoredValue<int>();
-
             var entity = await _context.AppIdentifierMappings
                 .AsNoTracking()
-                .Where(a => a.IdentifierId == identifierId && a.AppId == appId)
+                .Where(a => a.IdentifierId == input.IdentifierId && a.AppId == input.AppId)
                 .OrderBy(a => a.IdentifierId)
-                .Select(a => new AppIdentifierMappingSqlModel { AppId = appId, IdentifierId = identifierId, RowVersion = a.RowVersion })
+                .Select(a => new AppIdentifierMappingSqlModel { AppId = input.AppId, IdentifierId = input.IdentifierId, RowVersion = a.RowVersion })
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (entity == null)
@@ -360,30 +313,17 @@ namespace OpenSettings.Services.Sql
 
         public async Task<IResponse> UpdateAppIdentifierMappingSortOrderAsync(UpdateAppIdentifierMappingSortOrderInput input, CancellationToken cancellationToken = default)
         {
-            var appIdRule = ValidationRules.GreaterThanRule(nameof(input.AppId), input.AppId, 0);
-            var identifierIdRule = ValidationRules.GreaterThanRule(nameof(input.IdentifierId), input.IdentifierId, 0);
-
-            var failure = new ValidationRule[] { appIdRule, identifierIdRule }.ValidateFirstOrDefault();
-
-            if (failure != null)
-            {
-                return failure.ToResponse();
-            }
-
-            var appId = appIdRule.GetStoredValue<int>();
-            var identifierId = identifierIdRule.GetStoredValue<int>();
-
             var entity = await _context.AppIdentifierMappings
                 .AsNoTracking()
 #if !NETSTANDARD2_0
                 .AsSplitQuery()
 #endif
-                .Where(a => a.IdentifierId == identifierId && a.AppId == appId)
+                .Where(a => a.IdentifierId == input.IdentifierId && a.AppId == input.AppId)
                 .OrderBy(a => a.IdentifierId)
                 .Select(a => new AppIdentifierMappingSqlModel
                 {
-                    IdentifierId = identifierId,
-                    AppId = appId,
+                    IdentifierId = input.IdentifierId,
+                    AppId = input.AppId,
                     SortOrder = a.SortOrder,
                     RowVersion = a.RowVersion
                 })
@@ -402,9 +342,9 @@ namespace OpenSettings.Services.Sql
             var query = _context.AppIdentifierMappings.AsNoTracking();
 
             var foundEntity = (input.Ascent
-                    ? query.Where(a => a.SortOrder >= entity.SortOrder && a.AppId == entity.AppId && a.IdentifierId != identifierId)
+                    ? query.Where(a => a.SortOrder >= entity.SortOrder && a.AppId == entity.AppId && a.IdentifierId != input.IdentifierId)
                         .OrderBy(a => a.SortOrder)
-                    : query.Where(a => a.SortOrder <= entity.SortOrder && a.AppId == entity.AppId && a.IdentifierId != identifierId)
+                    : query.Where(a => a.SortOrder <= entity.SortOrder && a.AppId == entity.AppId && a.IdentifierId != input.IdentifierId)
                         .OrderByDescending(a => a.SortOrder))
                 .Select(a => new AppIdentifierMappingSqlModel
                 {
@@ -473,12 +413,16 @@ namespace OpenSettings.Services.Sql
             }
         }
 
-        private async Task<ReorderResponse> ReorderAsync(int appId)
+        private async Task<ReorderResponse> ReorderAsync(Guid appId)
         {
             var key = $"{nameof(AppIdentifierMappingSqlService)}-{appId}";
 
             var lockAcquired = await _locksSqlService.AcquireLockAsync(new AcquireLockInput
-            { Key = key, Owner = Environment.MachineName, Timeout = TimeSpan.FromSeconds(30) });
+            {
+                Key = key,
+                Owner = Environment.MachineName,
+                Timeout = TimeSpan.FromSeconds(30)
+            });
 
             if (!lockAcquired)
             {

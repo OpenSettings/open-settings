@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using Microsoft.EntityFrameworkCore;
 using Ogu.Response.Abstractions;
 using OpenSettings.Domains.Sql;
 using OpenSettings.Models;
@@ -10,7 +11,7 @@ namespace OpenSettings.Services.Sql.Interfaces
 {
     internal interface ISortOrderSqlService
     {
-        IQueryable<T> FindNeighbour<T>(DbSet<T> items, int id, int order, bool ascent) where T : class, IOrderedEntity, new();
+        IQueryable<T> FindNeighbour<T>(DbSet<T> items, Guid id, int sortOrder, bool ascent) where T : class, IOrderedEntity, new();
 
         Task<IResponse> ReorderAsync<T>(DbSet<T> items, CancellationToken cancellationToken) where T : class, IOrderedEntity, new();
 

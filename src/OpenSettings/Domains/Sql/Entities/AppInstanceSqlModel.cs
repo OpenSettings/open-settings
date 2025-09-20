@@ -9,6 +9,8 @@ namespace OpenSettings.Domains.Sql.Entities
     /// </summary>
     public class AppInstanceSqlModel : EntityBase<int>
     {
+        public Guid? TenantId { get; set; }
+
         /// <summary>
         /// The name of the instance.
         /// </summary>
@@ -90,7 +92,7 @@ namespace OpenSettings.Domains.Sql.Entities
         /// <summary>
         /// The app id associated with this instance.
         /// </summary>
-        public int AppId { get; set; }
+        public Guid AppId { get; set; }
 
         /// <summary>
         /// The app associated with this instance.
@@ -100,7 +102,7 @@ namespace OpenSettings.Domains.Sql.Entities
         /// <summary>
         /// The identifier id associated with this instance.
         /// </summary>
-        public int IdentifierId { get; set; }
+        public Guid IdentifierId { get; set; }
 
         /// <summary>
         /// The app associated with this identifier.

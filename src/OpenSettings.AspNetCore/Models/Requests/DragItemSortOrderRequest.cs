@@ -7,10 +7,10 @@ namespace OpenSettings.AspNetCore.Models.Requests
     public class DragItemSortOrderRequest
     {
         [FromRoute]
-        public string SourceId { get; set; }
+        public Guid SourceId { get; set; }
 
         [FromRoute]
-        public string TargetId { get; set; }
+        public Guid TargetId { get; set; }
 
         [FromQuery]
         public bool Ascent { get; set; }

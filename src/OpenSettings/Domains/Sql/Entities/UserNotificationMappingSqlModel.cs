@@ -5,8 +5,10 @@ namespace OpenSettings.Domains.Sql.Entities
     /// <summary>
     /// Represents a user-notification mapping entity.
     /// </summary>
-    public class UserNotificationMappingSqlModel : EntityBase<int>
+    public class UserNotificationMappingSqlModel : EntityBase<Guid>
     {
+        public Guid? TenantId { get; set; }
+
         /// <summary>
         /// The id of the associated user.
         /// </summary>

@@ -80,7 +80,7 @@ namespace OpenSettings.Services.Rest
                 queryBuilder.Append(nameof(input.SearchTerm), input.SearchTerm);
             }
 
-            if (!string.IsNullOrWhiteSpace(input.AppId))
+            if (input.AppId.HasValue)
             {
                 queryBuilder
                     .Append(nameof(input.AppId), input.AppId)

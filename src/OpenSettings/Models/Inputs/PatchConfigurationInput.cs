@@ -4,9 +4,9 @@ namespace OpenSettings.Models.Inputs
 {
     public class PatchConfigurationInput
     {
-        public string AppId { get; set; }
+        public Guid AppId { get; set; }
 
-        public string IdentifierId { get; set; }
+        public Guid IdentifierId { get; set; }
 
         public PatchConfigurationInputBody Body { get; set; }
 

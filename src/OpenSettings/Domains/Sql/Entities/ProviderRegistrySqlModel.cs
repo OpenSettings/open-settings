@@ -1,13 +1,11 @@
 ﻿using OpenSettings.Models;
 using System;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OpenSettings.Domains.Sql.Entities
 {
     /// <summary>
     /// Represents a registry entry for a provider instance, used to track metadata within the system.
     /// </summary>
-    [Table("ProviderRegistries")]
     public class ProviderRegistrySqlModel : EntityBase<Guid>
     {
         /// <summary>

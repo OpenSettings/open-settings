@@ -1,16 +1,16 @@
 ﻿using OpenSettings.Models;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OpenSettings.Domains.Sql.Entities
 {
     /// <summary>
     /// Represents a notification entity.
     /// </summary>
-    [Table("Notifications")]
     public class NotificationSqlModel : EntityBase<Guid>
     {
+        public Guid? TenantId { get; set; }
+
         /// <summary>
         /// The title of the notification.
         /// </summary>

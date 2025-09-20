@@ -1,11 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System;
+using Microsoft.AspNetCore.Mvc;
 
 namespace OpenSettings.AspNetCore.Models.Requests
 {
     public class GetAppSettingByIdRequest
     {
         [FromRoute]
-        public string AppSettingId { get; set; }
+        public Guid AppSettingId { get; set; }
 
         [FromQuery]
         public string Excludes { get; set; }

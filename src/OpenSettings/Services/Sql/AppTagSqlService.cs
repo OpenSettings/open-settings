@@ -210,18 +210,9 @@ namespace OpenSettings.Services.Sql
             }
         }
 
-        public async Task<IResponse> GetAppTagByIdAsync(GetTagInput input, CancellationToken cancellationToken = default)
+        public Task<IResponse> GetAppTagByIdAsync(GetTagInput input, CancellationToken cancellationToken = default)
         {
-            var tagIdRule = ValidationRules.GreaterThanRule("TagId", input.AppTagIdOrSlug, 0);
-
-            if (tagIdRule.IsFailed())
-            {
-                return tagIdRule.Failure.ToResponse();
-            }
-
-            var tagId = tagIdRule.GetStoredValue<int>();
-
-            return await GetTagByTagIdOrSlugAsync(t => t.Id == tagId, cancellationToken);
+            return GetTagByTagIdOrSlugAsync(t => t.Id == Guid.Parse(input.AppTagIdOrSlug), cancellationToken);
         }
 
         public Task<IResponse> GetAppTagBySlugAsync(GetTagInput input, CancellationToken cancellationToken = default)
@@ -233,23 +224,18 @@ namespace OpenSettings.Services.Sql
 
         public async Task<IResponse> UpdateAppTagAsync(UpdateTagInput input, CancellationToken cancellationToken = default)
         {
-            var tagIdRule = ValidationRules.GreaterThanRule(nameof(input.AppTagId), input.AppTagId, 0);
             var nameRule = ValidationRules.NotEmptyRule(nameof(input.Name), input.Name);
 
-            var failure = new[] { tagIdRule, nameRule }.ValidateFirstOrDefault();
-
-            if (failure != null)
+            if (nameRule.IsFailed())
             {
-                return failure.ToResponse();
+                return nameRule.Failure.ToResponse();
             }
-
-            var tagId = tagIdRule.GetStoredValue<int>();
 
             var trimmedName = input.Name.Trim();
             var trimmedNameLowercase = trimmedName.ToLowerInvariant();
             var slug = trimmedName.ToSlug();
 
-            if (await _context.AppTags.AsNoTracking().AnyAsync(s => s.Slug == slug && s.Id != tagId, cancellationToken))
+            if (await _context.AppTags.AsNoTracking().AnyAsync(s => s.Slug == slug && s.Id != input.AppTagId, cancellationToken))
             {
                 return HttpStatusCode.BadRequest.ToFailureResponse(Errors.TagAlreadyExists);
             }
@@ -260,13 +246,13 @@ namespace OpenSettings.Services.Sql
                 {
                     if (input.SetSortOrderPosition == SetSortOrderPosition.Bottom)
                     {
-                        var maxOrder = await _context.AppTags.AsNoTracking().Where(s => s.Id != tagId).MaxAsync(s => s.SortOrder, cancellationToken);
+                        var maxOrder = await _context.AppTags.AsNoTracking().Where(s => s.Id != input.AppTagId).MaxAsync(s => s.SortOrder, cancellationToken);
 
                         input.SortOrder = input.SortOrder > maxOrder ? input.SortOrder : maxOrder + OpenSettingsDefaults.SortOrderGap;
                     }
                     else
                     {
-                        var minOrder = await _context.AppTags.AsNoTracking().Where(s => s.Id != tagId).MinAsync(s => s.SortOrder, cancellationToken);
+                        var minOrder = await _context.AppTags.AsNoTracking().Where(s => s.Id != input.AppTagId).MinAsync(s => s.SortOrder, cancellationToken);
 
                         input.SortOrder = input.SortOrder < minOrder ? input.SortOrder : minOrder - OpenSettingsDefaults.SortOrderGap;
                     }
@@ -279,7 +265,7 @@ namespace OpenSettings.Services.Sql
 
             var entity = new AppTagSqlModel
             {
-                Id = tagId,
+                Id = input.AppTagId,
                 RowVersion = input.RowVersion
             };
 
@@ -332,21 +318,12 @@ namespace OpenSettings.Services.Sql
 
         public async Task<IResponse> DeleteAppTagAsync(DeleteAppTagInput input, CancellationToken cancellationToken = default)
         {
-            var tagIdRule = ValidationRules.GreaterThanRule(nameof(input.AppTagId), input.AppTagId, 0);
-
-            if (tagIdRule.IsFailed())
-            {
-                return HttpStatusCode.BadRequest.ToFailureResponse(tagIdRule.Failure);
-            }
-
-            var tagId = tagIdRule.GetStoredValue<int>();
-
             var appTag = await _context.AppTags
                 .AsNoTracking()
-                .Where(a => a.Id == tagId)
+                .Where(a => a.Id == input.AppTagId)
                 .Select(a => new AppTagSqlModel
                 {
-                    Id = tagId,
+                    Id = input.AppTagId,
                     RowVersion = a.RowVersion
                 }).FirstOrDefaultAsync(cancellationToken);
 
@@ -357,7 +334,7 @@ namespace OpenSettings.Services.Sql
 
             if (!appTag.RowVersion.SequenceEqual(input.RowVersion))
             {
-                return FailureResponses.Conflict($"{tagId}", appTag.RowVersion, input.RowVersion, false);
+                return FailureResponses.Conflict($"{input.AppTagId}", appTag.RowVersion, input.RowVersion, false);
             }
 
             _context.AppTags.Remove(appTag);
@@ -380,22 +357,13 @@ namespace OpenSettings.Services.Sql
 
         public async Task<IResponse> UpdateAppTagSortOrderAsync(UpdateTagSortOrderInput input, CancellationToken cancellationToken = default)
         {
-            var tagIdRule = ValidationRules.GreaterThanRule(nameof(input.AppTagId), input.AppTagId, 0);
-
-            if (tagIdRule.IsFailed())
-            {
-                return HttpStatusCode.BadRequest.ToFailureResponse(tagIdRule.Failure);
-            }
-
-            var tagId = tagIdRule.GetStoredValue<int>();
-
             var entity = await _context.AppTags
                 .AsNoTracking()
-                .Where(a => a.Id == tagId)
+                .Where(a => a.Id == input.AppTagId)
                 .OrderBy(a => a.Id)
                 .Select(a => new AppTagSqlModel
                 {
-                    Id = tagId,
+                    Id = input.AppTagId,
                     SortOrder = a.SortOrder,
                     RowVersion = a.RowVersion
                 })
@@ -408,7 +376,7 @@ namespace OpenSettings.Services.Sql
 
             if (!input.RowVersion.SequenceEqual(entity.RowVersion))
             {
-                return FailureResponses.Conflict(input.AppTagId, entity.RowVersion, input.RowVersion, false);
+                return FailureResponses.Conflict($"{input.AppTagId}", entity.RowVersion, input.RowVersion, false);
             }
 
             var foundEntity = await _sortOrderService.FindNeighbour(_context.AppTags, entity.Id, entity.SortOrder, input.Ascent)
@@ -463,20 +431,7 @@ namespace OpenSettings.Services.Sql
 
         public async Task<IResponse> DragAppTagAsync(DragItemSortOrderInput input, CancellationToken cancellationToken = default)
         {
-            var sourceIdRule = ValidationRules.GreaterThanRule(nameof(input.SourceId), input.SourceId, 0);
-            var targetIdRule = ValidationRules.GreaterThanRule(nameof(input.TargetId), input.TargetId, 0);
-
-            var failure = new[] { sourceIdRule, targetIdRule }.ValidateFirstOrDefault();
-
-            if (failure != null)
-            {
-                return HttpStatusCode.BadRequest.ToFailureResponse(failure);
-            }
-
-            var sourceId = sourceIdRule.GetStoredValue<int>();
-            var targetId = targetIdRule.GetStoredValue<int>();
-
-            var ids = new[] { sourceId, targetId };
+            var ids = new[] { input.SourceId, input.TargetId };
 
             var entities = await _context.AppTags
                 .AsNoTracking()
@@ -488,7 +443,7 @@ namespace OpenSettings.Services.Sql
                     RowVersion = a.RowVersion
                 }).ToArrayAsync(cancellationToken);
 
-            var sourceEntity = entities.FirstOrDefault(a => a.Id == sourceId);
+            var sourceEntity = entities.FirstOrDefault(a => a.Id == input.SourceId);
 
             if (sourceEntity == null)
             {
@@ -497,10 +452,10 @@ namespace OpenSettings.Services.Sql
 
             if (!input.SourceRowVersion.SequenceEqual(sourceEntity.RowVersion))
             {
-                return FailureResponses.Conflict(input.SourceId, sourceEntity.RowVersion, input.SourceRowVersion, false);
+                return FailureResponses.Conflict($"{input.SourceId}", sourceEntity.RowVersion, input.SourceRowVersion, false);
             }
 
-            var targetEntity = entities.FirstOrDefault(a => a.Id == targetId);
+            var targetEntity = entities.FirstOrDefault(a => a.Id == input.TargetId);
 
             if (targetEntity == null)
             {
@@ -521,7 +476,7 @@ namespace OpenSettings.Services.Sql
             {
                 targetNeighbour = new
                 {
-                    Id = 0,
+                    Id = Guid.Empty,
                     Order = input.Ascent ? targetEntity.SortOrder + OpenSettingsDefaults.SortOrderGap : targetEntity.SortOrder - OpenSettingsDefaults.SortOrderGap
                 };
             }

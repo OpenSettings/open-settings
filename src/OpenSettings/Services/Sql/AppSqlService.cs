@@ -97,7 +97,7 @@ namespace OpenSettings.Services.Sql
                         a.ClientNameLowercase,
                         a.HashedClientSecret,
                         a.RowVersion,
-                        MappedAppIdentifierIds = new HashSet<int>(a.AppIdentifierMappings.Select(i => i.IdentifierId))
+                        MappedAppIdentifierIds = new HashSet<Guid>(a.AppIdentifierMappings.Select(i => i.IdentifierId))
                     })
                     .FirstOrDefaultAsync(cancellationToken);
 
@@ -134,13 +134,22 @@ namespace OpenSettings.Services.Sql
                 .Include(a => a.AppGroup)
                 .Include(a => a.AppTagMappings).ThenInclude(a => a.AppTag).AsQueryable();
 
-            if (int.TryParse(input.AppGroupId, out var appGroupId) && appGroupId > -2)
+            switch (input.AppGroupId)
             {
-                query = appGroupId == -1
-                    ? query.Where(a => !a.AppGroupId.HasValue)
-                    : appGroupId > 0
-                        ? query.Where(a => a.AppGroupId == appGroupId)
-                        : query.Where(a => a.AppGroupId.HasValue);
+                case "-1":
+                    query = query.Where(a => !a.AppGroupId.HasValue);
+                    break;
+                case "0":
+                    query = query.Where(a => a.AppGroupId.HasValue);
+                    break;
+                default:
+
+                    if (Guid.TryParse(input.AppGroupId, out var appGroupId) && appGroupId != Guid.Empty)
+                    {
+                        query = query.Where(a => a.AppGroupId == appGroupId);
+                    }
+
+                    break;
             }
 
             if (!string.IsNullOrWhiteSpace(input.SearchTerm))
@@ -179,16 +188,7 @@ namespace OpenSettings.Services.Sql
 
         public async Task<IResponse<GetAppResponse>> GetAppByIdAsync(GetAppInput input, CancellationToken cancellationToken = default)
         {
-            var appIdRule = ValidationRules.GreaterThanRule("AppId", input.AppIdOrSlug, 0);
-
-            if (appIdRule.IsFailed())
-            {
-                return appIdRule.Failure.ToResponse<GetAppResponse>();
-            }
-
-            var appId = appIdRule.GetStoredValue<int>();
-
-            return await GetAppByIdOrSlugAsync(a => a.Id == appId, cancellationToken);
+            return await GetAppByIdOrSlugAsync(a => a.Id == Guid.Parse(input.AppIdOrSlug), cancellationToken);
         }
 
         public Task<IResponse<GetAppResponse>> GetAppBySlugAsync(GetAppInput input, CancellationToken cancellationToken = default)
@@ -200,19 +200,10 @@ namespace OpenSettings.Services.Sql
 
         public async Task<IResponse> UpdateAppAsync(UpdateAppInput input, CancellationToken cancellationToken)
         {
-            var appIdRule = ValidationRules.GreaterThanRule(nameof(input.AppId), input.AppId, 0);
-
-            if (appIdRule.IsFailed())
-            {
-                return appIdRule.Failure.ToResponse();
-            }
-
-            var appId = appIdRule.GetStoredValue<int>();
-
             var entity = await _context.Apps
                 .AsNoTracking()
                 .Include(a => a.AppTagMappings).ThenInclude(a => a.AppTag)
-                .Where(a => a.Id == appId)
+                .Where(a => a.Id == input.AppId)
                 .OrderBy(a => a.Id)
                 .Select(a => new AppSqlModel
                 {
@@ -240,7 +231,7 @@ namespace OpenSettings.Services.Sql
 
             if (!input.RowVersion.SequenceEqual(entity.RowVersion))
             {
-                return FailureResponses.Conflict(input.AppId, entity.RowVersion, input.RowVersion, false);
+                return FailureResponses.Conflict($"{input.AppId}", entity.RowVersion, input.RowVersion, false);
             }
 
             _context.Apps.Attach(entity);
@@ -301,9 +292,9 @@ namespace OpenSettings.Services.Sql
                 entity.AppGroup = groupEntity;
             }
 
-            var existingTagIds = new HashSet<int>(entity.AppTagMappings.Select(t => t.AppTag.Id));
+            var existingTagIds = new HashSet<Guid>(entity.AppTagMappings.Select(t => t.AppTag.Id));
 
-            var newTagIds = new HashSet<int>(input.Tags.Select(tag => int.TryParse(tag.Id, out var tagId) ? tagId : (int?)null).Where(tagId => tagId.HasValue).Select(tagId => tagId.Value));
+            var newTagIds = new HashSet<Guid>(input.Tags.Select(tag => Guid.TryParse(tag.Id, out var tagId) ? tagId : (Guid?)null).Where(tagId => tagId.HasValue).Select(tagId => tagId.Value));
 
             var tagsToRemove = entity.AppTagMappings.Where(at => !newTagIds.Contains(at.AppTagId)).ToList();
 
@@ -314,12 +305,12 @@ namespace OpenSettings.Services.Sql
 
             foreach (var tag in input.Tags)
             {
-                if (!int.TryParse(tag.Id, out var tagId))
+                if (!Guid.TryParse(tag.Id, out var tagId))
                 {
                     continue;
                 }
 
-                if (tagId > 0 && !existingTagIds.Contains(tagId))
+                if (tagId != Guid.Empty && !existingTagIds.Contains(tagId))
                 {
                     var tagEntity = new AppTagSqlModel { Id = tagId, Name = tag.Name };
 
@@ -331,7 +322,7 @@ namespace OpenSettings.Services.Sql
                         CreatedOn = currentTime
                     });
                 }
-                else if (tagId == 0 && !string.IsNullOrWhiteSpace(tag.Name))
+                else if (tagId == Guid.Empty && !string.IsNullOrWhiteSpace(tag.Name))
                 {
                     var getOrCreateTag = await _appTagSqlService.GetOrCreateAsync(tag.Name, SetSortOrderPosition.Bottom, input.UpdatedById, cancellationToken);
 
@@ -541,7 +532,7 @@ namespace OpenSettings.Services.Sql
             return HttpStatusCode.OK.ToSuccessResponse(filteredEntities);
         }
 
-        private async Task<string> GenerateAppSlugAsync(string clientName, string slug, DateTime currentTime, int? id = null, CancellationToken cancellationToken = default)
+        private async Task<string> GenerateAppSlugAsync(string clientName, string slug, DateTime currentTime, Guid? id = null, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(slug))
             {
@@ -638,21 +629,21 @@ namespace OpenSettings.Services.Sql
 
             var newTags = new List<AppTagSqlModel>();
 
-            var existingTags = new HashSet<int>(input.Tags.Select(t =>
+            var existingTags = new HashSet<Guid>(input.Tags.Select(t =>
             {
-                if (!int.TryParse(t.Id, out var tagId))
+                if (!Guid.TryParse(t.Id, out var tagId))
                 {
-                    return 0;
+                    return null;
                 }
 
-                if (tagId > 0)
+                if (tagId != Guid.Empty)
                 {
                     return tagId;
                 }
 
-                if (tagId != 0 || string.IsNullOrWhiteSpace(t.Name))
+                if (string.IsNullOrWhiteSpace(t.Name))
                 {
-                    return 0;
+                    return null;
                 }
 
                 var tagName = t.Name.Trim();
@@ -661,16 +652,17 @@ namespace OpenSettings.Services.Sql
 
                 newTags.Add(new AppTagSqlModel
                 {
-                    Name = tagName, 
-                    NameLowercase = trimmedTagNameLowercase, 
-                    Slug = tagSlug, 
-                    CreatedById = input.CreatedById, 
+                    Id = Guid.NewGuid(),
+                    Name = tagName,
+                    NameLowercase = trimmedTagNameLowercase,
+                    Slug = tagSlug,
+                    CreatedById = input.CreatedById,
                     CreatedOn = currentTime
                 });
 
-                return 0;
+                return (Guid?)null;
 
-            }).Where(t => t > 0));
+            }).Where(t => t != null).Select(t => t.Value));
 
             var tagIdToTag = await _context.AppTags
                 .AsNoTracking()
@@ -788,16 +780,7 @@ namespace OpenSettings.Services.Sql
 
         public async Task<IResponse> GetGroupedAppDataByAppIdAsync(GetGroupedAppDataByAppInput input, CancellationToken cancellationToken = default)
         {
-            var appIdRule = ValidationRules.GreaterThanRule("AppId", input.AppIdOrSlug, 0);
-
-            if (appIdRule.IsFailed())
-            {
-                return appIdRule.Failure.ToResponse();
-            }
-
-            var appId = appIdRule.GetStoredValue<int>();
-
-            return await GetGroupedAppDataByPredicateAsync(a => a.Id == appId, cancellationToken);
+            return await GetGroupedAppDataByPredicateAsync(a => a.Id == Guid.Parse(input.AppIdOrSlug), cancellationToken);
         }
 
         public Task<IResponse> GetGroupedAppDataByAppSlugAsync(GetGroupedAppDataByAppInput input, CancellationToken cancellationToken = default)
@@ -810,20 +793,7 @@ namespace OpenSettings.Services.Sql
 
         public async Task<IResponse> GetGroupedAppDataByAppIdAndIdentifierIdAsync(GetGroupedAppDataByAppAndIdentifierInput input, CancellationToken cancellationToken = default)
         {
-            var appIdRule = ValidationRules.GreaterThanRule("AppId", input.AppIdOrSlug, 0);
-            var identifierIdRule = ValidationRules.GreaterThanRule("IdentifierId", input.IdentifierIdOrSlug, 0);
-
-            var failure = new ValidationRule[] { appIdRule, identifierIdRule }.ValidateFirstOrDefault();
-
-            if (failure != null)
-            {
-                return failure.ToResponse();
-            }
-
-            var appId = appIdRule.GetStoredValue<int>();
-            var identifierId = identifierIdRule.GetStoredValue<int>();
-
-            return await GetGroupedAppDataByAppIdOrAppSlugAndIdentifierIdAsync(a => a.Id == appId, identifierId, cancellationToken);
+            return await GetGroupedAppDataByAppIdOrAppSlugAndIdentifierIdAsync(a => a.Id == Guid.Parse(input.AppIdOrSlug), Guid.Parse(input.IdentifierIdOrSlug), cancellationToken);
         }
 
         public async Task<IResponse> GetGroupedAppDataByAppSlugAndIdentifierSlugAsync(GetGroupedAppDataByAppAndIdentifierInput input, CancellationToken cancellationToken = default)
@@ -850,18 +820,9 @@ namespace OpenSettings.Services.Sql
 
         public async Task<IResponse> DeleteAppAsync(DeleteAppInput input, CancellationToken cancellationToken)
         {
-            var appIdRule = ValidationRules.GreaterThanRule(nameof(input.AppId), input.AppId, 0);
-
-            if (appIdRule.IsFailed())
-            {
-                return appIdRule.Failure.ToResponse();
-            }
-
-            var appId = appIdRule.GetStoredValue<int>();
-
             var entity = await _context.Apps
                 .AsNoTracking()
-                .Where(a => a.Id == appId)
+                .Where(a => a.Id == input.AppId)
                 .OrderBy(a => a.Id)
                 .Select(a => new AppSqlModel { Id = a.Id, RowVersion = a.RowVersion })
                 .FirstOrDefaultAsync(cancellationToken);
@@ -873,7 +834,7 @@ namespace OpenSettings.Services.Sql
 
             if (!input.RowVersion.SequenceEqual(entity.RowVersion))
             {
-                return FailureResponses.Conflict(input.AppId, entity.RowVersion, input.RowVersion, false);
+                return FailureResponses.Conflict($"{input.AppId}", entity.RowVersion, input.RowVersion, false);
             }
 
             _context.Apps.Remove(entity);
@@ -1099,7 +1060,7 @@ namespace OpenSettings.Services.Sql
                 : HttpStatusCode.OK.ToSuccessResponseOf(entity);
         }
 
-        private async Task<IResponse> GetGroupedAppDataByAppIdOrAppSlugAndIdentifierIdAsync(Expression<Func<AppSqlModel, bool>> predicate, int identifierId, CancellationToken cancellationToken = default)
+        private async Task<IResponse> GetGroupedAppDataByAppIdOrAppSlugAndIdentifierIdAsync(Expression<Func<AppSqlModel, bool>> predicate, Guid identifierId, CancellationToken cancellationToken = default)
         {
             var entity = await _context.Apps
                 .AsNoTracking()
@@ -1237,7 +1198,7 @@ namespace OpenSettings.Services.Sql
             });
         }
 
-        private async Task<IResponse<SyncAppDataResponse>> HandleNewAppAsync(SyncAppDataInput input, Dictionary<string, int> classNameToCount, int identifierId, CancellationToken cancellationToken = default)
+        private async Task<IResponse<SyncAppDataResponse>> HandleNewAppAsync(SyncAppDataInput input, Dictionary<string, int> classNameToCount, Guid identifierId, CancellationToken cancellationToken = default)
         {
             var settings = new List<SyncAppDataResponseSetting>(input.Settings.Count);
 
@@ -1303,7 +1264,7 @@ namespace OpenSettings.Services.Sql
 
             var configuration = new AppConfigurationSqlModel
             {
-                
+
                 IdentifierId = identifierId,
                 CreatedOn = currentTime,
                 CreatedById = input.UserId
@@ -1453,7 +1414,7 @@ namespace OpenSettings.Services.Sql
             return clientId;
         }
 
-        private async Task<IResponse<SyncAppDataResponse>> HandleExistingAppAsync(SyncAppDataInput input, Dictionary<string, int> classNameToCount, int identifierId, int appId, string hashedClientSecret, HashSet<int> mappedAppIdentifierIds, CancellationToken cancellationToken = default)
+        private async Task<IResponse<SyncAppDataResponse>> HandleExistingAppAsync(SyncAppDataInput input, Dictionary<string, int> classNameToCount, Guid identifierId, Guid appId, string hashedClientSecret, HashSet<Guid> mappedAppIdentifierIds, CancellationToken cancellationToken = default)
         {
             var passwordVerificationResult = _passwordHasher.VerifyHashedPassword(null, hashedClientSecret, $"{input.Client.Secret}");
 
@@ -1614,7 +1575,7 @@ namespace OpenSettings.Services.Sql
 
                 app.AppConfigurations.Add(configuration);
             }
-            else if(input.Configuration != null && configuration.Consumer.ProviderUrl != input.Configuration.Consumer.ProviderUrl)
+            else if (input.Configuration != null && configuration.Consumer.ProviderUrl != input.Configuration.Consumer.ProviderUrl)
             {
                 var configurationEntityEntry = _context.AppConfigurations.Attach(configuration);
 
@@ -1682,7 +1643,7 @@ namespace OpenSettings.Services.Sql
             Dictionary<string, int> classNameToCount,
             Dictionary<Guid, AppSettingSqlModel> computedIdentifierToSetting,
             ICollection<AppSettingSqlModel> settings,
-            int identifierId,
+            Guid identifierId,
             DateTime currentTime,
             CancellationToken cancellationToken)
         {
@@ -1770,7 +1731,7 @@ namespace OpenSettings.Services.Sql
             };
         }
 
-        private async Task<SyncAppDataResponseSetting> HandleNewSettingAsync(ICollection<AppSettingSqlModel> settings, SyncAppDataInputSetting inputSetting, int identifierId, Guid? userId, DateTime currentTime, bool isUniqueClassName, CancellationToken cancellationToken)
+        private async Task<SyncAppDataResponseSetting> HandleNewSettingAsync(ICollection<AppSettingSqlModel> settings, SyncAppDataInputSetting inputSetting, Guid identifierId, Guid? userId, DateTime currentTime, bool isUniqueClassName, CancellationToken cancellationToken)
         {
             var newSetting = new AppSettingSqlModel
             {

@@ -5,17 +5,19 @@ namespace OpenSettings.Domains.Sql.Entities
     /// <summary>
     /// Represents a user role-group mapping entity.
     /// </summary>
-    public class UserRoleUserGroupMappingSqlModel : EntityBase<int>
+    public class UserRoleUserGroupMappingSqlModel : EntityBase<Guid>
     {
+        public Guid? TenantId { get; set; }
+
         /// <summary>
         /// The id of the associated user role.
         /// </summary>
-        public int UserRoleId { get; set; }
+        public Guid UserRoleId { get; set; }
 
         /// <summary>
         /// The id of the associated user group.
         /// </summary>
-        public int UserGroupId { get; set; }
+        public Guid UserGroupId { get; set; }
 
         /// <summary>
         /// The user role associated with this mapping.

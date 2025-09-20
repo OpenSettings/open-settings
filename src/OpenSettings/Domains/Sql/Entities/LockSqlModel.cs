@@ -7,6 +7,8 @@ namespace OpenSettings.Domains.Sql.Entities
     /// </summary>
     public class LockSqlModel
     {
+        public Guid? TenantId { get; set; }
+
         /// <summary>
         /// The key of the lock.
         /// </summary>

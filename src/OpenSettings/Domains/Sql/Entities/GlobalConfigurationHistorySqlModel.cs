@@ -7,6 +7,8 @@ namespace OpenSettings.Domains.Sql.Entities
 {
     public class GlobalConfigurationHistorySqlModel : EntityBase<Guid>
     {
+        public Guid? TenantId { get; set; }
+
         /// <summary>
         /// The key of the global configuration history.
         /// </summary>
@@ -30,7 +32,7 @@ namespace OpenSettings.Domains.Sql.Entities
         /// <summary>
         /// The identifier associated with this global configuration history if any.
         /// </summary>
-        public int? IdentifierId { get; set; }
+        public Guid? IdentifierId { get; set; }
 
         /// <summary>
         /// Defines the serialization type used for data serialization and deserialization.
@@ -73,7 +75,7 @@ namespace OpenSettings.Domains.Sql.Entities
         /// <summary>
         /// The global configuration id associated with this global configuration history.
         /// </summary>
-        public int GlobalConfigurationId { get; set; }
+        public Guid GlobalConfigurationId { get; set; }
 
         public virtual GlobalConfigurationSqlModel GlobalConfiguration { get; set; }
 
