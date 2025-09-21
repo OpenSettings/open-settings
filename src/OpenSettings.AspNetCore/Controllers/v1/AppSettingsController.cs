@@ -139,7 +139,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return ModelState.ToAction();
             }
 
-            var result = await _settingHistoryService.GetSettingHistoriesAsync(new GetSettingHistoriesInput(request.AppSettingId, request.Excludes), cancellationToken);
+            var result = await _settingHistoryService.GetAppSettingHistoriesAsync(new GetAppSettingHistoriesInput(request.AppSettingId, request.Excludes), cancellationToken);
 
             return result.ToAction();
         }

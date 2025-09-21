@@ -61,7 +61,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
 
             var result = await _settingHistoryService.GetAppSettingHistoryBySlugAsync(new GetAppSettingHistoryInput
             {
-                AppHistoryIdOrSlug = request.Slug
+                AppHistoryIdOrSlug = request.AppSettingHistorySlug
             }, cancellationToken);
 
             return result.ToAction();
@@ -75,7 +75,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return ModelState.ToAction();
             }
 
-            var result = await _settingHistoryService.RestoreAppSettingHistoryAsync(new RestoreSettingHistoryInput
+            var result = await _settingHistoryService.RestoreAppSettingHistoryAsync(new RestoreAppSettingHistoryInput
             {
                 AppSettingHistoryId = request.AppSettingHistoryId,
                 HistoryRowVersion = request.Body.HistoryRowVersion,

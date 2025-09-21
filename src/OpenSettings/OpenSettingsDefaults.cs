@@ -228,7 +228,7 @@ namespace OpenSettings
         /// </summary>
         public static class Routes
         {
-            internal const string OpenSettingsApiRoute = "api/settings";
+            internal const string OpenSettingsApiDefaultRoute = "api/settings";
 
             /// <summary>
             /// The V1 API base routes.
@@ -275,19 +275,19 @@ namespace OpenSettings
                     public const string GetApps = Base; // GET
                     public const string CreateApp = Base; // POST
                     public const string GetGroupedApps = Base + "/grouped"; // GET
-                    public const string FetchAppData = Base + "/{ClientId:guid}/identifiers/{IdentifierName}/fetch-data"; // POST
-                    public const string SyncAppData = Base + "/{ClientId:guid}/identifiers/{IdentifierName}/sync-data"; // POST
-                    public const string GetAppById = Base + "/{AppId}"; // GET
-                    public const string GetAppBySlug = Base + "/slug/{AppSlug}"; // GET
+                    public const string FetchAppData = Base + "/{ClientId}/identifiers/{IdentifierName}/fetch-data"; // POST
+                    public const string SyncAppData = Base + "/{ClientId}/identifiers/{IdentifierName}/sync-data"; // POST
+                    public const string GetAppByAppId = Base + "/{AppId}"; // GET
+                    public const string GetAppByAppSlug = Base + "/slug/{AppSlug}"; // GET
                     public const string UpdateApp = Base + "/{AppId}"; // PUT
                     public const string DeleteApp = Base + "/{AppId}"; // DELETE
                     public const string GetGroupedAppDataByAppId = Base + "/{AppId}/grouped"; // GET
                     public const string GetGroupedAppDataByAppSlug = Base + "/slug/{AppSlug}/grouped"; // GET
                     public const string GetAppInstancesByAppId = Base + "/{AppId}/instances"; // GET
                     public const string GetAppInstancesByAppSlug = Base + "/slug/{AppSlug}/instances"; // GET
-                    public const string CreateAppInstance = Base + "/{ClientId:guid}/instances"; // POST
-                    public const string UpdateAppInstance = Base + "/{ClientId:guid}/instances"; // PUT
-                    public const string GetRegisteredApp = Base + "/{ClientId:guid}/registered"; // GET
+                    public const string CreateAppInstance = Base + "/{ClientId}/instances"; // POST
+                    public const string UpdateAppInstance = Base + "/{ClientId}/instances"; // PUT
+                    public const string GetRegisteredApp = Base + "/{ClientId}/registered"; // GET
                     public const string GetAppIdentifierMappingsByAppId = Base + "/{AppId}/identifiers"; // GET
                     public const string GetAppIdentifierMappingsByAppSlug = Base + "/slug/{AppSlug}/identifiers"; // GET
                     public const string CreateAppIdentifierMapping = Base + "/{AppId}/identifiers"; // POST
@@ -409,7 +409,7 @@ namespace OpenSettings
                     /// </summary>
                     public const string Base = "v1/local-settings";
 
-                    public const string GetLocalSettings = Base + "/{ComputedIdentifier:guid}"; // GET
+                    public const string GetLocalSettings = Base + "/{ComputedIdentifier}"; // GET
                 }
 
                 public static class NotificationsEndpoints
@@ -420,12 +420,12 @@ namespace OpenSettings
                     public const string Base = "v1/notifications";
 
                     public const string GetNotifications = Base; // GET
-                    public const string GetUserNotifications = Base + "/users/{UserId:guid}"; // GET
+                    public const string GetUserNotifications = Base + "/users/{UserId}"; // GET
                     public const string CreateNotification = Base; // POST
-                    public const string MarkNotificationsAsOpened = Base + "/users/{UserId:guid}/open"; // POST
-                    public const string MarkNotificationAsViewed = Base + "/{NotificationId:guid}/users/{UserId:guid}/view"; // POST
-                    public const string MarkNotificationAsDismissed = Base + "/{NotificationId:guid}/users/{UserId:guid}/dismiss"; // POST
-                    public const string DispatchNotificationsToUsers = Base + "/{NotificationId:guid}/users/dispatch"; // POST
+                    public const string MarkNotificationsAsOpened = Base + "/users/{UserId}/open"; // POST
+                    public const string MarkNotificationAsViewed = Base + "/{NotificationId}/users/{UserId}/view"; // POST
+                    public const string MarkNotificationAsDismissed = Base + "/{NotificationId}/users/{UserId}/dismiss"; // POST
+                    public const string DispatchNotificationsToUsers = Base + "/{NotificationId}/users/dispatch"; // POST
                 }
 
                 public static class OpenSettingsEndpoints

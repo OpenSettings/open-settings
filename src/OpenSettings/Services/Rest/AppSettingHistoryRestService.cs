@@ -10,13 +10,12 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using OpenSettings.Helpers;
 
 namespace OpenSettings.Services.Rest
 {
     public sealed class AppSettingHistoryRestService : ISettingHistoryRestService
     {
-        private HttpClient HttpClient => _httpClientFactory.CreateOpenSettingsProviderHttpClient();
-
         private readonly IDataChangeService _dataChangeService;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly OpenSettingsConfiguration _openSettingsConfiguration;
@@ -36,9 +35,11 @@ namespace OpenSettings.Services.Rest
 
         public async Task<IResponse> GetAppSettingHistoryDataAsync(GetAppSettingHistoryDataInput input, CancellationToken cancellationToken = default)
         {
-            var relativeUri = $"v1/setting-histories/{input.AppSettingHistoryId}/data";
+            var relativeUri = RouteHelper.Build(
+                OpenSettingsDefaults.Routes.V1.AppSettingHistoriesEndpoints.GetAppSettingHistoryData,
+                new[] { $"{input.AppSettingHistoryId}" });
 
-            using (var response = await HttpClient.GetAsync(relativeUri, cancellationToken))
+            using (var response = await GetProviderHttpClient().GetAsync(relativeUri, cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
@@ -46,9 +47,11 @@ namespace OpenSettings.Services.Rest
 
         public async Task<IResponse> GetAppSettingHistoryByIdAsync(GetAppSettingHistoryInput input, CancellationToken cancellationToken = default)
         {
-            var relativeUri = $"v1/setting-histories/{input.AppHistoryIdOrSlug}";
+            var relativeUri = RouteHelper.Build(
+                OpenSettingsDefaults.Routes.V1.AppSettingHistoriesEndpoints.GetAppSettingHistoryById,
+                new[] { input.AppHistoryIdOrSlug });
 
-            using (var response = await HttpClient.GetAsync(relativeUri, cancellationToken))
+            using (var response = await GetProviderHttpClient().GetAsync(relativeUri, cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
@@ -56,27 +59,34 @@ namespace OpenSettings.Services.Rest
 
         public async Task<IResponse> GetAppSettingHistoryBySlugAsync(GetAppSettingHistoryInput input, CancellationToken cancellationToken = default)
         {
-            var relativeUri = $"v1/setting-histories/slug/{input.AppHistoryIdOrSlug}";
+            var relativeUri = RouteHelper.Build(
+                OpenSettingsDefaults.Routes.V1.AppSettingHistoriesEndpoints.GetAppSettingHistoryBySlug,
+                new[] { input.AppHistoryIdOrSlug });
 
-            using (var response = await HttpClient.GetAsync(relativeUri, cancellationToken))
+            using (var response = await GetProviderHttpClient().GetAsync(relativeUri, cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
         }
 
-        public async Task<IResponse> GetSettingHistoriesAsync(GetSettingHistoriesInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetAppSettingHistoriesAsync(GetAppSettingHistoriesInput input, CancellationToken cancellationToken = default)
         {
-            var relativeUri = $"v1/settings/{input.AppSettingId}/histories";
+            var relativeUri = RouteHelper.Build(
+                OpenSettingsDefaults.Routes.V1.AppSettingsEndpoints.GetAppSettingHistories,
+                new[] { $"{input.AppSettingId}" },
+                RouteHelper.Query((nameof(input.Excludes), string.Join(OpenSettingsDefaults.Format.Comma, input.Excludes))));
 
-            using (var response = await HttpClient.GetAsync(relativeUri, cancellationToken))
+            using (var response = await GetProviderHttpClient().GetAsync(relativeUri, cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
         }
 
-        public async Task<IResponse<RestoreSettingHistoryResponse>> RestoreAppSettingHistoryAsync(RestoreSettingHistoryInput input, CancellationToken cancellationToken)
+        public async Task<IResponse<RestoreSettingHistoryResponse>> RestoreAppSettingHistoryAsync(RestoreAppSettingHistoryInput input, CancellationToken cancellationToken)
         {
-            var relativeUri = $"v1/setting-histories/{input.AppSettingHistoryId}/restore";
+            var relativeUri = RouteHelper.Build(
+                OpenSettingsDefaults.Routes.V1.AppSettingHistoriesEndpoints.RestoreAppSettingHistory,
+                new[] { $"{input.AppSettingHistoryId}" });
 
             var body = new
             {
@@ -86,7 +96,7 @@ namespace OpenSettings.Services.Rest
 
             using (var jsonContent = JsonContent.Create(body))
             {
-                using (var response = await HttpClient.PostAsync(relativeUri, jsonContent, cancellationToken))
+                using (var response = await GetProviderHttpClient().PostAsync(relativeUri, jsonContent, cancellationToken))
                 {
                     var responseContent = await response.Content.ToResponseAsync<RestoreSettingHistoryResponse>(cancellationToken: cancellationToken);
 
@@ -98,6 +108,11 @@ namespace OpenSettings.Services.Rest
                     return responseContent;
                 }
             }
+        }
+
+        private HttpClient GetProviderHttpClient()
+        {
+            return _httpClientFactory.CreateOpenSettingsProviderHttpClient();
         }
     }
 }

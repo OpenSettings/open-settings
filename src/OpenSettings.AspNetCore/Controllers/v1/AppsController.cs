@@ -159,7 +159,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             return result.ToAction();
         }
 
-        [HttpGet(OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetAppById)]
+        [HttpGet(OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetAppByAppId)]
         public async Task<IActionResult> GetAppById(GetAppByIdRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
@@ -175,7 +175,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             return result.ToAction();
         }
 
-        [HttpGet(OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetAppBySlug)]
+        [HttpGet(OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetAppByAppSlug)]
         public async Task<IActionResult> GetAppBySlug(GetAppBySlugRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)

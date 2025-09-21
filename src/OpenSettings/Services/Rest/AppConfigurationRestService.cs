@@ -1,5 +1,6 @@
 ﻿using Ogu.Response.Abstractions;
 using OpenSettings.Extensions;
+using OpenSettings.Helpers;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Services.Rest.Interfaces;
 using System.Net.Http;
@@ -11,8 +12,6 @@ namespace OpenSettings.Services.Rest
 {
     public class AppConfigurationRestService : IAppConfigurationRestService
     {
-        private HttpClient HttpClient => _httpClientFactory.CreateOpenSettingsProviderHttpClient();
-
         private readonly IHttpClientFactory _httpClientFactory;
 
         public AppConfigurationRestService(IHttpClientFactory httpClientFactory)
@@ -22,9 +21,11 @@ namespace OpenSettings.Services.Rest
 
         public async Task<IResponse> GetAppConfigurationByAppIdAndIdentifierIdAsync(GetAppConfigurationByAppAndIdentifierInput input, CancellationToken cancellationToken = default)
         {
-            var relativeUri = $"v1/apps/{input.AppIdOrSlug}/identifiers/{input.IdentifierIdOrSlug}/configuration";
+            var relativeUri = RouteHelper.Build(
+                OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetAppConfigurationByAppIdAndIdentifierId,
+                new[] { input.AppIdOrSlug, input.IdentifierIdOrSlug });
 
-            using (var response = await HttpClient.GetAsync(relativeUri, cancellationToken))
+            using (var response = await GetProviderHttpClient().GetAsync(relativeUri, cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
@@ -32,19 +33,26 @@ namespace OpenSettings.Services.Rest
 
         public async Task<IResponse> PatchAppConfigurationAsync(PatchConfigurationInput input, CancellationToken cancellationToken = default)
         {
-            var relativeUri = $"v1/apps/{input.AppId}/identifiers/{input.IdentifierId}/configuration";
+            var relativeUri = RouteHelper.Build(
+                OpenSettingsDefaults.Routes.V1.AppsEndpoints.PatchAppConfiguration,
+                new[] { $"{input.AppId}", $"{input.IdentifierId}" });
 
             using (var jsonContent = JsonContent.Create(input.Body))
             {
 #if NETSTANDARD2_0
-                using (var response = await HttpClient.SendAsync(new HttpRequestMessage(new HttpMethod("PATCH"), relativeUri) { Content = jsonContent }, cancellationToken))
+                using (var response = await GetProviderHttpClient().SendAsync(new HttpRequestMessage(new HttpMethod("PATCH"), relativeUri) { Content = jsonContent }, cancellationToken))
 #else
-                using (var response = await HttpClient.PatchAsync(relativeUri, jsonContent, cancellationToken))
+                using (var response = await GetProviderHttpClient().PatchAsync(relativeUri, jsonContent, cancellationToken))
 #endif
                 {
                     return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
                 }
             }
+        }
+
+        private HttpClient GetProviderHttpClient()
+        {
+            return _httpClientFactory.CreateOpenSettingsProviderHttpClient();
         }
     }
 }

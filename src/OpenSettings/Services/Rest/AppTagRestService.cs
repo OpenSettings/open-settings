@@ -206,7 +206,6 @@ namespace OpenSettings.Services.Rest
             using (var response = await HttpClient.PostAsync(relativeUri, null))
             {
                 return await response.Content.ToResponseAsync();
-
             }
         }
     }

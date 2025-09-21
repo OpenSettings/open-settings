@@ -4,9 +4,9 @@ using System.Linq;
 
 namespace OpenSettings.Models.Inputs
 {
-    public class GetSettingHistoriesInput
+    public class GetAppSettingHistoriesInput
     {
-        public GetSettingHistoriesInput(Guid appSettingId, string excludes)
+        public GetAppSettingHistoriesInput(Guid appSettingId, string excludes)
         {
             AppSettingId = appSettingId;
             Excludes = string.IsNullOrWhiteSpace(excludes)

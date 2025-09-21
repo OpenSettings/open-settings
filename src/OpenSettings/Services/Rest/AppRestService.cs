@@ -1,6 +1,7 @@
 ﻿using Ogu.Response.Abstractions;
 using OpenSettings.Configurations;
 using OpenSettings.Extensions;
+using OpenSettings.Helpers;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Models.Responses;
 using OpenSettings.Services.Rest.Interfaces;
@@ -28,7 +29,9 @@ namespace OpenSettings.Services.Rest
 
         public async Task<IResponse<SyncAppDataResponse>> SyncAppDataAsync(SyncAppDataInput input, CancellationToken cancellationToken = default)
         {
-            var relativeUri = $"v1/apps/{input.Client.Id}/identifiers/{Uri.EscapeDataString(input.IdentifierName)}/sync-data";
+            var relativeUri = RouteHelper.Build(
+                OpenSettingsDefaults.Routes.V1.AppsEndpoints.SyncAppData,
+                new[] { $"{input.Client.Id}", input.IdentifierName });
 
             var body = new
             {
@@ -157,7 +160,9 @@ namespace OpenSettings.Services.Rest
 
         public async Task<IResponse> GetGroupedAppsAsync(GetGroupedAppsInput input, CancellationToken cancellationToken = default)
         {
-            var relativeUri = $"v1/apps/grouped?searchTerm={_clientId}";
+            var relativeUri = RouteHelper.Build(
+                OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetGroupedApps,
+                query: RouteHelper.Query((nameof(input.SearchTerm), _clientId)));
 
             using (var response = await GetProviderHttpClient().GetAsync(relativeUri, cancellationToken))
             {
@@ -167,7 +172,9 @@ namespace OpenSettings.Services.Rest
 
         public async Task<IResponse<FetchAppDataResponse>> FetchAppDataAsync(FetchAppDataInput input, CancellationToken cancellationToken = default)
         {
-            var relativeUri = $"v1/apps/{input.ClientId}/identifiers/{Uri.EscapeDataString(input.IdentifierName)}/fetch-data";
+            var relativeUri = RouteHelper.Build(
+                OpenSettingsDefaults.Routes.V1.AppsEndpoints.FetchAppData,
+                new[] { $"{input.ClientId}", input.IdentifierName });
 
             var body = new
             {
@@ -186,7 +193,9 @@ namespace OpenSettings.Services.Rest
 
         public async Task<IResponse<GetAppResponse>> GetAppByIdAsync(GetAppInput input, CancellationToken cancellationToken = default)
         {
-            var relativeUri = $"v1/apps/{input.AppIdOrSlug}";
+            var relativeUri = RouteHelper.Build(
+                OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetAppByAppId,
+                new[] { input.AppIdOrSlug });
 
             using (var response = await GetProviderHttpClient().GetAsync(relativeUri, cancellationToken))
             {
@@ -196,7 +205,9 @@ namespace OpenSettings.Services.Rest
 
         public async Task<IResponse<GetAppResponse>> GetAppBySlugAsync(GetAppInput input, CancellationToken cancellationToken = default)
         {
-            var relativeUri = $"v1/apps/slug/{input.AppIdOrSlug}";
+            var relativeUri = RouteHelper.Build(
+                OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetAppByAppSlug,
+                new[] { input.AppIdOrSlug });
 
             using (var response = await GetProviderHttpClient().GetAsync(relativeUri, cancellationToken))
             {
@@ -208,7 +219,7 @@ namespace OpenSettings.Services.Rest
         {
             throw new NotSupportedException(nameof(GetAppsAsync));
 
-            const string relativeUri = "v1/apps";
+            const string relativeUri = OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetApps;
 
             var queryBuilder = new QueryBuilder();
 
@@ -225,7 +236,9 @@ namespace OpenSettings.Services.Rest
 
         public async Task<IResponse> UpdateAppAsync(UpdateAppInput input, CancellationToken cancellationToken)
         {
-            var pathAndQueryBuilder = $"v1/apps/{input.AppId}";
+            var pathAndQueryBuilder = RouteHelper.Build(
+                OpenSettingsDefaults.Routes.V1.AppsEndpoints.UpdateApp,
+                new[] { $"{input.AppId}" });
 
             var body = new
             {
@@ -261,7 +274,9 @@ namespace OpenSettings.Services.Rest
 
         public async Task<IResponse<GetRegisteredAppResponse>> GetRegisteredAppAsync(GetRegisteredAppInput input, CancellationToken cancellationToken = default)
         {
-            var relativeUri = $"v1/apps/{input.ClientId}/registered";
+            var relativeUri = RouteHelper.Build(
+                OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetRegisteredApp,
+                new[] { $"{input.ClientId}" });
 
             var body = new
             {
@@ -281,7 +296,7 @@ namespace OpenSettings.Services.Rest
         {
             throw new NotSupportedException();
 
-            const string relativeUri = "v1/apps";
+            const string relativeUri = OpenSettingsDefaults.Routes.V1.AppsEndpoints.CreateApp;
 
             var body = new
             {
@@ -321,7 +336,9 @@ namespace OpenSettings.Services.Rest
 
         public async Task<IResponse> GetGroupedAppDataByAppIdAsync(GetGroupedAppDataByAppInput input, CancellationToken cancellationToken = default)
         {
-            var relativeUri = $"v1/apps/{input.AppIdOrSlug}/grouped";
+            var relativeUri = RouteHelper.Build(
+                OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetGroupedAppDataByAppId,
+                new[] { input.AppIdOrSlug });
 
             using (var response = await GetProviderHttpClient().GetAsync(relativeUri, cancellationToken))
             {
@@ -331,7 +348,9 @@ namespace OpenSettings.Services.Rest
 
         public async Task<IResponse> GetGroupedAppDataByAppSlugAsync(GetGroupedAppDataByAppInput input, CancellationToken cancellationToken = default)
         {
-            var relativeUri = $"v1/apps/slug/{input.AppIdOrSlug}/grouped";
+            var relativeUri = RouteHelper.Build(
+                OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetGroupedAppDataByAppSlug,
+                new[] { input.AppIdOrSlug });
 
             using (var response = await GetProviderHttpClient().GetAsync(relativeUri, cancellationToken))
             {
@@ -341,7 +360,9 @@ namespace OpenSettings.Services.Rest
 
         public async Task<IResponse> GetGroupedAppDataByAppIdAndIdentifierIdAsync(GetGroupedAppDataByAppAndIdentifierInput input, CancellationToken cancellationToken = default)
         {
-            var relativeUri = $"v1/apps/{input.AppIdOrSlug}/identifiers/{input.IdentifierIdOrSlug}/grouped";
+            var relativeUri = RouteHelper.Build(
+                OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetGroupedAppDataByAppIdAndIdentifierId,
+                new[] { input.AppIdOrSlug, input.IdentifierIdOrSlug });
 
             using (var response = await GetProviderHttpClient().GetAsync(relativeUri, cancellationToken))
             {
@@ -351,7 +372,9 @@ namespace OpenSettings.Services.Rest
 
         public async Task<IResponse> GetGroupedAppDataByAppSlugAndIdentifierSlugAsync(GetGroupedAppDataByAppAndIdentifierInput input, CancellationToken cancellationToken = default)
         {
-            var relativeUri = $"v1/apps/slug/{input.AppIdOrSlug}/identifiers/{input.IdentifierIdOrSlug}/grouped";
+            var relativeUri = RouteHelper.Build(
+                OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetGroupedAppDataByAppSlugAndIdentifierSlug,
+                new[] { input.AppIdOrSlug, input.IdentifierIdOrSlug });
 
             using (var response = await GetProviderHttpClient().GetAsync(relativeUri, cancellationToken))
             {
@@ -361,7 +384,10 @@ namespace OpenSettings.Services.Rest
 
         public async Task<IResponse> DeleteAppAsync(DeleteAppInput input, CancellationToken cancellationToken)
         {
-            var relativeUri = $"v1/apps/{input.AppId}?rowVersion={Uri.EscapeDataString(Convert.ToBase64String(input.RowVersion))}";
+            var relativeUri = RouteHelper.Build(
+                OpenSettingsDefaults.Routes.V1.AppsEndpoints.DeleteApp,
+                new[] { $"{input.AppId}" },
+                RouteHelper.Query((nameof(input.RowVersion), Convert.ToBase64String(input.RowVersion))));
 
             using (var response = await GetProviderHttpClient().DeleteAsync(relativeUri, cancellationToken))
             {

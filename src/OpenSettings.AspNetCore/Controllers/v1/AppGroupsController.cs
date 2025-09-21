@@ -27,7 +27,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return ModelState.ToAction();
             }
 
-            var result = await _appGroupsService.GetGroupsAsync(new GetGroupsInput
+            var result = await _appGroupsService.GetAppGroupsAsync(new GetGroupsInput
             {
                 SearchTerm = request.SearchTerm,
                 HasMappings = request.HasMappings
@@ -45,7 +45,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return ModelState.ToAction();
             }
 
-            var result = await _appGroupsService.CreateGroupAsync(new CreateGroupInput
+            var result = await _appGroupsService.CreateAppGroupAsync(new CreateGroupInput
             {
                 Name = request.Body.Name,
                 SortOrder = request.Body.SortOrder,

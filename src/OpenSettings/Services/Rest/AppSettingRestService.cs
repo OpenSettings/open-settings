@@ -17,8 +17,6 @@ namespace OpenSettings.Services.Rest
 {
     public sealed class AppSettingRestService : IAppSettingRestService
     {
-        private HttpClient HttpClient => _httpClientFactory.CreateOpenSettingsProviderHttpClient();
-
         private readonly IDataChangeService _dataChangeService;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly OpenSettingsConfiguration _openSettingsConfiguration;
@@ -40,7 +38,7 @@ namespace OpenSettings.Services.Rest
         {
             var relativeUri = $"v1/apps/slug/{input.AppIdOrSlug}/identifiers/{input.IdentifierIdOrSlug}/settings";
 
-            using (var response = await HttpClient.GetAsync(relativeUri, cancellationToken))
+            using (var response = await GetProviderHttpClient().GetAsync(relativeUri, cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
@@ -50,7 +48,7 @@ namespace OpenSettings.Services.Rest
         {
             var relativeUri = $"v1/apps/slug/{input.AppIdOrSlug}/identifiers/{input.IdentifierIdOrSlug}/settings";
 
-            using (var response = await HttpClient.GetAsync(relativeUri, cancellationToken))
+            using (var response = await GetProviderHttpClient().GetAsync(relativeUri, cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
@@ -72,7 +70,7 @@ namespace OpenSettings.Services.Rest
                 queryBuilder.Append(nameof(input.Ids), string.Join(",", input.Ids));
             }
 
-            using (var response = await HttpClient.GetAsync(queryBuilder.ToString(relativeUri), cancellationToken))
+            using (var response = await GetProviderHttpClient().GetAsync(queryBuilder.ToString(relativeUri), cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
@@ -94,7 +92,7 @@ namespace OpenSettings.Services.Rest
 
             using (var jsonContent = JsonContent.Create(body))
             {
-                using (var response = await HttpClient.PostAsync(relativeUri, jsonContent, cancellationToken))
+                using (var response = await GetProviderHttpClient().PostAsync(relativeUri, jsonContent, cancellationToken))
                 {
                     var responseContent = await response.Content.ToResponseAsync<CopySettingToResponse>(cancellationToken: cancellationToken);
 
@@ -112,7 +110,7 @@ namespace OpenSettings.Services.Rest
         {
             var relativeUri = $"v1/settings/{input.AppSettingId}/data";
 
-            using (var response = await HttpClient.GetAsync(relativeUri, cancellationToken))
+            using (var response = await GetProviderHttpClient().GetAsync(relativeUri, cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
@@ -122,7 +120,7 @@ namespace OpenSettings.Services.Rest
         {
             var relativeUri = $"v1/settings/{input.AppSettingId}?rowVersion={Uri.EscapeDataString(Convert.ToBase64String(input.RowVersion))}";
 
-            using (var response = await HttpClient.DeleteAsync(relativeUri, cancellationToken))
+            using (var response = await GetProviderHttpClient().DeleteAsync(relativeUri, cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
@@ -134,7 +132,7 @@ namespace OpenSettings.Services.Rest
 
             using (var jsonContent = JsonContent.Create(input))
             {
-                using (var response = await HttpClient.PostAsync(relativeUri, jsonContent, cancellationToken))
+                using (var response = await GetProviderHttpClient().PostAsync(relativeUri, jsonContent, cancellationToken))
                 {
                     return await response.Content.ToResponseAsync<GetSettingsLastUpdatedComputedIdentifiersResponse>(cancellationToken: cancellationToken);
                 }
@@ -152,7 +150,7 @@ namespace OpenSettings.Services.Rest
                 queryBuilder.Append(nameof(input.Excludes), string.Join(",", input.Excludes));
             }
 
-            using (var response = await HttpClient.GetAsync(queryBuilder.ToString(relativeUri), cancellationToken))
+            using (var response = await GetProviderHttpClient().GetAsync(queryBuilder.ToString(relativeUri), cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
@@ -178,7 +176,7 @@ namespace OpenSettings.Services.Rest
 
             using (var jsonContent = JsonContent.Create(body))
             {
-                using (var response = await HttpClient.PutAsync(relativeUri, jsonContent, cancellationToken))
+                using (var response = await GetProviderHttpClient().PutAsync(relativeUri, jsonContent, cancellationToken))
                 {
                     return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
                 }
@@ -205,7 +203,7 @@ namespace OpenSettings.Services.Rest
 
             using (var jsonContent = JsonContent.Create(body))
             {
-                using (var response = await HttpClient.PostAsync(relativeUri, jsonContent, cancellationToken))
+                using (var response = await GetProviderHttpClient().PostAsync(relativeUri, jsonContent, cancellationToken))
                 {
                     return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
                 }
@@ -224,7 +222,7 @@ namespace OpenSettings.Services.Rest
 
             using (var jsonContent = JsonContent.Create(body))
             {
-                using (var response = await HttpClient.PutAsync(relativeUri, jsonContent, cancellationToken))
+                using (var response = await GetProviderHttpClient().PutAsync(relativeUri, jsonContent, cancellationToken))
                 {
                     var responseContent = await response.Content.ToResponseAsync<UpdateSettingDataResponse>(cancellationToken: cancellationToken);
 
@@ -236,6 +234,11 @@ namespace OpenSettings.Services.Rest
                     return responseContent;
                 }
             }
+        }
+
+        private HttpClient GetProviderHttpClient()
+        {
+            return _httpClientFactory.CreateOpenSettingsProviderHttpClient();
         }
     }
 }

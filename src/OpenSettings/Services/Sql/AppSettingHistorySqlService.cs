@@ -39,18 +39,9 @@ namespace OpenSettings.Services.Sql
 
         public async Task<IResponse> GetAppSettingHistoryDataAsync(GetAppSettingHistoryDataInput input, CancellationToken cancellationToken = default)
         {
-            var historyIdRule = ValidationRules.NotEmptyRule(nameof(input.AppSettingHistoryId), input.AppSettingHistoryId);
-
-            if (historyIdRule.IsFailed())
-            {
-                return HttpStatusCode.BadRequest.ToFailureResponse(historyIdRule.Failure);
-            }
-
-            var historyId = Guid.Parse(input.AppSettingHistoryId);
-
             var entity = await _context.AppSettingHistories
                 .AsNoTracking()
-                .Where(s => s.Id == historyId)
+                .Where(s => s.Id == input.AppSettingHistoryId)
                 .OrderBy(s => s.Id)
                 .Select(s => new
                 {
@@ -87,7 +78,7 @@ namespace OpenSettings.Services.Sql
             return GetSettingHistoryByIdOrSlugAsync(s => s.Slug == input.AppHistoryIdOrSlug, cancellationToken);
         }
 
-        public async Task<IResponse> GetSettingHistoriesAsync(GetSettingHistoriesInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetAppSettingHistoriesAsync(GetAppSettingHistoriesInput input, CancellationToken cancellationToken = default)
         {
             var isDataExcluded = input.Excludes.Contains("data");
 
@@ -133,26 +124,17 @@ namespace OpenSettings.Services.Sql
             return HttpStatusCode.OK.ToSuccessResponse(settingHistoriesResponse);
         }
 
-        public async Task<IResponse<RestoreSettingHistoryResponse>> RestoreAppSettingHistoryAsync(RestoreSettingHistoryInput input, CancellationToken cancellationToken)
+        public async Task<IResponse<RestoreSettingHistoryResponse>> RestoreAppSettingHistoryAsync(RestoreAppSettingHistoryInput input, CancellationToken cancellationToken)
         {
-            var historyIdRule = ValidationRules.NotEmptyRule(nameof(input.AppSettingHistoryId), input.AppSettingHistoryId);
-
-            if (historyIdRule.IsFailed())
-            {
-                return historyIdRule.Failure.ToResponse<RestoreSettingHistoryResponse>();
-            }
-
-            var historyId = Guid.Parse(input.AppSettingHistoryId);
-
             var entity = await _context.AppSettingHistories
                 .AsNoTracking()
                 .Include(a => a.AppSetting).ThenInclude(a => a.App)
                 .Include(a => a.AppSetting).ThenInclude(a => a.Identifier)
-                .Where(a => a.Id == historyId)
+                .Where(a => a.Id == input.AppSettingHistoryId)
                 .OrderBy(a => a.Id)
                 .Select(a => new AppSettingHistorySqlModel
                 {
-                    Id = historyId,
+                    Id = input.AppSettingHistoryId,
                     Data = a.Data,
                     Version = a.Version,
                     RowVersion = a.RowVersion,

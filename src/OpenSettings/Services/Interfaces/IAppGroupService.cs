@@ -14,9 +14,9 @@ namespace OpenSettings.Services.Interfaces
 
         Task<IResponse> DeleteUnmappedAppGroupsAsync(CancellationToken cancellationToken = default);
 
-        Task<IResponse> GetGroupsAsync(GetGroupsInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> GetAppGroupsAsync(GetGroupsInput input, CancellationToken cancellationToken = default);
 
-        Task<IResponse> CreateGroupAsync(CreateGroupInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> CreateAppGroupAsync(CreateGroupInput input, CancellationToken cancellationToken = default);
 
         Task<IResponse> GetAppGroupByIdAsync(GetGroupInput input, CancellationToken cancellationToken = default);
 

@@ -6,13 +6,16 @@ namespace OpenSettings.Services.Rest
 {
     public sealed class AppSettingClassRestService : ISettingClassRestService
     {
-        private HttpClient HttpClient => _httpClientFactory.CreateOpenSettingsProviderHttpClient();
-
         private readonly IHttpClientFactory _httpClientFactory;
 
         public AppSettingClassRestService(IHttpClientFactory httpClientFactory)
         {
             _httpClientFactory = httpClientFactory;
+        }
+
+        private HttpClient GetProviderHttpClient()
+        {
+            return _httpClientFactory.CreateOpenSettingsProviderHttpClient();
         }
     }
 }

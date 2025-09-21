@@ -5,6 +5,6 @@ namespace OpenSettings.AspNetCore.Models.Requests
     public class GetAppSettingHistoryBySlugRequest
     {
         [FromRoute]
-        public string Slug { get; set; }
+        public string AppSettingHistorySlug { get; set; }
     }
 }

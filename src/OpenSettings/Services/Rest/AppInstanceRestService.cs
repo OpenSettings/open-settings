@@ -1,5 +1,6 @@
 ﻿using Ogu.Response.Abstractions;
 using OpenSettings.Extensions;
+using OpenSettings.Helpers;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Services.Rest.Interfaces;
 using System.Net.Http;
@@ -11,8 +12,6 @@ namespace OpenSettings.Services.Rest
 {
     public sealed class AppInstanceRestService : IInstanceRestService
     {
-        private HttpClient HttpClient => _httpClientFactory.CreateOpenSettingsProviderHttpClient();
-
         private readonly IHttpClientFactory _httpClientFactory;
 
         public AppInstanceRestService(IHttpClientFactory httpClientFactory)
@@ -22,7 +21,9 @@ namespace OpenSettings.Services.Rest
 
         public async Task<IResponse> CreateAppInstanceAsync(CreateInstanceInput input, CancellationToken cancellationToken = default)
         {
-            var relativeUri = $"v1/apps/{input.ClientId}/instances";
+            var relativeUri = RouteHelper.Build(
+                OpenSettingsDefaults.Routes.V1.AppsEndpoints.CreateAppInstance,
+                new[] { $"{input.ClientId}" });
 
             var body = new
             {
@@ -40,9 +41,10 @@ namespace OpenSettings.Services.Rest
                 input.ServiceType,
                 input.DataAccessType
             };
+
             using (var jsonContent = JsonContent.Create(body))
             {
-                using (var response = await HttpClient.PostAsync(relativeUri, jsonContent, cancellationToken))
+                using (var response = await GetProviderHttpClient().PostAsync(relativeUri, jsonContent, cancellationToken))
                 {
                     return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
                 }
@@ -51,7 +53,9 @@ namespace OpenSettings.Services.Rest
 
         public async Task<IResponse> UpdateAppInstanceAsync(UpdateInstanceInput input, CancellationToken cancellationToken)
         {
-            var relativeUri = $"v1/apps/{input.ClientId}/instances";
+            var relativeUri = RouteHelper.Build(
+                OpenSettingsDefaults.Routes.V1.AppsEndpoints.UpdateAppInstance,
+                new[] { $"{input.ClientId}" });
 
             var body = new
             {
@@ -65,7 +69,7 @@ namespace OpenSettings.Services.Rest
 
             using (var jsonContent = JsonContent.Create(body))
             {
-                using (var response = await HttpClient.PutAsync(relativeUri, jsonContent, cancellationToken))
+                using (var response = await GetProviderHttpClient().PutAsync(relativeUri, jsonContent, cancellationToken))
                 {
                     return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
                 }
@@ -74,9 +78,11 @@ namespace OpenSettings.Services.Rest
 
         public async Task<IResponse> DeleteAppInstanceAsync(DeleteAppInstanceInput input, CancellationToken cancellationToken = default)
         {
-            var relativeUri = $"v1/instances/{input.AppInstanceId}";
+            var relativeUri = RouteHelper.Build(
+                OpenSettingsDefaults.Routes.V1.AppInstancesEndpoints.DeleteAppInstance,
+                new[] { $"{input.AppInstanceId}" });
 
-            using (var response = await HttpClient.DeleteAsync(relativeUri, cancellationToken))
+            using (var response = await GetProviderHttpClient().DeleteAsync(relativeUri, cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
@@ -84,16 +90,12 @@ namespace OpenSettings.Services.Rest
 
         public async Task<IResponse> GetAppInstancesByAppIdAsync(GetInstancesInput input, CancellationToken cancellationToken = default)
         {
-            var relativeUri = $"v1/apps/{input.AppIdOrSlug}/instances";
+            var relativeUri = RouteHelper.Build(
+                OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetAppInstancesByAppId,
+                new[] { input.AppIdOrSlug },
+                RouteHelper.Query(("IdentifierId", input.IdentifierIdOrSlug)));
 
-            var queryBuilder = new QueryBuilder();
-
-            if (!string.IsNullOrWhiteSpace(input.IdentifierIdOrSlug))
-            {
-                queryBuilder.Append("IdentifierId", input.IdentifierIdOrSlug);
-            }
-
-            using (var response = await HttpClient.GetAsync(queryBuilder.ToString(relativeUri), cancellationToken))
+            using (var response = await GetProviderHttpClient().GetAsync(relativeUri, cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
@@ -101,16 +103,12 @@ namespace OpenSettings.Services.Rest
 
         public async Task<IResponse> GetAppInstancesByAppSlugAsync(GetInstancesInput input, CancellationToken cancellationToken = default)
         {
-            var relativeUri = $"v1/apps/slug/{input.AppIdOrSlug}/instances";
+            var relativeUri = RouteHelper.Build(
+                OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetAppInstancesByAppSlug,
+                new[] { input.AppIdOrSlug },
+                RouteHelper.Query(("IdentifierId", input.IdentifierIdOrSlug)));
 
-            var queryBuilder = new QueryBuilder();
-
-            if (!string.IsNullOrWhiteSpace(input.IdentifierIdOrSlug))
-            {
-                queryBuilder.Append("IdentifierId", input.IdentifierIdOrSlug);
-            }
-
-            using (var response = await HttpClient.GetAsync(queryBuilder.ToString(relativeUri), cancellationToken))
+            using (var response = await GetProviderHttpClient().GetAsync(relativeUri, cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
@@ -118,9 +116,11 @@ namespace OpenSettings.Services.Rest
 
         public async Task<IResponse> GetAppInstancesByAppIdAndIdentifierIdAsync(GetInstancesInput input, CancellationToken cancellationToken = default)
         {
-            var relativeUri = $"v1/apps/{input.AppIdOrSlug}/identifiers/{input.IdentifierIdOrSlug}/instances";
+            var relativeUri = RouteHelper.Build(
+                OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetAppInstancesByAppIdAndIdentifierId,
+                new[] { input.AppIdOrSlug, input.IdentifierIdOrSlug });
 
-            using (var response = await HttpClient.GetAsync(relativeUri, cancellationToken))
+            using (var response = await GetProviderHttpClient().GetAsync(relativeUri, cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
@@ -128,12 +128,19 @@ namespace OpenSettings.Services.Rest
 
         public async Task<IResponse> GetAppInstancesByAppSlugAndIdentifierSlugAsync(GetInstancesInput input, CancellationToken cancellationToken = default)
         {
-            var relativeUri = $"v1/apps/slug/{input.AppIdOrSlug}/identifiers/{input.IdentifierIdOrSlug}/instances";
+            var relativeUri = RouteHelper.Build(
+                OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetAppInstancesByAppSlugAndIdentifierSlug,
+                new[] { input.AppIdOrSlug, input.IdentifierIdOrSlug });
 
-            using (var response = await HttpClient.GetAsync(relativeUri, cancellationToken))
+            using (var response = await GetProviderHttpClient().GetAsync(relativeUri, cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
+        }
+
+        private HttpClient GetProviderHttpClient()
+        {
+            return _httpClientFactory.CreateOpenSettingsProviderHttpClient();
         }
     }
 }

@@ -2,9 +2,9 @@
 
 namespace OpenSettings.Models.Inputs
 {
-    public class RestoreSettingHistoryInput
+    public class RestoreAppSettingHistoryInput
     {
-        public string AppSettingHistoryId { get; set; }
+        public Guid AppSettingHistoryId { get; set; }
 
         // For safety!
         public byte[] SettingRowVersion { get; set; } = Array.Empty<byte>();

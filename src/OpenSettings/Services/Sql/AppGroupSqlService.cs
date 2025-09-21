@@ -112,7 +112,7 @@ namespace OpenSettings.Services.Sql
             }
         }
 
-        public async Task<IResponse> GetGroupsAsync(GetGroupsInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetAppGroupsAsync(GetGroupsInput input, CancellationToken cancellationToken = default)
         {
             if (!string.IsNullOrWhiteSpace(input.SearchTerm))
             {
@@ -145,7 +145,7 @@ namespace OpenSettings.Services.Sql
             return HttpStatusCode.OK.ToSuccessResponse(new GetAppGroupsResponse(data));
         }
 
-        public async Task<IResponse> CreateGroupAsync(CreateGroupInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> CreateAppGroupAsync(CreateGroupInput input, CancellationToken cancellationToken = default)
         {
             var groupNameRule = ValidationRules.NotEmptyRule(nameof(input.Name), input.Name);
 
