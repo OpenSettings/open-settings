@@ -14,6 +14,7 @@ using System.Linq.Expressions;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using OpenSettings.Helpers;
 
 namespace OpenSettings.Services.Sql
 {
@@ -91,7 +92,7 @@ namespace OpenSettings.Services.Sql
 
             if (entities.Length == 0)
             {
-                return HttpStatusCode.OK.ToSuccessResponse(new DeleteUnmappedItemsResponse { DeletedItemsCount = 0 });
+                return HttpStatusCode.OK.ToSuccessResponse(new DeleteUnmappedItemsResponse { DeletedItemCount = 0 });
             }
 
             _context.Identifiers.RemoveRange(entities);
@@ -100,7 +101,7 @@ namespace OpenSettings.Services.Sql
             {
                 var count = await _context.SaveChangesAsync(cancellationToken);
 
-                return HttpStatusCode.OK.ToSuccessResponse(new DeleteUnmappedItemsResponse { DeletedItemsCount = count });
+                return HttpStatusCode.OK.ToSuccessResponse(new DeleteUnmappedItemsResponse { DeletedItemCount = count });
             }
             catch (DbUpdateConcurrencyException ex)
             {
@@ -277,7 +278,7 @@ namespace OpenSettings.Services.Sql
             entity.SortOrder = input.SortOrder;
             entity.UpdatedById = input.UpdatedById;
             entity.UpdatedOn = currentTime;
-            entity.RowVersion = currentTime.ToRowVersion();
+            entity.RowVersion = RowVersionHelper.Date(currentTime);
 
             _context.MarkAsModified(entity,
                 e => e.Name,
@@ -380,7 +381,7 @@ namespace OpenSettings.Services.Sql
             _context.Identifiers.AttachRange(foundEntity, entity);
 
             var currentTime = DateTime.UtcNow;
-            var rowVersion = currentTime.ToRowVersion();
+            var rowVersion = RowVersionHelper.Date(currentTime);
 
             (entity.SortOrder, foundEntity.SortOrder) = (foundEntity.SortOrder, entity.SortOrder);
 
@@ -484,7 +485,7 @@ namespace OpenSettings.Services.Sql
 
             var currentTime = DateTime.UtcNow;
 
-            var rowVersion = currentTime.ToRowVersion();
+            var rowVersion = RowVersionHelper.Date(currentTime);
 
             _context.Identifiers.Attach(sourceEntity);
 
@@ -536,6 +537,7 @@ namespace OpenSettings.Services.Sql
                 {
                     Id = entity.Id,
                     Name = entity.Name,
+                    Slug = slug,
                     SortOrder = entity.SortOrder,
                     IsNewlyCreated = false
                 });
@@ -577,6 +579,7 @@ namespace OpenSettings.Services.Sql
                 {
                     Id = entity.Id,
                     Name = name,
+                    Slug = slug,
                     SortOrder = sortOrder,
                     IsNewlyCreated = true
                 });
@@ -587,7 +590,7 @@ namespace OpenSettings.Services.Sql
             }
         }
 
-        public async Task<IResponse> ReorderAsync()
+        public async Task<IResponse> ReorderIdentifiersAsync()
         {
             try
             {

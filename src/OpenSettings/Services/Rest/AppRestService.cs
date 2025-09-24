@@ -162,7 +162,8 @@ namespace OpenSettings.Services.Rest
         {
             var relativeUri = RouteHelper.Build(
                 OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetGroupedApps,
-                query: RouteHelper.Query((nameof(input.SearchTerm), _clientId)));
+                null,
+                (nameof(input.SearchTerm), _clientId));
 
             using (var response = await GetProviderHttpClient().GetAsync(relativeUri, cancellationToken))
             {
@@ -219,16 +220,12 @@ namespace OpenSettings.Services.Rest
         {
             throw new NotSupportedException(nameof(GetAppsAsync));
 
-            const string relativeUri = OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetApps;
+            var relativeUri = RouteHelper.Build(
+                OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetApps,
+                null,
+                (nameof(input.SearchTerm), input.SearchTerm));
 
-            var queryBuilder = new QueryBuilder();
-
-            if (!string.IsNullOrWhiteSpace(input.SearchTerm))
-            {
-                queryBuilder.Append(nameof(input.SearchTerm), input.SearchTerm);
-            }
-
-            using (var response = await GetProviderHttpClient().GetAsync(queryBuilder.ToString(relativeUri), cancellationToken))
+            using (var response = await GetProviderHttpClient().GetAsync(relativeUri, cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
@@ -387,7 +384,7 @@ namespace OpenSettings.Services.Rest
             var relativeUri = RouteHelper.Build(
                 OpenSettingsDefaults.Routes.V1.AppsEndpoints.DeleteApp,
                 new[] { $"{input.AppId}" },
-                RouteHelper.Query((nameof(input.RowVersion), Convert.ToBase64String(input.RowVersion))));
+                (nameof(input.RowVersion), Convert.ToBase64String(input.RowVersion)));
 
             using (var response = await GetProviderHttpClient().DeleteAsync(relativeUri, cancellationToken))
             {

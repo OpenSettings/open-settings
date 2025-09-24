@@ -13,13 +13,17 @@ namespace OpenSettings.Models.Responses
         {
             Identifiers = identifiers ?? Array.Empty<GetIdentifiersResponseIdentifier>();
 
-            (MinSortOrder, MaxSortOrder) = identifiers.GetSortOrderRange();
+            var sortOrderRange = identifiers.GetSortOrderRange();
+
+            SortOrderRange = new SortOrderRange
+            {
+                Min = sortOrderRange.MinSortOrder,
+                Max = sortOrderRange.MaxSortOrder
+            };
         }
 
-        public int MinSortOrder { get; set; }
+        public SortOrderRange SortOrderRange { get; set; }
 
-        public int MaxSortOrder { get; set; }
-
-        public GetIdentifiersResponseIdentifier[] Identifiers { get; set; }
+        public GetIdentifiersResponseIdentifier[] Identifiers { get; set; } = Array.Empty<GetIdentifiersResponseIdentifier>();
     }
 }

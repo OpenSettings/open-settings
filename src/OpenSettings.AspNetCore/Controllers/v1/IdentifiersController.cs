@@ -188,7 +188,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         [HttpPost(OpenSettingsDefaults.Routes.V1.IdentifiersEndpoints.ReorderIdentifiers)]
         public async Task<IActionResult> ReorderIdentifiers()
         {
-            var result = await _identifierService.ReorderAsync();
+            var result = await _identifierService.ReorderIdentifiersAsync();
 
             return result.ToAction();
         }

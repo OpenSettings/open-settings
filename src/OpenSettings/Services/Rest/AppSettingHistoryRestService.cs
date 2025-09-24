@@ -74,7 +74,7 @@ namespace OpenSettings.Services.Rest
             var relativeUri = RouteHelper.Build(
                 OpenSettingsDefaults.Routes.V1.AppSettingsEndpoints.GetAppSettingHistories,
                 new[] { $"{input.AppSettingId}" },
-                RouteHelper.Query((nameof(input.Excludes), string.Join(OpenSettingsDefaults.Format.Comma, input.Excludes))));
+                (nameof(input.Excludes), string.Join(OpenSettingsDefaults.Format.Comma, input.Excludes)));
 
             using (var response = await GetProviderHttpClient().GetAsync(relativeUri, cancellationToken))
             {
@@ -82,7 +82,7 @@ namespace OpenSettings.Services.Rest
             }
         }
 
-        public async Task<IResponse<RestoreSettingHistoryResponse>> RestoreAppSettingHistoryAsync(RestoreAppSettingHistoryInput input, CancellationToken cancellationToken)
+        public async Task<IResponse<RestoreAppSettingHistoryResponse>> RestoreAppSettingHistoryAsync(RestoreAppSettingHistoryInput input, CancellationToken cancellationToken)
         {
             var relativeUri = RouteHelper.Build(
                 OpenSettingsDefaults.Routes.V1.AppSettingHistoriesEndpoints.RestoreAppSettingHistory,
@@ -98,7 +98,7 @@ namespace OpenSettings.Services.Rest
             {
                 using (var response = await GetProviderHttpClient().PostAsync(relativeUri, jsonContent, cancellationToken))
                 {
-                    var responseContent = await response.Content.ToResponseAsync<RestoreSettingHistoryResponse>(cancellationToken: cancellationToken);
+                    var responseContent = await response.Content.ToResponseAsync<RestoreAppSettingHistoryResponse>(cancellationToken: cancellationToken);
 
                     if (response.IsSuccessStatusCode && (!_openSettingsConfiguration.Consumer.IsRedisActive || !_providerInfo.Redis.IsActive))
                     {

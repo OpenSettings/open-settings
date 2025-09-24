@@ -1,5 +1,6 @@
 ﻿using Ogu.Response.Abstractions;
 using OpenSettings.Extensions;
+using OpenSettings.Helpers;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Services.Rest.Interfaces;
 using System;
@@ -12,8 +13,6 @@ namespace OpenSettings.Services.Rest
 {
     public class NotificationRestService : INotificationRestService
     {
-        private HttpClient HttpClient => _httpClientFactory.CreateOpenSettingsProviderHttpClient();
-
         private readonly IHttpClientFactory _httpClientFactory;
 
         public NotificationRestService(IHttpClientFactory httpClientFactory)
@@ -23,9 +22,9 @@ namespace OpenSettings.Services.Rest
 
         public async Task<IResponse> GetNotificationsAsync(GetNotificationsInput input, CancellationToken cancellationToken = default)
         {
-            const string relativeUri = "v1/notifications";
+            const string relativeUri = OpenSettingsDefaults.Routes.V1.NotificationsEndpoints.GetNotifications;
 
-            using (var response = await HttpClient.GetAsync(relativeUri, cancellationToken))
+            using (var response = await GetProviderHttpClient().GetAsync(relativeUri, cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
@@ -33,7 +32,7 @@ namespace OpenSettings.Services.Rest
 
         public async Task<IResponse> CreateNotificationAsync(CreateNotificationInput input, CancellationToken cancellationToken = default)
         {
-            const string relativeUri = "v1/notifications";
+            const string relativeUri = OpenSettingsDefaults.Routes.V1.NotificationsEndpoints.CreateNotification;
 
             var body = new
             {
@@ -45,7 +44,7 @@ namespace OpenSettings.Services.Rest
 
             using (var jsonContent = JsonContent.Create(body))
             {
-                using (var response = await HttpClient.PostAsync(relativeUri, jsonContent, cancellationToken))
+                using (var response = await GetProviderHttpClient().PostAsync(relativeUri, jsonContent, cancellationToken))
                 {
                     return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
                 }
@@ -85,38 +84,16 @@ namespace OpenSettings.Services.Rest
 
         public async Task<IResponse> GetUserNotificationsAsync(GetUserNotificationsInput input, CancellationToken cancellationToken = default)
         {
-            var relativeUri = $"v1/notifications/users/{input.UserId}";
+            var relativeUri = RouteHelper.Build(
+                OpenSettingsDefaults.Routes.V1.NotificationsEndpoints.GetUserNotifications,
+                new[] { $"{input.UserId}" },
+                (nameof(input.IsOpened), input.IsOpened),
+                (nameof(input.IsViewed), input.IsViewed),
+                (nameof(input.IsDismissed), input.IsDismissed),
+                (nameof(input.IsExpired), input.IsExpired),
+                (nameof(input.Type), input.Type));
 
-            var queryBuilder = new QueryBuilder();
-
-            if (input.IsOpened.HasValue)
-            {
-                queryBuilder.Append(nameof(input.IsOpened), input.IsOpened);
-            }
-
-            if (input.IsViewed.HasValue)
-            {
-                queryBuilder.Append(nameof(input.IsViewed), input.IsViewed);
-            }
-
-            if (input.IsDismissed.HasValue)
-            {
-                queryBuilder.Append(nameof(input.IsDismissed), input.IsDismissed);
-            }
-
-            if (input.IsExpired.HasValue)
-            {
-                queryBuilder.Append(nameof(input.IsExpired), input.IsExpired);
-            }
-
-            if (input.Type.HasValue)
-            {
-                queryBuilder.Append(nameof(input.Type), input.Type);
-            }
-
-            relativeUri = queryBuilder.ToString(relativeUri);
-
-            using (var response = await HttpClient.GetAsync(relativeUri, cancellationToken))
+            using (var response = await GetProviderHttpClient().GetAsync(relativeUri, cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
@@ -125,9 +102,11 @@ namespace OpenSettings.Services.Rest
         public async Task<IResponse> MarkNotificationsAsOpenedAsync(MarkNotificationsAsOpenedInput input,
             CancellationToken cancellationToken = default)
         {
-            var relativeUri = $"v1/notifications/users/{input.UserId}/open";
+            var relativeUri = RouteHelper.Build(
+                OpenSettingsDefaults.Routes.V1.NotificationsEndpoints.MarkNotificationsAsOpened,
+                new[] { $"{input.UserId}" });
 
-            using (var response = await HttpClient.PostAsync(relativeUri, null, cancellationToken))
+            using (var response = await GetProviderHttpClient().PostAsync(relativeUri, null, cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
@@ -135,9 +114,11 @@ namespace OpenSettings.Services.Rest
 
         public async Task<IResponse> MarkNotificationAsViewedAsync(MarkNotificationAsInput input, CancellationToken cancellationToken = default)
         {
-            var relativeUri = $"v1/notifications/users/{input.UserId}/view";
+            var relativeUri = RouteHelper.Build(
+                OpenSettingsDefaults.Routes.V1.NotificationsEndpoints.MarkNotificationAsViewed,
+                new[] { $"{input.UserId}" });
 
-            using (var response = await HttpClient.PostAsync(relativeUri, null, cancellationToken))
+            using (var response = await GetProviderHttpClient().PostAsync(relativeUri, null, cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
@@ -145,9 +126,11 @@ namespace OpenSettings.Services.Rest
 
         public async Task<IResponse> MarkNotificationAsDismissedAsync(MarkNotificationAsInput input, CancellationToken cancellationToken = default)
         {
-            var relativeUri = $"v1/notifications/users/{input.UserId}/dismiss";
+            var relativeUri = RouteHelper.Build(
+                OpenSettingsDefaults.Routes.V1.NotificationsEndpoints.MarkNotificationAsDismissed,
+                new[] { $"{input.UserId}" });
 
-            using (var response = await HttpClient.PostAsync(relativeUri, null, cancellationToken))
+            using (var response = await GetProviderHttpClient().PostAsync(relativeUri, null, cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
@@ -155,12 +138,19 @@ namespace OpenSettings.Services.Rest
 
         public async Task<IResponse> DispatchNotificationsToUsersAsync(DispatchNotificationsToUsersInput input, CancellationToken cancellationToken = default)
         {
-            var relativeUri = $"v1/notifications/{input.NotificationId}/users/dispatch";
+            var relativeUri = RouteHelper.Build(
+                OpenSettingsDefaults.Routes.V1.NotificationsEndpoints.DispatchNotificationsToUsers,
+                new[] { $"{input.NotificationId}" });
 
-            using (var response = await HttpClient.PostAsync(relativeUri, null, cancellationToken))
+            using (var response = await GetProviderHttpClient().PostAsync(relativeUri, null, cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
+        }
+
+        private HttpClient GetProviderHttpClient()
+        {
+            return _httpClientFactory.CreateOpenSettingsProviderHttpClient();
         }
     }
 }

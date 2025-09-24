@@ -1,0 +1,9 @@
+﻿namespace OpenSettings.Models.Responses
+{
+    public class GetAppSettingsDataResponseSetting
+    {
+        public string Id { get; set; }
+
+        public string Data { get; set; }
+    }
+}

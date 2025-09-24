@@ -4,6 +4,7 @@ using Ogu.Response.Abstractions;
 using OpenSettings.Domains.Sql.DataContext;
 using OpenSettings.Domains.Sql.Entities;
 using OpenSettings.Extensions;
+using OpenSettings.Helpers;
 using OpenSettings.Models;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Models.Responses;
@@ -35,14 +36,15 @@ namespace OpenSettings.Services.Sql
                 .Where(c =>
                     c.AppId == Guid.Parse(input.AppIdOrSlug) &&
                     c.IdentifierId == Guid.Parse(input.IdentifierIdOrSlug))
-                .Select(c => new GetConfigurationByAppAndIdentifierResponse
+                .Select(c => new GetAppConfigurationByAppAndIdentifierResponse
                 {
-                    Id = $"{c.Id}",
+                    Id = c.Id,
                     StoreInSeparateFile = c.StoreInSeparateFile,
                     IgnoreOnFileChange = c.IgnoreOnFileChange,
                     RegistrationMode = c.RegistrationMode,
                     Consumer = c.Consumer,
                     Provider = c.Provider,
+                    Spa = c.Spa,
                     RowVersion = c.RowVersion,
                 }).FirstOrDefaultAsync(cancellationToken);
 
@@ -83,11 +85,11 @@ namespace OpenSettings.Services.Sql
                 if (!bool.TryParse(storeInSeparateFileObject?.ToString(), out var storeInSeparateFile))
                 {
                     return HttpStatusCode.BadRequest.ToFailureResponse(
-                        ValidationFailures.InvalidBooleanFormat("StoreInSeparateFile", storeInSeparateFileObject));
+                        ValidationFailures.InvalidBooleanFormat(nameof(entity.StoreInSeparateFile), storeInSeparateFileObject));
                 }
 
                 entity.StoreInSeparateFile = storeInSeparateFile;
-                updatedFieldNameToValue["StoreInSeparateFile"] = storeInSeparateFile;
+                updatedFieldNameToValue[nameof(entity.StoreInSeparateFile)] = storeInSeparateFile;
                 _context.MarkAsModified(entity, e => e.StoreInSeparateFile);
             }
 
@@ -100,13 +102,13 @@ namespace OpenSettings.Services.Sql
                 }
 
                 entity.IgnoreOnFileChange = ignoreOnFileChange;
-                updatedFieldNameToValue["IgnoreOnFileChange"] = ignoreOnFileChange;
+                updatedFieldNameToValue[nameof(entity.IgnoreOnFileChange)] = ignoreOnFileChange;
                 _context.MarkAsModified(entity, e => e.IgnoreOnFileChange);
             }
 
             if (input.Body.UpdatedFieldNameToValue.TryGetValue("registrationmode", out var registrationModeObject))
             {
-                var registrationModeEnumRule = ValidationRules.ValidEnumRule<RegistrationMode>("RegistrationMode", registrationModeObject);
+                var registrationModeEnumRule = ValidationRules.ValidEnumRule<RegistrationMode>(nameof(entity.RegistrationMode), registrationModeObject);
 
                 if (registrationModeEnumRule.IsFailed())
                 {
@@ -114,7 +116,7 @@ namespace OpenSettings.Services.Sql
                 }
 
                 entity.RegistrationMode = registrationModeEnumRule.GetStoredValue<RegistrationMode>();
-                updatedFieldNameToValue["RegistrationMode"] = entity.RegistrationMode;
+                updatedFieldNameToValue[nameof(entity.RegistrationMode)] = entity.RegistrationMode;
                 _context.MarkAsModified(entity, e => e.RegistrationMode);
             }
 
@@ -123,7 +125,7 @@ namespace OpenSettings.Services.Sql
                 try
                 {
                     entity.Consumer = JsonSerializer.Deserialize<ConfigurationConsumer>($"{consumerObject}", OpenSettingsDefaults.Serialization.JsonCaseInsensitiveOptions);
-                    updatedFieldNameToValue["Consumer"] = entity.Consumer;
+                    updatedFieldNameToValue[nameof(entity.Consumer)] = entity.Consumer;
                     _context.MarkAsModified(entity, e => e.Consumer);
                 }
                 catch(Exception ex)
@@ -137,7 +139,7 @@ namespace OpenSettings.Services.Sql
                 try
                 {
                     entity.Provider = JsonSerializer.Deserialize<ConfigurationProvider>($"{providerObject}", OpenSettingsDefaults.Serialization.JsonCaseInsensitiveOptions);
-                    updatedFieldNameToValue["Provider"] = entity.Provider;
+                    updatedFieldNameToValue[nameof(entity.Provider)] = entity.Provider;
                     _context.MarkAsModified(entity, e => e.Provider);
                 }
                 catch(Exception ex)
@@ -154,10 +156,10 @@ namespace OpenSettings.Services.Sql
 
                     if (!string.IsNullOrWhiteSpace(entity.Controller.Route))
                     {
-                        entity.Controller.Route = entity.Controller.Route.TrimStart('/').TrimEnd('/');
+                        entity.Controller.Route = entity.Controller.Route.TrimStart(OpenSettingsDefaults.Format.SlashChar).TrimEnd(OpenSettingsDefaults.Format.SlashChar);
                     }
 
-                    updatedFieldNameToValue["Controller"] = entity.Controller;
+                    updatedFieldNameToValue[nameof(entity.Controller)] = entity.Controller;
 
                     _context.MarkAsModified(entity, e => e.Controller);
                 }
@@ -180,10 +182,10 @@ namespace OpenSettings.Services.Sql
                     
                     if (entity.Spa.RoutePrefix != string.Empty)
                     {
-                        entity.Spa.RoutePrefix = entity.Spa.RoutePrefix.TrimStart('/').TrimEnd('/');
+                        entity.Spa.RoutePrefix = entity.Spa.RoutePrefix.TrimStart(OpenSettingsDefaults.Format.SlashChar).TrimEnd(OpenSettingsDefaults.Format.SlashChar);
                     }
 
-                    updatedFieldNameToValue["Spa"] = entity.Spa;
+                    updatedFieldNameToValue[nameof(entity.Spa)] = entity.Spa;
 
                     _context.MarkAsModified(entity, e => e.Spa);
                 }
@@ -195,7 +197,7 @@ namespace OpenSettings.Services.Sql
 
             if (!_context.ChangeTracker.HasChanges())
             {
-                return HttpStatusCode.OK.ToSuccessResponse(new PatchConfigurationResponse
+                return HttpStatusCode.OK.ToSuccessResponse(new PatchAppConfigurationResponse
                 {
                     RowVersion = entity.RowVersion
                 });
@@ -203,7 +205,7 @@ namespace OpenSettings.Services.Sql
 
             var currentTime = DateTime.UtcNow;
 
-            entity.RowVersion = currentTime.ToRowVersion();
+            entity.RowVersion = RowVersionHelper.Date(currentTime);
             entity.UpdatedOn = currentTime;
             entity.UpdatedById = input.UpdatedById;
 
@@ -214,7 +216,7 @@ namespace OpenSettings.Services.Sql
 
             await _context.SaveChangesAsync(cancellationToken);
 
-            return HttpStatusCode.OK.ToSuccessResponse(new PatchConfigurationResponse
+            return HttpStatusCode.OK.ToSuccessResponse(new PatchAppConfigurationResponse
             {
                 RowVersion = entity.RowVersion,
                 UpdatedFieldNameToValue = updatedFieldNameToValue

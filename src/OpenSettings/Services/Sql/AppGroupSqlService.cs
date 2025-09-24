@@ -14,6 +14,7 @@ using System.Linq.Expressions;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using OpenSettings.Helpers;
 
 namespace OpenSettings.Services.Sql
 {
@@ -91,7 +92,7 @@ namespace OpenSettings.Services.Sql
 
             if (entities.Length == 0)
             {
-                return HttpStatusCode.OK.ToSuccessResponse(new DeleteUnmappedItemsResponse { DeletedItemsCount = 0 });
+                return HttpStatusCode.OK.ToSuccessResponse(new DeleteUnmappedItemsResponse { DeletedItemCount = 0 });
             }
 
             _context.AppGroups.RemoveRange(entities);
@@ -100,7 +101,7 @@ namespace OpenSettings.Services.Sql
             {
                 var count = await _context.SaveChangesAsync(cancellationToken);
 
-                return HttpStatusCode.OK.ToSuccessResponse(new DeleteUnmappedItemsResponse { DeletedItemsCount = count });
+                return HttpStatusCode.OK.ToSuccessResponse(new DeleteUnmappedItemsResponse { DeletedItemCount = count });
             }
             catch (DbUpdateConcurrencyException ex)
             {
@@ -279,7 +280,7 @@ namespace OpenSettings.Services.Sql
             entity.SortOrder = input.SortOrder;
             entity.UpdatedById = input.UpdatedById;
             entity.UpdatedOn = currentTime;
-            entity.RowVersion = currentTime.ToRowVersion();
+            entity.RowVersion = RowVersionHelper.Date(currentTime);
 
             _context.MarkAsModified(entity,
                 e => e.Name,
@@ -382,7 +383,7 @@ namespace OpenSettings.Services.Sql
             _context.AppGroups.AttachRange(foundEntity, entity);
 
             var currentTime = DateTime.UtcNow;
-            var rowVersion = currentTime.ToRowVersion();
+            var rowVersion = RowVersionHelper.Date(currentTime);
 
             (entity.SortOrder, foundEntity.SortOrder) = (foundEntity.SortOrder, entity.SortOrder);
 
@@ -499,8 +500,7 @@ namespace OpenSettings.Services.Sql
             }
 
             var currentTime = DateTime.UtcNow;
-
-            var rowVersion = currentTime.ToRowVersion();
+            var rowVersion = RowVersionHelper.Date(currentTime);
 
             _context.AppGroups.Attach(sourceEntity);
 

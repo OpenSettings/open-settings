@@ -14,6 +14,7 @@ using System.Linq.Expressions;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using OpenSettings.Helpers;
 
 namespace OpenSettings.Services.Sql
 {
@@ -34,7 +35,7 @@ namespace OpenSettings.Services.Sql
 
             if (sortOrderBounds == null)
             {
-                return HttpStatusCode.OK.ToSuccessResponse(new GetPaginatedTagsResponse(input, 0, null, 0, 0));
+                return HttpStatusCode.OK.ToSuccessResponse(new GetPaginatedAppTagsResponse(input, 0, null, 0, 0));
             }
 
             if (string.IsNullOrWhiteSpace(input.SearchTerm))
@@ -69,7 +70,7 @@ namespace OpenSettings.Services.Sql
                     .Select(entity => MapToTagModelForPaginatedResponseData(entity))
                     .ToPaginatedArrayAsync(input.PageIndex, input.PageSize, cancellationToken);
 
-                return HttpStatusCode.OK.ToSuccessResponse(new GetPaginatedTagsResponse(input, filteredTotalItemsCount, filteredEntities, sortOrderBounds.MinSortOrder, sortOrderBounds.MaxSortOrder));
+                return HttpStatusCode.OK.ToSuccessResponse(new GetPaginatedAppTagsResponse(input, filteredTotalItemsCount, filteredEntities, sortOrderBounds.MinSortOrder, sortOrderBounds.MaxSortOrder));
             }
             catch (Exception ex)
             {
@@ -91,7 +92,7 @@ namespace OpenSettings.Services.Sql
 
             if (entities.Length == 0)
             {
-                return HttpStatusCode.OK.ToSuccessResponse(new DeleteUnmappedItemsResponse { DeletedItemsCount = 0 });
+                return HttpStatusCode.OK.ToSuccessResponse(new DeleteUnmappedItemsResponse { DeletedItemCount = 0 });
             }
 
             _context.AppTags.RemoveRange(entities);
@@ -100,7 +101,7 @@ namespace OpenSettings.Services.Sql
             {
                 var count = await _context.SaveChangesAsync(cancellationToken);
 
-                return HttpStatusCode.OK.ToSuccessResponse(new DeleteUnmappedItemsResponse { DeletedItemsCount = count });
+                return HttpStatusCode.OK.ToSuccessResponse(new DeleteUnmappedItemsResponse { DeletedItemCount = count });
             }
             catch (DbUpdateConcurrencyException ex)
             {
@@ -134,7 +135,7 @@ namespace OpenSettings.Services.Sql
 
             var data = await query
                 .OrderBy(a => a.SortOrder)
-                .Select(a => new GetTagsResponseTag
+                .Select(a => new GetAppTagsResponseTag
                 {
                     Id = $"{a.Id}",
                     Name = a.Name,
@@ -142,7 +143,7 @@ namespace OpenSettings.Services.Sql
                     RowVersion = a.RowVersion
                 }).ToArrayAsync(cancellationToken);
 
-            return HttpStatusCode.OK.ToSuccessResponse(new GetTagsResponse(data));
+            return HttpStatusCode.OK.ToSuccessResponse(new GetAppTagsResponse(data));
         }
 
         public async Task<IResponse> CreateAppTagAsync(CreateTagInput input, CancellationToken cancellationToken = default)
@@ -197,7 +198,7 @@ namespace OpenSettings.Services.Sql
             {
                 await _context.SaveChangesAsync(cancellationToken);
 
-                return HttpStatusCode.OK.ToSuccessResponse(new CreateTagResponse
+                return HttpStatusCode.OK.ToSuccessResponse(new CreateAppTagResponse
                 {
                     Id = $"{entity.Id}",
                     Name = entity.Name,
@@ -279,7 +280,7 @@ namespace OpenSettings.Services.Sql
             entity.SortOrder = input.SortOrder;
             entity.UpdatedById = input.UpdatedById;
             entity.UpdatedOn = currentTime;
-            entity.RowVersion = currentTime.ToRowVersion();
+            entity.RowVersion = RowVersionHelper.Date(currentTime);
 
             _context.MarkAsModified(entity,
                 e => e.Name,
@@ -294,13 +295,15 @@ namespace OpenSettings.Services.Sql
             {
                 await _context.SaveChangesAsync(cancellationToken);
 
-                return HttpStatusCode.OK.ToSuccessResponse(new UpdateTagResponse(
-                    entity.Name,
-                    entity.Slug,
-                    entity.SortOrder,
-                    entity.UpdatedById,
-                    currentTime,
-                    entity.RowVersion));
+                return HttpStatusCode.OK.ToSuccessResponse(new UpdateAppTagResponse
+                {
+                    Name = entity.Name,
+                    Slug = entity.Slug,
+                    SortOrder = entity.SortOrder,
+                    UpdatedById = entity.UpdatedById,
+                    UpdatedOn = currentTime,
+                    RowVersion = entity.RowVersion
+                });
             }
             catch (DbUpdateConcurrencyException ex)
             {
@@ -401,7 +404,7 @@ namespace OpenSettings.Services.Sql
             _context.AppTags.AttachRange(foundEntity, entity);
 
             var currentTime = DateTime.UtcNow;
-            var rowVersion = currentTime.ToRowVersion();
+            var rowVersion = RowVersionHelper.Date(currentTime);
 
             (entity.SortOrder, foundEntity.SortOrder) = (foundEntity.SortOrder, entity.SortOrder);
 
@@ -504,8 +507,7 @@ namespace OpenSettings.Services.Sql
             }
 
             var currentTime = DateTime.UtcNow;
-
-            var rowVersion = currentTime.ToRowVersion();
+            var rowVersion = RowVersionHelper.Date(currentTime);
 
             _context.AppTags.Attach(sourceEntity);
 
@@ -627,7 +629,7 @@ namespace OpenSettings.Services.Sql
                 .AsNoTracking()
                 .Where(predicate)
                 .OrderBy(a => a.Id)
-                .Select(a => new GetTagResponse
+                .Select(a => new GetAppTagResponse
                 {
                     Name = a.Name,
                     SortOrder = a.SortOrder,
@@ -662,7 +664,7 @@ namespace OpenSettings.Services.Sql
                     .Select(entity => MapToTagModelForPaginatedResponseData(entity))
                     .ToPaginatedArrayAsync(input.PageIndex, input.PageSize, cancellationToken);
 
-                return HttpStatusCode.OK.ToSuccessResponse(new GetPaginatedTagsResponse(input, sortOrderBounds.Count, unfilteredEntities, sortOrderBounds.MinSortOrder, sortOrderBounds.MaxSortOrder));
+                return HttpStatusCode.OK.ToSuccessResponse(new GetPaginatedAppTagsResponse(input, sortOrderBounds.Count, unfilteredEntities, sortOrderBounds.MinSortOrder, sortOrderBounds.MaxSortOrder));
             }
             catch (Exception ex)
             {
@@ -679,7 +681,7 @@ namespace OpenSettings.Services.Sql
             var data = await query.SearchBy(a => a.NameLowercase, searchLowercase, _context)
                 .OrderBy(a => a.NameLowercase.IndexOf(searchLowercase))
                 .ThenBy(a => a.SortOrder)
-                .Select(a => new GetTagsResponseTag
+                .Select(a => new GetAppTagsResponseTag
                 {
                     Id = $"{a.Id}",
                     Name = a.Name,
@@ -687,7 +689,7 @@ namespace OpenSettings.Services.Sql
                     RowVersion = a.RowVersion
                 }).ToArrayAsync(cancellationToken);
 
-            return HttpStatusCode.OK.ToSuccessResponse(new GetTagsResponse(data));
+            return HttpStatusCode.OK.ToSuccessResponse(new GetAppTagsResponse(data));
         }
 
         private static IQueryable<AppTagSqlModel> SortBy(IQueryable<AppTagSqlModel> entities, string sortBy, SortDirection sortDirection)

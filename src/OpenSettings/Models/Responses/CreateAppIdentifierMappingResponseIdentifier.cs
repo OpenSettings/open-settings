@@ -7,7 +7,5 @@ namespace OpenSettings.Models.Responses
         public Guid Id { get; set; }
 
         public int SortOrder { get; set; }
-
-        public int MappingSortOrder { get; set; }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using OpenSettings.Extensions;
+using OpenSettings.Helpers;
 using OpenSettings.Models.Responses;
 using OpenSettings.Services.Rest.Interfaces;
 using System;
@@ -12,8 +13,6 @@ namespace OpenSettings.Services.Rest
 {
     public class OpenSettingsRestService : IOpenSettingsRestService
     {
-        private HttpClient HttpClient => _httpClientFactory.CreateOpenSettingsProviderHttpClient();
-
         private readonly IHttpClientFactory _httpClientFactory;
 
         public OpenSettingsRestService(IHttpClientFactory httpClientFactory)
@@ -23,9 +22,9 @@ namespace OpenSettings.Services.Rest
 
         public async Task<GetConfigsResponse> GetConfigsAsync(CancellationToken cancellationToken = default)
         {
-            const string relativeUri = "v1/open-settings/configs";
+            const string relativeUri = OpenSettingsDefaults.Routes.V1.OpenSettingsEndpoints.GetConfigs;
 
-            using (var response = await HttpClient.GetAsync(relativeUri, cancellationToken))
+            using (var response = await GetProviderHttpClient().GetAsync(relativeUri, cancellationToken))
             {
                 if (!response.IsSuccessStatusCode)
                 {
@@ -34,7 +33,7 @@ namespace OpenSettings.Services.Rest
 
                 var cacheControl = response.Headers.CacheControl ?? new CacheControlHeaderValue();
 
-                var expires = response.Headers.TryGetValues("Expires", out var expiresValues)
+                var expires = response.Headers.TryGetValues(OpenSettingsDefaults.Headers.Expires, out var expiresValues)
                     ? expiresValues.FirstOrDefault()
                     : DateTimeOffset.UtcNow.Add(cacheControl.MaxAge.GetValueOrDefault(TimeSpan.Zero)).ToString("R");
 
@@ -60,9 +59,11 @@ namespace OpenSettings.Services.Rest
                 throw new ArgumentNullException(nameof(configName));
             }
 
-            var relativeUri = $"v1/open-settings/configs-data/{configName}";
+            var relativeUri = RouteHelper.Build(
+                OpenSettingsDefaults.Routes.V1.OpenSettingsEndpoints.GetConfigData,
+                new[] { configName });
 
-            using (var response = await HttpClient.GetAsync(relativeUri, cancellationToken))
+            using (var response = await GetProviderHttpClient().GetAsync(relativeUri, cancellationToken))
             {
                 if (!response.IsSuccessStatusCode)
                 {
@@ -109,6 +110,11 @@ namespace OpenSettings.Services.Rest
         public Task<GetOpenSettingsNotificationsResponse> GetNotificationsAsync(CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
+        }
+
+        private HttpClient GetProviderHttpClient()
+        {
+            return _httpClientFactory.CreateOpenSettingsProviderHttpClient();
         }
     }
 }

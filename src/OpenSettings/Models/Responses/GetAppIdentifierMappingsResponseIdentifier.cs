@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace OpenSettings.Models.Responses
+﻿namespace OpenSettings.Models.Responses
 {
     public class GetAppIdentifierMappingsResponseIdentifier
     {
@@ -8,8 +6,6 @@ namespace OpenSettings.Models.Responses
 
         public int SortOrder { get; set; }
 
-        public int MappingSortOrder { get; set; }
-
-        public byte[] MappingRowVersion { get; set; } = Array.Empty<byte>();
+        public GetAppIdentifierMappingsResponseIdentifierAppMapping AppMapping { get; set; }
     }
 }

@@ -115,14 +115,14 @@ namespace OpenSettings.Services.Sql
             {
                 var data = await _compressionProvider.DecompressToUtf8StringAsync(s.Data, s.CompressionType, cancellationToken);
 
-                return new GetSettingsDataResponseSetting
+                return new GetAppSettingsDataResponseSetting
                 {
                     Id = s.Id.ToString(),
                     Data = data,
                 };
             });
 
-            return HttpStatusCode.OK.ToSuccessResponse(new GetSettingsDataResponse
+            return HttpStatusCode.OK.ToSuccessResponse(new GetAppSettingsDataResponse
             {
                 Settings = await Task.WhenAll(tasks)
             });
@@ -160,7 +160,7 @@ namespace OpenSettings.Services.Sql
                     a.AppSettingClass.FullName,
                     a.AppSettingClass.Identifier,
                     a.AppSettingClass.Properties,
-                    Identifiers = a.App.AppIdentifierMappings.Select(m => new { m.IdentifierId, m.Identifier.Name, m.Identifier.SortOrder, MappingSortOrder = m.SortOrder }).ToArray(),
+                    Identifiers = a.App.AppIdentifierMappings.Select(m => new { m.IdentifierId, m.Identifier.Name, m.Identifier.Slug, m.Identifier.SortOrder, MappingSortOrder = m.SortOrder }).ToArray(),
                 }).FirstOrDefaultAsync(cancellationToken);
 
             if (sourceSetting == null)
@@ -186,7 +186,7 @@ namespace OpenSettings.Services.Sql
                     {
                         a.ClientId,
                         a.Slug,
-                        Identifiers = a.AppIdentifierMappings.Select(m => new { m.IdentifierId, m.Identifier.Name, m.Identifier.SortOrder, MappingSortOrder = m.SortOrder }).ToArray()
+                        Identifiers = a.AppIdentifierMappings.Select(m => new { m.IdentifierId, m.Identifier.Name, m.Identifier.Slug, m.Identifier.SortOrder, MappingSortOrder = m.SortOrder }).ToArray()
                     }).FirstOrDefaultAsync(cancellationToken);
 
                 if (targetApp == null)
@@ -208,9 +208,8 @@ namespace OpenSettings.Services.Sql
                 appSlug = sourceSetting.AppSlug;
             }
 
-            string identifierName = null;
-            int identifierSortOrder;
-            int identifierMappingSortOrder;
+            string identifierName = null, identifierSlug = null;
+            int identifierSortOrder, appIdentifierMappingSortOrder;
 
             if (input.IdentifierId.HasValue && input.IdentifierId != Guid.Empty)
             {
@@ -246,6 +245,7 @@ namespace OpenSettings.Services.Sql
 
                 input.IdentifierId = identifierGetOrCreateResponse.Data.Id;
                 identifierName = identifierGetOrCreateResponse.Data.Name;
+                identifierSlug = identifierGetOrCreateResponse.Data.Slug;
                 identifierSortOrder = identifierGetOrCreateResponse.Data.SortOrder;
 
                 if (!identifierGetOrCreateResponse.Data.IsNewlyCreated)
@@ -272,28 +272,29 @@ namespace OpenSettings.Services.Sql
             if (identifierIdToIdentifier.TryGetValue(input.IdentifierId.Value, out var identifier))
             {
                 identifierName = identifier.Name;
+                identifierSlug = identifier.Slug;
                 identifierSortOrder = identifier.SortOrder;
-                identifierMappingSortOrder = identifier.MappingSortOrder;
+                appIdentifierMappingSortOrder = identifier.MappingSortOrder;
             }
             else
             {
                 try
                 {
-                    identifierMappingSortOrder =
+                    appIdentifierMappingSortOrder =
                         await _context.AppIdentifierMappings.AsNoTracking()
                             .Where(a => a.AppId == input.TargetAppId)
                             .MaxAsync(s => s.SortOrder, cancellationToken) + OpenSettingsDefaults.SortOrderGap;
                 }
                 catch (InvalidOperationException)
                 {
-                    identifierMappingSortOrder = 0;
+                    appIdentifierMappingSortOrder = 0;
                 }
 
                 app.AppIdentifierMappings.Add(new AppIdentifierMappingSqlModel
                 {
                     AppId = sourceSetting.AppId,
                     IdentifierId = input.IdentifierId.Value,
-                    SortOrder = identifierMappingSortOrder,
+                    SortOrder = appIdentifierMappingSortOrder,
                     CreatedOn = currentTime,
                     CreatedById = input.UserId
                 });
@@ -356,18 +357,19 @@ namespace OpenSettings.Services.Sql
 
             await _context.SaveChangesAsync(cancellationToken);
 
-            return HttpStatusCode.OK.ToSuccessResponse(new CopySettingToResponse
+            return HttpStatusCode.OK.ToSuccessResponse(new CopyAppSettingToResponse
             {
                 ClientId = clientId,
                 AppSlug = appSlug,
-                Identifier = new CopySettingToResponseIdentifier
+                Identifier = new CopyAppSettingToResponseIdentifier
                 {
                     Id = $"{newSetting.IdentifierId}",
                     Name = identifierName,
+                    Slug = identifierSlug,
                     SortOrder = identifierSortOrder,
-                    MappingSortOrder = identifierMappingSortOrder
+                    AppMappingSortOrder = appIdentifierMappingSortOrder,
                 },
-                Setting = new CopySettingToResponseSetting
+                Setting = new CopyAppSettingToResponseSetting
                 {
                     Id = $"{newSetting.Id}",
                     ComputedIdentifier = sourceSetting.ComputedIdentifier,
@@ -385,7 +387,7 @@ namespace OpenSettings.Services.Sql
 #endif
                 .Where(s => s.Id == input.AppSettingId)
                 .OrderBy(s => s.Id)
-                .Select(s => new GetSettingResponse
+                .Select(s => new GetAppSettingResponse
                 {
                     CompressionType = s.CompressionType,
                     CompressionLevel = s.CompressionLevel,
@@ -439,7 +441,7 @@ namespace OpenSettings.Services.Sql
 
             var data = await _compressionProvider.DecompressToUtf8StringAsync(entity.Data, entity.CompressionType, cancellationToken);
 
-            return HttpStatusCode.OK.ToSuccessResponse(new GetSettingDataResponse
+            return HttpStatusCode.OK.ToSuccessResponse(new GetAppSettingDataResponse
             {
                 Data = data
             });
@@ -582,7 +584,7 @@ namespace OpenSettings.Services.Sql
 
             return entity == null
                 ? HttpStatusCode.NotFound.ToFailureResponse(Errors.SettingNotFound)
-                : HttpStatusCode.OK.ToSuccessResponse(new GetSettingByIdResponse
+                : HttpStatusCode.OK.ToSuccessResponse(new GetAppSettingByIdResponse
                 {
                     Data = entity.Data == null ? null : await _compressionProvider.DecompressToUtf8StringAsync(entity.Data, entity.CompressionType, cancellationToken),
                     DataRestored = entity.DataRestored,
@@ -594,7 +596,7 @@ namespace OpenSettings.Services.Sql
                     ComputedIdentifier = entity.ComputedIdentifier,
                     Version = entity.Version,
                     RowVersion = entity.SettingRowVersion,
-                    Class = new GetSettingByIdResponseClass
+                    Class = new GetAppSettingByIdResponseClass
                     {
                         Id = $"{entity.ClassId}",
                         Namespace = entity.ClassNamespace,
@@ -605,7 +607,7 @@ namespace OpenSettings.Services.Sql
                 });
         }
 
-        public async Task<IResponse> UpdateSettingAsync(UpdateSettingInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> UpdateAppSettingAsync(UpdateSettingInput input, CancellationToken cancellationToken = default)
         {
             var entity = await _context.AppSettings
                 .AsNoTracking()
@@ -733,7 +735,7 @@ namespace OpenSettings.Services.Sql
             _context.AppSettings.Attach(entity);
 
             var currentTime = DateTime.UtcNow;
-            var rowVersion = currentTime.ToRowVersion();
+            var rowVersion = RowVersionHelper.Date(currentTime);
 
             entity.AppSettingClass.Namespace = input.ClassNamespace;
             entity.AppSettingClass.Name = input.ClassName;
@@ -771,7 +773,7 @@ namespace OpenSettings.Services.Sql
 
             await _context.SaveChangesAsync(cancellationToken);
 
-            return HttpStatusCode.OK.ToSuccessResponse(new UpdateSettingResponse { RowVersion = rowVersion });
+            return HttpStatusCode.OK.ToSuccessResponse(new UpdateAppSettingResponse { RowVersion = rowVersion });
         }
 
         public async Task<IResponse> CreateAppSettingAsync(CreateSettingInput input, CancellationToken cancellationToken = default)
@@ -893,20 +895,20 @@ namespace OpenSettings.Services.Sql
 
             await _context.SaveChangesAsync(cancellationToken);
 
-            return HttpStatusCode.OK.ToSuccessResponse(new CreateSettingResponse
+            return HttpStatusCode.OK.ToSuccessResponse(new CreateAppSettingResponse
             {
-                AppSettingId = $"{setting.Id}",
+                SettingId = $"{setting.Id}",
                 ClassId = $"{setting.AppSettingClass.Id}"
             });
         }
 
-        public async Task<IResponse<UpdateSettingDataResponse>> UpdateAppSettingDataAsync(UpdateSettingDataInput input, CancellationToken cancellationToken)
+        public async Task<IResponse<UpdateAppSettingDataResponse>> UpdateAppSettingDataAsync(UpdateSettingDataInput input, CancellationToken cancellationToken)
         {
             var validJsonRule = InternalExtensions.ValidJsonRule(nameof(input.Data), input.Data, storeParsedValue: true);
 
             if (validJsonRule.IsFailed())
             {
-                return validJsonRule.Failure.ToResponse<UpdateSettingDataResponse>();
+                return validJsonRule.Failure.ToResponse<UpdateAppSettingDataResponse>();
             }
 
             var jsonDocument = validJsonRule.GetStoredValue<JsonDocument>();
@@ -949,24 +951,24 @@ namespace OpenSettings.Services.Sql
 
             if (entity == null)
             {
-                return HttpStatusCode.NotFound.ToFailureResponse<UpdateSettingDataResponse, Errors>(Errors.SettingNotFound);
+                return HttpStatusCode.NotFound.ToFailureResponse<UpdateAppSettingDataResponse, Errors>(Errors.SettingNotFound);
             }
 
             if (!input.RowVersion.SequenceEqual(entity.RowVersion))
             {
-                return FailureResponses.Conflict<UpdateSettingDataResponse>($"{entity.Id}", entity.RowVersion, input.RowVersion, false);
+                return FailureResponses.Conflict<UpdateAppSettingDataResponse>($"{entity.Id}", entity.RowVersion, input.RowVersion, false);
             }
 
             var decompressedEntityData = await _compressionProvider.DecompressToUtf8StringAsync(entity.Data, entity.CompressionType, cancellationToken);
 
             if (input.Data == decompressedEntityData)
             {
-                return HttpStatusCode.BadRequest.ToFailureResponse<UpdateSettingDataResponse, Errors>(Errors.NoChanges);
+                return HttpStatusCode.BadRequest.ToFailureResponse<UpdateAppSettingDataResponse, Errors>(Errors.NoChanges);
             }
 
             if (!entity.DataValidationDisabled && !_dataValidationService.IsDataMappingValid(jsonDocument, entity.AppSettingClass.Properties))
             {
-                return HttpStatusCode.BadRequest.ToFailureResponse<UpdateSettingDataResponse, Errors>(Errors.InvalidSettingData);
+                return HttpStatusCode.BadRequest.ToFailureResponse<UpdateAppSettingDataResponse, Errors>(Errors.InvalidSettingData);
             }
 
             jsonDocument.Dispose();
@@ -1000,7 +1002,7 @@ namespace OpenSettings.Services.Sql
             entity.UpdatedOn = currentTime;
             entity.UpdatedById = input.UpdatedById;
             entity.DataRestored = false;
-            entity.RowVersion = currentTime.ToRowVersion();
+            entity.RowVersion = RowVersionHelper.Date(currentTime);
 
             await _context.SaveChangesAsync(cancellationToken);
 
@@ -1009,10 +1011,10 @@ namespace OpenSettings.Services.Sql
                 await _dataChangeService.NotifyChangeAsync(entity.App.ClientId, entity.Identifier.Name, entity.ComputedIdentifier, cancellationToken);
             }
 
-            return HttpStatusCode.OK.ToSuccessResponseOf(new UpdateSettingDataResponse
+            return HttpStatusCode.OK.ToSuccessResponseOf(new UpdateAppSettingDataResponse
             {
                 ClientId = entity.App.ClientId,
-                Setting = new UpdateSettingDataResponseSetting
+                Setting = new UpdateAppSettingDataResponseSetting
                 {
                     ComputedIdentifier = entity.ComputedIdentifier,
                     CurrentVersion = entity.Version,

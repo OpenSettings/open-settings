@@ -181,8 +181,8 @@ namespace OpenSettings.Services.Sql
             return HttpStatusCode.OK.ToSuccessResponse(new GetGroupedAppsResponse
             {
                 GroupNameToApps = groupNameToAppsMap,
-                GroupsCount = groupNameToAppsMap.Count,
-                AppsCount = entities.Length
+                GroupCount = groupNameToAppsMap.Count,
+                AppCount = entities.Length
             });
         }
 
@@ -237,7 +237,7 @@ namespace OpenSettings.Services.Sql
             _context.Apps.Attach(entity);
 
             var currentTime = DateTime.UtcNow;
-            var rowVersion = currentTime.ToRowVersion();
+            var rowVersion = RowVersionHelper.Date(currentTime);
 
             var trimmedClientName = input.ClientName.Trim();
             var trimmedClientNameLowercase = trimmedClientName.ToLowerInvariant();
@@ -305,33 +305,34 @@ namespace OpenSettings.Services.Sql
 
             foreach (var tag in input.Tags)
             {
-                if (!Guid.TryParse(tag.Id, out var tagId))
+                if (!Guid.TryParse(tag.Id, out var tagId) || tagId == Guid.Empty)
                 {
+                    if (!string.IsNullOrWhiteSpace(tag.Name))
+                    {
+                        var getOrCreateTag = await _appTagSqlService.GetOrCreateAsync(tag.Name, SetSortOrderPosition.Bottom, input.UpdatedById, cancellationToken);
+
+                        if (!getOrCreateTag.Success)
+                        {
+                            return getOrCreateTag.ToResponse();
+                        }
+
+                        var tagEntity = new AppTagSqlModel { Id = getOrCreateTag.Data.Id, Name = tag.Name };
+
+                        _context.AppTags.Attach(tagEntity);
+
+                        entity.AppTagMappings.Add(new AppTagMappingSqlModel
+                        {
+                            AppTag = tagEntity,
+                            CreatedOn = currentTime
+                        });
+                    }
+
                     continue;
                 }
 
-                if (tagId != Guid.Empty && !existingTagIds.Contains(tagId))
+                if (!existingTagIds.Contains(tagId))
                 {
                     var tagEntity = new AppTagSqlModel { Id = tagId, Name = tag.Name };
-
-                    _context.AppTags.Attach(tagEntity);
-
-                    entity.AppTagMappings.Add(new AppTagMappingSqlModel
-                    {
-                        AppTag = tagEntity,
-                        CreatedOn = currentTime
-                    });
-                }
-                else if (tagId == Guid.Empty && !string.IsNullOrWhiteSpace(tag.Name))
-                {
-                    var getOrCreateTag = await _appTagSqlService.GetOrCreateAsync(tag.Name, SetSortOrderPosition.Bottom, input.UpdatedById, cancellationToken);
-
-                    if (!getOrCreateTag.Success)
-                    {
-                        return getOrCreateTag.ToResponse();
-                    }
-
-                    var tagEntity = new AppTagSqlModel { Id = getOrCreateTag.Data.Id, Name = tag.Name };
 
                     _context.AppTags.Attach(tagEntity);
 
@@ -919,6 +920,7 @@ namespace OpenSettings.Services.Sql
                             {
                                 m.Identifier.Id,
                                 m.Identifier.Name,
+                                m.Identifier.Slug,
                                 Order = m.Identifier.SortOrder
                             },
                             m.RowVersion
@@ -1006,9 +1008,13 @@ namespace OpenSettings.Services.Sql
                 {
                     Id = identifierId,
                     Name = mapping.Identifier.Name,
+                    Slug = mapping.Identifier.Slug,
                     SortOrder = mapping.Identifier.Order,
-                    MappingSortOrder = mapping.SortOrder,
-                    MappingRowVersion = mapping.RowVersion
+                    AppMapping = new GetGroupedAppDataResponseIdentifierAppMapping
+                    {
+                        SortOrder = mapping.SortOrder,
+                        RowVersion = mapping.RowVersion
+                    }
                 };
 
                 minSortOrder = Math.Min(mapping.Identifier.Order, minSortOrder);
@@ -1028,10 +1034,16 @@ namespace OpenSettings.Services.Sql
             {
                 IdentifierInfo = new GetGroupedAppDataResponseIdentifierInfo
                 {
-                    MinSortOrder = minSortOrder,
-                    MaxSortOrder = maxSortOrder,
-                    MappingMinSortOrder = mappingMinSortOrder,
-                    MappingMaxSortOrder = mappingMaxSortOrder
+                    SortOrderRange = new SortOrderRange
+                    {
+                        Min = minSortOrder,
+                        Max = maxSortOrder
+                    },
+                    AppMappingSortOrderRange = new SortOrderRange
+                    {
+                        Min = mappingMinSortOrder,
+                        Max = mappingMaxSortOrder
+                    }
                 },
                 IdentifierIdToIdentifier = identifierIdToIdentifier,
                 IdentifierIdToConfiguration = identifierIdToConfiguration,
@@ -1100,6 +1112,8 @@ namespace OpenSettings.Services.Sql
                         c.RegistrationMode,
                         c.Consumer,
                         c.Provider,
+                        c.Controller,
+                        c.Spa,
                         c.IdentifierId,
                         c.RowVersion
                     }).FirstOrDefault(),
@@ -1130,6 +1144,7 @@ namespace OpenSettings.Services.Sql
                             Identifier = new
                             {
                                 m.Identifier.Name,
+                                m.Identifier.Slug,
                                 m.Identifier.SortOrder
                             },
                             m.RowVersion
@@ -1152,9 +1167,13 @@ namespace OpenSettings.Services.Sql
                 {
                     Id = $"{identifierId}",
                     Name = entity.AppIdentifierMapping.Identifier.Name,
+                    Slug = entity.AppIdentifierMapping.Identifier.Slug,
                     SortOrder = entity.AppIdentifierMapping.Identifier.SortOrder,
-                    MappingSortOrder = entity.AppIdentifierMapping.SortOrder,
-                    MappingRowVersion = entity.AppIdentifierMapping.RowVersion
+                    AppMapping = new GetGroupedAppDataByIdentifierIdResponseIdentifierAppMapping
+                    {
+                        SortOrder = entity.AppIdentifierMapping.SortOrder,
+                        RowVersion = entity.AppIdentifierMapping.RowVersion
+                    }
                 },
                 Configuration = new GetGroupedAppDataByIdentifierIdResponseConfiguration
                 {
@@ -1164,6 +1183,8 @@ namespace OpenSettings.Services.Sql
                     RegistrationMode = entity.Configuration.RegistrationMode,
                     Consumer = entity.Configuration.Consumer,
                     Provider = entity.Configuration.Provider,
+                    Controller = entity.Configuration.Controller,
+                    Spa = entity.Configuration.Spa,
                     RowVersion = entity.Configuration.RowVersion
                 },
                 Settings = entity.Settings.Select(setting => new GetGroupedAppDataByIdentifierIdResponseSetting
@@ -1670,7 +1691,7 @@ namespace OpenSettings.Services.Sql
 
             var jsonMergeResult = JsonHelper.Merge(inputSetting.Data, decompressedData);
 
-            var rowVersion = currentTime.ToRowVersion();
+            var rowVersion = RowVersionHelper.Date(currentTime);
 
             string data;
 

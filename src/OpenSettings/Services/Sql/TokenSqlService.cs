@@ -151,7 +151,12 @@ namespace OpenSettings.Services.Sql
 
             var tokenResponse = new GenerateTokenResponse
             {
-                AccessToken = new GenerateTokenResponseToken(accessToken, expiryDate, expiryTimeSpan.TotalSeconds),
+                AccessToken = new GenerateTokenResponseToken
+                {
+                    Value = accessToken,
+                    ExpiryDate = expiryDate,
+                    ExpiresInSeconds = expiryTimeSpan.TotalSeconds
+                },
                 Claims = claims
             };
 

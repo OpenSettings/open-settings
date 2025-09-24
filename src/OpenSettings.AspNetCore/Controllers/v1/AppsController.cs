@@ -185,7 +185,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
 
             var result = await _appsService.GetAppBySlugAsync(new GetAppInput
             {
-                AppIdOrSlug = request.Slug
+                AppIdOrSlug = request.AppSlug
             }, cancellationToken);
 
             return result.ToAction();
@@ -375,7 +375,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         }
 
         [HttpGet(OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetAppIdentifierMappingsByAppId)]
-        public async Task<IActionResult> GetAppIdentifierMappingsByAppId(GetAppIdentifierMappingsRequest request, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> GetAppIdentifierMappingsByAppId(GetAppIdentifierMappingsByAppIdRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
             {
@@ -383,13 +383,13 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             }
 
             var result = await _appIdentifierMappingsService.GetAppIdentifierMappingsByAppIdAsync(
-                new GetAppIdentifierMappingsInput { AppIdOrSlug = request.AppIdOrSlug }, cancellationToken);
+                new GetAppIdentifierMappingsInput { AppIdOrSlug = request.AppId }, cancellationToken);
 
             return result.ToAction();
         }
 
         [HttpGet(OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetAppIdentifierMappingsByAppSlug)]
-        public async Task<IActionResult> GetAppIdentifierMappingsByAppSlug(GetAppIdentifierMappingsRequest request, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> GetAppIdentifierMappingsByAppSlug(GetAppIdentifierMappingsByAppSlugRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
             {
@@ -398,7 +398,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
 
             var result = await _appIdentifierMappingsService.GetAppIdentifierMappingsByAppSlugAsync(new GetAppIdentifierMappingsInput
             {
-                AppIdOrSlug = request.AppIdOrSlug
+                AppIdOrSlug = request.AppSlug
             }, cancellationToken);
 
             return result.ToAction();

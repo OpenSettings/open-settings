@@ -95,7 +95,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return HttpStatusCode.BadRequest.ToFailureResponse(Errors.ComputedIdentifierMustNotEmpty).ToAction();
             }
 
-            var result = await _appSettingService.UpdateSettingAsync(new UpdateSettingInput
+            var result = await _appSettingService.UpdateAppSettingAsync(new UpdateSettingInput
             {
                 AppSettingId = request.AppSettingId,
                 ComputedIdentifier = request.Body.ComputedIdentifier,

@@ -10,8 +10,6 @@ namespace OpenSettings.Services.Rest
 {
     public sealed class ProviderRestService : IProviderRestService
     {
-        private HttpClient HttpClient => _httpClientFactory.CreateOpenSettingsProviderHttpClient();
-
         private readonly IHttpClientFactory _httpClientFactory;
 
         public ProviderRestService(IHttpClientFactory httpClientFactory)
@@ -21,9 +19,9 @@ namespace OpenSettings.Services.Rest
 
         public async Task<IResponse<ProviderInfo>> GetProviderAsync(CancellationToken cancellationToken = default)
         {
-            const string relativeUri = "v1/provider";
+            const string relativeUri = OpenSettingsDefaults.Routes.V1.ProviderEndpoints.GetProvider;
 
-            using (var response = await HttpClient.GetAsync(relativeUri, cancellationToken))
+            using (var response = await GetProviderHttpClient().GetAsync(relativeUri, cancellationToken))
             {
                 return await response.Content.ToResponseAsync<ProviderInfo>(cancellationToken: cancellationToken);
             }
@@ -31,12 +29,17 @@ namespace OpenSettings.Services.Rest
 
         public async Task<IResponse> GetPrimaryProviderAsync(CancellationToken cancellationToken = default)
         {
-            const string relativeUri = "v1/provider/primary";
+            const string relativeUri = OpenSettingsDefaults.Routes.V1.ProviderEndpoints.GetPrimaryProvider;
 
-            using (var response = await HttpClient.GetAsync(relativeUri, cancellationToken))
+            using (var response = await GetProviderHttpClient().GetAsync(relativeUri, cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
+        }
+
+        private HttpClient GetProviderHttpClient()
+        {
+            return _httpClientFactory.CreateOpenSettingsProviderHttpClient();
         }
     }
 }

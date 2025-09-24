@@ -8,6 +8,29 @@ namespace OpenSettings.Helpers
     {
         public static string Build(string template,
             string[] values = null,
+            params (string key, object value)[] query)
+        {
+            Dictionary<string, string> dictionary;
+
+            if (query?.Length > 0)
+            {
+                dictionary = new Dictionary<string, string>(query.Length, StringComparer.OrdinalIgnoreCase);
+
+                foreach (var (key, value) in query)
+                {
+                    dictionary[key] = value?.ToString();
+                }
+            }
+            else
+            {
+                dictionary = null;
+            }
+
+            return Build(template, values, dictionary);
+        }
+
+        public static string Build(string template,
+            string[] values = null,
             Dictionary<string, string> query = null)
         {
             values = values ?? Array.Empty<string>();
@@ -65,18 +88,6 @@ namespace OpenSettings.Helpers
             }
 
             return sb.ToString();
-        }
-
-        public static Dictionary<string, string> Query(params (string key, object value)[] items)
-        {
-            var dictionary = new Dictionary<string, string>(items.Length, StringComparer.OrdinalIgnoreCase);
-
-            foreach (var (key, value) in items)
-            {
-                dictionary[key] = value?.ToString();
-            }
-
-            return dictionary;
         }
     }
 }

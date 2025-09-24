@@ -13,6 +13,7 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using OpenSettings.Helpers;
 
 namespace OpenSettings.Services.Sql
 {
@@ -85,7 +86,7 @@ namespace OpenSettings.Services.Sql
 
                 var response = new ReorderResponse
                 {
-                    RowVersion = currentTime.ToRowVersion()
+                    RowVersion = RowVersionHelper.Date(currentTime)
                 };
 
                 for (var batchIndex = 0; batchIndex < batchCount; batchIndex++)

@@ -149,7 +149,7 @@ namespace OpenSettings.Services.Sql
             configuration.SerializerType = SerializerType.Json;
             configuration.CompressionType = _openSettingsConfiguration.Provider.CompressionType;
             configuration.CompressionLevel = _openSettingsConfiguration.Provider.CompressionLevel;
-            configuration.RowVersion = currentTime.ToRowVersion();
+            configuration.RowVersion = RowVersionHelper.Date(currentTime);
             configuration.UpdatedOn = currentTime;
 
             configurationEntry.MarkAsModified(

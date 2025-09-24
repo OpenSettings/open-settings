@@ -93,7 +93,7 @@ namespace OpenSettings.Services.Rest
             var relativeUri = RouteHelper.Build(
                 OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetAppInstancesByAppId,
                 new[] { input.AppIdOrSlug },
-                RouteHelper.Query(("IdentifierId", input.IdentifierIdOrSlug)));
+                ("IdentifierId", input.IdentifierIdOrSlug));
 
             using (var response = await GetProviderHttpClient().GetAsync(relativeUri, cancellationToken))
             {
@@ -106,7 +106,7 @@ namespace OpenSettings.Services.Rest
             var relativeUri = RouteHelper.Build(
                 OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetAppInstancesByAppSlug,
                 new[] { input.AppIdOrSlug },
-                RouteHelper.Query(("IdentifierId", input.IdentifierIdOrSlug)));
+                ("IdentifierId", input.IdentifierIdOrSlug));
 
             using (var response = await GetProviderHttpClient().GetAsync(relativeUri, cancellationToken))
             {

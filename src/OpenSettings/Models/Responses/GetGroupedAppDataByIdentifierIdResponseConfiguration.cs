@@ -16,6 +16,10 @@ namespace OpenSettings.Models.Responses
 
         public ConfigurationProvider Provider { get; set; }
 
+        public ConfigurationController Controller { get; set; }
+
+        public ConfigurationSpa Spa { get; set; }
+
         public byte[] RowVersion { get; set; } = Array.Empty<byte>();
     }
 }

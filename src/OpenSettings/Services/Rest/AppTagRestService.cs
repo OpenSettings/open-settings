@@ -1,5 +1,6 @@
 ﻿using Ogu.Response.Abstractions;
 using OpenSettings.Extensions;
+using OpenSettings.Helpers;
 using OpenSettings.Models;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Models.Responses;
@@ -14,8 +15,6 @@ namespace OpenSettings.Services.Rest
 {
     public sealed class AppTagRestService : IAppTagRestService
     {
-        private HttpClient HttpClient => _httpClientFactory.CreateOpenSettingsProviderHttpClient();
-
         private readonly IHttpClientFactory _httpClientFactory;
 
         public AppTagRestService(IHttpClientFactory httpClientFactory)
@@ -25,18 +24,11 @@ namespace OpenSettings.Services.Rest
 
         public async Task<IResponse> GetAppTagsAsync(GetTagsInput input, CancellationToken cancellationToken = default)
         {
-            const string relativeUri = "v1/tags";
+            var relativeUri = RouteHelper.Build(
+                OpenSettingsDefaults.Routes.V1.AppTagsEndpoints.GetAppTags, null,
+                (nameof(input.SearchTerm), input.SearchTerm), (nameof(input.HasMappings), input.HasMappings));
 
-            var queryBuilder = new QueryBuilder();
-
-            if (!string.IsNullOrWhiteSpace(input.SearchTerm))
-            {
-                queryBuilder.Append(nameof(input.SearchTerm), input.SearchTerm);
-            }
-
-            queryBuilder.Append(nameof(input.HasMappings), input.HasMappings);
-
-            using (var response = await HttpClient.GetAsync(queryBuilder.ToString(relativeUri), cancellationToken))
+            using (var response = await GetProviderHttpClient().GetAsync(relativeUri, cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
@@ -46,7 +38,7 @@ namespace OpenSettings.Services.Rest
         {
             throw new NotSupportedException(nameof(CreateAppTagAsync));
 
-            const string relativeUri = "v1/tags";
+            const string relativeUri = OpenSettingsDefaults.Routes.V1.AppTagsEndpoints.CreateAppTag;
 
             var body = new
             {
@@ -57,7 +49,7 @@ namespace OpenSettings.Services.Rest
 
             using (var jsonContent = JsonContent.Create(body))
             {
-                using (var response = await HttpClient.PostAsync(relativeUri, jsonContent, cancellationToken))
+                using (var response = await GetProviderHttpClient().PostAsync(relativeUri, jsonContent, cancellationToken))
                 {
                     return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
                 }
@@ -68,30 +60,16 @@ namespace OpenSettings.Services.Rest
         {
             throw new NotSupportedException(nameof(GetPaginatedAppTagsAsync));
 
-            const string relativeUri = "v1/tags/paginated";
+            var relativeUri = RouteHelper.Build(
+                OpenSettingsDefaults.Routes.V1.AppTagsEndpoints.GetPaginatedAppTags,
+                null,
+                ("page", input.PageSize), 
+                ("size", input.PageSize), 
+                (nameof(input.SearchTerm), input.SearchTerm),
+                (nameof(input.SearchBy), input.SearchBy), (nameof(input.SortBy), input.SortBy),
+                (nameof(input.SortDirection), input.SortDirection));
 
-            var queryBuilder = new QueryBuilder()
-                .Append("page", input.PageIndex)
-                .Append("size", input.PageSize);
-
-            if (!string.IsNullOrWhiteSpace(input.SearchTerm))
-            {
-                queryBuilder.Append(nameof(input.SearchTerm), input.SearchTerm);
-            }
-
-            if (!string.IsNullOrWhiteSpace(input.SearchBy))
-            {
-                queryBuilder.Append(nameof(input.SearchBy), input.SearchBy);
-            }
-
-            if (!string.IsNullOrWhiteSpace(input.SortBy))
-            {
-                queryBuilder.Append(nameof(input.SortBy), input.SortBy);
-            }
-
-            queryBuilder.Append(nameof(input.SortDirection), input.SortDirection);
-
-            using (var response = await HttpClient.GetAsync(queryBuilder.ToString(relativeUri), cancellationToken))
+            using (var response = await GetProviderHttpClient().GetAsync(relativeUri, cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
@@ -101,9 +79,9 @@ namespace OpenSettings.Services.Rest
         {
             throw new NotSupportedException(nameof(DeleteUnmappedAppTagsAsync));
 
-            const string relativeUri = "v1/tags/unmapped";
+            const string relativeUri = OpenSettingsDefaults.Routes.V1.AppTagsEndpoints.DeleteUnmappedAppTags;
 
-            using (var response = await HttpClient.DeleteAsync(relativeUri, cancellationToken))
+            using (var response = await GetProviderHttpClient().DeleteAsync(relativeUri, cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
@@ -111,9 +89,11 @@ namespace OpenSettings.Services.Rest
 
         public async Task<IResponse> GetAppTagByIdAsync(GetTagInput input, CancellationToken cancellationToken = default)
         {
-            var relativeUri = $"v1/tags/{input.AppTagIdOrSlug}";
+            var relativeUri = RouteHelper.Build(
+                OpenSettingsDefaults.Routes.V1.AppTagsEndpoints.GetAppTagById,
+                new[] { input.AppTagIdOrSlug });
 
-            using (var response = await HttpClient.GetAsync(relativeUri, cancellationToken))
+            using (var response = await GetProviderHttpClient().GetAsync(relativeUri, cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
@@ -121,9 +101,11 @@ namespace OpenSettings.Services.Rest
 
         public async Task<IResponse> GetAppTagBySlugAsync(GetTagInput input, CancellationToken cancellationToken = default)
         {
-            var relativeUri = $"v1/tags/slug/{input.AppTagIdOrSlug}";
+            var relativeUri = RouteHelper.Build(
+                OpenSettingsDefaults.Routes.V1.AppTagsEndpoints.GetAppTagBySlug,
+                new[] { input.AppTagIdOrSlug });
 
-            using (var response = await HttpClient.GetAsync(relativeUri, cancellationToken))
+            using (var response = await GetProviderHttpClient().GetAsync(relativeUri, cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
@@ -131,7 +113,9 @@ namespace OpenSettings.Services.Rest
 
         public async Task<IResponse> UpdateAppTagAsync(UpdateTagInput input, CancellationToken cancellationToken = default)
         {
-            var relativeUri = $"v1/tags/{input.AppTagId}";
+            var relativeUri = RouteHelper.Build(
+                OpenSettingsDefaults.Routes.V1.AppTagsEndpoints.UpdateAppTag,
+                new[] { $"{input.AppTagId}" });
 
             var body = new
             {
@@ -143,10 +127,9 @@ namespace OpenSettings.Services.Rest
 
             using (var jsonContent = JsonContent.Create(body))
             {
-                using (var response = await HttpClient.PutAsync(relativeUri, jsonContent, cancellationToken))
+                using (var response = await GetProviderHttpClient().PutAsync(relativeUri, jsonContent, cancellationToken))
                 {
                     return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
-
                 }
             }
         }
@@ -157,7 +140,7 @@ namespace OpenSettings.Services.Rest
 
             var relativeUri = $"v1/tags/{input.AppTagId}?rowVersion={Uri.EscapeDataString(Convert.ToBase64String(input.RowVersion))}";
 
-            using (var response = await HttpClient.DeleteAsync(relativeUri, cancellationToken))
+            using (var response = await GetProviderHttpClient().DeleteAsync(relativeUri, cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
@@ -165,18 +148,13 @@ namespace OpenSettings.Services.Rest
 
         public async Task<IResponse> UpdateAppTagSortOrderAsync(UpdateTagSortOrderInput input, CancellationToken cancellationToken = default)
         {
-            var relativeUri = $"v1/tags/{input.AppTagId}/sort-order";
+            var relativeUri = RouteHelper.Build(
+                OpenSettingsDefaults.Routes.V1.AppTagsEndpoints.UpdateAppTagSortOrder,
+                new[] { $"{input.AppTagId}" },
+                (nameof(input.Ascent), input.Ascent),
+                (nameof(input.RowVersion), Convert.ToBase64String(input.RowVersion)));
 
-            var queryBuilder = new QueryBuilder();
-
-            if (input.Ascent)
-            {
-                queryBuilder.Append(nameof(input.Ascent), input.Ascent);
-            }
-
-            queryBuilder.Append(nameof(input.RowVersion), input.RowVersion);
-
-            using (var response = await HttpClient.PostAsync(queryBuilder.ToString(relativeUri), null, cancellationToken))
+            using (var response = await GetProviderHttpClient().PostAsync(relativeUri, null, cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
@@ -186,9 +164,13 @@ namespace OpenSettings.Services.Rest
         {
             throw new NotSupportedException(nameof(DragAppTagAsync));
 
-            var relativeUri = $"v1/tags/{input.SourceId}/drag/{input.TargetId}?ascent={input.Ascent}&sourceRowVersion={Uri.EscapeDataString(Convert.ToBase64String(input.SourceRowVersion))}";
+            var relativeUri = RouteHelper.Build(
+                OpenSettingsDefaults.Routes.V1.AppTagsEndpoints.DragAppTag,
+                new[] { $"{input.SourceId}", $"{input.TargetId}" },
+                (nameof(input.Ascent), input.Ascent),
+                (nameof(input.SourceRowVersion), Convert.ToBase64String(input.SourceRowVersion)));
 
-            using (var response = await HttpClient.PostAsync(relativeUri, null, cancellationToken))
+            using (var response = await GetProviderHttpClient().PostAsync(relativeUri, null, cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
@@ -201,12 +183,17 @@ namespace OpenSettings.Services.Rest
 
         public async Task<IResponse> ReorderAppTagAsync()
         {
-            const string relativeUri = "v1/tags/reorder";
+            const string relativeUri = OpenSettingsDefaults.Routes.V1.AppTagsEndpoints.ReorderAppTag;
 
-            using (var response = await HttpClient.PostAsync(relativeUri, null))
+            using (var response = await GetProviderHttpClient().PostAsync(relativeUri, null))
             {
                 return await response.Content.ToResponseAsync();
             }
+        }
+
+        private HttpClient GetProviderHttpClient()
+        {
+            return _httpClientFactory.CreateOpenSettingsProviderHttpClient();
         }
     }
 }

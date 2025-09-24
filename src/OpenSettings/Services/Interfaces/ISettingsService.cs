@@ -24,10 +24,10 @@ namespace OpenSettings.Services.Interfaces
 
         Task<IResponse> GetAppSettingByIdAsync(GetAppSettingByIdInput input, CancellationToken cancellationToken = default);
 
-        Task<IResponse> UpdateSettingAsync(UpdateSettingInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> UpdateAppSettingAsync(UpdateSettingInput input, CancellationToken cancellationToken = default);
 
         Task<IResponse> CreateAppSettingAsync(CreateSettingInput input, CancellationToken cancellationToken = default);
 
-        Task<IResponse<UpdateSettingDataResponse>> UpdateAppSettingDataAsync(UpdateSettingDataInput input, CancellationToken cancellationToken);
+        Task<IResponse<UpdateAppSettingDataResponse>> UpdateAppSettingDataAsync(UpdateSettingDataInput input, CancellationToken cancellationToken);
     }
 }

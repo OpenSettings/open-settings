@@ -4,17 +4,6 @@ namespace OpenSettings.Models.Responses
 {
     public class GenerateTokenResponseToken
     {
-        public GenerateTokenResponseToken()
-        {
-        }
-
-        public GenerateTokenResponseToken(string tokenValue, DateTimeOffset expiryDate, double expiresInSeconds)
-        {
-            Value = tokenValue;
-            ExpiryDate = expiryDate;
-            ExpiresInSeconds = expiresInSeconds;
-        }
-
         public string Value { get; set; }
 
         /// <summary>

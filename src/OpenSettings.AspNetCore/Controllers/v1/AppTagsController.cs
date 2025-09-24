@@ -98,7 +98,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return ModelState.ToAction();
             }
 
-            var result = await _appTagService.GetAppTagBySlugAsync(new GetTagInput { AppTagIdOrSlug = request.Slug }, cancellationToken);
+            var result = await _appTagService.GetAppTagBySlugAsync(new GetTagInput { AppTagIdOrSlug = request.AppTagSlug }, cancellationToken);
 
             return result.ToAction();
         }

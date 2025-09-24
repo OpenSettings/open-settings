@@ -2,6 +2,6 @@
 {
     public class DeleteUnmappedItemsResponse
     {
-        public int DeletedItemsCount { get; set; }
+        public int DeletedItemCount { get; set; }
     }
 }

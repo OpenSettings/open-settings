@@ -14,7 +14,7 @@ namespace OpenSettings.Domains.Sql.Configurations
             builder.Ignore(e => e.Id);
             builder.Ignore(e => e.UpdatedOn);
 
-            builder.HasKey(x => x.Id);
+            builder.HasKey(x => new { x.AppId, x.AppTagId });
 
             builder.HasOne(e => e.App)
                 .WithMany(e => e.AppTagMappings)

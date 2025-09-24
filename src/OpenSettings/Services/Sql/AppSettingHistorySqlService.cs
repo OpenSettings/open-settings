@@ -15,6 +15,7 @@ using System.Linq.Expressions;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using OpenSettings.Helpers;
 
 namespace OpenSettings.Services.Sql
 {
@@ -52,7 +53,7 @@ namespace OpenSettings.Services.Sql
 
             return entity == null
                 ? HttpStatusCode.NotFound.ToFailureResponse(Errors.HistoryNotFound)
-                : HttpStatusCode.OK.ToSuccessResponse(new GetSettingHistoryDataResponse
+                : HttpStatusCode.OK.ToSuccessResponse(new GetAppSettingHistoryDataResponse
                 {
                     Data = await _compressionProvider.DecompressToUtf8StringAsync(entity.Data, entity.CompressionType, cancellationToken),
                     RowVersion = entity.RowVersion
@@ -106,7 +107,7 @@ namespace OpenSettings.Services.Sql
                     s.RestoredOn
                 }).ToArrayAsync(cancellationToken);
 
-            var settingHistoriesResponse = await Task.WhenAll(entities.Select(async e => new GetSettingHistoriesResponse
+            var settingHistoriesResponse = await Task.WhenAll(entities.Select(async e => new GetAppSettingHistoriesResponse
             {
                 Id = $"{e.Id}",
                 Data = e.Data == null
@@ -124,7 +125,7 @@ namespace OpenSettings.Services.Sql
             return HttpStatusCode.OK.ToSuccessResponse(settingHistoriesResponse);
         }
 
-        public async Task<IResponse<RestoreSettingHistoryResponse>> RestoreAppSettingHistoryAsync(RestoreAppSettingHistoryInput input, CancellationToken cancellationToken)
+        public async Task<IResponse<RestoreAppSettingHistoryResponse>> RestoreAppSettingHistoryAsync(RestoreAppSettingHistoryInput input, CancellationToken cancellationToken)
         {
             var entity = await _context.AppSettingHistories
                 .AsNoTracking()
@@ -166,33 +167,33 @@ namespace OpenSettings.Services.Sql
 
             if (entity == null)
             {
-                return HttpStatusCode.NotFound.ToFailureResponse<RestoreSettingHistoryResponse, Errors>(Errors.HistoryNotFound);
+                return HttpStatusCode.NotFound.ToFailureResponse<RestoreAppSettingHistoryResponse, Errors>(Errors.HistoryNotFound);
             }
 
             if (entity.Version == entity.AppSetting.Version)
             {
-                return HttpStatusCode.BadRequest.ToFailureResponse<RestoreSettingHistoryResponse, Errors>(Errors.HistoryAlreadyRestored);
+                return HttpStatusCode.BadRequest.ToFailureResponse<RestoreAppSettingHistoryResponse, Errors>(Errors.HistoryAlreadyRestored);
             }
 
             if (!input.HistoryRowVersion.SequenceEqual(entity.RowVersion))
             {
-                return FailureResponses.Conflict<RestoreSettingHistoryResponse>($"{entity.Id}", entity.RowVersion, input.HistoryRowVersion, false);
+                return FailureResponses.Conflict<RestoreAppSettingHistoryResponse>($"{entity.Id}", entity.RowVersion, input.HistoryRowVersion, false);
             }
 
             if (!input.SettingRowVersion.SequenceEqual(entity.AppSetting.RowVersion))
             {
-                return FailureResponses.Conflict<RestoreSettingHistoryResponse>($"{entity.AppSetting.Id}", entity.AppSetting.RowVersion, input.SettingRowVersion, false);
+                return FailureResponses.Conflict<RestoreAppSettingHistoryResponse>($"{entity.AppSetting.Id}", entity.AppSetting.RowVersion, input.SettingRowVersion, false);
             }
 
             var decompressedData = await _compressionProvider.DecompressToUtf8StringAsync(entity.Data, entity.CompressionType, cancellationToken);
 
             if (!entity.AppSetting.DataValidationDisabled && !_dataValidationService.IsDataMappingValid(decompressedData, entity.AppSetting.AppSettingClass.Properties))
             {
-                return HttpStatusCode.BadRequest.ToFailureResponse<RestoreSettingHistoryResponse, Errors>(Errors.InvalidSettingData);
+                return HttpStatusCode.BadRequest.ToFailureResponse<RestoreAppSettingHistoryResponse, Errors>(Errors.InvalidSettingData);
             }
 
             var currentTime = DateTime.UtcNow;
-            var rowVersion = currentTime.ToRowVersion();
+            var rowVersion = RowVersionHelper.Date(currentTime);
             var previousVersion = entity.AppSetting.Version;
 
             var computedIdentifier = entity.AppSetting.ComputedIdentifier;
@@ -245,10 +246,10 @@ namespace OpenSettings.Services.Sql
 
                 await _dataChangeService.NotifyChangeAsync(clientId, identifierName, computedIdentifier, CancellationToken.None);
 
-                return HttpStatusCode.OK.ToSuccessResponseOf(new RestoreSettingHistoryResponse
+                return HttpStatusCode.OK.ToSuccessResponseOf(new RestoreAppSettingHistoryResponse
                 {
                     ClientId = clientId,
-                    Setting = new RestoreSettingHistoryResponseSetting
+                    Setting = new RestoreAppSettingHistoryResponseSetting
                     {
                         IdentifierName = identifierName,
                         ComputedIdentifier = computedIdentifier,
@@ -261,15 +262,15 @@ namespace OpenSettings.Services.Sql
             }
             catch (DbUpdateConcurrencyException ex)
             {
-                return await ex.ToResponseAsync<RestoreSettingHistoryResponse>(cancellationToken);
+                return await ex.ToResponseAsync<RestoreAppSettingHistoryResponse>(cancellationToken);
             }
             catch (DbUpdateException ex)
             {
-                return HttpStatusCode.InternalServerError.ToFailureResponse<RestoreSettingHistoryResponse>("Exception", ex.HResult == -2146233088 ? "User not found in db. Re-login might be needed to resolve this issue." : "Db update exception occurred.");
+                return HttpStatusCode.InternalServerError.ToFailureResponse<RestoreAppSettingHistoryResponse>("Exception", ex.HResult == -2146233088 ? "User not found in db. Re-login might be needed to resolve this issue." : "Db update exception occurred.");
             }
             catch (Exception ex)
             {
-                return HttpStatusCode.InternalServerError.ToFailureResponse<RestoreSettingHistoryResponse>(ex);
+                return HttpStatusCode.InternalServerError.ToFailureResponse<RestoreAppSettingHistoryResponse>(ex);
             }
         }
 
@@ -296,12 +297,12 @@ namespace OpenSettings.Services.Sql
 
             return entity == null
                 ? HttpStatusCode.NotFound.ToFailureResponse(Errors.HistoryNotFound)
-                : HttpStatusCode.OK.ToSuccessResponse(new GetSettingHistoryResponse
+                : HttpStatusCode.OK.ToSuccessResponse(new GetAppSettingHistoryResponse
                 {
                     Data = await _compressionProvider.DecompressToUtf8StringAsync(entity.Data, entity.CompressionType, cancellationToken),
                     Version = entity.Version,
                     Slug = entity.Slug,
-                    AppSettingId = entity.SettingId,
+                    SettingId = entity.SettingId,
                     CreatedById = entity.CreatedById,
                     RestoredById = entity.RestoredById,
                     RowVersion = entity.RowVersion,

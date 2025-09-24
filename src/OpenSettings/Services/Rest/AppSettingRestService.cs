@@ -12,6 +12,7 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using OpenSettings.Helpers;
 
 namespace OpenSettings.Services.Rest
 {
@@ -36,7 +37,9 @@ namespace OpenSettings.Services.Rest
 
         public async Task<IResponse> GetAppSettingsByAppIdAndIdentifierIdAsync(GetSettingsByAppAndIdentifierInput input, CancellationToken cancellationToken = default)
         {
-            var relativeUri = $"v1/apps/slug/{input.AppIdOrSlug}/identifiers/{input.IdentifierIdOrSlug}/settings";
+            var relativeUri = RouteHelper.Build(
+                OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetAppSettingsByAppIdAndIdentifierId,
+                new[] { input.AppIdOrSlug, input.IdentifierIdOrSlug });
 
             using (var response = await GetProviderHttpClient().GetAsync(relativeUri, cancellationToken))
             {
@@ -46,7 +49,9 @@ namespace OpenSettings.Services.Rest
 
         public async Task<IResponse> GetAppSettingsByAppSlugAndIdentifierSlugAsync(GetSettingsByAppAndIdentifierInput input, CancellationToken cancellationToken = default)
         {
-            var relativeUri = $"v1/apps/slug/{input.AppIdOrSlug}/identifiers/{input.IdentifierIdOrSlug}/settings";
+            var relativeUri = RouteHelper.Build(
+                OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetAppSettingsByAppSlugAndIdentifierSlug,
+                new[] { input.AppIdOrSlug, input.IdentifierIdOrSlug });
 
             using (var response = await GetProviderHttpClient().GetAsync(relativeUri, cancellationToken))
             {
@@ -56,21 +61,12 @@ namespace OpenSettings.Services.Rest
 
         public async Task<IResponse> GetAppSettingsDataAsync(GetSettingsDataInput input, CancellationToken cancellationToken = default)
         {
-            var relativeUri = $"v1/apps/{input.AppId}/settings/data";
+            var relativeUri = RouteHelper.Build(
+                OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetAppSettingsData,
+                new[] { input.AppId },
+                (nameof(input.IdentifierId), input.IdentifierId), (nameof(input.Ids), string.Join(OpenSettingsDefaults.Format.Comma, input.Ids)));
 
-            var queryBuilder = new QueryBuilder();
-
-            if (!string.IsNullOrWhiteSpace(input.IdentifierId))
-            {
-                queryBuilder.Append(nameof(input.IdentifierId), input.IdentifierId);
-            }
-
-            if (input.Ids.Length > 0)
-            {
-                queryBuilder.Append(nameof(input.Ids), string.Join(",", input.Ids));
-            }
-
-            using (var response = await GetProviderHttpClient().GetAsync(queryBuilder.ToString(relativeUri), cancellationToken))
+            using (var response = await GetProviderHttpClient().GetAsync(relativeUri, cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
@@ -78,7 +74,9 @@ namespace OpenSettings.Services.Rest
 
         public async Task<IResponse> CopyAppSettingToAsync(CopySettingToInput input, CancellationToken cancellationToken = default)
         {
-            var relativeUri = $"v1/settings/{input.AppSettingId}/copy";
+            var relativeUri = RouteHelper.Build(
+                OpenSettingsDefaults.Routes.V1.AppSettingsEndpoints.CopyAppSettingTo,
+                new[] { $"{input.AppSettingId}" });
 
             var body = new
             {
@@ -94,7 +92,7 @@ namespace OpenSettings.Services.Rest
             {
                 using (var response = await GetProviderHttpClient().PostAsync(relativeUri, jsonContent, cancellationToken))
                 {
-                    var responseContent = await response.Content.ToResponseAsync<CopySettingToResponse>(cancellationToken: cancellationToken);
+                    var responseContent = await response.Content.ToResponseAsync<CopyAppSettingToResponse>(cancellationToken: cancellationToken);
 
                     if (_dataChangeService != null && response.IsSuccessStatusCode && (!_openSettingsConfiguration.Consumer.IsRedisActive || !_providerInfo.Redis.IsActive))
                     {
@@ -108,7 +106,9 @@ namespace OpenSettings.Services.Rest
 
         public async Task<IResponse> GetAppSettingDataAsync(GetSettingDataInput input, CancellationToken cancellationToken = default)
         {
-            var relativeUri = $"v1/settings/{input.AppSettingId}/data";
+            var relativeUri = RouteHelper.Build(
+                OpenSettingsDefaults.Routes.V1.AppSettingsEndpoints.GetAppSettingData,
+                new[] { $"{input.AppSettingId}" });
 
             using (var response = await GetProviderHttpClient().GetAsync(relativeUri, cancellationToken))
             {
@@ -118,7 +118,10 @@ namespace OpenSettings.Services.Rest
 
         public async Task<IResponse> DeleteAppSettingAsync(DeleteSettingInput input, CancellationToken cancellationToken = default)
         {
-            var relativeUri = $"v1/settings/{input.AppSettingId}?rowVersion={Uri.EscapeDataString(Convert.ToBase64String(input.RowVersion))}";
+            var relativeUri = RouteHelper.Build(
+                OpenSettingsDefaults.Routes.V1.AppSettingsEndpoints.DeleteAppSetting,
+                new[] { $"{input.AppSettingId}" },
+                (nameof(input.RowVersion), Convert.ToBase64String(input.RowVersion)));
 
             using (var response = await GetProviderHttpClient().DeleteAsync(relativeUri, cancellationToken))
             {
@@ -128,7 +131,7 @@ namespace OpenSettings.Services.Rest
 
         public async Task<IResponse<GetSettingsLastUpdatedComputedIdentifiersResponse>> GetAppSettingsLastUpdatedComputedIdentifiersAsync(GetSettingsLastUpdatedComputedIdentifiersInput input, CancellationToken cancellationToken = default)
         {
-            const string relativeUri = "v1/settings/latest-updates";
+            var relativeUri = OpenSettingsDefaults.Routes.V1.AppSettingsEndpoints.GetAppSettingsLastUpdatedComputedIdentifiers;
 
             using (var jsonContent = JsonContent.Create(input))
             {
@@ -141,24 +144,22 @@ namespace OpenSettings.Services.Rest
 
         public async Task<IResponse> GetAppSettingByIdAsync(GetAppSettingByIdInput input, CancellationToken cancellationToken = default)
         {
-            var relativeUri = $"v1/settings/{input.AppSettingId}";
+            var relativeUri = RouteHelper.Build(
+                OpenSettingsDefaults.Routes.V1.AppSettingsEndpoints.GetAppSettingById,
+                new[] { $"{input.AppSettingId}" },
+                (nameof(input.Excludes), string.Join(OpenSettingsDefaults.Format.Comma, input.Excludes)));
 
-            var queryBuilder = new QueryBuilder();
-
-            if (input.Excludes.Count > 0)
-            {
-                queryBuilder.Append(nameof(input.Excludes), string.Join(",", input.Excludes));
-            }
-
-            using (var response = await GetProviderHttpClient().GetAsync(queryBuilder.ToString(relativeUri), cancellationToken))
+            using (var response = await GetProviderHttpClient().GetAsync(relativeUri, cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
         }
 
-        public async Task<IResponse> UpdateSettingAsync(UpdateSettingInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> UpdateAppSettingAsync(UpdateSettingInput input, CancellationToken cancellationToken = default)
         {
-            var relativeUri = $"v1/settings/{input.AppSettingId}";
+            var relativeUri = RouteHelper.Build(
+                OpenSettingsDefaults.Routes.V1.AppSettingsEndpoints.UpdateAppSetting,
+                new[] { $"{input.AppSettingId}" });
 
             var body = new
             {
@@ -185,7 +186,7 @@ namespace OpenSettings.Services.Rest
 
         public async Task<IResponse> CreateAppSettingAsync(CreateSettingInput input, CancellationToken cancellationToken = default)
         {
-            const string relativeUri = "v1/settings";
+            const string relativeUri = OpenSettingsDefaults.Routes.V1.AppSettingsEndpoints.CreateAppSetting;
 
             var body = new
             {
@@ -210,9 +211,11 @@ namespace OpenSettings.Services.Rest
             }
         }
 
-        public async Task<IResponse<UpdateSettingDataResponse>> UpdateAppSettingDataAsync(UpdateSettingDataInput input, CancellationToken cancellationToken)
+        public async Task<IResponse<UpdateAppSettingDataResponse>> UpdateAppSettingDataAsync(UpdateSettingDataInput input, CancellationToken cancellationToken)
         {
-            var relativeUri = $"v1/settings/{input.AppSettingId}/data";
+            var relativeUri = RouteHelper.Build(
+                OpenSettingsDefaults.Routes.V1.AppSettingsEndpoints.UpdateAppSettingData,
+                new[] { $"{input.AppSettingId}" });
 
             var body = new
             {
@@ -224,7 +227,7 @@ namespace OpenSettings.Services.Rest
             {
                 using (var response = await GetProviderHttpClient().PutAsync(relativeUri, jsonContent, cancellationToken))
                 {
-                    var responseContent = await response.Content.ToResponseAsync<UpdateSettingDataResponse>(cancellationToken: cancellationToken);
+                    var responseContent = await response.Content.ToResponseAsync<UpdateAppSettingDataResponse>(cancellationToken: cancellationToken);
 
                     if (_dataChangeService != null && responseContent.Success && (!_openSettingsConfiguration.Consumer.IsRedisActive || !_providerInfo.Redis.IsActive))
                     {

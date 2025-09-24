@@ -568,10 +568,6 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 
             modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.AppTagMappingSqlModel", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid>("AppId")
                         .HasColumnType("uniqueidentifier");
 
@@ -587,9 +583,7 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.Property<Guid?>("TenantId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("Id");
-
-                    b.HasIndex("AppId");
+                    b.HasKey("AppId", "AppTagId");
 
                     b.HasIndex("AppTagId");
 

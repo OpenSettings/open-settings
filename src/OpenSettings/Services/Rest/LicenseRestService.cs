@@ -1,10 +1,10 @@
 ﻿using Ogu.Response;
 using Ogu.Response.Abstractions;
 using OpenSettings.Extensions;
+using OpenSettings.Helpers;
 using OpenSettings.Models;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Services.Rest.Interfaces;
-using System;
 using System.Net;
 using System.Net.Http;
 using System.Text;
@@ -15,8 +15,6 @@ namespace OpenSettings.Services.Rest
 {
     public class LicenseRestService : ILicenseRestService
     {
-        private HttpClient HttpClient => _httpClientFactory.CreateOpenSettingsProviderHttpClient();
-
         private readonly IHttpClientFactory _httpClientFactory;
 
         public LicenseRestService(IHttpClientFactory httpClientFactory)
@@ -26,30 +24,17 @@ namespace OpenSettings.Services.Rest
 
         public async Task<IResponse> GetPaginatedLicensesAsync(GetPaginatedLicensesInput input, CancellationToken cancellationToken)
         {
-            const string relativeUri = "v1/licenses/paginated";
+            var relativeUri = RouteHelper.Build(
+                OpenSettingsDefaults.Routes.V1.LicensesEndpoints.GetPaginatedLicenses,
+                null,
+                ("page", input.PaginatedInput.PageIndex),
+                ("size", input.PaginatedInput.PageSize),
+                (nameof(input.PaginatedInput.SearchTerm), input.PaginatedInput.SearchTerm),
+                (nameof(input.PaginatedInput.SearchBy), input.PaginatedInput.SearchBy),
+                (nameof(input.PaginatedInput.SortBy), input.PaginatedInput.SortBy),
+                    (nameof(input.PaginatedInput.SortDirection), input.PaginatedInput.SortDirection));
 
-            var queryBuilder = new QueryBuilder()
-                .Append("page", input.PaginatedInput.PageIndex)
-                .Append("size", input.PaginatedInput.PageSize);
-
-            if (!string.IsNullOrWhiteSpace(input.PaginatedInput.SearchTerm))
-            {
-                queryBuilder.Append(nameof(input.PaginatedInput.SearchTerm), input.PaginatedInput.SearchTerm);
-            }
-
-            if (!string.IsNullOrWhiteSpace(input.PaginatedInput.SearchBy))
-            {
-                queryBuilder.Append(nameof(input.PaginatedInput.SearchBy), input.PaginatedInput.SearchBy);
-            }
-
-            if (!string.IsNullOrWhiteSpace(input.PaginatedInput.SortBy))
-            {
-                queryBuilder.Append(nameof(input.PaginatedInput.SortBy), input.PaginatedInput.SortBy);
-            }
-
-            queryBuilder.Append(nameof(input.PaginatedInput.SortDirection), input.PaginatedInput.SortDirection);
-
-            using (var response = await HttpClient.GetAsync(queryBuilder.ToString(relativeUri), cancellationToken))
+            using (var response = await GetProviderHttpClient().GetAsync(relativeUri, cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
@@ -57,9 +42,9 @@ namespace OpenSettings.Services.Rest
 
         public async Task<IResponse<License>> GetCurrentLicenseAsync(CancellationToken cancellationToken)
         {
-            const string relativeUri = "v1/licenses/current";
+            const string relativeUri = OpenSettingsDefaults.Routes.V1.LicensesEndpoints.GetCurrentLicense;
 
-            using (var response = await HttpClient.GetAsync(relativeUri, cancellationToken))
+            using (var response = await GetProviderHttpClient().GetAsync(relativeUri, cancellationToken))
             {
                 return await response.Content.ToResponseAsync<License>(cancellationToken: cancellationToken);
             }
@@ -67,11 +52,11 @@ namespace OpenSettings.Services.Rest
 
         public async Task<IResponse> SaveLicenseAsync(string licenseKey, CancellationToken cancellationToken)
         {
-            const string relativeUri = "v1/licenses";
+            const string relativeUri = OpenSettingsDefaults.Routes.V1.LicensesEndpoints.SaveLicense;
 
             using (var stringContent = new StringContent($"\"{licenseKey}\"", Encoding.UTF8, OpenSettingsDefaults.ContentTypes.ApplicationJson))
             {
-                using (var response = await HttpClient.PostAsync(relativeUri, stringContent, cancellationToken))
+                using (var response = await GetProviderHttpClient().PostAsync(relativeUri, stringContent, cancellationToken))
                 {
                     return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
                 }
@@ -85,12 +70,19 @@ namespace OpenSettings.Services.Rest
                 return HttpStatusCode.BadRequest.ToFailureResponse(Errors.ReferenceIdMustNotEmpty);
             }
 
-            var relativeUri = $"v1/licenses/{Uri.EscapeDataString(input.ReferenceId)}";
+            var relativeUri = RouteHelper.Build(
+                OpenSettingsDefaults.Routes.V1.LicensesEndpoints.DeleteLicense,
+                new[] { input.ReferenceId });
 
-            using (var response = await HttpClient.DeleteAsync(relativeUri, cancellationToken))
+            using (var response = await GetProviderHttpClient().DeleteAsync(relativeUri, cancellationToken))
             {
                 return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
             }
+        }
+
+        private HttpClient GetProviderHttpClient()
+        {
+            return _httpClientFactory.CreateOpenSettingsProviderHttpClient();
         }
     }
 }

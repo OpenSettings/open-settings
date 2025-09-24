@@ -1,0 +1,25 @@
+﻿using System;
+
+namespace OpenSettings.Models.Responses
+{
+    public class GetAppSettingHistoriesResponse
+    {
+        public string Id { get; set; }
+
+        public string Data { get; set; }
+
+        public string Version { get; set; }
+
+        public string Slug { get; set; }
+
+        public Guid? CreatedById { get; set; }
+
+        public Guid? RestoredById { get; set; }
+
+        public DateTime CreatedOn { get; set; }
+
+        public DateTime? RestoredOn { get; set; }
+
+        public byte[] RowVersion { get; set; } = Array.Empty<byte>();
+    }
+}

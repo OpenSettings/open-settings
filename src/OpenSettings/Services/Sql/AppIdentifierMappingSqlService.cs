@@ -5,6 +5,7 @@ using OpenSettings.Configurations;
 using OpenSettings.Domains.Sql.DataContext;
 using OpenSettings.Domains.Sql.Entities;
 using OpenSettings.Extensions;
+using OpenSettings.Helpers;
 using OpenSettings.Models;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Models.Responses;
@@ -152,12 +153,12 @@ namespace OpenSettings.Services.Sql
 
             return HttpStatusCode.OK.ToSuccessResponse(new CreateAppIdentifierMappingResponse
             {
+                SortOrder = mappingSortOrder,
                 AppId = input.AppId,
                 Identifier = new CreateAppIdentifierMappingResponseIdentifier
                 {
                     Id = input.Identifier.Id.Value,
                     SortOrder = identifierSortOrder,
-                    MappingSortOrder = mappingSortOrder,
                 }
             });
         }
@@ -174,7 +175,7 @@ namespace OpenSettings.Services.Sql
                 .Where(a => a.AppId == Guid.Parse(input.AppIdOrSlug) && a.IdentifierId == Guid.Parse(input.IdentifierIdOrSlug))
                 .Select(a => new GetAppIdentifierMappingByAppAndIdentifierResponse
                 {
-                    MappingSortOrder = a.SortOrder,
+                    SortOrder = a.SortOrder,
                     AppId = input.AppIdOrSlug,
                     Identifier = new GetAppIdentifierMappingByAppAndIdentifierResponseIdentifier
                     {
@@ -204,7 +205,7 @@ namespace OpenSettings.Services.Sql
                             a.Identifier.Slug == input.IdentifierIdOrSlug)
                 .Select(a => new GetAppIdentifierMappingByAppAndIdentifierResponse
                 {
-                    MappingSortOrder = a.SortOrder,
+                    SortOrder = a.SortOrder,
                     AppId = $"{a.AppId}",
                     Identifier = new GetAppIdentifierMappingByAppAndIdentifierResponseIdentifier
                     {
@@ -246,8 +247,11 @@ namespace OpenSettings.Services.Sql
                     {
                         Id = $"{m.IdentifierId}",
                         SortOrder = m.Identifier.SortOrder,
-                        MappingSortOrder = m.SortOrder,
-                        MappingRowVersion = m.RowVersion
+                        AppMapping = new GetAppIdentifierMappingsResponseIdentifierAppMapping
+                        {
+                            SortOrder = m.SortOrder,
+                            RowVersion = m.RowVersion
+                        }
                     }).ToArray()
                 })
                 .FirstOrDefaultAsync(cancellationToken);
@@ -264,23 +268,29 @@ namespace OpenSettings.Services.Sql
 
             var firstIdentifier = entity.Identifiers[0];
 
-            int minOrder = firstIdentifier.SortOrder, maxOrder = firstIdentifier.SortOrder, mappingMinOrder = firstIdentifier.MappingSortOrder, mappingMaxOrder = firstIdentifier.MappingSortOrder;
+            int identifierMinOrder = firstIdentifier.SortOrder, identifierMaxOrder = firstIdentifier.SortOrder, mappingMinOrder = firstIdentifier.AppMapping.SortOrder, mappingMaxOrder = firstIdentifier.AppMapping.SortOrder;
 
             foreach (var identifier in entity.Identifiers.Skip(1))
             {
-                minOrder = Math.Min(identifier.SortOrder, minOrder);
-                maxOrder = Math.Min(identifier.SortOrder, maxOrder);
+                identifierMinOrder = Math.Min(identifier.SortOrder, identifierMinOrder);
+                identifierMaxOrder = Math.Min(identifier.SortOrder, identifierMaxOrder);
 
-                mappingMinOrder = Math.Min(identifier.MappingSortOrder, mappingMinOrder);
-                mappingMaxOrder = Math.Max(identifier.MappingSortOrder, mappingMaxOrder);
+                mappingMinOrder = Math.Min(identifier.AppMapping.SortOrder, mappingMinOrder);
+                mappingMaxOrder = Math.Max(identifier.AppMapping.SortOrder, mappingMaxOrder);
             }
 
             return HttpStatusCode.OK.ToSuccessResponse(new GetAppIdentifierMappingsResponse
             {
-                MinSortOrder = minOrder,
-                MaxSortOrder = maxOrder,
-                MappingMinSortOrder = mappingMinOrder,
-                MappingMaxSortOrder = mappingMaxOrder,
+                IdentifierSortOrderRange = new SortOrderRange
+                {
+                    Min = identifierMinOrder,
+                    Max = identifierMaxOrder
+                },
+                AppIdentifierMappingSortOrderRange = new SortOrderRange
+                {
+                    Min = mappingMinOrder,
+                    Max = mappingMaxOrder
+                },
                 Identifiers = entity.Identifiers
             });
         }
@@ -381,7 +391,7 @@ namespace OpenSettings.Services.Sql
             _context.AppIdentifierMappings.AttachRange(foundEntity, entity);
 
             var currentTime = DateTime.UtcNow;
-            var rowVersion = currentTime.ToRowVersion();
+            var rowVersion = RowVersionHelper.Date(currentTime);
 
             (entity.SortOrder, foundEntity.SortOrder) = (foundEntity.SortOrder, entity.SortOrder);
 
@@ -391,7 +401,7 @@ namespace OpenSettings.Services.Sql
 
             entity.UpdatedOn = currentTime;
             entity.UpdatedById = input.UpdatedById;
-            entity.RowVersion = currentTime.ToRowVersion();
+            entity.RowVersion = rowVersion;
 
             try
             {
@@ -447,7 +457,7 @@ namespace OpenSettings.Services.Sql
 
                 var response = new ReorderResponse
                 {
-                    RowVersion = currentTime.ToRowVersion()
+                    RowVersion = RowVersionHelper.Date(currentTime)
                 };
 
                 for (var i = 0; i < entities.Length; i++)

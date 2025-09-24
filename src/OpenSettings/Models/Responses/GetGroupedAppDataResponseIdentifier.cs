@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace OpenSettings.Models.Responses
+﻿namespace OpenSettings.Models.Responses
 {
     public class GetGroupedAppDataResponseIdentifier
     {
@@ -8,10 +6,10 @@ namespace OpenSettings.Models.Responses
 
         public string Name { get; set; }
 
+        public string Slug { get; set; }
+
         public int SortOrder { get; set; }
 
-        public int MappingSortOrder { get; set; }
-
-        public byte[] MappingRowVersion { get; set; } = Array.Empty<byte>();
+        public GetGroupedAppDataResponseIdentifierAppMapping AppMapping { get; set; }
     }
 }

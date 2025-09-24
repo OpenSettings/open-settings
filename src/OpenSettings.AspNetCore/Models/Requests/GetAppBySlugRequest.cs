@@ -5,6 +5,6 @@ namespace OpenSettings.AspNetCore.Models.Requests
     public class GetAppBySlugRequest
     {
         [FromRoute]
-        public string Slug { get; set; }
+        public string AppSlug { get; set; }
     }
 }

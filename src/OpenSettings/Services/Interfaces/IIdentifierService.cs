@@ -30,7 +30,7 @@ namespace OpenSettings.Services.Interfaces
 
         Task<IResponse> DragIdentifierAsync(DragItemSortOrderInput input, CancellationToken cancellationToken = default);
 
-        Task<IResponse> ReorderAsync();
+        Task<IResponse> ReorderIdentifiersAsync();
 
         Task<IResponse<GetOrCreateResponse>> GetOrCreateAsync(string name, SetSortOrderPosition setSortOrderPosition, Guid? createdById, CancellationToken cancellationToken = default);
     }

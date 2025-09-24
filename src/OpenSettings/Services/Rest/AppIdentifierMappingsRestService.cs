@@ -98,7 +98,7 @@ namespace OpenSettings.Services.Rest
             var relativeUri = RouteHelper.Build(
                 OpenSettingsDefaults.Routes.V1.AppsEndpoints.DeleteAppIdentifierMapping,
                 new[] { $"{input.AppId}", $"{input.IdentifierId}" },
-                RouteHelper.Query((nameof(input.RowVersion), Convert.ToBase64String(input.RowVersion))));
+                (nameof(input.RowVersion), Convert.ToBase64String(input.RowVersion)));
 
             using (var response = await GetProviderHttpClient().DeleteAsync(relativeUri, cancellationToken))
             {

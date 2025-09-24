@@ -3,10 +3,8 @@ using OpenSettings.Extensions;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Models.Responses;
 using OpenSettings.Services.Interfaces;
-using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,7 +22,7 @@ namespace OpenSettings.Services.Rest
 
         public async Task<IResponse<GenerateTokenResponse>> GenerateTokenForMachineAsync(GenerateTokenForMachineInput input, CancellationToken cancellationToken)
         {
-            const string relativeUri = "v1/token/machine";
+            const string relativeUri = OpenSettingsDefaults.Routes.V1.TokenEndpoints.GenerateTokenForMachine;
 
             var body = new
             {
@@ -48,7 +46,7 @@ namespace OpenSettings.Services.Rest
 
         public async Task<string> GetPublicJwksAsync(CancellationToken cancellationToken = default)
         {
-            const string relativeUri = "v1/token/jwks";
+            const string relativeUri = OpenSettingsDefaults.Routes.V1.TokenEndpoints.GetPublicJwks;
 
             var httpClient = GetProviderHttpClient();
 
