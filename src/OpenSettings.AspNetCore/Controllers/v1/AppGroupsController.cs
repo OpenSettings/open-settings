@@ -27,7 +27,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return ModelState.ToAction();
             }
 
-            var result = await _appGroupsService.GetAppGroupsAsync(new GetGroupsInput
+            var result = await _appGroupsService.GetAppGroupsAsync(new GetAppGroupsInput
             {
                 SearchTerm = request.SearchTerm,
                 HasMappings = request.HasMappings
@@ -45,7 +45,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return ModelState.ToAction();
             }
 
-            var result = await _appGroupsService.CreateAppGroupAsync(new CreateGroupInput
+            var result = await _appGroupsService.CreateAppGroupAsync(new CreateAppGroupInput
             {
                 Name = request.Body.Name,
                 SortOrder = request.Body.SortOrder,
@@ -78,7 +78,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return ModelState.ToAction();
             }
             
-            var result = await _appGroupsService.GetAppGroupByIdAsync(new GetGroupInput { GroupIdOrSlug = request.AppGroupId }, cancellationToken);
+            var result = await _appGroupsService.GetAppGroupByIdAsync(new GetAppGroupInput { GroupIdOrSlug = request.AppGroupId }, cancellationToken);
 
             return result.ToAction();
         }
@@ -91,7 +91,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return ModelState.ToAction();
             }
 
-            var result = await _appGroupsService.GetAppGroupBySlugAsync(new GetGroupInput { GroupIdOrSlug = request.AppGroupSlug }, cancellationToken);
+            var result = await _appGroupsService.GetAppGroupBySlugAsync(new GetAppGroupInput { GroupIdOrSlug = request.AppGroupSlug }, cancellationToken);
 
             return result.ToAction();
         }
@@ -104,7 +104,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return ModelState.ToAction();
             }
 
-            var result = await _appGroupsService.UpdateAppGroupAsync(new UpdateGroupInput
+            var result = await _appGroupsService.UpdateAppGroupAsync(new UpdateAppGroupInput
             {
                 AppGroupId = request.AppGroupId,
                 Name = request.Body.Name,
@@ -125,11 +125,11 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return ModelState.ToAction();
             }
 
-            var result = await _appGroupsService.UpdateAppGroupSortOrderAsync(new UpdateGroupSortOrderInput
+            var result = await _appGroupsService.UpdateAppGroupSortOrderAsync(new UpdateAppGroupSortOrderInput
             {
                 AppGroupId = request.AppGroupId,
-                Ascent = request.Ascent,
-                RowVersion = request.RowVersion,
+                Direction = request.Body.Direction,
+                RowVersion = request.Body.RowVersion,
                 UpdatedById = User.GetUserId()
             }, cancellationToken);
 
@@ -148,8 +148,8 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             {
                 SourceId = request.SourceId,
                 TargetId = request.TargetId,
-                Ascent = request.Ascent,
-                SourceRowVersion = request.SourceRowVersion,
+                Direction = request.Body.Direction,
+                SourceRowVersion = request.Body.SourceRowVersion,
                 UpdatedById = User.GetUserId()
             }, cancellationToken);
 
@@ -159,7 +159,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         [HttpPost(OpenSettingsDefaults.Routes.V1.AppGroupsEndpoints.ReorderAppGroup)]
         public async Task<IActionResult> ReorderGroups()
         {
-            var result = await _appGroupsService.ReorderAppGroupsAsync();
+            var result = await _appGroupsService.ReorderAppGroupsAsync(User.GetUserId());
 
             return result.ToAction();
         }
@@ -172,7 +172,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return ModelState.ToAction();
             }
 
-            var result = await _appGroupsService.DeleteAppGroupAsync(new DeleteGroupInput { AppGroupId = request.AppGroupId, RowVersion = request.RowVersion }, cancellationToken);
+            var result = await _appGroupsService.DeleteAppGroupAsync(new DeleteAppGroupInput { AppGroupId = request.AppGroupId, RowVersion = request.RowVersion }, cancellationToken);
 
             return result.ToAction();
         }

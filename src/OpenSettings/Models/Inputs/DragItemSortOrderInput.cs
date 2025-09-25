@@ -8,7 +8,7 @@ namespace OpenSettings.Models.Inputs
 
         public Guid TargetId { get; set; }
 
-        public bool Ascent { get; set; }
+        public MoveDirection Direction { get; set; }
 
         public byte[] SourceRowVersion { get; set; } = Array.Empty<byte>();
 

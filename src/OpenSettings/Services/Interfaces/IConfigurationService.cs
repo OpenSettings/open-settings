@@ -9,6 +9,6 @@ namespace OpenSettings.Services.Interfaces
     {
         Task<IResponse> GetAppConfigurationByAppIdAndIdentifierIdAsync(GetAppConfigurationByAppAndIdentifierInput input, CancellationToken cancellationToken = default);
 
-        Task<IResponse> PatchAppConfigurationAsync(PatchConfigurationInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> PatchAppConfigurationAsync(PatchAppConfigurationInput input, CancellationToken cancellationToken = default);
     }
 }

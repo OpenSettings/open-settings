@@ -32,7 +32,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return ModelState.ToAction();
             }
 
-            var result = await _appSettingService.CreateAppSettingAsync(new CreateSettingInput
+            var result = await _appSettingService.CreateAppSettingAsync(new CreateAppSettingInput
             {
                 AppId = request.Body.AppId,
                 IdentifierId = request.Body.IdentifierId,
@@ -59,7 +59,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return ModelState.ToAction();
             }
 
-            var result = await _appSettingService.GetAppSettingsLastUpdatedComputedIdentifiersAsync(new GetSettingsLastUpdatedComputedIdentifiersInput
+            var result = await _appSettingService.GetAppSettingsLastUpdatedComputedIdentifiersAsync(new GetAppSettingsLastUpdatedComputedIdentifiersInput
             {
                 ClientId = request.ClientId,
                 IdentifierName = request.IdentifierName,
@@ -95,7 +95,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return HttpStatusCode.BadRequest.ToFailureResponse(Errors.ComputedIdentifierMustNotEmpty).ToAction();
             }
 
-            var result = await _appSettingService.UpdateAppSettingAsync(new UpdateSettingInput
+            var result = await _appSettingService.UpdateAppSettingAsync(new UpdateAppSettingInput
             {
                 AppSettingId = request.AppSettingId,
                 ComputedIdentifier = request.Body.ComputedIdentifier,
@@ -122,7 +122,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return HttpStatusCode.BadRequest.ToFailureResponse(ModelState).ToAction();
             }
 
-            var result = await _appSettingService.DeleteAppSettingAsync(new DeleteSettingInput
+            var result = await _appSettingService.DeleteAppSettingAsync(new DeleteAppSettingInput
             {
                 AppSettingId = request.AppSettingId,
                 RowVersion = request.RowVersion
@@ -152,7 +152,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return ModelState.ToAction();
             }
 
-            var result = await _appSettingService.CopyAppSettingToAsync(new CopySettingToInput
+            var result = await _appSettingService.CopyAppSettingToAsync(new CopyAppSettingToInput
             {
                 AppSettingId = request.AppSettingId,
                 TargetAppId = request.Body.TargetAppId,
@@ -167,7 +167,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         [HttpGet(OpenSettingsDefaults.Routes.V1.AppSettingsEndpoints.GetAppSettingData)]
         public async Task<IActionResult> GetAppSettingData(GetSettingDataRequest request, CancellationToken cancellationToken = default)
         {
-            var result = await _appSettingService.GetAppSettingDataAsync(new GetSettingDataInput
+            var result = await _appSettingService.GetAppSettingDataAsync(new GetAppSettingDataInput
             {
                 AppSettingId = request.AppSettingId
             }, cancellationToken);
@@ -179,7 +179,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         public async Task<IActionResult> UpdateAppSettingData(UpdateAppSettingDataRequest request,
             CancellationToken cancellationToken = default)
         {
-            var result = await _appSettingService.UpdateAppSettingDataAsync(new UpdateSettingDataInput
+            var result = await _appSettingService.UpdateAppSettingDataAsync(new UpdateAppSettingDataInput
             {
                 AppSettingId = request.AppSettingId,
                 Data = request.Body.Data,

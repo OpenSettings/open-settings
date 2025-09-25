@@ -21,6 +21,6 @@ namespace OpenSettings.Models.Responses
 
         public string CreatorName { get; set; }
 
-        public Dictionary<string, object> Metadata { get; set; }
+        public Dictionary<string, object> Metadata { get; set; } = new Dictionary<string, object>();
     }
 }

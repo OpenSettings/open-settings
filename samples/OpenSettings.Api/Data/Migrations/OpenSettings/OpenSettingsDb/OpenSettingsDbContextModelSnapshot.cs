@@ -465,8 +465,6 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CopiedFromId");
-
                     b.HasIndex("CreatedById");
 
                     b.HasIndex("IdentifierId");
@@ -1755,10 +1753,6 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("OpenSettings.Domains.Sql.Entities.AppSettingSqlModel", "CopiedFrom")
-                        .WithMany()
-                        .HasForeignKey("CopiedFromId");
-
                     b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "CreatedBy")
                         .WithMany()
                         .HasForeignKey("CreatedById");
@@ -1774,8 +1768,6 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         .HasForeignKey("UpdatedById");
 
                     b.Navigation("App");
-
-                    b.Navigation("CopiedFrom");
 
                     b.Navigation("CreatedBy");
 

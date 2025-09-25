@@ -170,13 +170,20 @@ namespace OpenSettings.Services.Rest
 
             var relativeUri = RouteHelper.Build(
                 OpenSettingsDefaults.Routes.V1.IdentifiersEndpoints.UpdateIdentifierSortOrder,
-                new[] { $"{input.IdentifierId}" },
-                (nameof(input.Ascent), input.Ascent),
-                (nameof(input.RowVersion), Convert.ToBase64String(input.RowVersion)));
+                new[] { $"{input.IdentifierId}" });
 
-            using (var response = await GetProviderHttpClient().PostAsync(relativeUri, null, cancellationToken))
+            var body = new
             {
-                return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
+                Direction = input.Direction,
+                RowVersion = input.RowVersion
+            };
+
+            using (var jsonContent = JsonContent.Create(body))
+            {
+                using (var response = await GetProviderHttpClient().PostAsync(relativeUri, jsonContent, cancellationToken))
+                {
+                    return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
+                }
             }
         }
 
@@ -186,13 +193,20 @@ namespace OpenSettings.Services.Rest
 
             var relativeUri = RouteHelper.Build(
                 OpenSettingsDefaults.Routes.V1.IdentifiersEndpoints.DragIdentifier,
-                new[] { $"{input.SourceId}, {input.TargetId}" },
-                (nameof(input.Ascent), input.Ascent),
-                (nameof(input.SourceRowVersion), Convert.ToBase64String(input.SourceRowVersion)));
+                new[] { $"{input.SourceId}, {input.TargetId}" });
 
-            using (var response = await GetProviderHttpClient().PostAsync(relativeUri, null, cancellationToken))
+            var body = new
             {
-                return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
+                Direction = input.Direction,
+                SourceRowVersion = input.SourceRowVersion
+            };
+
+            using (var jsonContent = JsonContent.Create(body))
+            {
+                using (var response = await GetProviderHttpClient().PostAsync(relativeUri, jsonContent, cancellationToken))
+                {
+                    return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
+                }
             }
         }
 
@@ -201,7 +215,7 @@ namespace OpenSettings.Services.Rest
             throw new NotSupportedException(nameof(GetOrCreateAsync));
         }
 
-        public async Task<IResponse> ReorderIdentifiersAsync()
+        public async Task<IResponse> ReorderIdentifiersAsync(Guid? updatedById)
         {
             const string relativeUri = OpenSettingsDefaults.Routes.V1.IdentifiersEndpoints.ReorderIdentifiers;
 

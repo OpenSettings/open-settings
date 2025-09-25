@@ -835,7 +835,7 @@ namespace OpenSettings.Services.Sql
                 return;
             }
 
-            response.NotificationIdToNotification[licenseExpiryNotification.NotificationId] = licenseExpiryNotification.Notification;
+            response.NotificationIdToNotification[licenseExpiryNotification.Notification.Id] = licenseExpiryNotification.Notification;
             response.UserNotifications.Add(new GetUserNotificationsResponseNotification
             {
                 Id = $"{licenseExpiryNotification.Notification.Id}",
@@ -897,7 +897,6 @@ namespace OpenSettings.Services.Sql
 
                 return new InternalNotificationResponse
                 {
-                    NotificationId = notificationId,
                     Notification = response
                 };
             }
@@ -906,7 +905,6 @@ namespace OpenSettings.Services.Sql
             {
                 return new InternalNotificationResponse
                 {
-                    NotificationId = notificationId,
                     Notification = response
                 };
             }
@@ -926,7 +924,6 @@ namespace OpenSettings.Services.Sql
 
             return new InternalNotificationResponse
             {
-                NotificationId = notificationId,
                 Notification = response
             };
         }
@@ -945,7 +942,7 @@ namespace OpenSettings.Services.Sql
                 return;
             }
 
-            response.NotificationIdToNotification[versionMismatchNotification.NotificationId] = versionMismatchNotification.Notification;
+            response.NotificationIdToNotification[versionMismatchNotification.Notification.Id] = versionMismatchNotification.Notification;
             response.UserNotifications.Add(new GetUserNotificationsResponseNotification
             {
                 Id = $"{versionMismatchNotification.Notification.Id}",
@@ -1015,7 +1012,6 @@ namespace OpenSettings.Services.Sql
 
                 return new InternalNotificationResponse
                 {
-                    NotificationId = notificationId,
                     Notification = response
                 };
             }
@@ -1024,7 +1020,6 @@ namespace OpenSettings.Services.Sql
             {
                 return new InternalNotificationResponse
                 {
-                    NotificationId = notificationId,
                     Notification = response
                 };
             }
@@ -1044,7 +1039,6 @@ namespace OpenSettings.Services.Sql
 
             return new InternalNotificationResponse
             {
-                NotificationId = notificationId,
                 Notification = response
             };
         }

@@ -298,7 +298,7 @@ namespace OpenSettings.Services
             }
 
             var settingsLastUpdatedClassComputedIdentifiers = await _appSettingService.GetAppSettingsLastUpdatedComputedIdentifiersAsync(
-                new GetSettingsLastUpdatedComputedIdentifiersInput
+                new GetAppSettingsLastUpdatedComputedIdentifiersInput
                 {
                     ClientId = _openSettingsConfiguration.Client.Id,
                     LastUpdatedOn = currentSettingsData?.LastUpdatedOn,
@@ -370,7 +370,7 @@ namespace OpenSettings.Services
             var settingsData = IdentifierNameToCurrentSettingsData.GetValueOrDefault(_openSettingsConfiguration.IdentifierNameLowercase);
 #endif
             var settingsLastUpdatedClassComputedIdentifiers = await _appSettingService.GetAppSettingsLastUpdatedComputedIdentifiersAsync(
-                new GetSettingsLastUpdatedComputedIdentifiersInput
+                new GetAppSettingsLastUpdatedComputedIdentifiersInput
                 {
                     ClientId = _openSettingsConfiguration.Client.Id,
                     LastUpdatedOn = settingsData?.LastUpdatedOn,

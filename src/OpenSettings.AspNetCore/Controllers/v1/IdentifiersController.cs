@@ -157,8 +157,8 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             var result = await _identifierService.UpdateIdentifierSortOrderAsync(new UpdateIdentifierSortOrderInput
             {
                 IdentifierId = request.IdentifierId,
-                Ascent = request.Ascent,
-                RowVersion = request.RowVersion,
+                Direction = request.Body.Direction,
+                RowVersion = request.Body.RowVersion,
                 UpdatedById = User.GetUserId()
             }, cancellationToken);
 
@@ -177,8 +177,8 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             {
                 SourceId = request.SourceId,
                 TargetId = request.TargetId,
-                Ascent = request.Ascent,
-                SourceRowVersion = request.SourceRowVersion,
+                Direction = request.Body.Direction,
+                SourceRowVersion = request.Body.SourceRowVersion,
                 UpdatedById = User.GetUserId()
             }, cancellationToken);
 
@@ -188,7 +188,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         [HttpPost(OpenSettingsDefaults.Routes.V1.IdentifiersEndpoints.ReorderIdentifiers)]
         public async Task<IActionResult> ReorderIdentifiers()
         {
-            var result = await _identifierService.ReorderIdentifiersAsync();
+            var result = await _identifierService.ReorderIdentifiersAsync(User.GetUserId());
 
             return result.ToAction();
         }

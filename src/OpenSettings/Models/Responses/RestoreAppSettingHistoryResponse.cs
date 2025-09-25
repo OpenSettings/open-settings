@@ -6,8 +6,8 @@ namespace OpenSettings.Models.Responses
     {
         public Guid ClientId { get; set; }
 
-        public RestoreAppSettingHistoryResponseSetting Setting { get; set; }
+        public string IdentifierName { get; set; }
 
-        public byte[] HistoryRowVersion { get; set; } = Array.Empty<byte>();
+        public RestoreAppSettingHistoryResponseSetting Setting { get; set; }
     }
 }

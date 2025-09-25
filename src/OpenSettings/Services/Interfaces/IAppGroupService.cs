@@ -14,23 +14,23 @@ namespace OpenSettings.Services.Interfaces
 
         Task<IResponse> DeleteUnmappedAppGroupsAsync(CancellationToken cancellationToken = default);
 
-        Task<IResponse> GetAppGroupsAsync(GetGroupsInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> GetAppGroupsAsync(GetAppGroupsInput input, CancellationToken cancellationToken = default);
 
-        Task<IResponse> CreateAppGroupAsync(CreateGroupInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> CreateAppGroupAsync(CreateAppGroupInput input, CancellationToken cancellationToken = default);
 
-        Task<IResponse> GetAppGroupByIdAsync(GetGroupInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> GetAppGroupByIdAsync(GetAppGroupInput input, CancellationToken cancellationToken = default);
 
-        Task<IResponse> GetAppGroupBySlugAsync(GetGroupInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> GetAppGroupBySlugAsync(GetAppGroupInput input, CancellationToken cancellationToken = default);
 
-        Task<IResponse> UpdateAppGroupAsync(UpdateGroupInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> UpdateAppGroupAsync(UpdateAppGroupInput input, CancellationToken cancellationToken = default);
 
-        Task<IResponse> DeleteAppGroupAsync(DeleteGroupInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> DeleteAppGroupAsync(DeleteAppGroupInput input, CancellationToken cancellationToken = default);
 
-        Task<IResponse> UpdateAppGroupSortOrderAsync(UpdateGroupSortOrderInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> UpdateAppGroupSortOrderAsync(UpdateAppGroupSortOrderInput input, CancellationToken cancellationToken = default);
 
         Task<IResponse> DragAppGroupAsync(DragItemSortOrderInput input, CancellationToken cancellationToken = default);
 
-        Task<IResponse> ReorderAppGroupsAsync();
+        Task<IResponse> ReorderAppGroupsAsync(Guid? updatedById);
 
         Task<IResponse<GetOrCreateResponse>> GetOrCreateAsync(string name, SetSortOrderPosition setSortOrderPosition, Guid? createdById, CancellationToken cancellationToken = default);
     }

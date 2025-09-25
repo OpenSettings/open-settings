@@ -198,7 +198,7 @@ namespace OpenSettings.Extensions
                 OpenSettingsDefaults.Caches.ComputedIdentifierToLocalSetting[localSetting.ComputedIdentifier] = localSetting;
                 OpenSettingsDefaults.Caches.TypeIdToComputedIdentifier[localSetting.Type.GUID] = localSetting.ComputedIdentifier;
                 OpenSettingsDefaults.Caches.FullNameToLocalSetting[localSetting.Type.FullName] = localSetting;
-                OpenSettingsDefaults.Caches.ClassNameToCount[localSetting.Type.Name] = OpenSettingsDefaults.Caches.ClassNameToCount.GetValueOrDefault(localSetting.Type.Name, 0) + 1;
+                OpenSettingsDefaults.Caches.ClassNameToCount[localSetting.Type.Name] = OpenSettingsDefaults.Caches.ClassNameToCount.GetValueOrDefault(localSetting.Type.Name) + 1;
             }
         }
 
@@ -224,7 +224,7 @@ namespace OpenSettings.Extensions
 
                 await openSettingsConfiguration.Provider.InitializeDbAsync(context, cancellationToken);
 
-                var sortOrderSqlService = new SortOrderSqlService(new LockSqlService(context), context, openSettingsConfiguration);
+                var sortOrderSqlService = new SortOrderSqlService(new LockSqlService(context), context);
                 var appGroupsSqlService = new AppGroupSqlService(context, sortOrderSqlService);
                 var tagsSqlService = new AppTagSqlService(context, sortOrderSqlService);
                 var identifierSqlService = new IdentifierSqlService(context, sortOrderSqlService);

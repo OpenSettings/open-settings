@@ -59,7 +59,7 @@ namespace OpenSettings.Services.Rest
             }
         }
 
-        public async Task<IResponse> GetAppSettingsDataAsync(GetSettingsDataInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetAppSettingsDataAsync(GetAppSettingsDataInput input, CancellationToken cancellationToken = default)
         {
             var relativeUri = RouteHelper.Build(
                 OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetAppSettingsData,
@@ -72,7 +72,7 @@ namespace OpenSettings.Services.Rest
             }
         }
 
-        public async Task<IResponse> CopyAppSettingToAsync(CopySettingToInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> CopyAppSettingToAsync(CopyAppSettingToInput input, CancellationToken cancellationToken = default)
         {
             var relativeUri = RouteHelper.Build(
                 OpenSettingsDefaults.Routes.V1.AppSettingsEndpoints.CopyAppSettingTo,
@@ -104,7 +104,7 @@ namespace OpenSettings.Services.Rest
             }
         }
 
-        public async Task<IResponse> GetAppSettingDataAsync(GetSettingDataInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetAppSettingDataAsync(GetAppSettingDataInput input, CancellationToken cancellationToken = default)
         {
             var relativeUri = RouteHelper.Build(
                 OpenSettingsDefaults.Routes.V1.AppSettingsEndpoints.GetAppSettingData,
@@ -116,7 +116,7 @@ namespace OpenSettings.Services.Rest
             }
         }
 
-        public async Task<IResponse> DeleteAppSettingAsync(DeleteSettingInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> DeleteAppSettingAsync(DeleteAppSettingInput input, CancellationToken cancellationToken = default)
         {
             var relativeUri = RouteHelper.Build(
                 OpenSettingsDefaults.Routes.V1.AppSettingsEndpoints.DeleteAppSetting,
@@ -129,7 +129,7 @@ namespace OpenSettings.Services.Rest
             }
         }
 
-        public async Task<IResponse<GetSettingsLastUpdatedComputedIdentifiersResponse>> GetAppSettingsLastUpdatedComputedIdentifiersAsync(GetSettingsLastUpdatedComputedIdentifiersInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse<GetSettingsLastUpdatedComputedIdentifiersResponse>> GetAppSettingsLastUpdatedComputedIdentifiersAsync(GetAppSettingsLastUpdatedComputedIdentifiersInput input, CancellationToken cancellationToken = default)
         {
             var relativeUri = OpenSettingsDefaults.Routes.V1.AppSettingsEndpoints.GetAppSettingsLastUpdatedComputedIdentifiers;
 
@@ -155,7 +155,7 @@ namespace OpenSettings.Services.Rest
             }
         }
 
-        public async Task<IResponse> UpdateAppSettingAsync(UpdateSettingInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> UpdateAppSettingAsync(UpdateAppSettingInput input, CancellationToken cancellationToken = default)
         {
             var relativeUri = RouteHelper.Build(
                 OpenSettingsDefaults.Routes.V1.AppSettingsEndpoints.UpdateAppSetting,
@@ -184,7 +184,7 @@ namespace OpenSettings.Services.Rest
             }
         }
 
-        public async Task<IResponse> CreateAppSettingAsync(CreateSettingInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> CreateAppSettingAsync(CreateAppSettingInput input, CancellationToken cancellationToken = default)
         {
             const string relativeUri = OpenSettingsDefaults.Routes.V1.AppSettingsEndpoints.CreateAppSetting;
 
@@ -211,7 +211,7 @@ namespace OpenSettings.Services.Rest
             }
         }
 
-        public async Task<IResponse<UpdateAppSettingDataResponse>> UpdateAppSettingDataAsync(UpdateSettingDataInput input, CancellationToken cancellationToken)
+        public async Task<IResponse<UpdateAppSettingDataResponse>> UpdateAppSettingDataAsync(UpdateAppSettingDataInput input, CancellationToken cancellationToken)
         {
             var relativeUri = RouteHelper.Build(
                 OpenSettingsDefaults.Routes.V1.AppSettingsEndpoints.UpdateAppSettingData,

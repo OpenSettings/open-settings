@@ -359,7 +359,7 @@ namespace OpenSettings.Services.Sql
                 return FailureResponses.Conflict($"{input.IdentifierId}", entity.RowVersion, input.RowVersion, false);
             }
 
-            var foundEntity = await _sortOrderService.FindNeighbour(_context.Identifiers, entity.Id, entity.SortOrder, input.Ascent)
+            var foundEntity = await _sortOrderService.FindNeighbour(_context.Identifiers, entity.Id, entity.SortOrder, input.Direction)
                 .Select(a => new IdentifierSqlModel
                 {
                     Id = a.Id,
@@ -370,12 +370,12 @@ namespace OpenSettings.Services.Sql
 
             if (foundEntity == null)
             {
-                return HttpStatusCode.BadRequest.ToFailureResponse(input.Ascent ? Errors.MaxSortOrderReached : Errors.MinSortOrderReached);
+                return HttpStatusCode.BadRequest.ToFailureResponse(input.Direction == MoveDirection.Down ? Errors.MaxSortOrderReached : Errors.MinSortOrderReached);
             }
 
             if (entity.SortOrder == foundEntity.SortOrder)
             {
-                return await _sortOrderService.ReorderAsync(_context.Identifiers, cancellationToken);
+                return await _sortOrderService.ReorderAsync(_context.Identifiers, input.UpdatedById,cancellationToken);
             }
 
             _context.Identifiers.AttachRange(foundEntity, entity);
@@ -444,11 +444,11 @@ namespace OpenSettings.Services.Sql
 
             if (sourceEntity.SortOrder == targetEntity.SortOrder)
             {
-                return await _sortOrderService.ReorderAsync(_context.Identifiers, cancellationToken);
+                return await _sortOrderService.ReorderAsync(_context.Identifiers, input.UpdatedById, cancellationToken);
             }
 
             var targetNeighbour = await _sortOrderService
-                .FindNeighbour(_context.Identifiers, targetEntity.Id, targetEntity.SortOrder, input.Ascent)
+                .FindNeighbour(_context.Identifiers, targetEntity.Id, targetEntity.SortOrder, input.Direction)
                 .Select(s => new { s.Id, Order = s.SortOrder })
                 .FirstOrDefaultAsync(cancellationToken);
 
@@ -457,7 +457,7 @@ namespace OpenSettings.Services.Sql
                 targetNeighbour = new
                 {
                     Id = Guid.Empty,
-                    Order = input.Ascent ? targetEntity.SortOrder + OpenSettingsDefaults.SortOrderGap : targetEntity.SortOrder - OpenSettingsDefaults.SortOrderGap
+                    Order = input.Direction == MoveDirection.Down ? targetEntity.SortOrder + OpenSettingsDefaults.SortOrderGap : targetEntity.SortOrder - OpenSettingsDefaults.SortOrderGap
                 };
             }
             else if (targetNeighbour.Id == sourceEntity.Id)
@@ -480,7 +480,7 @@ namespace OpenSettings.Services.Sql
 
             if (anyMatch)
             {
-                return await _sortOrderService.ReorderAsync(_context.Identifiers, cancellationToken);
+                return await _sortOrderService.ReorderAsync(_context.Identifiers, input.UpdatedById,cancellationToken);
             }
 
             var currentTime = DateTime.UtcNow;
@@ -590,11 +590,11 @@ namespace OpenSettings.Services.Sql
             }
         }
 
-        public async Task<IResponse> ReorderIdentifiersAsync()
+        public async Task<IResponse> ReorderIdentifiersAsync(Guid? updatedById)
         {
             try
             {
-                var reorderResponse = await _sortOrderService.ReorderAsync(_context.Identifiers);
+                var reorderResponse = await _sortOrderService.ReorderAsync(_context.Identifiers, updatedById);
 
                 return HttpStatusCode.OK.ToSuccessResponse(reorderResponse);
             }
@@ -703,7 +703,7 @@ namespace OpenSettings.Services.Sql
                         ? entities.OrderByDescending(a => a.SortOrder)
                         : entities.OrderBy(a => a.SortOrder);
 
-                case "mappingscount":
+                case "mappingcount":
                     return sortDirection == SortDirection.Desc
                         ? entities.OrderByDescending(a => a.AppIdentifierMappings.Count())
                         : entities.OrderBy(a => a.AppIdentifierMappings.Count());
@@ -754,7 +754,7 @@ namespace OpenSettings.Services.Sql
                         ? orderedEntities.ThenByDescending(a => a.SortOrder)
                         : orderedEntities.ThenBy(a => a.SortOrder);
 
-                case "mappingscount":
+                case "mappingcount":
                     return sortDirection == SortDirection.Desc
                         ? orderedEntities.ThenByDescending(a => a.AppIdentifierMappings.Count())
                         : orderedEntities.ThenBy(a => a.AppIdentifierMappings.Count());
@@ -792,7 +792,7 @@ namespace OpenSettings.Services.Sql
                 Name = entity.Name,
                 Slug = entity.Slug,
                 SortOrder = entity.SortOrder,
-                MappingsCount = entity.AppIdentifierMappings.Count(),
+                MappingCount = entity.AppIdentifierMappings.Count(),
                 CreatedOn = entity.CreatedOn,
                 UpdatedOn = entity.UpdatedOn,
                 CreatedBy = entity.CreatedBy?.DisplayName,

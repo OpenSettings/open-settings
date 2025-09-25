@@ -1,6 +1,7 @@
 ﻿using Ogu.Response.Abstractions;
 using OpenSettings.Configurations;
 using OpenSettings.Extensions;
+using OpenSettings.Helpers;
 using OpenSettings.Models;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Models.Responses;
@@ -10,7 +11,6 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using OpenSettings.Helpers;
 
 namespace OpenSettings.Services.Rest
 {
@@ -102,7 +102,7 @@ namespace OpenSettings.Services.Rest
 
                     if (response.IsSuccessStatusCode && (!_openSettingsConfiguration.Consumer.IsRedisActive || !_providerInfo.Redis.IsActive))
                     {
-                        await _dataChangeService.NotifyChangeAsync(responseContent.Data.ClientId, responseContent.Data.Setting.IdentifierName, responseContent.Data.Setting.ComputedIdentifier, CancellationToken.None);
+                        await _dataChangeService.NotifyChangeAsync(responseContent.Data.ClientId, responseContent.Data.IdentifierName, responseContent.Data.Setting.ComputedIdentifier, CancellationToken.None);
                     }
 
                     return responseContent;

@@ -53,7 +53,7 @@ namespace OpenSettings.Services.Sql
                 : HttpStatusCode.OK.ToSuccessResponse(entity);
         }
 
-        public async Task<IResponse> PatchAppConfigurationAsync(PatchConfigurationInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> PatchAppConfigurationAsync(PatchAppConfigurationInput input, CancellationToken cancellationToken = default)
         {
             var entity = await _context.AppConfigurations
                 .AsNoTracking()

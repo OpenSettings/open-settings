@@ -11,11 +11,11 @@ namespace OpenSettings.Services.Sql.Interfaces
 {
     internal interface ISortOrderSqlService
     {
-        IQueryable<T> FindNeighbour<T>(DbSet<T> items, Guid id, int sortOrder, bool ascent) where T : class, IOrderedEntity, new();
+        IQueryable<T> FindNeighbour<T>(DbSet<T> items, Guid id, int sortOrder, MoveDirection direction) where T : class, IOrderedEntity, new();
 
-        Task<IResponse> ReorderAsync<T>(DbSet<T> items, CancellationToken cancellationToken) where T : class, IOrderedEntity, new();
+        Task<IResponse> ReorderAsync<T>(DbSet<T> items, Guid? updatedById, CancellationToken cancellationToken) where T : class, IOrderedEntity, new();
 
-        Task<ReorderResponse> ReorderAsync<T>(DbSet<T> items) where T : class, IOrderedEntity, new();
+        Task<ReorderResponse> ReorderAsync<T>(DbSet<T> items, Guid? updatedById) where T : class, IOrderedEntity, new();
 
         Task<int> MinSortOrderAsync<T>(DbSet<T> items, CancellationToken cancellationToken = default) where T: class, IOrderedEntity, new();
 

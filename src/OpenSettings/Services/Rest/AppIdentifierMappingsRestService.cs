@@ -114,8 +114,8 @@ namespace OpenSettings.Services.Rest
 
             var body = new
             {
-                input.Ascent,
-                input.RowVersion,
+                Direction = input.Direction,
+                RowVersion = input.RowVersion,
             };
 
             using (var jsonContent = JsonContent.Create(body))

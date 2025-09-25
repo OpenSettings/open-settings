@@ -12,7 +12,7 @@ namespace OpenSettings.Models.Responses
 
         public int SortOrder { get; set; }
 
-        public int MappingsCount { get; set; }
+        public int MappingCount { get; set; }
 
         public DateTime CreatedOn { get; set; }
 

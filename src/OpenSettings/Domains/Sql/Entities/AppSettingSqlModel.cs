@@ -130,11 +130,6 @@ namespace OpenSettings.Domains.Sql.Entities
         public Guid? CopiedFromId { get; set; }
 
         /// <summary>
-        /// The setting from which this setting was copied or cloned.
-        /// </summary>
-        public virtual AppSettingSqlModel CopiedFrom { get; set; }
-
-        /// <summary>
         /// The id of the user who created this setting.
         /// </summary>
         public Guid? CreatedById { get; set; }

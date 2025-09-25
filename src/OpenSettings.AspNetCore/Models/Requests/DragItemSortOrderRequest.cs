@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
-using System.ComponentModel.DataAnnotations;
 
 namespace OpenSettings.AspNetCore.Models.Requests
 {
@@ -12,10 +11,7 @@ namespace OpenSettings.AspNetCore.Models.Requests
         [FromRoute]
         public Guid TargetId { get; set; }
 
-        [FromQuery]
-        public bool Ascent { get; set; }
-
-        [FromQuery, Required]
-        public byte[] SourceRowVersion { get; set; } = Array.Empty<byte>();
+        [FromBody]
+        public DragItemSortOrderRequestBody Body { get; set; }
     }
 }

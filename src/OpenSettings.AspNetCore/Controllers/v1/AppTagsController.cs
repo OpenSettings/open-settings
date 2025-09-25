@@ -27,7 +27,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return ModelState.ToAction();
             }
 
-            var result = await _appTagService.GetAppTagsAsync(new GetTagsInput { SearchTerm = request.SearchTerm, HasMappings = request.HasMappings}, cancellationToken);
+            var result = await _appTagService.GetAppTagsAsync(new GetAppTagsInput { SearchTerm = request.SearchTerm, HasMappings = request.HasMappings}, cancellationToken);
 
             return result.ToAction();
         }
@@ -40,7 +40,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return ModelState.ToAction();
             }
 
-            var result = await _appTagService.CreateAppTagAsync(new CreateTagInput
+            var result = await _appTagService.CreateAppTagAsync(new CreateAppTagInput
             {
                 Name = request.Body.Name,
                 SortOrder = request.Body.SortOrder,
@@ -85,7 +85,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return ModelState.ToAction();
             }
 
-            var result = await _appTagService.GetAppTagByIdAsync(new GetTagInput { AppTagIdOrSlug = request.AppTagId }, cancellationToken);
+            var result = await _appTagService.GetAppTagByIdAsync(new GetAppTagInput { AppTagIdOrSlug = request.AppTagId }, cancellationToken);
 
             return result.ToAction();
         }
@@ -98,7 +98,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return ModelState.ToAction();
             }
 
-            var result = await _appTagService.GetAppTagBySlugAsync(new GetTagInput { AppTagIdOrSlug = request.AppTagSlug }, cancellationToken);
+            var result = await _appTagService.GetAppTagBySlugAsync(new GetAppTagInput { AppTagIdOrSlug = request.AppTagSlug }, cancellationToken);
 
             return result.ToAction();
         }
@@ -111,7 +111,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return ModelState.ToAction();
             }
 
-            var result = await _appTagService.UpdateAppTagAsync(new UpdateTagInput
+            var result = await _appTagService.UpdateAppTagAsync(new UpdateAppTagInput
             {
                 AppTagId = request.AppTagId,
                 Name = request.Body.Name,
@@ -149,11 +149,11 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return ModelState.ToAction();
             }
 
-            var result = await _appTagService.UpdateAppTagSortOrderAsync(new UpdateTagSortOrderInput
+            var result = await _appTagService.UpdateAppTagSortOrderAsync(new UpdateAppTagSortOrderInput
             {
                 AppTagId = request.AppTagId,
-                Ascent = request.Ascent,
-                RowVersion = request.RowVersion,
+                Direction = request.Body.Direction,
+                RowVersion = request.Body.RowVersion,
                 UpdatedById = User.GetUserId()
             }, cancellationToken);
 
@@ -172,8 +172,8 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             {
                 SourceId = request.SourceId,
                 TargetId = request.TargetId,
-                Ascent = request.Ascent,
-                SourceRowVersion = request.SourceRowVersion,
+                Direction = request.Body.Direction,
+                SourceRowVersion = request.Body.SourceRowVersion,
                 UpdatedById = User.GetUserId()
             }, cancellationToken);
 
@@ -183,7 +183,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         [HttpPost(OpenSettingsDefaults.Routes.V1.AppTagsEndpoints.ReorderAppTag)]
         public async Task<IActionResult> ReorderAppTag()
         {
-            var result = await _appTagService.ReorderAppTagAsync();
+            var result = await _appTagService.ReorderAppTagAsync(User.GetUserId());
 
             return result.ToAction();
         }

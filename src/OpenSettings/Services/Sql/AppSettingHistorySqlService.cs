@@ -249,15 +249,21 @@ namespace OpenSettings.Services.Sql
                 return HttpStatusCode.OK.ToSuccessResponseOf(new RestoreAppSettingHistoryResponse
                 {
                     ClientId = clientId,
+                    IdentifierName = identifierName,
                     Setting = new RestoreAppSettingHistoryResponseSetting
                     {
-                        IdentifierName = identifierName,
                         ComputedIdentifier = computedIdentifier,
-                        CurrentVersion = setting.Version,
-                        PreviousVersion = previousVersion,
-                        RowVersion = setting.RowVersion
-                    },
-                    HistoryRowVersion = entity.RowVersion
+                        Restored = new RestoreAppSettingHistoryResponseSettingInfo
+                        {
+                            Version = setting.Version,
+                            RowVersion = setting.RowVersion
+                        },
+                        Archived = new RestoreAppSettingHistoryResponseSettingInfo
+                        {
+                            Version = previousVersion,
+                            RowVersion = entity.RowVersion
+                        }
+                    }
                 });
             }
             catch (DbUpdateConcurrencyException ex)

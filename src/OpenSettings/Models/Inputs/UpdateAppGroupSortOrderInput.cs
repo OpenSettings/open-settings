@@ -1,0 +1,15 @@
+﻿using System;
+
+namespace OpenSettings.Models.Inputs
+{
+    public class UpdateAppGroupSortOrderInput
+    {
+        public Guid AppGroupId { get; set; }
+
+        public MoveDirection Direction { get; set; }
+
+        public byte[] RowVersion { get; set; } = Array.Empty<byte>();
+
+        public Guid? UpdatedById { get; set; }
+    }
+}

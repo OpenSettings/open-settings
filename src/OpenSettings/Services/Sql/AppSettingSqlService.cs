@@ -73,7 +73,7 @@ namespace OpenSettings.Services.Sql
             return await GetSettingsByAppAndIdentifierAsync(a => a.Slug == appSlug, identifier.Id, cancellationToken);
         }
 
-        public async Task<IResponse> GetAppSettingsDataAsync(GetSettingsDataInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetAppSettingsDataAsync(GetAppSettingsDataInput input, CancellationToken cancellationToken = default)
         {
             var query = _context.AppSettings.AsNoTracking();
 
@@ -128,7 +128,7 @@ namespace OpenSettings.Services.Sql
             });
         }
 
-        public async Task<IResponse> CopyAppSettingToAsync(CopySettingToInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> CopyAppSettingToAsync(CopyAppSettingToInput input, CancellationToken cancellationToken = default)
         {
             var sourceSetting = await _context.AppSettings
                 .AsNoTracking()
@@ -416,7 +416,7 @@ namespace OpenSettings.Services.Sql
             return HttpStatusCode.OK.ToSuccessResponse(entity);
         }
 
-        public async Task<IResponse> GetAppSettingDataAsync(GetSettingDataInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetAppSettingDataAsync(GetAppSettingDataInput input, CancellationToken cancellationToken = default)
         {
             var entity = await _context.AppSettings
                 .AsNoTracking()
@@ -470,7 +470,7 @@ namespace OpenSettings.Services.Sql
             //});
         }
 
-        public async Task<IResponse> DeleteAppSettingAsync(DeleteSettingInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> DeleteAppSettingAsync(DeleteAppSettingInput input, CancellationToken cancellationToken = default)
         {
             var entity = await _context.AppSettings
                 .AsNoTracking()
@@ -493,6 +493,7 @@ namespace OpenSettings.Services.Sql
                 return FailureResponses.Conflict($"{entity.Id}", entity.RowVersion, input.RowVersion, false);
             }
 
+            // Not required but useful for cleanup old data.
             var appSettings = await _context.AppSettings.AsNoTracking().Where(a => a.CopiedFromId == input.AppSettingId).Select(a => new AppSettingSqlModel { Id = a.Id }).ToArrayAsync(cancellationToken);
 
             if (appSettings.Length > 0)
@@ -514,7 +515,7 @@ namespace OpenSettings.Services.Sql
             return HttpStatusCode.OK.ToSuccessResponse();
         }
 
-        public async Task<IResponse<GetSettingsLastUpdatedComputedIdentifiersResponse>> GetAppSettingsLastUpdatedComputedIdentifiersAsync(GetSettingsLastUpdatedComputedIdentifiersInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse<GetSettingsLastUpdatedComputedIdentifiersResponse>> GetAppSettingsLastUpdatedComputedIdentifiersAsync(GetAppSettingsLastUpdatedComputedIdentifiersInput input, CancellationToken cancellationToken = default)
         {
             input.IdentifierName = input.IdentifierName.ToLowerInvariant();
 
@@ -607,7 +608,7 @@ namespace OpenSettings.Services.Sql
                 });
         }
 
-        public async Task<IResponse> UpdateAppSettingAsync(UpdateSettingInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> UpdateAppSettingAsync(UpdateAppSettingInput input, CancellationToken cancellationToken = default)
         {
             var entity = await _context.AppSettings
                 .AsNoTracking()
@@ -776,7 +777,7 @@ namespace OpenSettings.Services.Sql
             return HttpStatusCode.OK.ToSuccessResponse(new UpdateAppSettingResponse { RowVersion = rowVersion });
         }
 
-        public async Task<IResponse> CreateAppSettingAsync(CreateSettingInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> CreateAppSettingAsync(CreateAppSettingInput input, CancellationToken cancellationToken = default)
         {
             var computedIdentifierRule = ValidationRules.NotEmptyRule(nameof(input.ComputedIdentifier), input.ComputedIdentifier);
             var validJsonRule = InternalExtensions.ValidJsonRule(nameof(input.Data), input.Data, storeParsedValue: false);
@@ -902,7 +903,7 @@ namespace OpenSettings.Services.Sql
             });
         }
 
-        public async Task<IResponse<UpdateAppSettingDataResponse>> UpdateAppSettingDataAsync(UpdateSettingDataInput input, CancellationToken cancellationToken)
+        public async Task<IResponse<UpdateAppSettingDataResponse>> UpdateAppSettingDataAsync(UpdateAppSettingDataInput input, CancellationToken cancellationToken)
         {
             var validJsonRule = InternalExtensions.ValidJsonRule(nameof(input.Data), input.Data, storeParsedValue: true);
 

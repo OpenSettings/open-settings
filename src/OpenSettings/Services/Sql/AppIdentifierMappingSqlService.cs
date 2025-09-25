@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Ogu.Response;
 using Ogu.Response.Abstractions;
-using OpenSettings.Configurations;
 using OpenSettings.Domains.Sql.DataContext;
 using OpenSettings.Domains.Sql.Entities;
 using OpenSettings.Extensions;
@@ -22,14 +21,12 @@ namespace OpenSettings.Services.Sql
     internal sealed class AppIdentifierMappingSqlService : IAppIdentifierMappingSqlService
     {
         private readonly OpenSettingsDbContext _context;
-        private readonly Guid _clientId;
         private readonly ILockSqlService _locksSqlService;
         private readonly IIdentifierSqlService _identifiersSqlService;
 
-        public AppIdentifierMappingSqlService(OpenSettingsDbContext context, OpenSettingsConfiguration openSettingsConfiguration, ILockSqlService locksSqlService, IIdentifierSqlService identifiersSqlService)
+        public AppIdentifierMappingSqlService(OpenSettingsDbContext context, ILockSqlService locksSqlService, IIdentifierSqlService identifiersSqlService)
         {
             _context = context;
-            _clientId = openSettingsConfiguration.Client.Id;
             _locksSqlService = locksSqlService;
             _identifiersSqlService = identifiersSqlService;
         }
@@ -351,7 +348,9 @@ namespace OpenSettings.Services.Sql
 
             var query = _context.AppIdentifierMappings.AsNoTracking();
 
-            var foundEntity = (input.Ascent
+            var moveDown = input.Direction == MoveDirection.Down;
+
+            var foundEntity = (moveDown
                     ? query.Where(a => a.SortOrder >= entity.SortOrder && a.AppId == entity.AppId && a.IdentifierId != input.IdentifierId)
                         .OrderBy(a => a.SortOrder)
                     : query.Where(a => a.SortOrder <= entity.SortOrder && a.AppId == entity.AppId && a.IdentifierId != input.IdentifierId)
@@ -367,14 +366,14 @@ namespace OpenSettings.Services.Sql
 
             if (foundEntity == null)
             {
-                return HttpStatusCode.BadRequest.ToFailureResponse(input.Ascent ? Errors.MaxSortOrderReached : Errors.MinSortOrderReached);
+                return HttpStatusCode.BadRequest.ToFailureResponse(moveDown ? Errors.MaxSortOrderReached : Errors.MinSortOrderReached);
             }
 
             if (entity.SortOrder == foundEntity.SortOrder)
             {
                 try
                 {
-                    await ReorderAsync(entity.AppId);
+                    await ReorderAsync(entity.AppId, input.UpdatedById);
 
                     return HttpStatusCode.Conflict.ToFailureResponse(Errors.SortOrderBeingReprocessed);
                 }
@@ -423,7 +422,7 @@ namespace OpenSettings.Services.Sql
             }
         }
 
-        private async Task<ReorderResponse> ReorderAsync(Guid appId)
+        private async Task<ReorderResponse> ReorderAsync(Guid appId, Guid? updatedById)
         {
             var key = $"{nameof(AppIdentifierMappingSqlService)}-{appId}";
 
@@ -476,7 +475,7 @@ namespace OpenSettings.Services.Sql
                     entity.SortOrder = newOrder;
                     entity.RowVersion = response.RowVersion;
                     entity.UpdatedOn = currentTime;
-                    entity.UpdatedById = _clientId;
+                    entity.UpdatedById = updatedById;
 
                     response.IdToSortOrder[$"{appId}-{entity.IdentifierId}"] = entity.SortOrder;
                 }

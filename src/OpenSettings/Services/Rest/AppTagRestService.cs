@@ -22,7 +22,7 @@ namespace OpenSettings.Services.Rest
             _httpClientFactory = httpClientFactory;
         }
 
-        public async Task<IResponse> GetAppTagsAsync(GetTagsInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetAppTagsAsync(GetAppTagsInput input, CancellationToken cancellationToken = default)
         {
             var relativeUri = RouteHelper.Build(
                 OpenSettingsDefaults.Routes.V1.AppTagsEndpoints.GetAppTags, null,
@@ -34,7 +34,7 @@ namespace OpenSettings.Services.Rest
             }
         }
 
-        public async Task<IResponse> CreateAppTagAsync(CreateTagInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> CreateAppTagAsync(CreateAppTagInput input, CancellationToken cancellationToken = default)
         {
             throw new NotSupportedException(nameof(CreateAppTagAsync));
 
@@ -87,7 +87,7 @@ namespace OpenSettings.Services.Rest
             }
         }
 
-        public async Task<IResponse> GetAppTagByIdAsync(GetTagInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetAppTagByIdAsync(GetAppTagInput input, CancellationToken cancellationToken = default)
         {
             var relativeUri = RouteHelper.Build(
                 OpenSettingsDefaults.Routes.V1.AppTagsEndpoints.GetAppTagById,
@@ -99,7 +99,7 @@ namespace OpenSettings.Services.Rest
             }
         }
 
-        public async Task<IResponse> GetAppTagBySlugAsync(GetTagInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetAppTagBySlugAsync(GetAppTagInput input, CancellationToken cancellationToken = default)
         {
             var relativeUri = RouteHelper.Build(
                 OpenSettingsDefaults.Routes.V1.AppTagsEndpoints.GetAppTagBySlug,
@@ -111,7 +111,7 @@ namespace OpenSettings.Services.Rest
             }
         }
 
-        public async Task<IResponse> UpdateAppTagAsync(UpdateTagInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> UpdateAppTagAsync(UpdateAppTagInput input, CancellationToken cancellationToken = default)
         {
             var relativeUri = RouteHelper.Build(
                 OpenSettingsDefaults.Routes.V1.AppTagsEndpoints.UpdateAppTag,
@@ -146,17 +146,24 @@ namespace OpenSettings.Services.Rest
             }
         }
 
-        public async Task<IResponse> UpdateAppTagSortOrderAsync(UpdateTagSortOrderInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> UpdateAppTagSortOrderAsync(UpdateAppTagSortOrderInput input, CancellationToken cancellationToken = default)
         {
             var relativeUri = RouteHelper.Build(
                 OpenSettingsDefaults.Routes.V1.AppTagsEndpoints.UpdateAppTagSortOrder,
-                new[] { $"{input.AppTagId}" },
-                (nameof(input.Ascent), input.Ascent),
-                (nameof(input.RowVersion), Convert.ToBase64String(input.RowVersion)));
+                new[] { $"{input.AppTagId}" });
 
-            using (var response = await GetProviderHttpClient().PostAsync(relativeUri, null, cancellationToken))
+            var body = new
             {
-                return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
+                Direction = input.Direction,
+                RowVersion = input.RowVersion
+            };
+
+            using (var jsonContent = JsonContent.Create(body))
+            {
+                using (var response = await GetProviderHttpClient().PostAsync(relativeUri, jsonContent, cancellationToken))
+                {
+                    return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
+                }
             }
         }
 
@@ -166,13 +173,20 @@ namespace OpenSettings.Services.Rest
 
             var relativeUri = RouteHelper.Build(
                 OpenSettingsDefaults.Routes.V1.AppTagsEndpoints.DragAppTag,
-                new[] { $"{input.SourceId}", $"{input.TargetId}" },
-                (nameof(input.Ascent), input.Ascent),
-                (nameof(input.SourceRowVersion), Convert.ToBase64String(input.SourceRowVersion)));
+                new[] { $"{input.SourceId}", $"{input.TargetId}" });
 
-            using (var response = await GetProviderHttpClient().PostAsync(relativeUri, null, cancellationToken))
+            var body = new
             {
-                return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
+                Direction = input.Direction,
+                SourceRowVersion = input.SourceRowVersion
+            };
+
+            using (var jsonContent = JsonContent.Create(body))
+            {
+                using (var response = await GetProviderHttpClient().PostAsync(relativeUri, jsonContent, cancellationToken))
+                {
+                    return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
+                }
             }
         }
 
@@ -181,7 +195,7 @@ namespace OpenSettings.Services.Rest
             throw new NotSupportedException(nameof(GetOrCreateAsync));
         }
 
-        public async Task<IResponse> ReorderAppTagAsync()
+        public async Task<IResponse> ReorderAppTagAsync(Guid? updatedById)
         {
             const string relativeUri = OpenSettingsDefaults.Routes.V1.AppTagsEndpoints.ReorderAppTag;
 

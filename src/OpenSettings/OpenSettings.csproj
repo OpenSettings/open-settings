@@ -25,34 +25,50 @@
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'net9.0' ">
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.0" />
+		<PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.0.1" />
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.0.1" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'net8.0' ">
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.0" />
+		<PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="7.0.3" />
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.0.3" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'net7.0' ">
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.0" />
+		<PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="6.15.1" />
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.15.1" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0' ">
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.0" />
+		<PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="6.10.0" />
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.10.0" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'net5.0' ">
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="5.0.0" />
+		<PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="6.7.1" />
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.7.1" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1' ">
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="5.0.0" />
+		<PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="5.7.0" />
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="5.7.0" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1' ">
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="5.0.0" />
+		<PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="5.7.0" />
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="5.7.0" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.1.0" />
+		<PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="5.7.0" />
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="5.7.0" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -60,12 +76,10 @@
 		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="3.1.1" />
 		<PackageReference Include="Microsoft.Extensions.Http" Version="3.1.0" />
 		<PackageReference Include="Microsoft.Extensions.Identity.Core" Version="2.1.0" />
-		<PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="5.7.0" />
 		<PackageReference Include="Ogu.Compressions" Version="2.1.1" />
 		<PackageReference Include="Ogu.Extensions.Hosting.HostedServices" Version="2.0.6" />
 		<PackageReference Include="Ogu.Response" Version="3.0.9" />
 		<PackageReference Include="StackExchange.Redis" Version="2.8.24" />
-		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="5.7.0" />
 		<PackageReference Include="System.Net.Http.Json" Version="6.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="3.1.0" />
 	</ItemGroup>

@@ -113,7 +113,7 @@ namespace OpenSettings.Services.Sql
             }
         }
 
-        public async Task<IResponse> GetAppTagsAsync(GetTagsInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetAppTagsAsync(GetAppTagsInput input, CancellationToken cancellationToken = default)
         {
             if (!string.IsNullOrWhiteSpace(input.SearchTerm))
             {
@@ -146,7 +146,7 @@ namespace OpenSettings.Services.Sql
             return HttpStatusCode.OK.ToSuccessResponse(new GetAppTagsResponse(data));
         }
 
-        public async Task<IResponse> CreateAppTagAsync(CreateTagInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> CreateAppTagAsync(CreateAppTagInput input, CancellationToken cancellationToken = default)
         {
             var nameRule = ValidationRules.NotEmptyRule(nameof(input.Name), input.Name);
 
@@ -211,19 +211,19 @@ namespace OpenSettings.Services.Sql
             }
         }
 
-        public Task<IResponse> GetAppTagByIdAsync(GetTagInput input, CancellationToken cancellationToken = default)
+        public Task<IResponse> GetAppTagByIdAsync(GetAppTagInput input, CancellationToken cancellationToken = default)
         {
             return GetTagByTagIdOrSlugAsync(t => t.Id == Guid.Parse(input.AppTagIdOrSlug), cancellationToken);
         }
 
-        public Task<IResponse> GetAppTagBySlugAsync(GetTagInput input, CancellationToken cancellationToken = default)
+        public Task<IResponse> GetAppTagBySlugAsync(GetAppTagInput input, CancellationToken cancellationToken = default)
         {
             input.AppTagIdOrSlug = input.AppTagIdOrSlug?.ToSlug();
 
             return GetTagByTagIdOrSlugAsync(t => t.Slug == input.AppTagIdOrSlug, cancellationToken);
         }
 
-        public async Task<IResponse> UpdateAppTagAsync(UpdateTagInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> UpdateAppTagAsync(UpdateAppTagInput input, CancellationToken cancellationToken = default)
         {
             var nameRule = ValidationRules.NotEmptyRule(nameof(input.Name), input.Name);
 
@@ -358,7 +358,7 @@ namespace OpenSettings.Services.Sql
             }
         }
 
-        public async Task<IResponse> UpdateAppTagSortOrderAsync(UpdateTagSortOrderInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> UpdateAppTagSortOrderAsync(UpdateAppTagSortOrderInput input, CancellationToken cancellationToken = default)
         {
             var entity = await _context.AppTags
                 .AsNoTracking()
@@ -382,7 +382,7 @@ namespace OpenSettings.Services.Sql
                 return FailureResponses.Conflict($"{input.AppTagId}", entity.RowVersion, input.RowVersion, false);
             }
 
-            var foundEntity = await _sortOrderService.FindNeighbour(_context.AppTags, entity.Id, entity.SortOrder, input.Ascent)
+            var foundEntity = await _sortOrderService.FindNeighbour(_context.AppTags, entity.Id, entity.SortOrder, input.Direction)
                 .Select(a => new AppTagSqlModel
                 {
                     Id = a.Id,
@@ -393,12 +393,12 @@ namespace OpenSettings.Services.Sql
 
             if (foundEntity == null)
             {
-                return HttpStatusCode.BadRequest.ToFailureResponse(input.Ascent ? Errors.MaxSortOrderReached : Errors.MinSortOrderReached);
+                return HttpStatusCode.BadRequest.ToFailureResponse(input.Direction == MoveDirection.Down ? Errors.MaxSortOrderReached : Errors.MinSortOrderReached);
             }
 
             if (entity.SortOrder == foundEntity.SortOrder)
             {
-                return await _sortOrderService.ReorderAsync(_context.AppTags, cancellationToken);
+                return await _sortOrderService.ReorderAsync(_context.AppTags, input.UpdatedById, cancellationToken);
             }
 
             _context.AppTags.AttachRange(foundEntity, entity);
@@ -467,11 +467,11 @@ namespace OpenSettings.Services.Sql
 
             if (sourceEntity.SortOrder == targetEntity.SortOrder)
             {
-                return await _sortOrderService.ReorderAsync(_context.AppTags, cancellationToken);
+                return await _sortOrderService.ReorderAsync(_context.AppTags, input.UpdatedById, cancellationToken);
             }
 
             var targetNeighbour = await _sortOrderService
-                .FindNeighbour(_context.AppTags, targetEntity.Id, targetEntity.SortOrder, input.Ascent)
+                .FindNeighbour(_context.AppTags, targetEntity.Id, targetEntity.SortOrder, input.Direction)
                 .Select(s => new { s.Id, Order = s.SortOrder })
                 .FirstOrDefaultAsync(cancellationToken);
 
@@ -480,7 +480,7 @@ namespace OpenSettings.Services.Sql
                 targetNeighbour = new
                 {
                     Id = Guid.Empty,
-                    Order = input.Ascent ? targetEntity.SortOrder + OpenSettingsDefaults.SortOrderGap : targetEntity.SortOrder - OpenSettingsDefaults.SortOrderGap
+                    Order = input.Direction == MoveDirection.Down ? targetEntity.SortOrder + OpenSettingsDefaults.SortOrderGap : targetEntity.SortOrder - OpenSettingsDefaults.SortOrderGap
                 };
             }
             else if (targetNeighbour.Id == sourceEntity.Id)
@@ -503,7 +503,7 @@ namespace OpenSettings.Services.Sql
 
             if (anyMatch)
             {
-                return await _sortOrderService.ReorderAsync(_context.AppTags, cancellationToken);
+                return await _sortOrderService.ReorderAsync(_context.AppTags, input.UpdatedById, cancellationToken);
             }
 
             var currentTime = DateTime.UtcNow;
@@ -609,11 +609,11 @@ namespace OpenSettings.Services.Sql
             }
         }
 
-        public async Task<IResponse> ReorderAppTagAsync()
+        public async Task<IResponse> ReorderAppTagAsync(Guid? updatedById)
         {
             try
             {
-                var reorderResponse = await _sortOrderService.ReorderAsync(_context.AppTags);
+                var reorderResponse = await _sortOrderService.ReorderAsync(_context.AppTags, updatedById);
 
                 return HttpStatusCode.OK.ToSuccessResponse(reorderResponse);
             }
@@ -672,7 +672,7 @@ namespace OpenSettings.Services.Sql
             }
         }
 
-        private async Task<IResponse> GetTagsBySearchAsync(GetTagsInput input, CancellationToken cancellationToken)
+        private async Task<IResponse> GetTagsBySearchAsync(GetAppTagsInput input, CancellationToken cancellationToken)
         {
             var searchLowercase = input.SearchTerm.ToLowerInvariant();
 
@@ -713,7 +713,7 @@ namespace OpenSettings.Services.Sql
                         ? entities.OrderByDescending(a => a.SortOrder)
                         : entities.OrderBy(a => a.SortOrder);
 
-                case "mappingscount":
+                case "mappingcount":
                     return sortDirection == SortDirection.Desc
                         ? entities.OrderByDescending(a => a.AppTagMappings.Count())
                         : entities.OrderBy(a => a.AppTagMappings.Count());
@@ -764,7 +764,7 @@ namespace OpenSettings.Services.Sql
                         ? orderedEntities.ThenByDescending(a => a.SortOrder)
                         : orderedEntities.ThenBy(a => a.SortOrder);
 
-                case "mappingscount":
+                case "mappingcount":
                     return sortDirection == SortDirection.Desc
                         ? orderedEntities.ThenByDescending(a => a.AppTagMappings.Count())
                         : orderedEntities.ThenBy(a => a.AppTagMappings.Count());
@@ -802,7 +802,7 @@ namespace OpenSettings.Services.Sql
                 Name = entity.Name,
                 Slug = entity.Slug,
                 SortOrder = entity.SortOrder,
-                MappingsCount = entity.AppTagMappings.Count(),
+                MappingCount = entity.AppTagMappings.Count(),
                 CreatedOn = entity.CreatedOn,
                 UpdatedOn = entity.UpdatedOn,
                 CreatedBy = entity.CreatedBy?.DisplayName,

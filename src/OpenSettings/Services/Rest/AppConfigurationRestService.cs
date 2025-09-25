@@ -31,7 +31,7 @@ namespace OpenSettings.Services.Rest
             }
         }
 
-        public async Task<IResponse> PatchAppConfigurationAsync(PatchConfigurationInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> PatchAppConfigurationAsync(PatchAppConfigurationInput input, CancellationToken cancellationToken = default)
         {
             var relativeUri = RouteHelper.Build(
                 OpenSettingsDefaults.Routes.V1.AppsEndpoints.PatchAppConfiguration,

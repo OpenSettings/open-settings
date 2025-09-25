@@ -54,7 +54,7 @@ namespace OpenSettings.Services.Rest
             }
         }
 
-        public async Task<IResponse> GetAppGroupsAsync(GetGroupsInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetAppGroupsAsync(GetAppGroupsInput input, CancellationToken cancellationToken = default)
         {
             var relativeUri = RouteHelper.Build(
                 OpenSettingsDefaults.Routes.V1.AppGroupsEndpoints.GetAppGroups,
@@ -68,7 +68,7 @@ namespace OpenSettings.Services.Rest
             }
         }
 
-        public async Task<IResponse> CreateAppGroupAsync(CreateGroupInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> CreateAppGroupAsync(CreateAppGroupInput input, CancellationToken cancellationToken = default)
         {
             throw new NotSupportedException(nameof(CreateAppGroupAsync));
 
@@ -90,7 +90,7 @@ namespace OpenSettings.Services.Rest
             }
         }
 
-        public async Task<IResponse> GetAppGroupByIdAsync(GetGroupInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetAppGroupByIdAsync(GetAppGroupInput input, CancellationToken cancellationToken = default)
         {
             var relativeUri = RouteHelper.Build(
                 OpenSettingsDefaults.Routes.V1.AppGroupsEndpoints.GetAppGroupById,
@@ -102,7 +102,7 @@ namespace OpenSettings.Services.Rest
             }
         }
 
-        public async Task<IResponse> GetAppGroupBySlugAsync(GetGroupInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetAppGroupBySlugAsync(GetAppGroupInput input, CancellationToken cancellationToken = default)
         {
             var relativeUri = RouteHelper.Build(
                 OpenSettingsDefaults.Routes.V1.AppGroupsEndpoints.GetAppGroupBySlug,
@@ -114,7 +114,7 @@ namespace OpenSettings.Services.Rest
             }
         }
 
-        public async Task<IResponse> DeleteAppGroupAsync(DeleteGroupInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> DeleteAppGroupAsync(DeleteAppGroupInput input, CancellationToken cancellationToken = default)
         {
             throw new NotSupportedException(nameof(DeleteAppGroupAsync));
 
@@ -129,17 +129,21 @@ namespace OpenSettings.Services.Rest
             }
         }
 
-        public async Task<IResponse> UpdateAppGroupSortOrderAsync(UpdateGroupSortOrderInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> UpdateAppGroupSortOrderAsync(UpdateAppGroupSortOrderInput input, CancellationToken cancellationToken = default)
         {
             throw new NotSupportedException(nameof(UpdateAppGroupAsync));
 
             var relativeUri = RouteHelper.Build(
                 OpenSettingsDefaults.Routes.V1.AppGroupsEndpoints.UpdateAppGroupSortOrder,
-                new[] { $"{input.AppGroupId}" },
-                (nameof(input.Ascent), input.Ascent),
-                    (nameof(input.RowVersion), Convert.ToBase64String(input.RowVersion)));
+                new[] { $"{input.AppGroupId}" });
 
-            using (var jsonContent = JsonContent.Create(input))
+            var body = new
+            {
+                Direction = input.Direction,
+                RowVersion = input.RowVersion
+            };
+
+            using (var jsonContent = JsonContent.Create(body))
             {
                 using (var response = await GetProviderHttpClient().PostAsync(relativeUri, jsonContent, cancellationToken))
                 {
@@ -154,17 +158,24 @@ namespace OpenSettings.Services.Rest
 
             var relativeUri = RouteHelper.Build(
                 OpenSettingsDefaults.Routes.V1.AppGroupsEndpoints.DragAppGroup,
-                new[] { $"{input.SourceId}", $"{input.TargetId}" },
-                (nameof(input.Ascent), input.Ascent),
-                    (nameof(input.SourceRowVersion), Convert.ToBase64String(input.SourceRowVersion)));
+                new[] { $"{input.SourceId}", $"{input.TargetId}" });
 
-            using (var response = await GetProviderHttpClient().PostAsync(relativeUri, null, cancellationToken))
+            var body = new
             {
-                return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
+                Direction = input.Direction,
+                SourceRowVersion = input.SourceRowVersion
+            };
+
+            using (var jsonContent = JsonContent.Create(body))
+            {
+                using (var response = await GetProviderHttpClient().PostAsync(relativeUri, jsonContent, cancellationToken))
+                {
+                    return await response.Content.ToResponseAsync(cancellationToken: cancellationToken);
+                }
             }
         }
 
-        public async Task<IResponse> UpdateAppGroupAsync(UpdateGroupInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> UpdateAppGroupAsync(UpdateAppGroupInput input, CancellationToken cancellationToken = default)
         {
             var relativeUri = RouteHelper.Build(
                 OpenSettingsDefaults.Routes.V1.AppGroupsEndpoints.UpdateAppGroup,
@@ -192,7 +203,7 @@ namespace OpenSettings.Services.Rest
             throw new NotSupportedException(nameof(GetOrCreateAsync));
         }
 
-        public async Task<IResponse> ReorderAppGroupsAsync()
+        public async Task<IResponse> ReorderAppGroupsAsync(Guid? updatedById)
         {
             const string relativeUri = OpenSettingsDefaults.Routes.V1.AppGroupsEndpoints.ReorderAppGroup;
 

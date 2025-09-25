@@ -14,23 +14,23 @@ namespace OpenSettings.Services.Interfaces
 
         Task<IResponse> DeleteUnmappedAppTagsAsync(CancellationToken cancellationToken = default);
 
-        Task<IResponse> GetAppTagsAsync(GetTagsInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> GetAppTagsAsync(GetAppTagsInput input, CancellationToken cancellationToken = default);
 
-        Task<IResponse> CreateAppTagAsync(CreateTagInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> CreateAppTagAsync(CreateAppTagInput input, CancellationToken cancellationToken = default);
 
-        Task<IResponse> GetAppTagByIdAsync(GetTagInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> GetAppTagByIdAsync(GetAppTagInput input, CancellationToken cancellationToken = default);
 
-        Task<IResponse> GetAppTagBySlugAsync(GetTagInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> GetAppTagBySlugAsync(GetAppTagInput input, CancellationToken cancellationToken = default);
 
-        Task<IResponse> UpdateAppTagAsync(UpdateTagInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> UpdateAppTagAsync(UpdateAppTagInput input, CancellationToken cancellationToken = default);
 
         Task<IResponse> DeleteAppTagAsync(DeleteAppTagInput input, CancellationToken cancellationToken = default);
 
-        Task<IResponse> UpdateAppTagSortOrderAsync(UpdateTagSortOrderInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> UpdateAppTagSortOrderAsync(UpdateAppTagSortOrderInput input, CancellationToken cancellationToken = default);
 
         Task<IResponse> DragAppTagAsync(DragItemSortOrderInput input, CancellationToken cancellationToken = default);
 
-        Task<IResponse> ReorderAppTagAsync();
+        Task<IResponse> ReorderAppTagAsync(Guid? updatedById);
 
         Task<IResponse<GetOrCreateResponse>> GetOrCreateAsync(string name, SetSortOrderPosition setSortOrderPosition, Guid? createdById, CancellationToken cancellationToken = default);
     }

@@ -16,10 +16,10 @@ namespace OpenSettings.Models.Responses
 
         public Guid? RestoredById { get; set; }
 
-        public byte[] RowVersion { get; set; } = Array.Empty<byte>();
-
         public DateTime CreatedOn { get; set; }
 
         public DateTime? RestoredOn { get; set; }
+
+        public byte[] RowVersion { get; set; } = Array.Empty<byte>();
     }
 }

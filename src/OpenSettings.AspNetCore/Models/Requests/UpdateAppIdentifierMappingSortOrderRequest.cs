@@ -12,6 +12,6 @@ namespace OpenSettings.AspNetCore.Models.Requests
         public Guid IdentifierId { get; set; }
 
         [FromBody]
-        public UpdateAppIdentifierMappingSortOrderRequestBody Body { get; set; }
+        public UpdateSortOrderRequestBody Body { get; set; }
     }
 }

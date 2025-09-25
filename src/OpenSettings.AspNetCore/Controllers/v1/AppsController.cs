@@ -488,11 +488,11 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return ModelState.ToAction();
             }
 
-            var result = await _appConfigurationService.PatchAppConfigurationAsync(new PatchConfigurationInput
+            var result = await _appConfigurationService.PatchAppConfigurationAsync(new PatchAppConfigurationInput
             {
                 AppId = request.AppId,
                 IdentifierId = request.IdentifierId,
-                Body = new PatchConfigurationInputBody(request.Body.RowVersion, request.Body.UpdatedFieldNameToValue),
+                Body = new PatchAppConfigurationInputBody(request.Body.RowVersion, request.Body.UpdatedFieldNameToValue),
                 UpdatedById = User.GetUserId()
             }, cancellationToken);
 
@@ -600,7 +600,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             {
                 AppId = request.AppId,
                 IdentifierId = request.IdentifierId,
-                Ascent = request.Body.Ascent,
+                Direction = request.Body.Direction,
                 RowVersion = request.Body.RowVersion
             }, cancellationToken);
 
@@ -641,7 +641,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 return ModelState.ToAction();
             }
 
-            var result = await _appSettingService.GetAppSettingsDataAsync(new GetSettingsDataInput
+            var result = await _appSettingService.GetAppSettingsDataAsync(new GetAppSettingsDataInput
             {
                 AppId = request.AppId,
                 IdentifierId = request.IdentifierId,

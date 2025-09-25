@@ -113,7 +113,7 @@ namespace OpenSettings.Services.Sql
             }
         }
 
-        public async Task<IResponse> GetAppGroupsAsync(GetGroupsInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetAppGroupsAsync(GetAppGroupsInput input, CancellationToken cancellationToken = default)
         {
             if (!string.IsNullOrWhiteSpace(input.SearchTerm))
             {
@@ -146,7 +146,7 @@ namespace OpenSettings.Services.Sql
             return HttpStatusCode.OK.ToSuccessResponse(new GetAppGroupsResponse(data));
         }
 
-        public async Task<IResponse> CreateAppGroupAsync(CreateGroupInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> CreateAppGroupAsync(CreateAppGroupInput input, CancellationToken cancellationToken = default)
         {
             var groupNameRule = ValidationRules.NotEmptyRule(nameof(input.Name), input.Name);
 
@@ -211,19 +211,19 @@ namespace OpenSettings.Services.Sql
             }
         }
 
-        public Task<IResponse> GetAppGroupByIdAsync(GetGroupInput input, CancellationToken cancellationToken = default)
+        public Task<IResponse> GetAppGroupByIdAsync(GetAppGroupInput input, CancellationToken cancellationToken = default)
         {
             return GetGroupByIdOrSlugAsync(g => g.Id == Guid.Parse(input.GroupIdOrSlug), cancellationToken);
         }
 
-        public Task<IResponse> GetAppGroupBySlugAsync(GetGroupInput input, CancellationToken cancellationToken = default)
+        public Task<IResponse> GetAppGroupBySlugAsync(GetAppGroupInput input, CancellationToken cancellationToken = default)
         {
             input.GroupIdOrSlug = input.GroupIdOrSlug?.ToSlug();
 
             return GetGroupByIdOrSlugAsync(g => g.Slug == input.GroupIdOrSlug, cancellationToken);
         }
 
-        public async Task<IResponse> UpdateAppGroupAsync(UpdateGroupInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> UpdateAppGroupAsync(UpdateAppGroupInput input, CancellationToken cancellationToken = default)
         {
             var nameRule = ValidationRules.NotEmptyRule(nameof(input.Name), input.Name);
 
@@ -317,7 +317,7 @@ namespace OpenSettings.Services.Sql
             }
         }
 
-        public async Task<IResponse> DeleteAppGroupAsync(DeleteGroupInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> DeleteAppGroupAsync(DeleteAppGroupInput input, CancellationToken cancellationToken = default)
         {
             _context.AppGroups.Remove(new AppGroupSqlModel { Id = input.AppGroupId, RowVersion = input.RowVersion });
 
@@ -337,7 +337,7 @@ namespace OpenSettings.Services.Sql
             }
         }
 
-        public async Task<IResponse> UpdateAppGroupSortOrderAsync(UpdateGroupSortOrderInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> UpdateAppGroupSortOrderAsync(UpdateAppGroupSortOrderInput input, CancellationToken cancellationToken = default)
         {
             var entity = await _context.AppGroups
                 .AsNoTracking()
@@ -361,7 +361,7 @@ namespace OpenSettings.Services.Sql
                 return FailureResponses.Conflict($"{input.AppGroupId}", entity.RowVersion, input.RowVersion, false);
             }
 
-            var foundEntity = await _sortOrderService.FindNeighbour(_context.AppGroups, entity.Id, entity.SortOrder, input.Ascent)
+            var foundEntity = await _sortOrderService.FindNeighbour(_context.AppGroups, entity.Id, entity.SortOrder, input.Direction)
                 .Select(a => new AppGroupSqlModel
                 {
                     Id = a.Id,
@@ -372,12 +372,12 @@ namespace OpenSettings.Services.Sql
 
             if (foundEntity == null)
             {
-                return HttpStatusCode.BadRequest.ToFailureResponse(input.Ascent ? Errors.MaxSortOrderReached : Errors.MinSortOrderReached);
+                return HttpStatusCode.BadRequest.ToFailureResponse(input.Direction == MoveDirection.Down ? Errors.MaxSortOrderReached : Errors.MinSortOrderReached);
             }
 
             if (entity.SortOrder == foundEntity.SortOrder)
             {
-                return await _sortOrderService.ReorderAsync(_context.AppGroups, cancellationToken);
+                return await _sortOrderService.ReorderAsync(_context.AppGroups, input.UpdatedById, cancellationToken);
             }
 
             _context.AppGroups.AttachRange(foundEntity, entity);
@@ -460,11 +460,11 @@ namespace OpenSettings.Services.Sql
 
             if (sourceEntity.SortOrder == targetEntity.SortOrder)
             {
-                return await _sortOrderService.ReorderAsync(_context.AppGroups, cancellationToken);
+                return await _sortOrderService.ReorderAsync(_context.AppGroups, input.UpdatedById,cancellationToken);
             }
 
             var targetNeighbour = await _sortOrderService
-                .FindNeighbour(_context.AppGroups, targetEntity.Id, targetEntity.SortOrder, input.Ascent)
+                .FindNeighbour(_context.AppGroups, targetEntity.Id, targetEntity.SortOrder, input.Direction)
                 .Select(s => new { s.Id, Order = s.SortOrder })
                 .FirstOrDefaultAsync(cancellationToken);
 
@@ -473,7 +473,7 @@ namespace OpenSettings.Services.Sql
                 targetNeighbour = new
                 {
                     Id = Guid.Empty,
-                    Order = input.Ascent ? targetEntity.SortOrder + OpenSettingsDefaults.SortOrderGap : targetEntity.SortOrder - OpenSettingsDefaults.SortOrderGap
+                    Order = input.Direction == MoveDirection.Down ? targetEntity.SortOrder + OpenSettingsDefaults.SortOrderGap : targetEntity.SortOrder - OpenSettingsDefaults.SortOrderGap
                 };
             }
             else if (targetNeighbour.Id == sourceEntity.Id)
@@ -496,7 +496,7 @@ namespace OpenSettings.Services.Sql
 
             if (anyMatch)
             {
-                return await _sortOrderService.ReorderAsync(_context.AppGroups, cancellationToken);
+                return await _sortOrderService.ReorderAsync(_context.AppGroups, input.UpdatedById, cancellationToken);
             }
 
             var currentTime = DateTime.UtcNow;
@@ -602,11 +602,11 @@ namespace OpenSettings.Services.Sql
             }
         }
 
-        public async Task<IResponse> ReorderAppGroupsAsync()
+        public async Task<IResponse> ReorderAppGroupsAsync(Guid? updatedById)
         {
             try
             {
-                var reorderResponse = await _sortOrderService.ReorderAsync(_context.AppGroups);
+                var reorderResponse = await _sortOrderService.ReorderAsync(_context.AppGroups, updatedById);
 
                 return HttpStatusCode.OK.ToSuccessResponse(reorderResponse);
             }
@@ -665,7 +665,7 @@ namespace OpenSettings.Services.Sql
             }
         }
 
-        private async Task<IResponse> GetGroupsBySearchAsync(GetGroupsInput input, CancellationToken cancellationToken)
+        private async Task<IResponse> GetGroupsBySearchAsync(GetAppGroupsInput input, CancellationToken cancellationToken)
         {
             var searchLowercase = input.SearchTerm.ToLowerInvariant();
 
@@ -706,7 +706,7 @@ namespace OpenSettings.Services.Sql
                         ? entities.OrderByDescending(a => a.SortOrder)
                         : entities.OrderBy(a => a.SortOrder);
 
-                case "mappingscount":
+                case "mappingcount":
                     return sortDirection == SortDirection.Desc
                         ? entities.OrderByDescending(a => a.Apps.Count())
                         : entities.OrderBy(a => a.Apps.Count());
@@ -757,7 +757,7 @@ namespace OpenSettings.Services.Sql
                         ? orderedEntities.ThenByDescending(a => a.SortOrder)
                         : orderedEntities.ThenBy(a => a.SortOrder);
 
-                case "mappingscount":
+                case "mappingcount":
                     return sortDirection == SortDirection.Desc
                         ? orderedEntities.ThenByDescending(a => a.Apps.Count())
                         : orderedEntities.ThenBy(a => a.Apps.Count());
@@ -795,7 +795,7 @@ namespace OpenSettings.Services.Sql
                 Name = entity.Name,
                 Slug = entity.Slug,
                 SortOrder = entity.SortOrder,
-                MappingsCount = entity.Apps.Count(),
+                MappingCount = entity.Apps.Count(),
                 CreatedOn = entity.CreatedOn,
                 UpdatedOn = entity.UpdatedOn,
                 CreatedBy = entity.CreatedBy?.DisplayName,

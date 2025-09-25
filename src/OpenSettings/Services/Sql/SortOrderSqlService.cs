@@ -5,6 +5,7 @@ using OpenSettings.Configurations;
 using OpenSettings.Domains.Sql;
 using OpenSettings.Domains.Sql.DataContext;
 using OpenSettings.Extensions;
+using OpenSettings.Helpers;
 using OpenSettings.Models;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Services.Sql.Interfaces;
@@ -13,7 +14,6 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using OpenSettings.Helpers;
 
 namespace OpenSettings.Services.Sql
 {
@@ -21,27 +21,25 @@ namespace OpenSettings.Services.Sql
     {
         private readonly ILockSqlService _locksSqlService;
         private readonly OpenSettingsDbContext _context;
-        private readonly Guid _clientId;
 
-        public SortOrderSqlService(ILockSqlService locksSqlService, OpenSettingsDbContext context, OpenSettingsConfiguration openSettingsConfiguration)
+        public SortOrderSqlService(ILockSqlService locksSqlService, OpenSettingsDbContext context)
         {
             _locksSqlService = locksSqlService;
             _context = context;
-            _clientId = openSettingsConfiguration.Client.Id;
         }
 
-        public IQueryable<T> FindNeighbour<T>(DbSet<T> items, Guid id, int sortOrder, bool ascent) where T : class, IOrderedEntity, new()
+        public IQueryable<T> FindNeighbour<T>(DbSet<T> items, Guid id, int sortOrder, MoveDirection direction) where T : class, IOrderedEntity, new()
         {
-            return ascent
+            return direction == MoveDirection.Down
                 ? items.AsNoTracking().Where(a => a.SortOrder >= sortOrder && a.Id != id).OrderBy(a => a.SortOrder)
                 : items.AsNoTracking().Where(a => a.SortOrder <= sortOrder && a.Id != id).OrderByDescending(a => a.SortOrder);
         }
 
-        public async Task<IResponse> ReorderAsync<T>(DbSet<T> items, CancellationToken cancellationToken) where T : class, IOrderedEntity, new()
+        public async Task<IResponse> ReorderAsync<T>(DbSet<T> items, Guid? updatedById, CancellationToken cancellationToken) where T : class, IOrderedEntity, new()
         {
             try
             {
-                await ReorderAsync(items);
+                await ReorderAsync(items, updatedById, CancellationToken.None);
 
                 return HttpStatusCode.Conflict.ToFailureResponse(Errors.SortOrderBeingReprocessed);
             }
@@ -55,7 +53,7 @@ namespace OpenSettings.Services.Sql
             }
         }
 
-        public async Task<ReorderResponse> ReorderAsync<T>(DbSet<T> items) where T : class, IOrderedEntity, new()
+        public async Task<ReorderResponse> ReorderAsync<T>(DbSet<T> items, Guid? updatedById) where T : class, IOrderedEntity, new()
         {
             var key = typeof(T).Name;
 
@@ -109,7 +107,7 @@ namespace OpenSettings.Services.Sql
                         entity.SortOrder = newOrder;
                         entity.RowVersion = response.RowVersion;
                         entity.UpdatedOn = currentTime;
-                        entity.UpdatedById = _clientId;
+                        entity.UpdatedById = updatedById;
 
                         response.IdToSortOrder[$"{entity.Id}"] = entity.SortOrder;
                     }

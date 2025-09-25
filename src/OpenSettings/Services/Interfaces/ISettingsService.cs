@@ -12,22 +12,22 @@ namespace OpenSettings.Services.Interfaces
 
         Task<IResponse> GetAppSettingsByAppSlugAndIdentifierSlugAsync(GetSettingsByAppAndIdentifierInput input, CancellationToken cancellationToken = default);
 
-        Task<IResponse> GetAppSettingsDataAsync(GetSettingsDataInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> GetAppSettingsDataAsync(GetAppSettingsDataInput input, CancellationToken cancellationToken = default);
 
-        Task<IResponse> CopyAppSettingToAsync(CopySettingToInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> CopyAppSettingToAsync(CopyAppSettingToInput input, CancellationToken cancellationToken = default);
 
-        Task<IResponse> GetAppSettingDataAsync(GetSettingDataInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> GetAppSettingDataAsync(GetAppSettingDataInput input, CancellationToken cancellationToken = default);
 
-        Task<IResponse> DeleteAppSettingAsync(DeleteSettingInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> DeleteAppSettingAsync(DeleteAppSettingInput input, CancellationToken cancellationToken = default);
 
-        Task<IResponse<GetSettingsLastUpdatedComputedIdentifiersResponse>> GetAppSettingsLastUpdatedComputedIdentifiersAsync(GetSettingsLastUpdatedComputedIdentifiersInput input, CancellationToken cancellationToken = default);
+        Task<IResponse<GetSettingsLastUpdatedComputedIdentifiersResponse>> GetAppSettingsLastUpdatedComputedIdentifiersAsync(GetAppSettingsLastUpdatedComputedIdentifiersInput input, CancellationToken cancellationToken = default);
 
         Task<IResponse> GetAppSettingByIdAsync(GetAppSettingByIdInput input, CancellationToken cancellationToken = default);
 
-        Task<IResponse> UpdateAppSettingAsync(UpdateSettingInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> UpdateAppSettingAsync(UpdateAppSettingInput input, CancellationToken cancellationToken = default);
 
-        Task<IResponse> CreateAppSettingAsync(CreateSettingInput input, CancellationToken cancellationToken = default);
+        Task<IResponse> CreateAppSettingAsync(CreateAppSettingInput input, CancellationToken cancellationToken = default);
 
-        Task<IResponse<UpdateAppSettingDataResponse>> UpdateAppSettingDataAsync(UpdateSettingDataInput input, CancellationToken cancellationToken);
+        Task<IResponse<UpdateAppSettingDataResponse>> UpdateAppSettingDataAsync(UpdateAppSettingDataInput input, CancellationToken cancellationToken);
     }
 }

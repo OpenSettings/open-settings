@@ -32,10 +32,6 @@ namespace OpenSettings.Domains.Sql.Configurations
                 .HasForeignKey(e => e.AppId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            builder.HasOne(e => e.CopiedFrom)
-                .WithMany()
-                .HasForeignKey(e => e.CopiedFromId);
-
             builder.HasOne(e => e.CreatedBy)
                 .WithMany()
                 .HasForeignKey(e => e.CreatedById);
