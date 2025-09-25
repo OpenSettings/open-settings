@@ -1,4 +1,6 @@
-﻿namespace OpenSettings.Models.Responses
+﻿using System;
+
+namespace OpenSettings.Models.Responses
 {
     public class GetSettingsByAppAndIdentifierResponseSettingClass
     {
@@ -9,5 +11,7 @@
         public string Namespace { get; set; }
 
         public string FullName { get; set; }
+
+        public byte[] RowVersion { get; set; } = Array.Empty<byte>();
     }
 }

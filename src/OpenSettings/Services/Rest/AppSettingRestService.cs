@@ -35,7 +35,7 @@ namespace OpenSettings.Services.Rest
             _providerInfo = providerInfo;
         }
 
-        public async Task<IResponse> GetAppSettingsByAppIdAndIdentifierIdAsync(GetSettingsByAppAndIdentifierInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetAppSettingsByAppIdAndIdentifierIdAsync(GetAppSettingsByAppAndIdentifierInput input, CancellationToken cancellationToken = default)
         {
             var relativeUri = RouteHelper.Build(
                 OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetAppSettingsByAppIdAndIdentifierId,
@@ -47,7 +47,7 @@ namespace OpenSettings.Services.Rest
             }
         }
 
-        public async Task<IResponse> GetAppSettingsByAppSlugAndIdentifierSlugAsync(GetSettingsByAppAndIdentifierInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetAppSettingsByAppSlugAndIdentifierSlugAsync(GetAppSettingsByAppAndIdentifierInput input, CancellationToken cancellationToken = default)
         {
             var relativeUri = RouteHelper.Build(
                 OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetAppSettingsByAppSlugAndIdentifierSlug,

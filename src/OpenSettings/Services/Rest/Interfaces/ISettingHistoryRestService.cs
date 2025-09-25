@@ -2,5 +2,5 @@
 
 namespace OpenSettings.Services.Rest.Interfaces
 {
-    public interface ISettingHistoryRestService : ISettingHistoryService { }
+    public interface ISettingHistoryRestService : IAppSettingHistoryService { }
 }

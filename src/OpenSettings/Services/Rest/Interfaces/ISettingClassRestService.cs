@@ -2,5 +2,5 @@
 
 namespace OpenSettings.Services.Rest.Interfaces
 {
-    public interface ISettingClassRestService  : ISettingClassService{ }
+    public interface ISettingClassRestService  : IAppSettingClassService{ }
 }

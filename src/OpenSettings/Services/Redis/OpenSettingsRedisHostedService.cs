@@ -19,17 +19,17 @@ namespace OpenSettings.Services.Redis
         private readonly string _instanceDynamicId;
         private readonly ISubscriber _subscriber;
         private readonly RedisChannel _channel;
-        private readonly ILocalSettingsService _localSettingsService;
+        private readonly ILocalSettingService _localSettingService;
 
         public OpenSettingsRedisHostedService(
             OpenSettingsConfiguration openSettingsConfiguration,
-            ILocalSettingsService localSettingsService,
+            ILocalSettingService localSettingService,
             ProviderInfo providerInfo,
             Domains.Redis.DataContext.Context redisContext)
         {
             _logger = openSettingsConfiguration.LoggerFactory.CreateLogger<OpenSettingsRedisHostedService>();
             _instanceDynamicId = openSettingsConfiguration.InstanceDynamicId;
-            _localSettingsService = localSettingsService;
+            _localSettingService = localSettingService;
             _channel = Helper.ConstructChannelName(providerInfo.Redis.Channel, openSettingsConfiguration.Client.Id, openSettingsConfiguration.IdentifierNameLowercase);
             _subscriber = redisContext.GetSubscriber(OpenSettingsDefaults.Names.RedisSubscriber);
         }
@@ -83,7 +83,7 @@ namespace OpenSettings.Services.Redis
 
                             var classComputedIdentifier = Guid.Parse(jsonElement.GetString());
 
-                            await _localSettingsService.SettingDataChangeNotifiedAsync(classComputedIdentifier, CancellationToken.None).ConfigureAwait(false);
+                            await _localSettingService.SettingDataChangeNotifiedAsync(classComputedIdentifier, CancellationToken.None).ConfigureAwait(false);
 
                             break;
                     }

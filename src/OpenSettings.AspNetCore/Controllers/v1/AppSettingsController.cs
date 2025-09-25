@@ -16,9 +16,9 @@ namespace OpenSettings.AspNetCore.Controllers.v1
     public class AppSettingsController : ControllerBase
     {
         private readonly IAppSettingService _appSettingService;
-        private readonly ISettingHistoryService _settingHistoryService;
+        private readonly IAppSettingHistoryService _settingHistoryService;
 
-        public AppSettingsController(IAppSettingService appSettingService, ISettingHistoryService settingHistoryService)
+        public AppSettingsController(IAppSettingService appSettingService, IAppSettingHistoryService settingHistoryService)
         {
             _appSettingService = appSettingService;
             _settingHistoryService = settingHistoryService;

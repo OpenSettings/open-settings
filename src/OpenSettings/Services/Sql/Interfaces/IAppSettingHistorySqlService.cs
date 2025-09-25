@@ -2,5 +2,5 @@
 
 namespace OpenSettings.Services.Sql.Interfaces
 {
-    internal interface IAppSettingHistorySqlService : ISettingHistoryService { }
+    internal interface IAppSettingHistorySqlService : IAppSettingHistoryService { }
 }

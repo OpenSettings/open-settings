@@ -188,8 +188,8 @@ namespace OpenSettings.Extensions
             services.AddScoped<ILockService>(sp => sp.GetRequiredService<ILockSqlService>());
             services.AddScoped<INotificationService>(sp => sp.GetRequiredService<INotificationSqlService>());
             services.AddScoped<IProviderService>(sp => sp.GetRequiredService<IProviderSqlService>());
-            services.AddScoped<ISettingClassService>(sp => sp.GetRequiredService<IAppSettingClassSqlService>());
-            services.AddScoped<ISettingHistoryService>(sp => sp.GetRequiredService<IAppSettingHistorySqlService>());
+            services.AddScoped<IAppSettingClassService>(sp => sp.GetRequiredService<IAppSettingClassSqlService>());
+            services.AddScoped<IAppSettingHistoryService>(sp => sp.GetRequiredService<IAppSettingHistorySqlService>());
             services.AddScoped<IAppSettingService>(sp => sp.GetRequiredService<IAppSettingSqlService>());
             services.AddScoped<IAppTagService>(sp => sp.GetRequiredService<IAppTagSqlService>());
             services.AddScoped<IUserNotificationMappingService>(sp => sp.GetRequiredService<IUserNotificationMappingSqlService>());
@@ -197,7 +197,7 @@ namespace OpenSettings.Extensions
             services.AddScoped<IGlobalConfigurationService>(sp => sp.GetRequiredService<IGlobalConfigurationSqlService>());
             services.AddSingleton<ITokenService>(sp => sp.GetRequiredService<ITokenSqlService>());
 
-            services.AddScoped<ILocalSettingsService, LocalSettingsService>();
+            services.AddScoped<ILocalSettingService, LocalSettingService>();
 
             services.AddSingleton<IProviderCoordinationTimedService, ProviderCoordinationTimedService>();
             services.AddSingleton<IOpenSettingsNotificationSyncTimedService, OpenSettingsNotificationSyncTimedService>();
@@ -267,14 +267,14 @@ namespace OpenSettings.Extensions
             services.AddSingleton<INotificationService>(sp => sp.GetRequiredService<INotificationRestService>());
             services.AddSingleton<IOpenSettingsService>(sp => sp.GetRequiredService<IOpenSettingsRestService>());
             services.AddSingleton<IProviderService>(sp => sp.GetRequiredService<IProviderRestService>());
-            services.AddSingleton<ISettingClassService>(sp => sp.GetRequiredService<ISettingClassRestService>());
-            services.AddSingleton<ISettingHistoryService>(sp => sp.GetRequiredService<ISettingHistoryRestService>());
+            services.AddSingleton<IAppSettingClassService>(sp => sp.GetRequiredService<ISettingClassRestService>());
+            services.AddSingleton<IAppSettingHistoryService>(sp => sp.GetRequiredService<ISettingHistoryRestService>());
             services.AddSingleton<IAppSettingService>(sp => sp.GetRequiredService<IAppSettingRestService>());
             services.AddSingleton<IAppTagService>(sp => sp.GetRequiredService<IAppTagRestService>());
             services.AddSingleton<IUserService>(sp => sp.GetRequiredService<IUserRestService>());
             services.AddSingleton<ITokenService>(sp => sp.GetRequiredService<ITokenRestService>());
 
-            services.AddSingleton<ILocalSettingsService, LocalSettingsService>();
+            services.AddSingleton<ILocalSettingService, LocalSettingService>();
         }
 
         private static IServiceCollection AddOpenSettingsDbContext(this IServiceCollection services, OrmConfiguration orm)

@@ -202,7 +202,7 @@ namespace OpenSettings.Extensions
             }
         }
 
-        private static async Task ExecuteWithLocalSettingsServiceAsync(Func<LocalSettingsService, Task> func,
+        private static async Task ExecuteWithLocalSettingsServiceAsync(Func<LocalSettingService, Task> func,
          OpenSettingsConfiguration openSettingsConfiguration, CancellationToken cancellationToken)
         {
             if (openSettingsConfiguration.IsConsumerSelected)
@@ -211,7 +211,7 @@ namespace OpenSettings.Extensions
                 {
                     var appsService = new AppRestService(openSettingsHttpClientFactory, openSettingsConfiguration);
                     var settingsService = new AppSettingRestService(dataChangeService: null, openSettingsHttpClientFactory, openSettingsConfiguration, providerInfo: null);
-                    var localSettingsService = new LocalSettingsService(appsService, settingsService, openSettingsConfiguration);
+                    var localSettingsService = new LocalSettingService(appsService, settingsService, openSettingsConfiguration);
 
                     await func(localSettingsService);
                 }
@@ -243,7 +243,7 @@ namespace OpenSettings.Extensions
                     new DataValidationService(openSettingsConfiguration),
                     openSettingsConfiguration);
 
-                var localSettingsService = new LocalSettingsService(appsService, settingsService, openSettingsConfiguration);
+                var localSettingsService = new LocalSettingService(appsService, settingsService, openSettingsConfiguration);
 
                 await func(localSettingsService);
 

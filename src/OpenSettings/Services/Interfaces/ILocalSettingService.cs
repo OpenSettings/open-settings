@@ -11,7 +11,7 @@ namespace OpenSettings.Services.Interfaces
     /// <summary>
     /// Provides methods to manage and retrieve local settings in an application.
     /// </summary>
-    public interface ILocalSettingsService
+    public interface ILocalSettingService
     {
         /// <summary>
         /// Asynchronously retrieves a settings object of type <typeparamref name="T"/> using the specified identifier name.

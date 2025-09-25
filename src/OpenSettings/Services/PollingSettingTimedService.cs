@@ -12,26 +12,26 @@ namespace OpenSettings.Services
     /// </summary>
     internal sealed class PollingSettingTimedService : TimedHostedService, IPollingSettingTimedService
     {
-        private readonly ILocalSettingsService _localSettingsService;
+        private readonly ILocalSettingService _localSettingService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PollingSettingTimedService"/> class.
         /// </summary>
-        /// <param name="localSettingsService">The local settings service.</param>
+        /// <param name="localSettingService">The local settings service.</param>
         /// <param name="openSettingsConfiguration">The open settings configuration.</param>
-        public PollingSettingTimedService(ILocalSettingsService localSettingsService, OpenSettingsConfiguration openSettingsConfiguration) : base(openSettingsConfiguration.LoggerFactory.CreateLogger<PollingSettingTimedService>(), nameof(PollingSettingTimedService),
+        public PollingSettingTimedService(ILocalSettingService localSettingService, OpenSettingsConfiguration openSettingsConfiguration) : base(openSettingsConfiguration.LoggerFactory.CreateLogger<PollingSettingTimedService>(), nameof(PollingSettingTimedService),
             opts =>
             {
                 opts.StartsIn = openSettingsConfiguration.Consumer.PollingSettingsWorker.StartsIn;
                 opts.Period = openSettingsConfiguration.Consumer.PollingSettingsWorker.Period;
             })
         {
-            _localSettingsService = localSettingsService;
+            _localSettingService = localSettingService;
         }
 
         protected override async ValueTask DoWorkAsync(CancellationToken cancellationToken)
         {
-            await _localSettingsService.ReloadSettingsAsync(cancellationToken);
+            await _localSettingService.ReloadSettingsAsync(cancellationToken);
         }
     }
 }

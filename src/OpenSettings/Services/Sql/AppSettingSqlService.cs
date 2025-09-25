@@ -48,12 +48,12 @@ namespace OpenSettings.Services.Sql
             _openSettingsConfiguration = openSettingsConfiguration;
         }
 
-        public async Task<IResponse> GetAppSettingsByAppIdAndIdentifierIdAsync(GetSettingsByAppAndIdentifierInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetAppSettingsByAppIdAndIdentifierIdAsync(GetAppSettingsByAppAndIdentifierInput input, CancellationToken cancellationToken = default)
         {
             return await GetSettingsByAppAndIdentifierAsync(a => a.Id == Guid.Parse(input.AppIdOrSlug), Guid.Parse(input.IdentifierIdOrSlug), cancellationToken);
         }
 
-        public async Task<IResponse> GetAppSettingsByAppSlugAndIdentifierSlugAsync(GetSettingsByAppAndIdentifierInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetAppSettingsByAppSlugAndIdentifierSlugAsync(GetAppSettingsByAppAndIdentifierInput input, CancellationToken cancellationToken = default)
         {
             var identifierSlug = input.IdentifierIdOrSlug?.ToSlug();
             var appSlug = input.AppIdOrSlug?.ToSlug();
@@ -1047,13 +1047,18 @@ namespace OpenSettings.Services.Sql
                         Version = s.Version,
                         DataValidationDisabled = s.DataValidationDisabled,
                         DataRestored = s.DataRestored,
+                        StoreInSeparateFile = s.StoreInSeparateFile,
+                        IgnoreOnFileChange = s.IgnoreOnFileChange,
+                        RegistrationMode = s.RegistrationMode,
                         Class = new GetSettingsByAppAndIdentifierResponseSettingClass
                         {
                             Id = $"{s.AppSettingClass.Id}",
                             Name = s.AppSettingClass.Name,
                             Namespace = s.AppSettingClass.Namespace,
-                            FullName = s.AppSettingClass.FullName
-                        }
+                            FullName = s.AppSettingClass.FullName,
+                            RowVersion = s.AppSettingClass.RowVersion
+                        },
+                        RowVersion = s.RowVersion
                     }).ToArray()
                 }).FirstOrDefaultAsync(cancellationToken);
 
@@ -1062,7 +1067,10 @@ namespace OpenSettings.Services.Sql
                 return HttpStatusCode.NotFound.ToFailureResponse(Errors.AppNotFound);
             }
 
-            return HttpStatusCode.OK.ToSuccessResponse(entity.Settings);
+            return HttpStatusCode.OK.ToSuccessResponse(new GetSettingsByAppAndIdentifierResponse
+            {
+                Settings = entity.Settings
+            });
         }
 
         private async Task<bool> HasSomeSettingAsync(Guid appId, Guid identifierId, Guid computedIdentifier, CancellationToken cancellationToken)

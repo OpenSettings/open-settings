@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace OpenSettings.Services.Interfaces
 {
-    public interface ISettingHistoryService
+    public interface IAppSettingHistoryService
     {
         Task<IResponse> GetAppSettingHistoryDataAsync(GetAppSettingHistoryDataInput input, CancellationToken cancellationToken = default);
 

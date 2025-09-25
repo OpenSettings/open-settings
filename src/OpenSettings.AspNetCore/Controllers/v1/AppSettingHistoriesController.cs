@@ -12,9 +12,9 @@ namespace OpenSettings.AspNetCore.Controllers.v1
     [Route("")]
     public class AppSettingHistoriesController : ControllerBase
     {
-        private readonly ISettingHistoryService _settingHistoryService;
+        private readonly IAppSettingHistoryService _settingHistoryService;
 
-        public AppSettingHistoriesController(ISettingHistoryService settingHistoryService)
+        public AppSettingHistoriesController(IAppSettingHistoryService settingHistoryService)
         {
             _settingHistoryService = settingHistoryService;
         }

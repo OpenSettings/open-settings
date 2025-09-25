@@ -30,7 +30,7 @@ namespace OpenSettings.Services
     /// <summary>
     /// Service for managing local settings.
     /// </summary>
-    internal sealed class LocalSettingsService : ILocalSettingsService
+    internal sealed class LocalSettingService : ILocalSettingService
     {
         private static readonly Type GenericOptionsType = typeof(IOptions<>);
         private static readonly Type GenericOptionsSnapshot = typeof(IOptionsSnapshot<>);
@@ -43,11 +43,11 @@ namespace OpenSettings.Services
         private readonly ILogger _logger;
         private readonly OpenSettingsConfiguration _openSettingsConfiguration;
 
-        public LocalSettingsService(IAppService appsService, IAppSettingService appSettingService, OpenSettingsConfiguration openSettingsConfiguration)
+        public LocalSettingService(IAppService appsService, IAppSettingService appSettingService, OpenSettingsConfiguration openSettingsConfiguration)
         {
             _appsService = appsService;
             _appSettingService = appSettingService;
-            _logger = openSettingsConfiguration.LoggerFactory.CreateLogger<LocalSettingsService>();
+            _logger = openSettingsConfiguration.LoggerFactory.CreateLogger<LocalSettingService>();
             _openSettingsConfiguration = openSettingsConfiguration;
         }
 

@@ -553,7 +553,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         }
 
         [HttpGet(OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetAppSettingsByAppIdAndIdentifierId)]
-        public async Task<IActionResult> GetAppSettingsByAppIdAndIdentifierId(GetSettingsByAppAndIdentifierRequest request, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> GetAppSettingsByAppIdAndIdentifierId(GetAppSettingsByAppIdAndIdentifierIdRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
             {
@@ -561,17 +561,17 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             }
 
             var result = await _appSettingService.GetAppSettingsByAppIdAndIdentifierIdAsync(
-                new GetSettingsByAppAndIdentifierInput
+                new GetAppSettingsByAppAndIdentifierInput
                 {
-                    AppIdOrSlug = request.AppIdOrAppSlug,
-                    IdentifierIdOrSlug = request.IdentifierIdOrSlug
+                    AppIdOrSlug = request.AppId,
+                    IdentifierIdOrSlug = request.IdentifierId
                 }, cancellationToken);
 
             return result.ToAction();
         }
 
         [HttpGet(OpenSettingsDefaults.Routes.V1.AppsEndpoints.GetAppSettingsByAppSlugAndIdentifierSlug)]
-        public async Task<IActionResult> GetAppSettingsByAppSlugAndIdentifierSlug(GetSettingsByAppAndIdentifierRequest request, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> GetAppSettingsByAppSlugAndIdentifierSlug(GetAppSettingsByAppSlugAndIdentifierSlugRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
             {
@@ -579,10 +579,10 @@ namespace OpenSettings.AspNetCore.Controllers.v1
             }
 
             var result = await _appSettingService.GetAppSettingsByAppSlugAndIdentifierSlugAsync(
-                new GetSettingsByAppAndIdentifierInput
+                new GetAppSettingsByAppAndIdentifierInput
                 {
-                    AppIdOrSlug = request.AppIdOrAppSlug,
-                    IdentifierIdOrSlug = request.IdentifierIdOrSlug
+                    AppIdOrSlug = request.AppSlug,
+                    IdentifierIdOrSlug = request.IdentifierSlug
                 }, cancellationToken);
 
             return result.ToAction();
