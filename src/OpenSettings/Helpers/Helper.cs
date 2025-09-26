@@ -3,9 +3,11 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
+using OpenSettings.Models;
 
 namespace OpenSettings.Helpers
 {
@@ -33,6 +35,21 @@ namespace OpenSettings.Helpers
         public static bool IsMigrationEnabled()
         {
             return Environment.GetCommandLineArgs().FirstOrDefault()?.Contains("ef.dll") ?? false;
+        }
+
+        internal static IOrderedQueryable<TEntity> ApplySorting<TEntity, TKey>(
+            IQueryable<TEntity> source,
+            IOrderedQueryable<TEntity> orderedSource,
+            Expression<Func<TEntity, TKey>> keySelector,
+            SortDirection direction)
+        {
+            return source != null
+                ? direction == SortDirection.Desc
+                    ? source.OrderByDescending(keySelector)
+                    : source.OrderBy(keySelector)
+                : direction == SortDirection.Desc
+                    ? orderedSource.ThenByDescending(keySelector)
+                    : orderedSource.ThenBy(keySelector);
         }
 
         public static string GetPublicCacheControlValue(double expiresInSeconds)

@@ -4,6 +4,7 @@ using Ogu.Response.Abstractions;
 using OpenSettings.Domains.Sql.DataContext;
 using OpenSettings.Domains.Sql.Entities;
 using OpenSettings.Extensions;
+using OpenSettings.Helpers;
 using OpenSettings.Models;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Models.Responses;
@@ -14,7 +15,6 @@ using System.Linq.Expressions;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using OpenSettings.Helpers;
 
 namespace OpenSettings.Services.Sql
 {
@@ -64,7 +64,7 @@ namespace OpenSettings.Services.Sql
 
                 filteredEntitiesQuery = string.IsNullOrWhiteSpace(input.SortBy)
                     ? filteredEntitiesQuery.ThenBy(a => a.SortOrder)
-                    : SortThenBy(filteredEntitiesQuery, input.SortBy, input.SortDirection);
+                    : Sort(null, filteredEntitiesQuery, input.SortBy, input.SortDirection);
 
                 var filteredEntities = await filteredEntitiesQuery
                     .Select(entity => MapToTagModelForPaginatedResponseData(entity))
@@ -658,7 +658,7 @@ namespace OpenSettings.Services.Sql
 
                 unfilteredEntitiesQuery = string.IsNullOrWhiteSpace(input.SortBy)
                     ? unfilteredEntitiesQuery.OrderBy(a => a.SortOrder)
-                    : SortBy(unfilteredEntitiesQuery, input.SortBy, input.SortDirection);
+                    : Sort(unfilteredEntitiesQuery, null, input.SortBy, input.SortDirection);
 
                 var unfilteredEntities = await unfilteredEntitiesQuery
                     .Select(entity => MapToTagModelForPaginatedResponseData(entity))
@@ -692,105 +692,35 @@ namespace OpenSettings.Services.Sql
             return HttpStatusCode.OK.ToSuccessResponse(new GetAppTagsResponse(data));
         }
 
-        private static IQueryable<AppTagSqlModel> SortBy(IQueryable<AppTagSqlModel> entities, string sortBy, SortDirection sortDirection)
+        private static IOrderedQueryable<AppTagSqlModel> Sort(
+            IQueryable<AppTagSqlModel> source,
+            IOrderedQueryable<AppTagSqlModel> orderedSource,
+            string sortBy,
+            SortDirection direction
+        )
         {
-            sortBy = sortBy.Trim().ToLowerInvariant();
+            var key = (sortBy ?? string.Empty).Trim().ToLowerInvariant();
 
-            switch (sortBy)
+            switch (key)
             {
                 case "id":
-                    return sortDirection == SortDirection.Desc
-                        ? entities.OrderByDescending(a => a.Id)
-                        : entities.OrderBy(a => a.Id);
-
+                    return Helper.ApplySorting(source, orderedSource, a => a.Id, direction);
                 case "name":
-                    return sortDirection == SortDirection.Desc
-                        ? entities.OrderByDescending(a => a.Name)
-                        : entities.OrderBy(a => a.Name);
-
+                    return Helper.ApplySorting(source, orderedSource, a => a.Name, direction);
                 case "sortorder":
-                    return sortDirection == SortDirection.Desc
-                        ? entities.OrderByDescending(a => a.SortOrder)
-                        : entities.OrderBy(a => a.SortOrder);
-
+                    return Helper.ApplySorting(source, orderedSource, a => a.SortOrder, direction);
                 case "mappingcount":
-                    return sortDirection == SortDirection.Desc
-                        ? entities.OrderByDescending(a => a.AppTagMappings.Count())
-                        : entities.OrderBy(a => a.AppTagMappings.Count());
-
+                    return Helper.ApplySorting(source, orderedSource, a => a.AppTagMappings.Count(), direction);
                 case "createdon":
-                    return sortDirection == SortDirection.Desc
-                        ? entities.OrderByDescending(a => a.CreatedOn)
-                        : entities.OrderBy(a => a.CreatedOn);
-
+                    return Helper.ApplySorting(source, orderedSource, a => a.CreatedOn, direction);
                 case "createdby":
-                    return sortDirection == SortDirection.Desc
-                        ? entities.OrderByDescending(a => a.CreatedBy)
-                        : entities.OrderBy(a => a.CreatedBy);
-
+                    return Helper.ApplySorting(source, orderedSource, a => a.CreatedBy, direction);
                 case "updatedon":
-                    return sortDirection == SortDirection.Desc
-                        ? entities.OrderByDescending(a => a.UpdatedOn)
-                        : entities.OrderBy(a => a.UpdatedOn);
-
+                    return Helper.ApplySorting(source, orderedSource, a => a.UpdatedOn, direction);
                 case "updatedby":
-                    return sortDirection == SortDirection.Desc
-                        ? entities.OrderByDescending(a => a.UpdatedBy)
-                        : entities.OrderBy(a => a.UpdatedBy);
-
+                    return Helper.ApplySorting(source, orderedSource, a => a.UpdatedBy, direction);
                 default:
-                    return entities.OrderBy(e => e.Id);
-            }
-        }
-
-        private static IOrderedQueryable<AppTagSqlModel> SortThenBy(IOrderedQueryable<AppTagSqlModel> orderedEntities, string sortBy, SortDirection sortDirection)
-        {
-            sortBy = sortBy.Trim().ToLowerInvariant();
-
-            switch (sortBy)
-            {
-                case "id":
-                    return sortDirection == SortDirection.Desc
-                        ? orderedEntities.ThenByDescending(a => a.Id)
-                        : orderedEntities.ThenBy(a => a.Id);
-
-                case "name":
-                    return sortDirection == SortDirection.Desc
-                        ? orderedEntities.ThenByDescending(a => a.Name)
-                        : orderedEntities.ThenBy(a => a.Name);
-
-                case "sortorder":
-                    return sortDirection == SortDirection.Desc
-                        ? orderedEntities.ThenByDescending(a => a.SortOrder)
-                        : orderedEntities.ThenBy(a => a.SortOrder);
-
-                case "mappingcount":
-                    return sortDirection == SortDirection.Desc
-                        ? orderedEntities.ThenByDescending(a => a.AppTagMappings.Count())
-                        : orderedEntities.ThenBy(a => a.AppTagMappings.Count());
-
-                case "createdon":
-                    return sortDirection == SortDirection.Desc
-                        ? orderedEntities.ThenByDescending(a => a.CreatedOn)
-                        : orderedEntities.ThenBy(a => a.CreatedOn);
-
-                case "createdby":
-                    return sortDirection == SortDirection.Desc
-                        ? orderedEntities.ThenByDescending(a => a.CreatedBy)
-                        : orderedEntities.ThenBy(a => a.CreatedBy);
-
-                case "updatedon":
-                    return sortDirection == SortDirection.Desc
-                        ? orderedEntities.ThenByDescending(a => a.UpdatedOn)
-                        : orderedEntities.ThenBy(a => a.UpdatedOn);
-
-                case "updatedby":
-                    return sortDirection == SortDirection.Desc
-                        ? orderedEntities.ThenByDescending(a => a.UpdatedBy)
-                        : orderedEntities.ThenBy(a => a.UpdatedBy);
-
-                default:
-                    return orderedEntities.ThenBy(a => a.Id);
+                    return Helper.ApplySorting(source, orderedSource, a => a.Id, direction);
             }
         }
 
