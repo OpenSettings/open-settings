@@ -1,8 +1,8 @@
-﻿using System;
-using OpenSettings.Models;
+﻿using OpenSettings.Models;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Models.Responses;
 using OpenSettings.Services.Interfaces;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 

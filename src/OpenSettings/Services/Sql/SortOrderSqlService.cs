@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Ogu.Response;
 using Ogu.Response.Abstractions;
-using OpenSettings.Configurations;
 using OpenSettings.Domains.Sql;
 using OpenSettings.Domains.Sql.DataContext;
 using OpenSettings.Extensions;

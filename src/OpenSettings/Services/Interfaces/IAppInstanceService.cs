@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace OpenSettings.Services.Interfaces
 {
-    public interface IInstanceService
+    public interface IAppInstanceService
     {
         Task<IResponse> CreateAppInstanceAsync(CreateInstanceInput input, CancellationToken cancellationToken = default);
 

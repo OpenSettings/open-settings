@@ -16,11 +16,11 @@ namespace OpenSettings.AspNetCore.Controllers.v1
     {
         private readonly IAppService _appsService;
         private readonly IAppSettingService _appSettingService;
-        private readonly IInstanceService _appInstanceService;
+        private readonly IAppInstanceService _appInstanceService;
         private readonly IAppIdentifierMappingService _appIdentifierMappingsService;
         private readonly IAppConfigurationService _appConfigurationService;
 
-        public AppsController(IAppService appsService, IAppSettingService appSettingService, IInstanceService appInstanceService, IAppIdentifierMappingService appIdentifierMappingsService, IAppConfigurationService appConfigurationService)
+        public AppsController(IAppService appsService, IAppSettingService appSettingService, IAppInstanceService appInstanceService, IAppIdentifierMappingService appIdentifierMappingsService, IAppConfigurationService appConfigurationService)
         {
             _appsService = appsService;
             _appSettingService = appSettingService;

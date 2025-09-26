@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
+using OpenSettings.Configurations;
 using OpenSettings.Extensions;
 using OpenSettings.Models;
 using OpenSettings.Models.Responses;
@@ -12,7 +13,6 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using OpenSettings.Configurations;
 
 namespace OpenSettings.Services
 {

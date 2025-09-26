@@ -18,6 +18,7 @@ namespace OpenSettings.Services
         private readonly IServiceProvider _serviceProvider;
         private readonly OpenSettingsConfiguration _openSettingsConfiguration;
         private readonly Domains.Redis.DataContext.Context _redisContext;
+
         private ISubscriber _subscriber;
         private ILocalSettingService _localSettingService;
 

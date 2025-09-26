@@ -28,23 +28,23 @@ namespace OpenSettings.Services.Sql
         private readonly IDataChangeService _dataChangeService;
         private readonly IIdentifierService _identifiersService;
         private readonly ICompressionProvider _compressionProvider;
-        private readonly OpenSettingsDbContext _context;
         private readonly IDataValidationService _dataValidationService;
+        private readonly OpenSettingsDbContext _context;
         private readonly OpenSettingsConfiguration _openSettingsConfiguration;
 
         public AppSettingSqlService(
             IDataChangeService dataChangeService,
             IIdentifierService identifiersService,
             ICompressionProvider compressionProvider,
-            OpenSettingsDbContext context,
             IDataValidationService dataValidationService,
+            OpenSettingsDbContext context,
             OpenSettingsConfiguration openSettingsConfiguration)
         {
             _dataChangeService = dataChangeService;
             _identifiersService = identifiersService;
             _compressionProvider = compressionProvider;
-            _context = context;
             _dataValidationService = dataValidationService;
+            _context = context;
             _openSettingsConfiguration = openSettingsConfiguration;
         }
 

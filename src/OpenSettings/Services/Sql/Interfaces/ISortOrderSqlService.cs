@@ -1,8 +1,8 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Ogu.Response.Abstractions;
 using OpenSettings.Domains.Sql;
 using OpenSettings.Models;
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;

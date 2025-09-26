@@ -183,7 +183,7 @@ namespace OpenSettings.Extensions
             services.AddScoped<IAppTagMappingService>(sp => sp.GetRequiredService<IAppTagMappingSqlService>());
             services.AddScoped<IAppConfigurationService>(sp => sp.GetRequiredService<IAppConfigurationSqlService>());
             services.AddScoped<IIdentifierService>(sp => sp.GetRequiredService<IIdentifierSqlService>());
-            services.AddScoped<IInstanceService>(sp => sp.GetRequiredService<IAppInstanceSqlService>());
+            services.AddScoped<IAppInstanceService>(sp => sp.GetRequiredService<IAppInstanceSqlService>());
             services.AddScoped<ILicenseService>(sp => sp.GetRequiredService<ILicenseSqlService>());
             services.AddScoped<ILockService>(sp => sp.GetRequiredService<ILockSqlService>());
             services.AddScoped<INotificationService>(sp => sp.GetRequiredService<INotificationSqlService>());
@@ -262,7 +262,7 @@ namespace OpenSettings.Extensions
             services.AddSingleton<IAppTagMappingService>(sp => sp.GetRequiredService<IAppTagMappingRestService>());
             services.AddSingleton<IAppConfigurationService>(sp => sp.GetRequiredService<IAppConfigurationRestService>());
             services.AddSingleton<IIdentifierService>(sp => sp.GetRequiredService<IIdentifierRestService>());
-            services.AddSingleton<IInstanceService>(sp => sp.GetRequiredService<IInstanceRestService>());
+            services.AddSingleton<IAppInstanceService>(sp => sp.GetRequiredService<IInstanceRestService>());
             services.AddSingleton<ILicenseService>(sp => sp.GetRequiredService<ILicenseRestService>());
             services.AddSingleton<INotificationService>(sp => sp.GetRequiredService<INotificationRestService>());
             services.AddSingleton<IOpenSettingsService>(sp => sp.GetRequiredService<IOpenSettingsRestService>());

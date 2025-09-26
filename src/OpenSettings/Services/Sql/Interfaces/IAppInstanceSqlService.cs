@@ -2,5 +2,5 @@
 
 namespace OpenSettings.Services.Sql.Interfaces
 {
-    internal interface IAppInstanceSqlService : IInstanceService { }
+    internal interface IAppInstanceSqlService : IAppInstanceService { }
 }

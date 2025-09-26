@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Ogu.Response;
 using Ogu.Response.Abstractions;
@@ -30,7 +29,6 @@ namespace OpenSettings.Services.Sql
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly IOpenSettingsMemoryCache _openSettingsMemoryCache;
-        private readonly ILogger _logger;
 
         private readonly OpenSettingsConfiguration _openSettingsConfiguration;
 
@@ -39,7 +37,6 @@ namespace OpenSettings.Services.Sql
             _serviceProvider = serviceProvider;
             _openSettingsMemoryCache = serviceProvider.GetRequiredService<IOpenSettingsMemoryCache>();
             _openSettingsConfiguration = serviceProvider.GetRequiredService<OpenSettingsConfiguration>();
-            _logger = _openSettingsConfiguration.LoggerFactory.CreateLogger<TokenSqlService>();
         }
 
         public async ValueTask<ProviderTokenInfo> GetProviderTokenInfoAsync(CancellationToken cancellationToken)

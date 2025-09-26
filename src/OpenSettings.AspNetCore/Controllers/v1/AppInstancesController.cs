@@ -11,9 +11,9 @@ namespace OpenSettings.AspNetCore.Controllers.v1
     [Route("")]
     public class AppInstancesController : ControllerBase
     {
-        private readonly IInstanceService _instancesService;
+        private readonly IAppInstanceService _instancesService;
 
-        public AppInstancesController(IInstanceService instancesService)
+        public AppInstancesController(IAppInstanceService instancesService)
         {
             _instancesService = instancesService;
         }

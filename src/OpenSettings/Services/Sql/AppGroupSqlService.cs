@@ -4,6 +4,7 @@ using Ogu.Response.Abstractions;
 using OpenSettings.Domains.Sql.DataContext;
 using OpenSettings.Domains.Sql.Entities;
 using OpenSettings.Extensions;
+using OpenSettings.Helpers;
 using OpenSettings.Models;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Models.Responses;
@@ -14,7 +15,6 @@ using System.Linq.Expressions;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using OpenSettings.Helpers;
 
 namespace OpenSettings.Services.Sql
 {
