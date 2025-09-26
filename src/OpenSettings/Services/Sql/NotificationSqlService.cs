@@ -116,6 +116,8 @@ namespace OpenSettings.Services.Sql
                     var context = scope.ServiceProvider.GetRequiredService<OpenSettingsDbContext>();
 
                     await DispatchNotificationsToUsersAsync(context, entity.Id, cancellationToken: c);
+
+                    OpenSettingsDefaults.Caches.AvailableNotificationIdsCacheEntry.GetKey().Remove(_openSettingsMemoryCache, o => true);
                 }
             }, cancellationToken);
 
