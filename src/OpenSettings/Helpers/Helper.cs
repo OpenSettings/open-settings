@@ -1,4 +1,5 @@
-﻿using StackExchange.Redis;
+﻿using OpenSettings.Models;
+using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -7,7 +8,6 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
-using OpenSettings.Models;
 
 namespace OpenSettings.Helpers
 {
@@ -142,7 +142,17 @@ namespace OpenSettings.Helpers
             var referencedAssemblies = entryAssembly.GetReferencedAssemblies();
 
             return referencedAssemblies
-                .SelectMany(assemblyName => Assembly.Load(assemblyName).GetTypes())
+                .SelectMany(assemblyName =>
+                {
+                    try
+                    {
+                        return Assembly.Load(assemblyName).GetTypes();
+                    }
+                    catch
+                    {
+                        return Enumerable.Empty<Type>();
+                    }
+                })
                 .Concat(entryAssembly.GetTypes());
         }
 

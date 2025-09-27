@@ -14,6 +14,7 @@ using OpenSettings.Services.Interfaces;
 using OpenSettings.Services.Rest.Interfaces;
 using System;
 using System.Collections.Generic;
+using OpenSettings.Extensions;
 
 namespace OpenSettings.AspNetCore.Extensions
 {
@@ -39,6 +40,12 @@ namespace OpenSettings.AspNetCore.Extensions
             authenticationBuilder.AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>(OpenSettingsDefaults.AuthSchemes.Basic, null);
 
             var syncAppDataResponse = SyncAppDataResponse.Get(configuration);
+
+            if (syncAppDataResponse == null)
+            {
+                throw new InvalidOperationException(
+                    $"OpenSettings is not configured. Call {nameof(HostBuilderExtensions.UseOpenSettingsAsync)}(...) during host setup (e.g., in Program.cs) before building the app.");
+            }
 
             var providerInfo = syncAppDataResponse.ProviderInfo;
             var controllerConfiguration = syncAppDataResponse.Configuration.Controller;
