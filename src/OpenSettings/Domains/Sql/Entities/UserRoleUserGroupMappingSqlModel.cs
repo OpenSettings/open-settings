@@ -9,6 +9,8 @@ namespace OpenSettings.Domains.Sql.Entities
     {
         public Guid? TenantId { get; set; }
 
+        public virtual TenantSqlModel Tenant { get; set; }
+
         /// <summary>
         /// The id of the associated user role.
         /// </summary>

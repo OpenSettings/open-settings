@@ -6,10 +6,8 @@ namespace OpenSettings.Domains.Sql.Entities
     /// <summary>
     /// Represents a license entity.
     /// </summary>
-    public class LicenseSqlModel : EntityBase<int>
+    public class LicenseSqlModel : EntityBase<Guid>
     {
-        public Guid? TenantId { get; set; }
-
         /// <summary>
         /// The unique reference identifier for the license.
         /// </summary>
@@ -79,5 +77,9 @@ namespace OpenSettings.Domains.Sql.Entities
         /// The date and time before which the license is not valid.
         /// </summary>
         public DateTime NotBefore { get; set; }
+
+        public Guid? TenantId { get; set; }
+
+        public virtual TenantSqlModel Tenant { get; set; }
     }
 }

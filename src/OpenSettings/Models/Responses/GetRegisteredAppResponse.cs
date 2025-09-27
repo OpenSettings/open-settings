@@ -15,10 +15,12 @@
         /// </summary>
         public bool IsRegistered { get; set; }
 
+        /*
         /// <summary>
         /// Indicates whether the client id is unique in the OpenSettings.
         /// </summary>
         public bool IsClientIdUnique { get; set; }
+        */
 
         /// <summary>
         /// Indicates whether the client secret matches the one stored in the OpenSettings.

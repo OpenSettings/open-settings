@@ -137,6 +137,7 @@ namespace OpenSettings.Services.Sql
                 {
                     Id = $"{a.Id}",
                     Name = a.Name,
+                    Slug = a.Slug,
                     SortOrder = a.SortOrder,
                     RowVersion = a.RowVersion
                 }).ToArrayAsync(cancellationToken);
@@ -260,6 +261,10 @@ namespace OpenSettings.Services.Sql
                 {
                     // ignored
                 }
+            }
+            else if (await _context.Identifiers.AsNoTracking().AnyAsync(s => s.Id != input.IdentifierId && s.SortOrder == input.SortOrder, cancellationToken))
+            {
+                return HttpStatusCode.BadRequest.ToFailureResponse(Errors.DuplicateSortOrder);
             }
 
             var entity = new IdentifierSqlModel
@@ -612,7 +617,9 @@ namespace OpenSettings.Services.Sql
                 .OrderBy(a => a.Id)
                 .Select(a => new GetIdentifierResponse
                 {
+                    Id = a.Id,
                     Name = a.Name,
+                    Slug = a.Slug,
                     SortOrder = a.SortOrder,
                     RowVersion = a.RowVersion
                 }).FirstOrDefaultAsync(cancellationToken);
@@ -675,6 +682,7 @@ namespace OpenSettings.Services.Sql
                 {
                     Id = $"{a.Id}",
                     Name = a.Name,
+                    Slug = a.Slug,
                     SortOrder = a.SortOrder,
                     RowVersion = a.RowVersion
                 }).ToArrayAsync(cancellationToken);

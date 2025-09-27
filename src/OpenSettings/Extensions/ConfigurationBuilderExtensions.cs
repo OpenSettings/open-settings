@@ -239,8 +239,8 @@ namespace OpenSettings.Extensions
                     dataChangeService: null,
                     identifierSqlService,
                     compressionProvider,
-                    context,
                     new DataValidationService(openSettingsConfiguration),
+                    context,
                     openSettingsConfiguration);
 
                 var localSettingsService = new LocalSettingService(appsService, settingsService, openSettingsConfiguration);

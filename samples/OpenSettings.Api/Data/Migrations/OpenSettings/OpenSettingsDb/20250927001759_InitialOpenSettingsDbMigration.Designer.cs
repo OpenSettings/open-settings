@@ -12,7 +12,7 @@ using OpenSettings.Domains.Sql.DataContext;
 namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 {
     [DbContext(typeof(OpenSettingsDbContext))]
-    [Migration("20250925182341_InitialOpenSettingsDbMigration")]
+    [Migration("20250927001759_InitialOpenSettingsDbMigration")]
     partial class InitialOpenSettingsDbMigration
     {
         /// <inheritdoc />
@@ -92,6 +92,8 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 
                     b.HasIndex("IdentifierId");
 
+                    b.HasIndex("TenantId");
+
                     b.HasIndex("UpdatedById");
 
                     b.HasIndex("AppId", "IdentifierId")
@@ -141,13 +143,13 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 
                     b.HasIndex("CreatedById");
 
-                    b.HasIndex("Slug")
-                        .IsUnique()
-                        .HasFilter("[Slug] IS NOT NULL");
-
                     b.HasIndex("SortOrder");
 
                     b.HasIndex("UpdatedById");
+
+                    b.HasIndex("TenantId", "Slug")
+                        .IsUnique()
+                        .HasFilter("[TenantId] IS NOT NULL AND [Slug] IS NOT NULL");
 
                     b.ToTable("AppGroups", (string)null);
                 });
@@ -189,6 +191,8 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.HasIndex("IdentifierId");
 
                     b.HasIndex("SortOrder");
+
+                    b.HasIndex("TenantId");
 
                     b.HasIndex("UpdatedById");
 
@@ -266,6 +270,8 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 
                     b.HasIndex("NameLowercase");
 
+                    b.HasIndex("TenantId");
+
                     b.HasIndex("AppId", "IdentifierId", "Slug")
                         .IsUnique()
                         .HasFilter("[Slug] IS NOT NULL");
@@ -321,6 +327,8 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         .IsUnique();
 
                     b.HasIndex("CreatedById");
+
+                    b.HasIndex("TenantId");
 
                     b.HasIndex("UpdatedById");
 
@@ -380,6 +388,8 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.HasIndex("CreatedById");
 
                     b.HasIndex("RestoredById");
+
+                    b.HasIndex("TenantId");
 
                     b.HasIndex("Version");
 
@@ -472,6 +482,8 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 
                     b.HasIndex("IdentifierId");
 
+                    b.HasIndex("TenantId");
+
                     b.HasIndex("UpdatedById");
 
                     b.HasIndex("AppId", "IdentifierId", "ComputedIdentifier")
@@ -551,18 +563,19 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 
                     b.HasIndex("AppGroupId");
 
-                    b.HasIndex("ClientId")
-                        .IsUnique();
-
                     b.HasIndex("ClientNameLowercase");
 
                     b.HasIndex("CreatedById");
 
-                    b.HasIndex("Slug")
-                        .IsUnique()
-                        .HasFilter("[Slug] IS NOT NULL");
-
                     b.HasIndex("UpdatedById");
+
+                    b.HasIndex("TenantId", "ClientId")
+                        .IsUnique()
+                        .HasFilter("[TenantId] IS NOT NULL");
+
+                    b.HasIndex("TenantId", "Slug")
+                        .IsUnique()
+                        .HasFilter("[TenantId] IS NOT NULL AND [Slug] IS NOT NULL");
 
                     b.ToTable("Apps", (string)null);
                 });
@@ -589,6 +602,8 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.HasIndex("AppTagId");
 
                     b.HasIndex("CreatedById");
+
+                    b.HasIndex("TenantId");
 
                     b.ToTable("AppTagMappings", (string)null);
                 });
@@ -634,17 +649,17 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 
                     b.HasIndex("CreatedById");
 
-                    b.HasIndex("NameLowercase")
-                        .IsUnique()
-                        .HasFilter("[NameLowercase] IS NOT NULL");
-
-                    b.HasIndex("Slug")
-                        .IsUnique()
-                        .HasFilter("[Slug] IS NOT NULL");
-
                     b.HasIndex("SortOrder");
 
                     b.HasIndex("UpdatedById");
+
+                    b.HasIndex("TenantId", "NameLowercase")
+                        .IsUnique()
+                        .HasFilter("[TenantId] IS NOT NULL AND [NameLowercase] IS NOT NULL");
+
+                    b.HasIndex("TenantId", "Slug")
+                        .IsUnique()
+                        .HasFilter("[TenantId] IS NOT NULL AND [Slug] IS NOT NULL");
 
                     b.ToTable("AppTags", (string)null);
                 });
@@ -758,6 +773,8 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 
                     b.HasIndex("RestoredById");
 
+                    b.HasIndex("TenantId");
+
                     b.HasIndex("Version");
 
                     b.HasIndex("KeyLowercase", "ClientId", "IdentifierId")
@@ -823,6 +840,8 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 
                     b.HasIndex("CreatedById");
 
+                    b.HasIndex("TenantId");
+
                     b.HasIndex("UpdatedById");
 
                     b.HasIndex("KeyLowercase", "ClientId", "IdentifierId")
@@ -875,24 +894,22 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 
                     b.HasIndex("NameLowercase");
 
-                    b.HasIndex("Slug")
-                        .IsUnique()
-                        .HasFilter("[Slug] IS NOT NULL");
-
                     b.HasIndex("SortOrder");
 
                     b.HasIndex("UpdatedById");
+
+                    b.HasIndex("TenantId", "Slug")
+                        .IsUnique()
+                        .HasFilter("[TenantId] IS NOT NULL AND [Slug] IS NOT NULL");
 
                     b.ToTable("Identifiers", (string)null);
                 });
 
             modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.LicenseSqlModel", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
@@ -957,6 +974,8 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         .IsUnique()
                         .HasFilter("[ReferenceIdLowercase] IS NOT NULL");
 
+                    b.HasIndex("TenantId");
+
                     b.ToTable("Licenses", (string)null);
                 });
 
@@ -977,6 +996,8 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Key");
+
+                    b.HasIndex("TenantId");
 
                     b.ToTable("Locks", (string)null);
                 });
@@ -1052,6 +1073,8 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 
                     b.HasIndex("StateId");
 
+                    b.HasIndex("TenantId");
+
                     b.HasIndex("UserId");
 
                     b.HasIndex("StateId", "AuthMethod", "CreatedOn", "IsSuccessful");
@@ -1111,6 +1134,8 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 
                     b.HasIndex("CreatedById");
 
+                    b.HasIndex("TenantId");
+
                     b.HasIndex("UpdatedById");
 
                     b.ToTable("Notifications", (string)null);
@@ -1169,6 +1194,79 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.ToTable("ProviderRegistries", (string)null);
                 });
 
+            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.TenantSqlModel", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("CreatedById")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DisplayName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DisplayNameLowercase")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EmailAddress")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NameLowercase")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Slug")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<Guid?>("UpdatedById")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("Slug")
+                        .IsUnique()
+                        .HasFilter("[Slug] IS NOT NULL");
+
+                    b.HasIndex("UpdatedById");
+
+                    b.ToTable("Tenants", (string)null);
+                });
+
+            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.TenantUserMappingSqlModel", b =>
+                {
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.HasKey("TenantId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("TenantUserMappings", (string)null);
+                });
+
             modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.UserClaimMappingSqlModel", b =>
                 {
                     b.Property<Guid>("UserId")
@@ -1189,6 +1287,8 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.HasKey("UserId", "UserClaimId");
 
                     b.HasIndex("CreatedById");
+
+                    b.HasIndex("TenantId");
 
                     b.HasIndex("UserClaimId");
 
@@ -1230,9 +1330,9 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Slug")
+                    b.HasIndex("TenantId", "Slug")
                         .IsUnique()
-                        .HasFilter("[Slug] IS NOT NULL");
+                        .HasFilter("[TenantId] IS NOT NULL AND [Slug] IS NOT NULL");
 
                     b.ToTable("UserClaims", (string)null);
                 });
@@ -1257,6 +1357,8 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.HasKey("UserId", "UserGroupId");
 
                     b.HasIndex("CreatedById");
+
+                    b.HasIndex("TenantId");
 
                     b.HasIndex("UserGroupId");
 
@@ -1285,6 +1387,8 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.HasIndex("CreatedById");
 
                     b.HasIndex("NotificationId");
+
+                    b.HasIndex("TenantId");
 
                     b.ToTable("UserGroupNotificationMappings", (string)null);
                 });
@@ -1315,9 +1419,9 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Slug")
+                    b.HasIndex("TenantId", "Slug")
                         .IsUnique()
-                        .HasFilter("[Slug] IS NOT NULL");
+                        .HasFilter("[TenantId] IS NOT NULL AND [Slug] IS NOT NULL");
 
                     b.ToTable("UserGroups", (string)null);
                 });
@@ -1342,6 +1446,8 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.HasKey("UserGroupId", "UserClaimId");
 
                     b.HasIndex("CreatedById");
+
+                    b.HasIndex("TenantId");
 
                     b.HasIndex("UserClaimId");
 
@@ -1392,6 +1498,8 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 
                     b.HasIndex("NotificationId");
 
+                    b.HasIndex("TenantId");
+
                     b.ToTable("UserNotificationMappings", (string)null);
                 });
 
@@ -1415,6 +1523,8 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.HasKey("UserId", "UserRoleId");
 
                     b.HasIndex("CreatedById");
+
+                    b.HasIndex("TenantId");
 
                     b.HasIndex("UserRoleId");
 
@@ -1447,9 +1557,9 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Slug")
+                    b.HasIndex("TenantId", "Slug")
                         .IsUnique()
-                        .HasFilter("[Slug] IS NOT NULL");
+                        .HasFilter("[TenantId] IS NOT NULL AND [Slug] IS NOT NULL");
 
                     b.ToTable("UserRoles", (string)null);
                 });
@@ -1474,6 +1584,8 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.HasKey("UserRoleId", "UserClaimId");
 
                     b.HasIndex("CreatedById");
+
+                    b.HasIndex("TenantId");
 
                     b.HasIndex("UserClaimId");
 
@@ -1500,6 +1612,8 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.HasKey("UserRoleId", "UserGroupId");
 
                     b.HasIndex("CreatedById");
+
+                    b.HasIndex("TenantId");
 
                     b.HasIndex("UserGroupId");
 
@@ -1585,9 +1699,6 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.Property<string>("Slug")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<Guid?>("TenantId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTime?>("UpdatedOn")
                         .HasColumnType("datetime2");
 
@@ -1624,6 +1735,10 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.TenantSqlModel", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId");
+
                     b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "UpdatedBy")
                         .WithMany()
                         .HasForeignKey("UpdatedById");
@@ -1634,6 +1749,8 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 
                     b.Navigation("Identifier");
 
+                    b.Navigation("Tenant");
+
                     b.Navigation("UpdatedBy");
                 });
 
@@ -1643,11 +1760,17 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         .WithMany()
                         .HasForeignKey("CreatedById");
 
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.TenantSqlModel", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId");
+
                     b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "UpdatedBy")
                         .WithMany()
                         .HasForeignKey("UpdatedById");
 
                     b.Navigation("CreatedBy");
+
+                    b.Navigation("Tenant");
 
                     b.Navigation("UpdatedBy");
                 });
@@ -1670,6 +1793,10 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.TenantSqlModel", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId");
+
                     b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "UpdatedBy")
                         .WithMany()
                         .HasForeignKey("UpdatedById");
@@ -1679,6 +1806,8 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.Navigation("CreatedBy");
 
                     b.Navigation("Identifier");
+
+                    b.Navigation("Tenant");
 
                     b.Navigation("UpdatedBy");
                 });
@@ -1697,9 +1826,15 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.TenantSqlModel", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId");
+
                     b.Navigation("App");
 
                     b.Navigation("Identifier");
+
+                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.AppSettingClassSqlModel", b =>
@@ -1714,6 +1849,10 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         .WithMany()
                         .HasForeignKey("CreatedById");
 
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.TenantSqlModel", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId");
+
                     b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "UpdatedBy")
                         .WithMany()
                         .HasForeignKey("UpdatedById");
@@ -1721,6 +1860,8 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.Navigation("AppSetting");
 
                     b.Navigation("CreatedBy");
+
+                    b.Navigation("Tenant");
 
                     b.Navigation("UpdatedBy");
                 });
@@ -1741,11 +1882,17 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         .WithMany()
                         .HasForeignKey("RestoredById");
 
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.TenantSqlModel", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId");
+
                     b.Navigation("AppSetting");
 
                     b.Navigation("CreatedBy");
 
                     b.Navigation("RestoredBy");
+
+                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.AppSettingSqlModel", b =>
@@ -1766,6 +1913,10 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.TenantSqlModel", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId");
+
                     b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "UpdatedBy")
                         .WithMany()
                         .HasForeignKey("UpdatedById");
@@ -1775,6 +1926,8 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.Navigation("CreatedBy");
 
                     b.Navigation("Identifier");
+
+                    b.Navigation("Tenant");
 
                     b.Navigation("UpdatedBy");
                 });
@@ -1790,6 +1943,10 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         .WithMany()
                         .HasForeignKey("CreatedById");
 
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.TenantSqlModel", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId");
+
                     b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "UpdatedBy")
                         .WithMany()
                         .HasForeignKey("UpdatedById");
@@ -1797,6 +1954,8 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.Navigation("AppGroup");
 
                     b.Navigation("CreatedBy");
+
+                    b.Navigation("Tenant");
 
                     b.Navigation("UpdatedBy");
                 });
@@ -1819,11 +1978,17 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         .WithMany()
                         .HasForeignKey("CreatedById");
 
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.TenantSqlModel", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId");
+
                     b.Navigation("App");
 
                     b.Navigation("AppTag");
 
                     b.Navigation("CreatedBy");
+
+                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.AppTagSqlModel", b =>
@@ -1832,11 +1997,17 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         .WithMany()
                         .HasForeignKey("CreatedById");
 
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.TenantSqlModel", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId");
+
                     b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "UpdatedBy")
                         .WithMany()
                         .HasForeignKey("UpdatedById");
 
                     b.Navigation("CreatedBy");
+
+                    b.Navigation("Tenant");
 
                     b.Navigation("UpdatedBy");
                 });
@@ -1857,11 +2028,17 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         .WithMany()
                         .HasForeignKey("RestoredById");
 
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.TenantSqlModel", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId");
+
                     b.Navigation("CreatedBy");
 
                     b.Navigation("GlobalConfiguration");
 
                     b.Navigation("RestoredBy");
+
+                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.GlobalConfigurationSqlModel", b =>
@@ -1870,11 +2047,17 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         .WithMany()
                         .HasForeignKey("CreatedById");
 
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.TenantSqlModel", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId");
+
                     b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "UpdatedBy")
                         .WithMany()
                         .HasForeignKey("UpdatedById");
 
                     b.Navigation("CreatedBy");
+
+                    b.Navigation("Tenant");
 
                     b.Navigation("UpdatedBy");
                 });
@@ -1885,13 +2068,37 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         .WithMany()
                         .HasForeignKey("CreatedById");
 
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.TenantSqlModel", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId");
+
                     b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "UpdatedBy")
                         .WithMany()
                         .HasForeignKey("UpdatedById");
 
                     b.Navigation("CreatedBy");
 
+                    b.Navigation("Tenant");
+
                     b.Navigation("UpdatedBy");
+                });
+
+            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.LicenseSqlModel", b =>
+                {
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.TenantSqlModel", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId");
+
+                    b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.LockSqlModel", b =>
+                {
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.TenantSqlModel", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId");
+
+                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.LoginEntrySqlModel", b =>
@@ -1901,11 +2108,17 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         .HasForeignKey("ProviderRegistryId")
                         .OnDelete(DeleteBehavior.SetNull);
 
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.TenantSqlModel", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId");
+
                     b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "User")
                         .WithMany()
                         .HasForeignKey("UserId");
 
                     b.Navigation("ProviderRegistry");
+
+                    b.Navigation("Tenant");
 
                     b.Navigation("User");
                 });
@@ -1916,6 +2129,27 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         .WithMany()
                         .HasForeignKey("CreatedById");
 
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.TenantSqlModel", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId");
+
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "UpdatedBy")
+                        .WithMany()
+                        .HasForeignKey("UpdatedById");
+
+                    b.Navigation("CreatedBy");
+
+                    b.Navigation("Tenant");
+
+                    b.Navigation("UpdatedBy");
+                });
+
+            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.TenantSqlModel", b =>
+                {
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedById");
+
                     b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "UpdatedBy")
                         .WithMany()
                         .HasForeignKey("UpdatedById");
@@ -1925,11 +2159,34 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.Navigation("UpdatedBy");
                 });
 
+            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.TenantUserMappingSqlModel", b =>
+                {
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.TenantSqlModel", "Tenant")
+                        .WithMany("TenantUserMappings")
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "User")
+                        .WithMany("TenantUserMappings")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tenant");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.UserClaimMappingSqlModel", b =>
                 {
                     b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "CreatedBy")
                         .WithMany()
                         .HasForeignKey("CreatedById");
+
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.TenantSqlModel", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId");
 
                     b.HasOne("OpenSettings.Domains.Sql.Entities.UserClaimSqlModel", "UserClaim")
                         .WithMany("UserClaimMappings")
@@ -1945,9 +2202,20 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 
                     b.Navigation("CreatedBy");
 
+                    b.Navigation("Tenant");
+
                     b.Navigation("User");
 
                     b.Navigation("UserClaim");
+                });
+
+            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.UserClaimSqlModel", b =>
+                {
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.TenantSqlModel", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId");
+
+                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.UserGroupMappingSqlModel", b =>
@@ -1955,6 +2223,10 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "CreatedBy")
                         .WithMany()
                         .HasForeignKey("CreatedById");
+
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.TenantSqlModel", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId");
 
                     b.HasOne("OpenSettings.Domains.Sql.Entities.UserGroupSqlModel", "UserGroup")
                         .WithMany("UserGroupMappings")
@@ -1969,6 +2241,8 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         .IsRequired();
 
                     b.Navigation("CreatedBy");
+
+                    b.Navigation("Tenant");
 
                     b.Navigation("User");
 
@@ -1987,6 +2261,10 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.TenantSqlModel", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId");
+
                     b.HasOne("OpenSettings.Domains.Sql.Entities.UserGroupSqlModel", "UserGroup")
                         .WithMany("UserGroupNotificationMappings")
                         .HasForeignKey("UserGroupId")
@@ -1997,7 +2275,18 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 
                     b.Navigation("Notification");
 
+                    b.Navigation("Tenant");
+
                     b.Navigation("UserGroup");
+                });
+
+            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.UserGroupSqlModel", b =>
+                {
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.TenantSqlModel", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId");
+
+                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.UserGroupUserClaimMappingSqlModel", b =>
@@ -2005,6 +2294,10 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "CreatedBy")
                         .WithMany()
                         .HasForeignKey("CreatedById");
+
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.TenantSqlModel", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId");
 
                     b.HasOne("OpenSettings.Domains.Sql.Entities.UserClaimSqlModel", "UserClaim")
                         .WithMany("UserGroupUserClaimMappings")
@@ -2019,6 +2312,8 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         .IsRequired();
 
                     b.Navigation("CreatedBy");
+
+                    b.Navigation("Tenant");
 
                     b.Navigation("UserClaim");
 
@@ -2037,6 +2332,10 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.TenantSqlModel", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId");
+
                     b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "User")
                         .WithMany("UserNotificationMappings")
                         .HasForeignKey("UserId")
@@ -2047,6 +2346,8 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 
                     b.Navigation("Notification");
 
+                    b.Navigation("Tenant");
+
                     b.Navigation("User");
                 });
 
@@ -2055,6 +2356,10 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "CreatedBy")
                         .WithMany()
                         .HasForeignKey("CreatedById");
+
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.TenantSqlModel", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId");
 
                     b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "User")
                         .WithMany("UserRoleMappings")
@@ -2070,9 +2375,20 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 
                     b.Navigation("CreatedBy");
 
+                    b.Navigation("Tenant");
+
                     b.Navigation("User");
 
                     b.Navigation("UserRole");
+                });
+
+            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.UserRoleSqlModel", b =>
+                {
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.TenantSqlModel", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId");
+
+                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.UserRoleUserClaimMappingSqlModel", b =>
@@ -2080,6 +2396,10 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "CreatedBy")
                         .WithMany()
                         .HasForeignKey("CreatedById");
+
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.TenantSqlModel", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId");
 
                     b.HasOne("OpenSettings.Domains.Sql.Entities.UserClaimSqlModel", "UserClaim")
                         .WithMany("UserRoleUserClaimMappings")
@@ -2095,6 +2415,8 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 
                     b.Navigation("CreatedBy");
 
+                    b.Navigation("Tenant");
+
                     b.Navigation("UserClaim");
 
                     b.Navigation("UserRole");
@@ -2105,6 +2427,10 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.HasOne("OpenSettings.Domains.Sql.Entities.UserSqlModel", "CreatedBy")
                         .WithMany()
                         .HasForeignKey("CreatedById");
+
+                    b.HasOne("OpenSettings.Domains.Sql.Entities.TenantSqlModel", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId");
 
                     b.HasOne("OpenSettings.Domains.Sql.Entities.UserGroupSqlModel", "UserGroup")
                         .WithMany("UserRoleUserGroupMappings")
@@ -2119,6 +2445,8 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         .IsRequired();
 
                     b.Navigation("CreatedBy");
+
+                    b.Navigation("Tenant");
 
                     b.Navigation("UserGroup");
 
@@ -2172,6 +2500,11 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.Navigation("UserNotificationMappings");
                 });
 
+            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.TenantSqlModel", b =>
+                {
+                    b.Navigation("TenantUserMappings");
+                });
+
             modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.UserClaimSqlModel", b =>
                 {
                     b.Navigation("UserClaimMappings");
@@ -2203,6 +2536,8 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 
             modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.UserSqlModel", b =>
                 {
+                    b.Navigation("TenantUserMappings");
+
                     b.Navigation("UserClaimMappings");
 
                     b.Navigation("UserGroupMappings");

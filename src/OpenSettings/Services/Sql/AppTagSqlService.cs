@@ -213,14 +213,14 @@ namespace OpenSettings.Services.Sql
 
         public Task<IResponse> GetAppTagByIdAsync(GetAppTagInput input, CancellationToken cancellationToken = default)
         {
-            return GetTagByTagIdOrSlugAsync(t => t.Id == Guid.Parse(input.AppTagIdOrSlug), cancellationToken);
+            return GetAppTagByTagIdOrSlugAsync(t => t.Id == Guid.Parse(input.AppTagIdOrSlug), cancellationToken);
         }
 
         public Task<IResponse> GetAppTagBySlugAsync(GetAppTagInput input, CancellationToken cancellationToken = default)
         {
             input.AppTagIdOrSlug = input.AppTagIdOrSlug?.ToSlug();
 
-            return GetTagByTagIdOrSlugAsync(t => t.Slug == input.AppTagIdOrSlug, cancellationToken);
+            return GetAppTagByTagIdOrSlugAsync(t => t.Slug == input.AppTagIdOrSlug, cancellationToken);
         }
 
         public async Task<IResponse> UpdateAppTagAsync(UpdateAppTagInput input, CancellationToken cancellationToken = default)
@@ -262,6 +262,10 @@ namespace OpenSettings.Services.Sql
                 {
                     // ignored
                 }
+            }
+            else if (await _context.AppTags.AsNoTracking().AnyAsync(s => s.Id != input.AppTagId && s.SortOrder == input.SortOrder, cancellationToken))
+            {
+                return HttpStatusCode.BadRequest.ToFailureResponse(Errors.DuplicateSortOrder);
             }
 
             var entity = new AppTagSqlModel
@@ -623,7 +627,7 @@ namespace OpenSettings.Services.Sql
             }
         }
 
-        private async Task<IResponse> GetTagByTagIdOrSlugAsync(Expression<Func<AppTagSqlModel, bool>> predicate, CancellationToken cancellationToken = default)
+        private async Task<IResponse> GetAppTagByTagIdOrSlugAsync(Expression<Func<AppTagSqlModel, bool>> predicate, CancellationToken cancellationToken = default)
         {
             var entity = await _context.AppTags
                 .AsNoTracking()
@@ -631,7 +635,9 @@ namespace OpenSettings.Services.Sql
                 .OrderBy(a => a.Id)
                 .Select(a => new GetAppTagResponse
                 {
+                    Id = a.Id,
                     Name = a.Name,
+                    Slug = a.Slug,
                     SortOrder = a.SortOrder,
                     RowVersion = a.RowVersion
                 }).FirstOrDefaultAsync(cancellationToken);

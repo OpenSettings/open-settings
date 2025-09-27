@@ -17,6 +17,10 @@ namespace OpenSettings.Domains.Sql.Configurations
                 .HasConversion(EfValueConverters.ObjectDictionaryConverter).Metadata
                 .SetValueComparer(EfValueComparers.ObjectDictionaryComparer);
 
+            builder.HasOne(e => e.Tenant)
+                .WithMany()
+                .HasForeignKey(e => e.TenantId);
+
             builder.HasOne(e => e.CreatedBy)
                 .WithMany()
                 .HasForeignKey(e => e.CreatedById);

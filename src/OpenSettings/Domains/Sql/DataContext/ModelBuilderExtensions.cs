@@ -32,6 +32,8 @@ namespace OpenSettings.Domains.Sql.DataContext
                         new LoginEntrySqlModelConfiguration(),
                         new NotificationSqlModelConfiguration(),
                         new ProviderRegistrySqlModelConfiguration(),
+                        new TenantSqlModelConfiguration(),
+                        new TenantUserMappingSqlModelConfiguration(),
                         new UserClaimMappingSqlModelConfiguration(),
                         new UserClaimSqlModelConfiguration(),
                         new UserGroupMappingSqlModelConfiguration(),
@@ -43,7 +45,7 @@ namespace OpenSettings.Domains.Sql.DataContext
                         new UserRoleSqlModelConfiguration(),
                         new UserRoleUserClaimMappingSqlModelConfiguration(),
                         new UserRoleUserGroupMappingSqlModelConfiguration(),
-                        new UserSqlModelConfiguration()
+                        new UserSqlModelConfiguration(),
                     };
                 });
 

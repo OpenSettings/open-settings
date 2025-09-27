@@ -16,6 +16,10 @@ namespace OpenSettings.Domains.Sql.Configurations
 
             builder.HasKey(e => new { e.UserGroupId, e.UserClaimId });
 
+            builder.HasOne(e => e.Tenant)
+                .WithMany()
+                .HasForeignKey(e => e.TenantId);
+
             builder.HasOne(e => e.UserGroup)
                 .WithMany(e => e.UserGroupUserClaimMappings)
                 .HasForeignKey(e => e.UserGroupId)

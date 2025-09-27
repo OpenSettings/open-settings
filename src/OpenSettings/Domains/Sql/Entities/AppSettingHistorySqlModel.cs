@@ -10,8 +10,6 @@ namespace OpenSettings.Domains.Sql.Entities
     /// </summary>
     public class AppSettingHistorySqlModel : EntityBase<Guid>
     {
-        public Guid? TenantId { get; set; }
-
         /// <summary>
         /// The binary data associated with the setting history.
         /// </summary>
@@ -54,6 +52,10 @@ namespace OpenSettings.Domains.Sql.Entities
         /// Helps prevent conflicts during concurrent updates.
         /// </summary>
         public byte[] RowVersion { get; set; } = Array.Empty<byte>();
+
+        public Guid? TenantId { get; set; }
+
+        public virtual TenantSqlModel Tenant { get; set; }
 
         /// <summary>
         /// The setting id associated with this setting history.

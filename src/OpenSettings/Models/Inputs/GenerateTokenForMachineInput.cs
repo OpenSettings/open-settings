@@ -8,6 +8,8 @@ namespace OpenSettings.Models.Inputs
 
         public Guid ClientSecret { get; set; }
 
+        public Guid? TenantId { get; set; }
+
         public CallerType CallerType { get; set; }
     }
 }

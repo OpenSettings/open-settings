@@ -142,7 +142,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         }
 
         [HttpPost(OpenSettingsDefaults.Routes.V1.AppTagsEndpoints.UpdateAppTagSortOrder)]
-        public async Task<IActionResult> UpdateAppTagSortOrder(UpdateTagSortOrderRequest request, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> UpdateAppTagSortOrder(UpdateAppTagSortOrderRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
             {

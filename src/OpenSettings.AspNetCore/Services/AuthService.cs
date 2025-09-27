@@ -13,7 +13,9 @@ using OpenSettings.Extensions;
 using OpenSettings.Models;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Models.Responses;
+using OpenSettings.Services;
 using OpenSettings.Services.Interfaces;
+using OpenSettings.Services.Sql.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,8 +24,6 @@ using System.Net.Http;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-using OpenSettings.Services;
-using OpenSettings.Services.Sql.Interfaces;
 
 namespace OpenSettings.AspNetCore.Services
 {
@@ -224,7 +224,8 @@ namespace OpenSettings.AspNetCore.Services
                             { OpenSettingsDefaults.Keys.AuthService.ReturnUrl, input.ReturnUrl },
                             { OpenSettingsDefaults.Keys.AuthService.ApiUrl, input.ApiUrl },
                             { OpenSettingsDefaults.Keys.AuthService.StateId, $"{input.StateId}" },
-                            { OpenSettingsDefaults.Keys.AuthService.ClientId, $"{input.ClientId}" }
+                            { OpenSettingsDefaults.Keys.AuthService.ClientId, $"{input.ClientId}" },
+                            { OpenSettingsDefaults.Keys.AuthService.TenantId, $"{input.TenantId}" }
                         }));
                 }
                 catch (Exception ex)
@@ -270,6 +271,7 @@ namespace OpenSettings.AspNetCore.Services
             var tokenResponse = await tokenService.GenerateTokenForUserAsync(new GenerateTokenForUserInput
             {
                 UserId = Guid.Parse(authenticateResult.Principal.FindFirst(OpenSettingsDefaults.ClaimTypes.DbUserId).Value),
+                TenantId = null, // todo tenantId
                 DisplayName = authenticateResult.Principal.FindFirst(OpenSettingsDefaults.ClaimTypes.DbUserDisplayName).Value,
                 UserInitials = authenticateResult.Principal.FindFirst(OpenSettingsDefaults.ClaimTypes.DbUserInitials).Value,
                 Audience = $"{input.ClientId.Value}"

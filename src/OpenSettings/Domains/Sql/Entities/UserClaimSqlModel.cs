@@ -8,8 +8,6 @@ namespace OpenSettings.Domains.Sql.Entities
     /// </summary>
     public class UserClaimSqlModel : EntityBase<Guid>
     {
-        public Guid? TenantId { get; set; }
-
         /// <summary>
         /// The claim type.
         /// </summary>
@@ -40,6 +38,10 @@ namespace OpenSettings.Domains.Sql.Entities
         /// The description of the claim.
         /// </summary>
         public string Description { get; set; }
+
+        public Guid? TenantId { get; set; }
+
+        public virtual TenantSqlModel Tenant { get; set; }
 
         /// <summary>
         /// The collection of user group-claim mappings assigned to the user claim.

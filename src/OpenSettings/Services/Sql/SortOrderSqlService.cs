@@ -155,9 +155,9 @@ namespace OpenSettings.Services.Sql
             }
         }
 
-        public async Task<SortOrderBounds> GetSortOrderBoundsAsync<T>(DbSet<T> items, CancellationToken cancellationToken = default) where T : class, IOrderedEntity, new()
+        public Task<SortOrderBounds> GetSortOrderBoundsAsync<T>(DbSet<T> items, CancellationToken cancellationToken = default) where T : class, IOrderedEntity, new()
         {
-            return await items.AsNoTracking().GroupBy(i => 1).Select(g => new SortOrderBounds
+            return items.AsNoTracking().GroupBy(i => 1).Select(g => new SortOrderBounds
             {
                 Count = g.Count(),
                 MinSortOrder = g.Min(i => i.SortOrder),

@@ -10,8 +10,6 @@ namespace OpenSettings.Domains.Sql.Entities
     /// </summary>
     public class UserSqlModel : EntityBase<Guid>
     {
-        public Guid? TenantId { get; set; }
-
         /// <summary>
         /// The authentication type used by the user (e.g., "Machine", "OpenIdConnect").
         /// </summary>
@@ -147,5 +145,10 @@ namespace OpenSettings.Domains.Sql.Entities
         /// The collection of user-role mappings assigned to the user.
         /// </summary>
         public virtual ICollection<UserRoleMappingSqlModel> UserRoleMappings { get; set; } = new List<UserRoleMappingSqlModel>();
+
+        /// <summary>
+        /// The collection of tenant-user mappings assigned to the user.
+        /// </summary>
+        public virtual ICollection<TenantUserMappingSqlModel> TenantUserMappings { get; set; } = new List<TenantUserMappingSqlModel>();
     }
 }

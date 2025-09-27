@@ -25,7 +25,7 @@ namespace OpenSettings.Models.Responses
             Features = license.Features ?? Array.Empty<string>();
         }
 
-        public int Id { get; set; }
+        public Guid Id { get; set; }
 
         public string ReferenceId { get; set; }
 

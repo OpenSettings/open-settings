@@ -213,14 +213,14 @@ namespace OpenSettings.Services.Sql
 
         public Task<IResponse> GetAppGroupByIdAsync(GetAppGroupInput input, CancellationToken cancellationToken = default)
         {
-            return GetGroupByIdOrSlugAsync(g => g.Id == Guid.Parse(input.GroupIdOrSlug), cancellationToken);
+            return GetAppGroupByIdOrSlugAsync(g => g.Id == Guid.Parse(input.GroupIdOrSlug), cancellationToken);
         }
 
         public Task<IResponse> GetAppGroupBySlugAsync(GetAppGroupInput input, CancellationToken cancellationToken = default)
         {
             input.GroupIdOrSlug = input.GroupIdOrSlug?.ToSlug();
 
-            return GetGroupByIdOrSlugAsync(g => g.Slug == input.GroupIdOrSlug, cancellationToken);
+            return GetAppGroupByIdOrSlugAsync(g => g.Slug == input.GroupIdOrSlug, cancellationToken);
         }
 
         public async Task<IResponse> UpdateAppGroupAsync(UpdateAppGroupInput input, CancellationToken cancellationToken = default)
@@ -262,6 +262,10 @@ namespace OpenSettings.Services.Sql
                 {
                     // ignored
                 }
+            }
+            else if (await _context.AppGroups.AsNoTracking().AnyAsync(s => s.Id != input.AppGroupId && s.SortOrder == input.SortOrder, cancellationToken))
+            {
+                return HttpStatusCode.BadRequest.ToFailureResponse(Errors.DuplicateSortOrder);
             }
 
             var entity = new AppGroupSqlModel
@@ -616,7 +620,7 @@ namespace OpenSettings.Services.Sql
             }
         }
 
-        private async Task<IResponse> GetGroupByIdOrSlugAsync(Expression<Func<AppGroupSqlModel, bool>> predicate, CancellationToken cancellationToken = default)
+        private async Task<IResponse> GetAppGroupByIdOrSlugAsync(Expression<Func<AppGroupSqlModel, bool>> predicate, CancellationToken cancellationToken = default)
         {
             var entity = await _context.AppGroups
                 .AsNoTracking()
@@ -624,7 +628,9 @@ namespace OpenSettings.Services.Sql
                 .OrderBy(a => a.Id)
                 .Select(a => new GetAppGroupResponse
                 {
+                    Id = a.Id,
                     Name = a.Name,
+                    Slug = a.Slug,
                     SortOrder = a.SortOrder,
                     RowVersion = a.RowVersion
                 }).FirstOrDefaultAsync(cancellationToken);

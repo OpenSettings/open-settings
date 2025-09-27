@@ -20,6 +20,10 @@ namespace OpenSettings.Domains.Sql.Configurations
 
             builder.Property(e => e.RowVersion).IsRowVersion().ValueGeneratedNever();
 
+            builder.HasOne(e => e.Tenant)
+                .WithMany()
+                .HasForeignKey(e => e.TenantId);
+
             builder.HasOne(e => e.GlobalConfiguration)
                 .WithMany(e => e.GlobalConfigurationHistories)
                 .HasForeignKey(e => e.GlobalConfigurationId)

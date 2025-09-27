@@ -96,19 +96,21 @@ namespace OpenSettings.AspNetCore.Handlers
                     return AuthenticateResults.InvalidCredentials;
                 }
 
+                var tenantId = Request.Headers.GetTenantIdHeaderValueOrDefault();
+
                 var registeredApp = _openSettingsConfiguration.Client.Id == clientId &&
                                     _openSettingsConfiguration.Client.Secret == clientSecret
                     ? new GetRegisteredAppResponse
                     {
                         ClientName = _openSettingsConfiguration.Client.Name,
                         IsRegistered = true,
-                        IsClientIdUnique = true,
                         IsClientSecretMatched = true
                     }
                     : (await _appsService.GetRegisteredAppAsync(new GetRegisteredAppInput
                     {
                         ClientId = clientId,
-                        ClientSecret = clientSecret
+                        ClientSecret = clientSecret,
+                        TenantId = tenantId
                     }, Context.RequestAborted)).Data;
 
                 if (!registeredApp.IsClientSecretMatched)
@@ -118,7 +120,7 @@ namespace OpenSettings.AspNetCore.Handlers
                         _logger.LogWarning("ClientId: '{clientId}' is not registered.", clientIdAsString);
                     }
 
-                    if (_requiresAuthentication || !registeredApp.IsClientIdUnique)
+                    if (_requiresAuthentication)
                     {
                         return AuthenticateResults.InvalidCredentials;
                     }
@@ -127,6 +129,7 @@ namespace OpenSettings.AspNetCore.Handlers
                 var openSettingsClaims = new OpenSettingsClaims
                 {
                     UserId = clientId,
+                    TenantId = tenantId,
                     DisplayName = registeredApp.ClientName,
                     AuthType = AuthType.Machine,
                     AuthMethod = AuthMethod.Basic,

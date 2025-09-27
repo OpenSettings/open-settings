@@ -16,6 +16,10 @@ namespace OpenSettings.Domains.Sql.Configurations
 
             builder.HasKey(e => new { GroupId = e.UserGroupId, e.NotificationId });
 
+            builder.HasOne(e => e.Tenant)
+                .WithMany()
+                .HasForeignKey(e => e.TenantId);
+
             builder.HasOne(e => e.UserGroup)
                 .WithMany(e => e.UserGroupNotificationMappings)
                 .HasForeignKey(e => e.UserGroupId)

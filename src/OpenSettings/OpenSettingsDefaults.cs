@@ -40,6 +40,7 @@ namespace OpenSettings
                 public const string StateId = "stateId";
                 public const string ClientId = "clientId";
                 public const string AccessToken = "accessToken";
+                public const string TenantId = "tenantId";
             }
         }
 
@@ -671,9 +672,16 @@ namespace OpenSettings
             };
 
             /// <summary>
-            /// The cache key for the Settings Spa Middleware Html content.
+            /// The cache key for the Settings Spa Middleware.
             /// </summary>
-            public static CacheEntryKey OpenSettingsSpaMiddlewareHtmlCacheEntryKey { get; } = new CacheEntry("ossm:html").GetKey();
+            public static CacheEntry OpenSettingsSpaMiddlewareCacheEntry { get; } = new CacheEntry("ossm:ce");
+
+            public static CacheEntryKey OpenSettingsSpaMiddlewareCacheEntryRoutePrefixesKey { get; } = OpenSettingsSpaMiddlewareCacheEntry.GetKey("rp");
+
+            public static CacheEntryKey OpenSettingsSpaMiddlewareCacheEntryHtmlKey { get; } = OpenSettingsSpaMiddlewareCacheEntry.GetKey("html");
+
+            public static CacheEntryKey OpenSettingsSpaMiddlewareCacheEntryStaticMiddlewareKey { get; } = OpenSettingsSpaMiddlewareCacheEntry.GetKey("static-mw");
+
 
             public static CacheEntry BasicAuthenticationHandlerAuthTicketCacheEntry { get; } = new CacheEntry("bah:at", TimeSpan.FromMinutes(15));
 

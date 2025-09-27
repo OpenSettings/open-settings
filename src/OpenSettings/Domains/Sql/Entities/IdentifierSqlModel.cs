@@ -8,8 +8,6 @@ namespace OpenSettings.Domains.Sql.Entities
     /// </summary>
     public class IdentifierSqlModel : EntityBase<Guid>, IOrderedEntity
     {
-        public Guid? TenantId { get; set; }
-
         /// <summary>
         /// The name of the identifier.
         /// </summary>
@@ -36,6 +34,10 @@ namespace OpenSettings.Domains.Sql.Entities
         /// Helps prevent conflicts during concurrent updates.
         /// </summary>
         public byte[] RowVersion { get; set; } = Array.Empty<byte>();
+
+        public Guid? TenantId { get; set; }
+
+        public virtual TenantSqlModel Tenant { get; set; }
 
         /// <summary>
         /// The id of the user who created this identifier.

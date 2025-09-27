@@ -9,8 +9,6 @@ namespace OpenSettings.Domains.Sql.Entities
     /// </summary>
     public class NotificationSqlModel : EntityBase<Guid>
     {
-        public Guid? TenantId { get; set; }
-
         /// <summary>
         /// The title of the notification.
         /// </summary>
@@ -56,6 +54,10 @@ namespace OpenSettings.Domains.Sql.Entities
         /// The name of the user who created this notification.
         /// </summary>
         public string CreatorName { get; set; }
+
+        public Guid? TenantId { get; set; }
+
+        public virtual TenantSqlModel Tenant { get; set; }
 
         /// <summary>
         /// The id of the user who created this notification.

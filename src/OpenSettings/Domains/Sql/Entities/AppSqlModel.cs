@@ -9,8 +9,6 @@ namespace OpenSettings.Domains.Sql.Entities
     /// </summary>
     public class AppSqlModel : EntityBase<Guid>
     {
-        public Guid? TenantId { get; set; }
-
         /// <summary>
         /// The display name of the app, typically used for open settings spa.
         /// </summary>
@@ -82,6 +80,10 @@ namespace OpenSettings.Domains.Sql.Entities
         /// Helps prevent conflicts during concurrent updates.
         /// </summary>
         public byte[] RowVersion { get; set; } = Array.Empty<byte>();
+
+        public Guid? TenantId { get; set; }
+
+        public virtual TenantSqlModel Tenant { get; set; }
 
         /// <summary>
         /// The id of the group which associated with this app.

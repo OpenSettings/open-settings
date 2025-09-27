@@ -45,6 +45,9 @@ namespace OpenSettings.Domains.Sql.Configurations
                     c => (ICollection<PropertyInfoHelperModel>)c.ToArray()));
 
 #endif
+            builder.HasOne(e => e.Tenant)
+                .WithMany()
+                .HasForeignKey(e => e.TenantId);
 
             builder.HasOne(e => e.AppSetting)
                 .WithOne(e => e.AppSettingClass)

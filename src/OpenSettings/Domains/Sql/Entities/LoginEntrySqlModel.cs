@@ -7,8 +7,6 @@ namespace OpenSettings.Domains.Sql.Entities
 {
     public class LoginEntrySqlModel : EntityBase<Guid>
     {
-        public Guid? TenantId { get; set; }
-
         /// <summary>
         /// The state id which relevant to login.
         /// </summary>
@@ -51,6 +49,10 @@ namespace OpenSettings.Domains.Sql.Entities
         /// Additional metadata associated with the login entry, stored as key-value pairs.
         /// </summary>
         public Dictionary<string, object> Metadata { get; set; } = new Dictionary<string, object>();
+
+        public Guid? TenantId { get; set; }
+
+        public virtual TenantSqlModel Tenant { get; set; }
 
         public Guid? UserId { get; set; }
 

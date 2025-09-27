@@ -22,13 +22,28 @@ namespace OpenSettings.Services
 
         public bool IsDataMappingValid(string jsonData, ICollection<PropertyInfoHelperModel> properties)
         {
-            var deserializedData = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(jsonData);
+            try
+            {
+                using (var jsonDocument = JsonDocument.Parse(jsonData))
+                {
+                    return IsDataMappingValid(jsonDocument, properties);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logs.FailedToParseJsonDocument(_logger, ex);
 
-            return InternalIsDataMappingValid(deserializedData, properties);
+                return false;
+            }
         }
 
         public bool IsDataMappingValid(JsonDocument jsonDocument, ICollection<PropertyInfoHelperModel> properties)
         {
+            if (jsonDocument.RootElement.ValueKind == JsonValueKind.Array)
+            {
+                return false;
+            }
+
             var deserializedData = jsonDocument.Deserialize<Dictionary<string, JsonElement>>();
 
             return InternalIsDataMappingValid(deserializedData, properties);
@@ -229,6 +244,11 @@ namespace OpenSettings.Services
 
         private static class Logs
         {
+            public static readonly Action<ILogger, Exception> FailedToParseJsonDocument =
+                LoggerMessage.Define(LogLevel.Error,
+                    OpenSettingsDefaults.EventIds.DataValidationService.FailedToDeserializeComplexType,
+                    "Failed to parse data as a JsonDocument.");
+
             public static readonly Action<ILogger, string, JsonElement, Exception> FailedToDeserializeComplexType =
                 LoggerMessage.Define<string, JsonElement>(LogLevel.Error,
                     OpenSettingsDefaults.EventIds.DataValidationService.FailedToDeserializeComplexType,

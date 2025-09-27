@@ -117,7 +117,7 @@ namespace OpenSettings.Services.Sql
 
                     await DispatchNotificationsToUsersAsync(context, entity.Id, cancellationToken: c);
 
-                    OpenSettingsDefaults.Caches.AvailableNotificationIdsCacheEntry.GetKey().Remove(_openSettingsMemoryCache, o => true);
+                    OpenSettingsDefaults.Caches.AvailableNotificationIdsCacheEntry.Remove(_openSettingsMemoryCache);
                 }
             }, cancellationToken);
 

@@ -17,6 +17,10 @@ namespace OpenSettings.Domains.Sql.Configurations
             builder.HasIndex(e => e.ReferenceIdLowercase).IsUnique();
             builder.HasIndex(e => e.HolderLowercase);
             builder.HasIndex(e => e.Edition);
+
+            builder.HasOne(e => e.Tenant)
+                .WithMany()
+                .HasForeignKey(e => e.TenantId);
         }
     }
 }

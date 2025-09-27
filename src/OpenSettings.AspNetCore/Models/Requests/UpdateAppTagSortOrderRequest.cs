@@ -3,7 +3,7 @@ using System;
 
 namespace OpenSettings.AspNetCore.Models.Requests
 {
-    public class UpdateTagSortOrderRequest
+    public class UpdateAppTagSortOrderRequest
     {
         [FromRoute]
         public Guid AppTagId { get; set; }

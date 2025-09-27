@@ -9,8 +9,6 @@ namespace OpenSettings.Domains.Sql.Entities
     /// </summary>
     public class AppInstanceSqlModel : EntityBase<int>
     {
-        public Guid? TenantId { get; set; }
-
         /// <summary>
         /// The name of the instance.
         /// </summary>
@@ -88,6 +86,10 @@ namespace OpenSettings.Domains.Sql.Entities
         /// If service type is Consumer this property will be null. Specifies provider's data access type.
         /// </summary>
         public DataAccessType? DataAccessType { get; set; }
+
+        public Guid? TenantId { get; set; }
+
+        public virtual TenantSqlModel Tenant { get; set; }
 
         /// <summary>
         /// The app id associated with this instance.

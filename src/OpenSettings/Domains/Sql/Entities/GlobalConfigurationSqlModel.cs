@@ -10,8 +10,6 @@ namespace OpenSettings.Domains.Sql.Entities
     [Table("GlobalConfigurations")]
     public class GlobalConfigurationSqlModel : EntityBase<Guid>
     {
-        public Guid? TenantId { get; set; }
-
         /// <summary>
         /// The key of the global configuration.
         /// </summary>
@@ -63,6 +61,10 @@ namespace OpenSettings.Domains.Sql.Entities
         /// Helps prevent conflicts during concurrent updates.
         /// </summary>
         public byte[] RowVersion { get; set; } = Array.Empty<byte>();
+
+        public Guid? TenantId { get; set; }
+
+        public virtual TenantSqlModel Tenant { get; set; }
 
         /// <summary>
         /// The id of the user who created this global configuration.

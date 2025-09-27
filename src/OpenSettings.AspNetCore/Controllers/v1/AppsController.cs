@@ -481,7 +481,7 @@ namespace OpenSettings.AspNetCore.Controllers.v1
         }
 
         [HttpPatch(OpenSettingsDefaults.Routes.V1.AppsEndpoints.PatchAppConfiguration)]
-        public async Task<IActionResult> PatchAppConfiguration(PatchConfigurationRequest request, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> PatchAppConfiguration(PatchAppConfigurationRequest request, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
             {

@@ -13,11 +13,15 @@ namespace OpenSettings.Domains.Sql.Configurations
 
             builder.HasKey(e => e.Id);
 
-            builder.HasIndex(e => e.ClientId).IsUnique();
+            builder.HasIndex(e => new { e.TenantId, e.ClientId } ).IsUnique();
             builder.HasIndex(e => e.ClientNameLowercase);
-            builder.HasIndex(e => e.Slug).IsUnique();
+            builder.HasIndex(e => new { e.TenantId, e.Slug }).IsUnique();
 
             builder.Property(e => e.RowVersion).IsRowVersion().ValueGeneratedNever();
+
+            builder.HasOne(e => e.Tenant)
+                .WithMany()
+                .HasForeignKey(e => e.TenantId);
 
             builder.HasOne(e => e.AppGroup)
                 .WithMany(e => e.Apps)

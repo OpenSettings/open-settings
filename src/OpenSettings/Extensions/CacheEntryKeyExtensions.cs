@@ -382,32 +382,6 @@ namespace OpenSettings.Extensions
         }
 
         /// <summary>
-        /// Deletes cache entries from memory cache based on the provided predicate.
-        /// <para>
-        /// The <see cref="Remove(CacheEntryKey, IMemoryCache, Func{object, bool})"/> method will evaluate the given predicate to filter cache keys, 
-        /// and removes the corresponding cache entries from the memory cache.
-        /// </para>
-        /// </summary>
-        /// <param name="cacheEntryKey">The <see cref="CacheEntryKey"/> representing the cache key.</param>
-        /// <param name="memoryCache">The <see cref="IMemoryCache"/> instance used to remove the cache entries.</param>
-        /// <param name="predicate">A function used to evaluate and filter cache keys to be deleted.</param>
-        /// <exception cref="ArgumentNullException">When any input parameter is null.</exception>
-        public static void Remove(this CacheEntryKey cacheEntryKey, IMemoryCache memoryCache, Func<object, bool> predicate)
-        {
-            cacheEntryKey = cacheEntryKey ?? throw new ArgumentNullException(nameof(cacheEntryKey));
-            memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
-            predicate = predicate ?? throw new ArgumentNullException(nameof(predicate));
-
-            var keys = OpenSettingsDefaults.Caches.CacheKeys.Keys.Where(key => $"{key}".StartsWith(cacheEntryKey.Key) && predicate(key)).ToArray();
-
-            foreach (var key in keys)
-            {
-                memoryCache.Remove(key);
-                OpenSettingsDefaults.Caches.CacheKeys.TryRemove(key, out _);
-            }
-        }
-
-        /// <summary>
         /// Remove a specific cache entry from memory cache.
         /// <para>
         /// The <see cref="Remove(CacheEntryKey, IMemoryCache)"/> method removes the cache entry corresponding to the cache key from the memory cache.

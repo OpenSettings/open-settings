@@ -374,16 +374,17 @@ namespace OpenSettings.Services.Sql
 
         public async Task<IResponse<GetRegisteredAppResponse>> GetRegisteredAppAsync(GetRegisteredAppInput input, CancellationToken cancellationToken = default)
         {
+            Expression<Func<AppSqlModel, bool>> appFindExpression = a => a.TenantId == input.TenantId && a.ClientId == input.ClientId;
+
             var entity = await _context.Apps
                 .AsNoTracking()
-                .Where(a => a.ClientId == input.ClientId)
+                .Where(appFindExpression)
                 .OrderBy(a => a.Id)
                 .Select(a => new
                 {
                     a.ClientName,
                     a.HashedClientSecret,
                     IsRegistered = true,
-                    IsClientIdUnique = true,
                 })
                 .FirstOrDefaultAsync(cancellationToken);
 
@@ -395,18 +396,14 @@ namespace OpenSettings.Services.Sql
                 {
                     ClientName = entity.ClientName,
                     IsRegistered = entity.IsRegistered,
-                    IsClientIdUnique = true,
                     IsClientSecretMatched = passwordVerificationResult != PasswordVerificationResult.Failed
                 });
             }
-
-            var isClientIdUnique = !await _context.Apps.AsNoTracking().AnyAsync(a => a.ClientId == input.ClientId, cancellationToken);
 
             return HttpStatusCode.OK.ToSuccessResponseOf(new GetRegisteredAppResponse
             {
                 ClientName = string.Empty,
                 IsRegistered = false,
-                IsClientIdUnique = isClientIdUnique,
                 IsClientSecretMatched = false,
             });
         }

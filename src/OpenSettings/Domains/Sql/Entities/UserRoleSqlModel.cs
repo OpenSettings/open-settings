@@ -8,8 +8,6 @@ namespace OpenSettings.Domains.Sql.Entities
     /// </summary>
     public class UserRoleSqlModel : EntityBase<Guid>
     {
-        public Guid? TenantId { get; set; }
-
         /// <summary>
         /// The name of the user role.
         /// </summary>
@@ -25,6 +23,10 @@ namespace OpenSettings.Domains.Sql.Entities
         /// and replacing spaces or special characters with hyphens (using <see cref="Extensions.InternalExtensions.ToSlug"/> extension method).
         /// </summary>
         public string Slug { get; set; }
+
+        public Guid? TenantId { get; set; }
+
+        public virtual TenantSqlModel Tenant { get; set; }
 
         /// <summary>
         /// The collection of user role-claim mappings associated with this user role.

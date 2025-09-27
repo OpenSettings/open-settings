@@ -8,7 +8,6 @@ using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Logging;
 using OpenSettings.Configurations;
 using OpenSettings.Extensions;
@@ -31,113 +30,47 @@ namespace OpenSettings.AspNetCore.Spa
 
         private readonly Assembly _currentAssembly = typeof(OpenSettingsSpaMiddleware).GetTypeInfo().Assembly;
         private readonly IOpenSettingsMemoryCache _openSettingsMemoryCache;
+        private readonly IWebHostEnvironment _hostingEnvironment;
+        private readonly ILoggerFactory _loggerFactory;
+        private readonly RequestDelegate _requestDelegate;
         private readonly OpenSettingsConfiguration _openSettingsConfiguration;
-        private readonly StaticFileMiddleware _staticFileMiddleware;
+        private readonly ProviderInfo _providerInfo;
         private readonly JsonSerializerOptions _jsonSerializerOptions;
-
-        private readonly string _routePrefixPattern;
-        private readonly string _routePrefixWithIndexHtmlPattern;
-
-        private readonly Dictionary<string, string> _indexArguments;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OpenSettingsSpaMiddleware"/> class.
         /// </summary>
         /// <param name="openSettingsMemoryCache">In-memory cache for Open Settings.</param>
-        /// <param name="hostingEnv">Web hosting environment.</param>
+        /// <param name="hostingEnvironment">Web hosting environment.</param>
         /// <param name="loggerFactory">Factory for creating loggers.</param>
         /// <param name="requestDelegate">The request delegate.</param>
         /// <param name="openSettingsConfiguration">Configuration for Open Settings.</param>
         /// <param name="providerInfo">Provider information.</param>
         public OpenSettingsSpaMiddleware(
             IOpenSettingsMemoryCache openSettingsMemoryCache,
-            IWebHostEnvironment hostingEnv,
+            IWebHostEnvironment hostingEnvironment,
             ILoggerFactory loggerFactory,
             RequestDelegate requestDelegate,
             OpenSettingsConfiguration openSettingsConfiguration,
             ProviderInfo providerInfo)
         {
             _openSettingsMemoryCache = openSettingsMemoryCache;
+            _hostingEnvironment = hostingEnvironment;
+            _loggerFactory = loggerFactory;
+            _requestDelegate = requestDelegate;
             _openSettingsConfiguration = openSettingsConfiguration;
+            _providerInfo = providerInfo;
 
             if (openSettingsConfiguration.Spa.IndexStream == null)
             {
                 openSettingsConfiguration.Spa.IndexStream = () => _currentAssembly.GetManifestResourceStream(OpenSettingsDefaults.Spa.EmbeddedIndexHtmlFileNamespace);
             }
 
-            _routePrefixPattern = string.IsNullOrWhiteSpace(openSettingsConfiguration.Spa.RoutePrefix)
-                ? "^/$"
-                : $"^/{Regex.Escape(openSettingsConfiguration.Spa.RoutePrefix)}/?$";
-
-            _routePrefixWithIndexHtmlPattern = string.IsNullOrWhiteSpace(openSettingsConfiguration.Spa.RoutePrefix)
-                ? $"^/{IndexHtml}$"
-                : $"^/{Regex.Escape(openSettingsConfiguration.Spa.RoutePrefix)}/{IndexHtml}$";
-
             _jsonSerializerOptions = new JsonSerializerOptions
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
                 DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
             };
-
-            var cloneController = new
-            {
-                Route = $"/{openSettingsConfiguration.Controller.Route}",
-                openSettingsConfiguration.Controller.AllowFromExploring,
-                openSettingsConfiguration.Controller.RequiresAuthentication,
-                openSettingsConfiguration.Controller.OpenIdConnect
-            };
-
-            var cloneProviderInfo = new
-            {
-                providerInfo.RequiresAuthentication ,
-                Client = new
-                {
-                    providerInfo.Client.Id,
-                    providerInfo.Client.Name,
-                    providerInfo.Client.Version
-                },
-                PackInfo = new
-                {
-                    providerInfo.PackInfo.Version,
-                    providerInfo.PackInfo.Score,
-                    providerInfo.PackInfo.IsPreview,
-                },
-                OpenIdConnect = new
-                {
-                    providerInfo.OpenIdConnect.Authority,
-                    providerInfo.OpenIdConnect.AllowOfflineAccess,
-                    providerInfo.OpenIdConnect.IsActive
-                },
-                Redis = new
-                {
-                    providerInfo.Redis.Channel,
-                    providerInfo.Redis.Configuration,
-                    providerInfo.Redis.IsActive
-                }
-            };
-
-            var cloneClient = new
-            {
-                openSettingsConfiguration.Client.Id,
-                openSettingsConfiguration.Client.Name,
-                openSettingsConfiguration.Client.Version,
-            };
-
-            var openSettingsAssemblyInfo = OpenSettingsAssemblyInfo.Instance;
-
-            _indexArguments = new Dictionary<string, string>(9)
-            {
-                { IndexArguments.Controller, JsonSerializer.Serialize(cloneController, _jsonSerializerOptions) },
-                { IndexArguments.ProviderInfo, JsonSerializer.Serialize(cloneProviderInfo, _jsonSerializerOptions) },
-                { IndexArguments.PackInfo, JsonSerializer.Serialize(openSettingsAssemblyInfo.PackInfo, _jsonSerializerOptions) },
-                { IndexArguments.Client, JsonSerializer.Serialize(cloneClient, _jsonSerializerOptions) },
-                { IndexArguments.DocumentTitle, openSettingsConfiguration.Spa.DocumentTitle },
-                { IndexArguments.ServiceType, $"{openSettingsConfiguration.Selection}" },
-                { IndexArguments.DataAccessType, openSettingsConfiguration.IsConsumerSelected ? string.Empty : $"{openSettingsConfiguration.Provider.Selection}" },
-                { IndexArguments.DbProviderName, openSettingsConfiguration.IsProviderSelected && openSettingsConfiguration.Provider.IsOrmSelected ? $"{openSettingsConfiguration.Provider.Orm.DbProviderName}" : string.Empty }
-            };
-
-            _staticFileMiddleware = requestDelegate.CreateStaticFileMiddleware(hostingEnv, loggerFactory, openSettingsConfiguration.Spa.RoutePrefix, OpenSettingsDefaults.Spa.EmbeddedFileNamespace, typeof(OpenSettingsSpaMiddleware));
         }
 
         public async Task Invoke(HttpContext httpContext)
@@ -145,9 +78,26 @@ namespace OpenSettings.AspNetCore.Spa
             var httpMethod = httpContext.Request.Method;
             var path = httpContext.Request.Path.Value;
 
+            var routePrefixes =
+                OpenSettingsDefaults.Caches.OpenSettingsSpaMiddlewareCacheEntryRoutePrefixesKey.GetOrCreate(
+                    _openSettingsMemoryCache,
+                    c =>
+                    {
+                        return new
+                        {
+                            RoutePrefixPattern = string.IsNullOrWhiteSpace(_openSettingsConfiguration.Spa.RoutePrefix)
+                                ? "^/$"
+                                : $"^/{Regex.Escape(_openSettingsConfiguration.Spa.RoutePrefix)}/?$",
+                            RoutePrefixWithINdexHtmlPattern =
+                                string.IsNullOrWhiteSpace(_openSettingsConfiguration.Spa.RoutePrefix)
+                                    ? $"^/{IndexHtml}$"
+                                    : $"^/{Regex.Escape(_openSettingsConfiguration.Spa.RoutePrefix)}/{IndexHtml}$"
+                        };
+                    });
+
             switch (httpMethod)
             {
-                case "GET" when Regex.IsMatch(path, _routePrefixPattern, RegexOptions.IgnoreCase):
+                case "GET" when Regex.IsMatch(path, routePrefixes.RoutePrefixPattern, RegexOptions.IgnoreCase):
 
                     var relativeIndexUrl = string.IsNullOrEmpty(path) || path.EndsWith(OpenSettingsDefaults.Format.Hyphen)
                         ? IndexHtml
@@ -155,25 +105,117 @@ namespace OpenSettings.AspNetCore.Spa
                     httpContext.Response.RespondWithRedirect(relativeIndexUrl);
                     return;
 
-                case "GET" when Regex.IsMatch(path, _routePrefixWithIndexHtmlPattern, RegexOptions.IgnoreCase):
+                case "GET" when Regex.IsMatch(path, routePrefixes.RoutePrefixWithINdexHtmlPattern, RegexOptions.IgnoreCase):
 
-                    var text = await OpenSettingsDefaults.Caches.OpenSettingsSpaMiddlewareHtmlCacheEntryKey.GetOrCreateAsync(_openSettingsMemoryCache, c =>
+                    var text = await OpenSettingsDefaults.Caches.OpenSettingsSpaMiddlewareCacheEntryHtmlKey.GetOrCreateAsync(_openSettingsMemoryCache, c =>
                     {
-                        _indexArguments[IndexArguments.License] = JsonSerializer.Serialize(LicenseProvider.Instance.License, _jsonSerializerOptions);
+                        var indexArguments = BuildIndexArguments();
 
-                        return BuildHtmlAsync(_openSettingsConfiguration.Spa.IndexStream, _indexArguments);
+                        return BuildHtmlAsync(_openSettingsConfiguration.Spa.IndexStream, indexArguments);
                     }).ConfigureAwait(false);
 
                     await httpContext.Response.RespondWithIndexHtmlAsync(text).ConfigureAwait(false);
                     return;
 
                 default:
-                    await _staticFileMiddleware.Invoke(httpContext);
+
+                    var staticMiddleware =
+                        OpenSettingsDefaults.Caches.OpenSettingsSpaMiddlewareCacheEntryStaticMiddlewareKey.GetOrCreate(
+                            _openSettingsMemoryCache,
+                            c => _requestDelegate.CreateStaticFileMiddleware(_hostingEnvironment, _loggerFactory,
+                                _openSettingsConfiguration.Spa.RoutePrefix,
+                                OpenSettingsDefaults.Spa.EmbeddedFileNamespace, typeof(OpenSettingsSpaMiddleware)));
+
+                    await staticMiddleware.Invoke(httpContext);
                     break;
             }
         }
 
-        private static async Task<string> BuildHtmlAsync(Func<Stream> funcStream, IEnumerable<KeyValuePair<string, string>> indexArguments)
+        private Dictionary<string, string> BuildIndexArguments()
+        {
+            var indexArguments = new Dictionary<string, string>(9)
+            {
+                [IndexArguments.Controller] = JsonSerializer.Serialize(GetControllerClone(), _jsonSerializerOptions),
+                [IndexArguments.ProviderInfo] = JsonSerializer.Serialize(GetProviderInfoClone(), _jsonSerializerOptions),
+                [IndexArguments.PackInfo] = JsonSerializer.Serialize(OpenSettingsAssemblyInfo.Instance.PackInfo, _jsonSerializerOptions),
+                [IndexArguments.Client] = JsonSerializer.Serialize(GetClientClone(), _jsonSerializerOptions),
+                [IndexArguments.License] = JsonSerializer.Serialize(LicenseProvider.Instance.License, _jsonSerializerOptions),
+                [IndexArguments.DocumentTitle] = _openSettingsConfiguration.Spa.DocumentTitle
+            };
+
+            if (!indexArguments.ContainsKey(IndexArguments.ServiceType))
+            {
+                indexArguments[IndexArguments.ServiceType] = $"{_openSettingsConfiguration.Selection}";
+            }
+
+            if (!indexArguments.ContainsKey(IndexArguments.DataAccessType))
+            {
+                indexArguments[IndexArguments.DataAccessType] = _openSettingsConfiguration.IsConsumerSelected ? string.Empty : $"{_openSettingsConfiguration.Provider.Selection}";
+            }
+
+            if (!indexArguments.ContainsKey(IndexArguments.DbProviderName))
+            {
+                indexArguments[IndexArguments.DbProviderName] = _openSettingsConfiguration.IsProviderSelected && _openSettingsConfiguration.Provider.IsOrmSelected ? $"{_openSettingsConfiguration.Provider.Orm.DbProviderName}" : string.Empty;
+            }
+
+            return indexArguments;
+
+            object GetControllerClone()
+            {
+                return new
+                {
+                    Route = $"/{_openSettingsConfiguration.Controller.Route}",
+                    _openSettingsConfiguration.Controller.AllowFromExploring,
+                    _openSettingsConfiguration.Controller.RequiresAuthentication,
+                    _openSettingsConfiguration.Controller.OpenIdConnect
+                };
+            }
+
+            object GetProviderInfoClone()
+            {
+
+                return new
+                {
+                    _providerInfo.RequiresAuthentication,
+                    Client = new
+                    {
+                        _providerInfo.Client.Id,
+                        _providerInfo.Client.Name,
+                        _providerInfo.Client.Version
+                    },
+                    PackInfo = new
+                    {
+                        _providerInfo.PackInfo.Version,
+                        _providerInfo.PackInfo.Score,
+                        _providerInfo.PackInfo.IsPreview,
+                    },
+                    OpenIdConnect = new
+                    {
+                        _providerInfo.OpenIdConnect.Authority,
+                        _providerInfo.OpenIdConnect.AllowOfflineAccess,
+                        _providerInfo.OpenIdConnect.IsActive
+                    },
+                    Redis = new
+                    {
+                        _providerInfo.Redis.Channel,
+                        _providerInfo.Redis.Configuration,
+                        _providerInfo.Redis.IsActive
+                    }
+                };
+            }
+
+            object GetClientClone()
+            {
+                return new
+                {
+                    _openSettingsConfiguration.Client.Id,
+                    _openSettingsConfiguration.Client.Name,
+                    _openSettingsConfiguration.Client.Version,
+                };
+            }
+        }
+
+        private static async Task<string> BuildHtmlAsync(Func<Stream> funcStream, Dictionary<string, string> indexArguments)
         {
             using (var stream = funcStream())
             {

@@ -13,7 +13,11 @@ namespace OpenSettings.Domains.Sql.Configurations
 
             builder.HasKey(e => e.Id);
 
-            builder.HasIndex(a => a.Slug).IsUnique();
+            builder.HasIndex(a => new { a.TenantId, a.Slug }).IsUnique();
+
+            builder.HasOne(e => e.Tenant)
+                .WithMany()
+                .HasForeignKey(e => e.TenantId);
 
             builder.HasMany(e => e.UserGroupUserClaimMappings)
                 .WithOne(e => e.UserClaim)

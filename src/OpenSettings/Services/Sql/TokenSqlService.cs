@@ -107,6 +107,7 @@ namespace OpenSettings.Services.Sql
             var openSettingsClaims = new OpenSettingsClaims
             {
                 UserId = input.UserId,
+                TenantId = input.TenantId,
                 DisplayName = input.DisplayName,
                 UserInitials = input.UserInitials,
                 AuthType = AuthType.OpenIdConnect,
@@ -193,7 +194,8 @@ namespace OpenSettings.Services.Sql
                 var registeredAppResponse = await appService.GetRegisteredAppAsync(new GetRegisteredAppInput
                 {
                     ClientId = input.ClientId,
-                    ClientSecret = input.ClientSecret
+                    ClientSecret = input.ClientSecret,
+                    TenantId = input.TenantId
                 }, cancellationToken);
 
                 var registeredApp = registeredAppResponse.Data;
@@ -206,6 +208,7 @@ namespace OpenSettings.Services.Sql
                 var openSettingsClaims = new OpenSettingsClaims
                 {
                     UserId = input.ClientId,
+                    TenantId = input.TenantId,
                     DisplayName = registeredApp.ClientName,
                     AuthType = AuthType.Machine,
                     AuthMethod = AuthMethod.Jwt

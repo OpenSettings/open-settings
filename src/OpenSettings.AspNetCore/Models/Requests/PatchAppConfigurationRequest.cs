@@ -1,9 +1,9 @@
-﻿using System;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using System;
 
 namespace OpenSettings.AspNetCore.Models.Requests
 {
-    public class PatchConfigurationRequest
+    public class PatchAppConfigurationRequest
     {
         [FromRoute]
         public Guid AppId { get; set; }

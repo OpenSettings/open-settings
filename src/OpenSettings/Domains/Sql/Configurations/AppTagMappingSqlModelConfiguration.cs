@@ -16,6 +16,10 @@ namespace OpenSettings.Domains.Sql.Configurations
 
             builder.HasKey(x => new { x.AppId, x.AppTagId });
 
+            builder.HasOne(e => e.Tenant)
+                .WithMany()
+                .HasForeignKey(e => e.TenantId);
+
             builder.HasOne(e => e.App)
                 .WithMany(e => e.AppTagMappings)
                 .HasForeignKey(e => e.AppId)

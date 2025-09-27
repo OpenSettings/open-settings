@@ -7,8 +7,6 @@ namespace OpenSettings.Domains.Sql.Entities
     /// </summary>
     public class AppIdentifierMappingSqlModel : EntityBase<Guid>
     {
-        public Guid? TenantId { get; set; }
-
         /// <summary>
         /// The sort order of this mapping in a list.
         /// </summary>
@@ -19,6 +17,10 @@ namespace OpenSettings.Domains.Sql.Entities
         /// Helps prevent conflicts during concurrent updates.
         /// </summary>
         public byte[] RowVersion { get; set; } = Array.Empty<byte>();
+
+        public Guid? TenantId { get; set; }
+
+        public virtual TenantSqlModel Tenant { get; set; }
 
         /// <summary>
         /// The id of the associated app.

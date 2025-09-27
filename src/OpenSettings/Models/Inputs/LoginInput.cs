@@ -11,5 +11,7 @@ namespace OpenSettings.Models.Inputs
         public string StateId { get; set; }
 
         public Guid? ClientId { get; set; }
+
+        public Guid? TenantId { get; set; }
     }
 }

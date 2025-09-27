@@ -61,6 +61,7 @@ namespace OpenSettings.AspNetCore.Authentication
             //var apiUrl = context.Properties.GetString(OpenSettingsDefaults.Keys.AuthService.ApiUrl);
             var stateId = context.Properties.GetString(OpenSettingsDefaults.Keys.AuthService.StateId);
             var clientId = context.Properties.GetString(OpenSettingsDefaults.Keys.AuthService.ClientId);
+            var tenantIdAsString = context.Properties.GetString(OpenSettingsDefaults.Keys.AuthService.TenantId);
 
             var httpContext = context.HttpContext;
             var usersService = httpContext.RequestServices.GetRequiredService<IUserService>();
@@ -124,6 +125,7 @@ namespace OpenSettings.AspNetCore.Authentication
                 var openSettingsClaims = new OpenSettingsClaims
                 {
                     UserId = user.Id,
+                    TenantId = null, // Todo Tenant
                     DisplayName = user.DisplayName,
                     UserInitials = user.Initials,
                     AuthType = AuthType.OpenIdConnect,
@@ -143,6 +145,7 @@ namespace OpenSettings.AspNetCore.Authentication
                 var tokenResponse = await tokenService.GenerateTokenForUserAsync(new GenerateTokenForUserInput
                 {
                     UserId = user.Id,
+                    TenantId = null, // Todo Tenant
                     DisplayName = user.DisplayName,
                     UserInitials = user.Initials,
                     Audience = clientId

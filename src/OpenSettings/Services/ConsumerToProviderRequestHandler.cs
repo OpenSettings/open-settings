@@ -39,6 +39,11 @@ namespace OpenSettings.Services
                 request.Headers.TryAddWithoutValidation(OpenSettingsDefaults.Headers.AuthMethod, nameof(AuthMethod.Basic));
             }
 
+            if (_openSettingsConfiguration.Consumer.TenantId.HasValue)
+            {
+                request.Headers.TryAddWithoutValidation(OpenSettingsDefaults.Headers.TenantId, $"{_openSettingsConfiguration.Consumer.TenantId.Value}");
+            }
+
             request.Headers.TryAddWithoutValidation(OpenSettingsDefaults.Headers.CallerType, nameof(CallerType.Service));
             request.Headers.TryAddWithoutValidation(OpenSettingsDefaults.Headers.AuthType, nameof(AuthType.Machine));
 
@@ -55,6 +60,7 @@ namespace OpenSettings.Services
             var generateTokenResponse = await _tokenService.GenerateTokenForMachineAsync(new GenerateTokenForMachineInput
             {
                 ClientId = _openSettingsConfiguration.Client.Id,
+                TenantId = _openSettingsConfiguration.Consumer.TenantId,
                 ClientSecret = _openSettingsConfiguration.Client.Secret,
             }, cancellationToken);
 

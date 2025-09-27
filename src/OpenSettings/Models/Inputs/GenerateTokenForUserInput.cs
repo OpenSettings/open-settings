@@ -6,6 +6,8 @@ namespace OpenSettings.Models.Inputs
     {
         public Guid UserId { get; set; }
 
+        public Guid? TenantId { get; set; }
+
         public string DisplayName { get; set; }
 
         public string UserInitials { get; set; }

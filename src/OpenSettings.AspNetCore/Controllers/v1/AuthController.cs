@@ -5,6 +5,7 @@ using OpenSettings.AspNetCore.Models.Requests;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Services.Interfaces;
 using System.Threading.Tasks;
+using OpenSettings.AspNetCore.Extensions;
 
 namespace OpenSettings.AspNetCore.Controllers.v1
 {
@@ -40,7 +41,8 @@ namespace OpenSettings.AspNetCore.Controllers.v1
                 ReturnUrl = request.ReturnUrl,
                 ApiUrl = request.ApiUrl,
                 StateId = request.StateId,
-                ClientId = request.ClientId
+                ClientId = request.ClientId,
+                TenantId = HttpContext.Request.Headers.GetTenantIdHeaderValueOrDefault()
             });
 
             return new EmptyResult();

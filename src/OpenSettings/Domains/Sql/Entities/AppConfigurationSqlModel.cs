@@ -8,8 +8,6 @@ namespace OpenSettings.Domains.Sql.Entities
     /// </summary>
     public class AppConfigurationSqlModel : EntityBase<Guid>
     {
-        public Guid? TenantId { get; set; }
-
         /// <summary>
         /// Determines whether the configuration should be stored in a separate file.
         /// </summary>
@@ -70,6 +68,10 @@ namespace OpenSettings.Domains.Sql.Entities
         /// Helps prevent conflicts during concurrent updates.
         /// </summary>
         public byte[] RowVersion { get; set; } = Array.Empty<byte>();
+
+        public Guid? TenantId { get; set; }
+
+        public virtual TenantSqlModel Tenant { get; set; }
 
         /// <summary>
         /// The identifier associated with this configuration.

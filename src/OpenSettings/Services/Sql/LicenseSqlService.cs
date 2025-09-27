@@ -88,7 +88,7 @@ namespace OpenSettings.Services.Sql
 
             if (previousLicenseReferenceId != LicenseProvider.Instance.License.ReferenceId)
             {
-                OpenSettingsDefaults.Caches.OpenSettingsSpaMiddlewareHtmlCacheEntryKey.Remove(_openSettingsMemoryCache);
+                OpenSettingsDefaults.Caches.OpenSettingsSpaMiddlewareCacheEntryHtmlKey.Remove(_openSettingsMemoryCache);
             }
 
             return response;
@@ -125,7 +125,7 @@ namespace OpenSettings.Services.Sql
 
             LicenseProvider.Instance.License = await InitializeAsync(CancellationToken.None) ?? License.Community;
 
-            OpenSettingsDefaults.Caches.OpenSettingsSpaMiddlewareHtmlCacheEntryKey.Remove(_openSettingsMemoryCache);
+            OpenSettingsDefaults.Caches.OpenSettingsSpaMiddlewareCacheEntryHtmlKey.Remove(_openSettingsMemoryCache);
 
             return HttpStatusCode.OK.ToSuccessResponse();
         }
@@ -194,6 +194,7 @@ namespace OpenSettings.Services.Sql
 
                 _context.Licenses.Add(new LicenseSqlModel
                 {
+                    Id = Guid.NewGuid(),
                     ReferenceId = license.ReferenceId,
                     ReferenceIdLowercase = referenceIdLowercase,
                     Features = license.Features.ToArray(),

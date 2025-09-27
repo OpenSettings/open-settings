@@ -157,6 +157,16 @@ namespace OpenSettings.Domains.Sql.DataContext
         public DbSet<ProviderRegistrySqlModel> ProviderRegistries { get; set; }
 
         /// <summary>
+        /// Gets or sets the <see cref="DbSet{TenantSqlModel}"/> for managing Tenants.
+        /// </summary>
+        public DbSet<TenantSqlModel> Tenants { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="DbSet{TenantUserMappingSqlModel}"/> for managing TenantUserMappings.
+        /// </summary>
+        public DbSet<TenantUserMappingSqlModel> TenantUserMappings { get; set; }
+
+        /// <summary>
         /// Gets or sets the <see cref="DbSet{GlobalConfigurationSqlModel}"/> for managing GlobalConfigurations.
         /// </summary>
         public DbSet<GlobalConfigurationSqlModel> GlobalConfigurations { get; set; }

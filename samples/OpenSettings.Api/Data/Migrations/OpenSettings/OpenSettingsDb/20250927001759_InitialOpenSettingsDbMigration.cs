@@ -34,49 +34,6 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 });
 
             migrationBuilder.CreateTable(
-                name: "Licenses",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    ReferenceId = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ReferenceIdLowercase = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    Features = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ExpiryDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    IsExpired = table.Column<bool>(type: "bit", nullable: false),
-                    ExpiredOn = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    IsRevoked = table.Column<bool>(type: "bit", nullable: false),
-                    RevokedOn = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Key = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Holder = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    HolderLowercase = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    Edition = table.Column<int>(type: "int", nullable: false),
-                    IssuedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    NotBefore = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Licenses", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Locks",
-                columns: table => new
-                {
-                    Key = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Owner = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    ExpiryDate = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Locks", x => x.Key);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "ProviderRegistries",
                 columns: table => new
                 {
@@ -100,65 +57,10 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 });
 
             migrationBuilder.CreateTable(
-                name: "UserClaims",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Type = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    TypeLowercase = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Value = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ValueLowercase = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Slug = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_UserClaims", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "UserGroups",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    NameLowercase = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Slug = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_UserGroups", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "UserRoles",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    NameLowercase = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Slug = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_UserRoles", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Users",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     AuthType = table.Column<int>(type: "int", nullable: false),
                     IdentityProvider = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ExternalId = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -193,16 +95,48 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 });
 
             migrationBuilder.CreateTable(
+                name: "Tenants",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    NameLowercase = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Slug = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    DisplayName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    DisplayNameLowercase = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    EmailAddress = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    UpdatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Tenants", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Tenants_Users_CreatedById",
+                        column: x => x.CreatedById,
+                        principalTable: "Users",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Tenants_Users_UpdatedById",
+                        column: x => x.UpdatedById,
+                        principalTable: "Users",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AppGroups",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     NameLowercase = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Slug = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     SortOrder = table.Column<int>(type: "int", nullable: false),
                     RowVersion = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     UpdatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -211,6 +145,11 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AppGroups", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AppGroups_Tenants_TenantId",
+                        column: x => x.TenantId,
+                        principalTable: "Tenants",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_AppGroups_Users_CreatedById",
                         column: x => x.CreatedById,
@@ -228,12 +167,12 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     NameLowercase = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     Slug = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     SortOrder = table.Column<int>(type: "int", nullable: false),
                     RowVersion = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     UpdatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -242,6 +181,11 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AppTags", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AppTags_Tenants_TenantId",
+                        column: x => x.TenantId,
+                        principalTable: "Tenants",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_AppTags_Users_CreatedById",
                         column: x => x.CreatedById,
@@ -259,7 +203,6 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     Key = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     KeyLowercase = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     Data = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
@@ -270,6 +213,7 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     CompressionLevel = table.Column<int>(type: "int", nullable: false),
                     Version = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     RowVersion = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     UpdatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -278,6 +222,11 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_GlobalConfigurations", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_GlobalConfigurations_Tenants_TenantId",
+                        column: x => x.TenantId,
+                        principalTable: "Tenants",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_GlobalConfigurations_Users_CreatedById",
                         column: x => x.CreatedById,
@@ -295,12 +244,12 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     NameLowercase = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     Slug = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     SortOrder = table.Column<int>(type: "int", nullable: false),
                     RowVersion = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     UpdatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -309,6 +258,11 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Identifiers", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Identifiers_Tenants_TenantId",
+                        column: x => x.TenantId,
+                        principalTable: "Tenants",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Identifiers_Users_CreatedById",
                         column: x => x.CreatedById,
@@ -322,11 +276,62 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 });
 
             migrationBuilder.CreateTable(
+                name: "Licenses",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ReferenceId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ReferenceIdLowercase = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    Features = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ExpiryDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    IsExpired = table.Column<bool>(type: "bit", nullable: false),
+                    ExpiredOn = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    IsRevoked = table.Column<bool>(type: "bit", nullable: false),
+                    RevokedOn = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Key = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Holder = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    HolderLowercase = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    Edition = table.Column<int>(type: "int", nullable: false),
+                    IssuedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    NotBefore = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Licenses", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Licenses_Tenants_TenantId",
+                        column: x => x.TenantId,
+                        principalTable: "Tenants",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Locks",
+                columns: table => new
+                {
+                    Key = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Owner = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    ExpiryDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Locks", x => x.Key);
+                    table.ForeignKey(
+                        name: "FK_Locks_Tenants_TenantId",
+                        column: x => x.TenantId,
+                        principalTable: "Tenants",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "LoginEntries",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     StateId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Issuer = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Audience = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -341,6 +346,7 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     Scopes = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     IsSuccessful = table.Column<bool>(type: "bit", nullable: false),
                     Metadata = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     ProviderRegistryId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -356,6 +362,11 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         principalColumn: "Id",
                         onDelete: ReferentialAction.SetNull);
                     table.ForeignKey(
+                        name: "FK_LoginEntries_Tenants_TenantId",
+                        column: x => x.TenantId,
+                        principalTable: "Tenants",
+                        principalColumn: "Id");
+                    table.ForeignKey(
                         name: "FK_LoginEntries_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
@@ -367,7 +378,6 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     Title = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Message = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Type = table.Column<int>(type: "int", nullable: false),
@@ -377,6 +387,7 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     IsExpired = table.Column<bool>(type: "bit", nullable: false),
                     ExpiredOn = table.Column<DateTime>(type: "datetime2", nullable: true),
                     CreatorName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     UpdatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -385,6 +396,11 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Notifications", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Notifications_Tenants_TenantId",
+                        column: x => x.TenantId,
+                        principalTable: "Tenants",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Notifications_Users_CreatedById",
                         column: x => x.CreatedById,
@@ -395,6 +411,246 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         column: x => x.UpdatedById,
                         principalTable: "Users",
                         principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TenantUserMappings",
+                columns: table => new
+                {
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TenantUserMappings", x => new { x.TenantId, x.UserId });
+                    table.ForeignKey(
+                        name: "FK_TenantUserMappings_Tenants_TenantId",
+                        column: x => x.TenantId,
+                        principalTable: "Tenants",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_TenantUserMappings_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserClaims",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Type = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    TypeLowercase = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Value = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ValueLowercase = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Slug = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserClaims", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UserClaims_Tenants_TenantId",
+                        column: x => x.TenantId,
+                        principalTable: "Tenants",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserGroups",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    NameLowercase = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Slug = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserGroups", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UserGroups_Tenants_TenantId",
+                        column: x => x.TenantId,
+                        principalTable: "Tenants",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserRoles",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    NameLowercase = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Slug = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserRoles", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UserRoles_Tenants_TenantId",
+                        column: x => x.TenantId,
+                        principalTable: "Tenants",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Apps",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    DisplayName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    DisplayNameLowercase = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ClientName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ClientNameLowercase = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    Slug = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    ClientId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ClientIdLowercase = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    HashedClientSecret = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    WikiUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Type = table.Column<int>(type: "int", nullable: false),
+                    SortOrder = table.Column<int>(type: "int", nullable: false),
+                    RowVersion = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    AppGroupId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    UpdatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Apps", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Apps_AppGroups_AppGroupId",
+                        column: x => x.AppGroupId,
+                        principalTable: "AppGroups",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.SetNull);
+                    table.ForeignKey(
+                        name: "FK_Apps_Tenants_TenantId",
+                        column: x => x.TenantId,
+                        principalTable: "Tenants",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Apps_Users_CreatedById",
+                        column: x => x.CreatedById,
+                        principalTable: "Users",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Apps_Users_UpdatedById",
+                        column: x => x.UpdatedById,
+                        principalTable: "Users",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "GlobalConfigurationHistories",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Key = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    KeyLowercase = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    Data = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
+                    ClientId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    IdentifierId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    SerializerType = table.Column<int>(type: "int", nullable: false),
+                    CompressionType = table.Column<int>(type: "int", nullable: false),
+                    CompressionLevel = table.Column<int>(type: "int", nullable: false),
+                    Version = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    Slug = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    RestoredOn = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    RowVersion = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    GlobalConfigurationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    RestoredById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_GlobalConfigurationHistories", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_GlobalConfigurationHistories_GlobalConfigurations_GlobalConfigurationId",
+                        column: x => x.GlobalConfigurationId,
+                        principalTable: "GlobalConfigurations",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_GlobalConfigurationHistories_Tenants_TenantId",
+                        column: x => x.TenantId,
+                        principalTable: "Tenants",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_GlobalConfigurationHistories_Users_CreatedById",
+                        column: x => x.CreatedById,
+                        principalTable: "Users",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_GlobalConfigurationHistories_Users_RestoredById",
+                        column: x => x.RestoredById,
+                        principalTable: "Users",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserNotificationMappings",
+                columns: table => new
+                {
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    NotificationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    IsOpened = table.Column<bool>(type: "bit", nullable: false),
+                    OpenedOn = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    IsViewed = table.Column<bool>(type: "bit", nullable: false),
+                    ViewedOn = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    IsDismissed = table.Column<bool>(type: "bit", nullable: false),
+                    DismissedOn = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserNotificationMappings", x => new { x.UserId, x.NotificationId });
+                    table.ForeignKey(
+                        name: "FK_UserNotificationMappings_Notifications_NotificationId",
+                        column: x => x.NotificationId,
+                        principalTable: "Notifications",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UserNotificationMappings_Tenants_TenantId",
+                        column: x => x.TenantId,
+                        principalTable: "Tenants",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_UserNotificationMappings_Users_CreatedById",
+                        column: x => x.CreatedById,
+                        principalTable: "Users",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_UserNotificationMappings_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -410,6 +666,11 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_UserClaimMappings", x => new { x.UserId, x.UserClaimId });
+                    table.ForeignKey(
+                        name: "FK_UserClaimMappings_Tenants_TenantId",
+                        column: x => x.TenantId,
+                        principalTable: "Tenants",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_UserClaimMappings_UserClaims_UserClaimId",
                         column: x => x.UserClaimId,
@@ -443,6 +704,11 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 {
                     table.PrimaryKey("PK_UserGroupMappings", x => new { x.UserId, x.UserGroupId });
                     table.ForeignKey(
+                        name: "FK_UserGroupMappings_Tenants_TenantId",
+                        column: x => x.TenantId,
+                        principalTable: "Tenants",
+                        principalColumn: "Id");
+                    table.ForeignKey(
                         name: "FK_UserGroupMappings_UserGroups_UserGroupId",
                         column: x => x.UserGroupId,
                         principalTable: "UserGroups",
@@ -462,6 +728,43 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 });
 
             migrationBuilder.CreateTable(
+                name: "UserGroupNotificationMappings",
+                columns: table => new
+                {
+                    UserGroupId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    NotificationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserGroupNotificationMappings", x => new { x.UserGroupId, x.NotificationId });
+                    table.ForeignKey(
+                        name: "FK_UserGroupNotificationMappings_Notifications_NotificationId",
+                        column: x => x.NotificationId,
+                        principalTable: "Notifications",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UserGroupNotificationMappings_Tenants_TenantId",
+                        column: x => x.TenantId,
+                        principalTable: "Tenants",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_UserGroupNotificationMappings_UserGroups_UserGroupId",
+                        column: x => x.UserGroupId,
+                        principalTable: "UserGroups",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UserGroupNotificationMappings_Users_CreatedById",
+                        column: x => x.CreatedById,
+                        principalTable: "Users",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "UserGroupUserClaimMappings",
                 columns: table => new
                 {
@@ -474,6 +777,11 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_UserGroupUserClaimMappings", x => new { x.UserGroupId, x.UserClaimId });
+                    table.ForeignKey(
+                        name: "FK_UserGroupUserClaimMappings_Tenants_TenantId",
+                        column: x => x.TenantId,
+                        principalTable: "Tenants",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_UserGroupUserClaimMappings_UserClaims_UserClaimId",
                         column: x => x.UserClaimId,
@@ -507,6 +815,11 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 {
                     table.PrimaryKey("PK_UserRoleMappings", x => new { x.UserId, x.UserRoleId });
                     table.ForeignKey(
+                        name: "FK_UserRoleMappings_Tenants_TenantId",
+                        column: x => x.TenantId,
+                        principalTable: "Tenants",
+                        principalColumn: "Id");
+                    table.ForeignKey(
                         name: "FK_UserRoleMappings_UserRoles_UserRoleId",
                         column: x => x.UserRoleId,
                         principalTable: "UserRoles",
@@ -538,6 +851,11 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_UserRoleUserClaimMappings", x => new { x.UserRoleId, x.UserClaimId });
+                    table.ForeignKey(
+                        name: "FK_UserRoleUserClaimMappings_Tenants_TenantId",
+                        column: x => x.TenantId,
+                        principalTable: "Tenants",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_UserRoleUserClaimMappings_UserClaims_UserClaimId",
                         column: x => x.UserClaimId,
@@ -571,6 +889,11 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 {
                     table.PrimaryKey("PK_UserRoleUserGroupMappings", x => new { x.UserRoleId, x.UserGroupId });
                     table.ForeignKey(
+                        name: "FK_UserRoleUserGroupMappings_Tenants_TenantId",
+                        column: x => x.TenantId,
+                        principalTable: "Tenants",
+                        principalColumn: "Id");
+                    table.ForeignKey(
                         name: "FK_UserRoleUserGroupMappings_UserGroups_UserGroupId",
                         column: x => x.UserGroupId,
                         principalTable: "UserGroups",
@@ -590,173 +913,10 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 });
 
             migrationBuilder.CreateTable(
-                name: "Apps",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    DisplayName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    DisplayNameLowercase = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ClientName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ClientNameLowercase = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    Slug = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    ClientId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ClientIdLowercase = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    HashedClientSecret = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    WikiUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Type = table.Column<int>(type: "int", nullable: false),
-                    SortOrder = table.Column<int>(type: "int", nullable: false),
-                    RowVersion = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
-                    AppGroupId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    UpdatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Apps", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Apps_AppGroups_AppGroupId",
-                        column: x => x.AppGroupId,
-                        principalTable: "AppGroups",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.SetNull);
-                    table.ForeignKey(
-                        name: "FK_Apps_Users_CreatedById",
-                        column: x => x.CreatedById,
-                        principalTable: "Users",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Apps_Users_UpdatedById",
-                        column: x => x.UpdatedById,
-                        principalTable: "Users",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "GlobalConfigurationHistories",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Key = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    KeyLowercase = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    Data = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
-                    ClientId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    IdentifierId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    SerializerType = table.Column<int>(type: "int", nullable: false),
-                    CompressionType = table.Column<int>(type: "int", nullable: false),
-                    CompressionLevel = table.Column<int>(type: "int", nullable: false),
-                    Version = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    Slug = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    RestoredOn = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
-                    GlobalConfigurationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    RestoredById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_GlobalConfigurationHistories", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_GlobalConfigurationHistories_GlobalConfigurations_GlobalConfigurationId",
-                        column: x => x.GlobalConfigurationId,
-                        principalTable: "GlobalConfigurations",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_GlobalConfigurationHistories_Users_CreatedById",
-                        column: x => x.CreatedById,
-                        principalTable: "Users",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_GlobalConfigurationHistories_Users_RestoredById",
-                        column: x => x.RestoredById,
-                        principalTable: "Users",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "UserGroupNotificationMappings",
-                columns: table => new
-                {
-                    UserGroupId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    NotificationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_UserGroupNotificationMappings", x => new { x.UserGroupId, x.NotificationId });
-                    table.ForeignKey(
-                        name: "FK_UserGroupNotificationMappings_Notifications_NotificationId",
-                        column: x => x.NotificationId,
-                        principalTable: "Notifications",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_UserGroupNotificationMappings_UserGroups_UserGroupId",
-                        column: x => x.UserGroupId,
-                        principalTable: "UserGroups",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_UserGroupNotificationMappings_Users_CreatedById",
-                        column: x => x.CreatedById,
-                        principalTable: "Users",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "UserNotificationMappings",
-                columns: table => new
-                {
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    NotificationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    IsOpened = table.Column<bool>(type: "bit", nullable: false),
-                    OpenedOn = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    IsViewed = table.Column<bool>(type: "bit", nullable: false),
-                    ViewedOn = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    IsDismissed = table.Column<bool>(type: "bit", nullable: false),
-                    DismissedOn = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_UserNotificationMappings", x => new { x.UserId, x.NotificationId });
-                    table.ForeignKey(
-                        name: "FK_UserNotificationMappings_Notifications_NotificationId",
-                        column: x => x.NotificationId,
-                        principalTable: "Notifications",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_UserNotificationMappings_Users_CreatedById",
-                        column: x => x.CreatedById,
-                        principalTable: "Users",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_UserNotificationMappings_Users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "AppConfigurations",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     StoreInSeparateFile = table.Column<bool>(type: "bit", nullable: false),
                     IgnoreIndividualStoreInSeparateFile = table.Column<bool>(type: "bit", nullable: false),
                     IgnoreOnFileChange = table.Column<bool>(type: "bit", nullable: false),
@@ -768,6 +928,7 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     Controller = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Spa = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     RowVersion = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     IdentifierId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     AppId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
@@ -791,6 +952,11 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
+                        name: "FK_AppConfigurations_Tenants_TenantId",
+                        column: x => x.TenantId,
+                        principalTable: "Tenants",
+                        principalColumn: "Id");
+                    table.ForeignKey(
                         name: "FK_AppConfigurations_Users_CreatedById",
                         column: x => x.CreatedById,
                         principalTable: "Users",
@@ -808,9 +974,9 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 {
                     AppId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     IdentifierId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     SortOrder = table.Column<int>(type: "int", nullable: false),
                     RowVersion = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     UpdatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -832,6 +998,11 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
+                        name: "FK_AppIdentifierMappings_Tenants_TenantId",
+                        column: x => x.TenantId,
+                        principalTable: "Tenants",
+                        principalColumn: "Id");
+                    table.ForeignKey(
                         name: "FK_AppIdentifierMappings_Users_CreatedById",
                         column: x => x.CreatedById,
                         principalTable: "Users",
@@ -849,7 +1020,6 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     NameLowercase = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     Slug = table.Column<string>(type: "nvarchar(450)", nullable: true),
@@ -864,6 +1034,7 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     ReloadStrategies = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ServiceType = table.Column<int>(type: "int", nullable: false),
                     DataAccessType = table.Column<int>(type: "int", nullable: true),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     AppId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     IdentifierId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -884,6 +1055,11 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         principalTable: "Identifiers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_AppInstances_Tenants_TenantId",
+                        column: x => x.TenantId,
+                        principalTable: "Tenants",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -891,7 +1067,6 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     Data = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
                     ComputedIdentifier = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     SerializerType = table.Column<int>(type: "int", nullable: false),
@@ -907,6 +1082,7 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     IsCopied = table.Column<bool>(type: "bit", nullable: false),
                     CopiedOn = table.Column<DateTime>(type: "datetime2", nullable: true),
                     RowVersion = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     IdentifierId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     AppId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CopiedFromId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
@@ -930,6 +1106,11 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         principalTable: "Identifiers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_AppSettings_Tenants_TenantId",
+                        column: x => x.TenantId,
+                        principalTable: "Tenants",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_AppSettings_Users_CreatedById",
                         column: x => x.CreatedById,
@@ -968,6 +1149,11 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
+                        name: "FK_AppTagMappings_Tenants_TenantId",
+                        column: x => x.TenantId,
+                        principalTable: "Tenants",
+                        principalColumn: "Id");
+                    table.ForeignKey(
                         name: "FK_AppTagMappings_Users_CreatedById",
                         column: x => x.CreatedById,
                         principalTable: "Users",
@@ -979,13 +1165,13 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     Identifier = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     FullName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Namespace = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Properties = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     RowVersion = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     AppSettingId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     UpdatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
@@ -1001,6 +1187,11 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         principalTable: "AppSettings",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_AppSettingClasses_Tenants_TenantId",
+                        column: x => x.TenantId,
+                        principalTable: "Tenants",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_AppSettingClasses_Users_CreatedById",
                         column: x => x.CreatedById,
@@ -1018,7 +1209,6 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     Data = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
                     SerializerType = table.Column<int>(type: "int", nullable: false),
                     CompressionType = table.Column<int>(type: "int", nullable: false),
@@ -1027,6 +1217,7 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     Slug = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     RestoredOn = table.Column<DateTime>(type: "datetime2", nullable: true),
                     RowVersion = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     AppSettingId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     RestoredById = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
@@ -1041,6 +1232,11 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         principalTable: "AppSettings",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_AppSettingHistories_Tenants_TenantId",
+                        column: x => x.TenantId,
+                        principalTable: "Tenants",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_AppSettingHistories_Users_CreatedById",
                         column: x => x.CreatedById,
@@ -1070,6 +1266,11 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 column: "IdentifierId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_AppConfigurations_TenantId",
+                table: "AppConfigurations",
+                column: "TenantId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_AppConfigurations_UpdatedById",
                 table: "AppConfigurations",
                 column: "UpdatedById");
@@ -1080,16 +1281,16 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 column: "CreatedById");
 
             migrationBuilder.CreateIndex(
-                name: "IX_AppGroups_Slug",
-                table: "AppGroups",
-                column: "Slug",
-                unique: true,
-                filter: "[Slug] IS NOT NULL");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_AppGroups_SortOrder",
                 table: "AppGroups",
                 column: "SortOrder");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AppGroups_TenantId_Slug",
+                table: "AppGroups",
+                columns: new[] { "TenantId", "Slug" },
+                unique: true,
+                filter: "[TenantId] IS NOT NULL AND [Slug] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AppGroups_UpdatedById",
@@ -1110,6 +1311,11 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "IX_AppIdentifierMappings_SortOrder",
                 table: "AppIdentifierMappings",
                 column: "SortOrder");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AppIdentifierMappings_TenantId",
+                table: "AppIdentifierMappings",
+                column: "TenantId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AppIdentifierMappings_UpdatedById",
@@ -1134,15 +1340,14 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 column: "NameLowercase");
 
             migrationBuilder.CreateIndex(
+                name: "IX_AppInstances_TenantId",
+                table: "AppInstances",
+                column: "TenantId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Apps_AppGroupId",
                 table: "Apps",
                 column: "AppGroupId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Apps_ClientId",
-                table: "Apps",
-                column: "ClientId",
-                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Apps_ClientNameLowercase",
@@ -1155,11 +1360,18 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 column: "CreatedById");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Apps_Slug",
+                name: "IX_Apps_TenantId_ClientId",
                 table: "Apps",
-                column: "Slug",
+                columns: new[] { "TenantId", "ClientId" },
                 unique: true,
-                filter: "[Slug] IS NOT NULL");
+                filter: "[TenantId] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Apps_TenantId_Slug",
+                table: "Apps",
+                columns: new[] { "TenantId", "Slug" },
+                unique: true,
+                filter: "[TenantId] IS NOT NULL AND [Slug] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Apps_UpdatedById",
@@ -1176,6 +1388,11 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "IX_AppSettingClasses_CreatedById",
                 table: "AppSettingClasses",
                 column: "CreatedById");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AppSettingClasses_TenantId",
+                table: "AppSettingClasses",
+                column: "TenantId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AppSettingClasses_UpdatedById",
@@ -1205,6 +1422,11 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 filter: "[Slug] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_AppSettingHistories_TenantId",
+                table: "AppSettingHistories",
+                column: "TenantId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_AppSettingHistories_Version",
                 table: "AppSettingHistories",
                 column: "Version");
@@ -1226,6 +1448,11 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 column: "IdentifierId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_AppSettings_TenantId",
+                table: "AppSettings",
+                column: "TenantId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_AppSettings_UpdatedById",
                 table: "AppSettings",
                 column: "UpdatedById");
@@ -1241,28 +1468,33 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 column: "CreatedById");
 
             migrationBuilder.CreateIndex(
+                name: "IX_AppTagMappings_TenantId",
+                table: "AppTagMappings",
+                column: "TenantId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_AppTags_CreatedById",
                 table: "AppTags",
                 column: "CreatedById");
 
             migrationBuilder.CreateIndex(
-                name: "IX_AppTags_NameLowercase",
-                table: "AppTags",
-                column: "NameLowercase",
-                unique: true,
-                filter: "[NameLowercase] IS NOT NULL");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_AppTags_Slug",
-                table: "AppTags",
-                column: "Slug",
-                unique: true,
-                filter: "[Slug] IS NOT NULL");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_AppTags_SortOrder",
                 table: "AppTags",
                 column: "SortOrder");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AppTags_TenantId_NameLowercase",
+                table: "AppTags",
+                columns: new[] { "TenantId", "NameLowercase" },
+                unique: true,
+                filter: "[TenantId] IS NOT NULL AND [NameLowercase] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AppTags_TenantId_Slug",
+                table: "AppTags",
+                columns: new[] { "TenantId", "Slug" },
+                unique: true,
+                filter: "[TenantId] IS NOT NULL AND [Slug] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AppTags_UpdatedById",
@@ -1292,6 +1524,11 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 column: "RestoredById");
 
             migrationBuilder.CreateIndex(
+                name: "IX_GlobalConfigurationHistories_TenantId",
+                table: "GlobalConfigurationHistories",
+                column: "TenantId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_GlobalConfigurationHistories_Version",
                 table: "GlobalConfigurationHistories",
                 column: "Version");
@@ -1309,6 +1546,11 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 filter: "[KeyLowercase] IS NOT NULL AND [ClientId] IS NOT NULL AND [IdentifierId] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_GlobalConfigurations_TenantId",
+                table: "GlobalConfigurations",
+                column: "TenantId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_GlobalConfigurations_UpdatedById",
                 table: "GlobalConfigurations",
                 column: "UpdatedById");
@@ -1324,16 +1566,16 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 column: "NameLowercase");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Identifiers_Slug",
-                table: "Identifiers",
-                column: "Slug",
-                unique: true,
-                filter: "[Slug] IS NOT NULL");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Identifiers_SortOrder",
                 table: "Identifiers",
                 column: "SortOrder");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Identifiers_TenantId_Slug",
+                table: "Identifiers",
+                columns: new[] { "TenantId", "Slug" },
+                unique: true,
+                filter: "[TenantId] IS NOT NULL AND [Slug] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Identifiers_UpdatedById",
@@ -1363,6 +1605,16 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 filter: "[ReferenceIdLowercase] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Licenses_TenantId",
+                table: "Licenses",
+                column: "TenantId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Locks_TenantId",
+                table: "Locks",
+                column: "TenantId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_LoginEntries_CreatedOn",
                 table: "LoginEntries",
                 column: "CreatedOn");
@@ -1383,6 +1635,11 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 columns: new[] { "StateId", "AuthMethod", "CreatedOn", "IsSuccessful" });
 
             migrationBuilder.CreateIndex(
+                name: "IX_LoginEntries_TenantId",
+                table: "LoginEntries",
+                column: "TenantId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_LoginEntries_UserId",
                 table: "LoginEntries",
                 column: "UserId");
@@ -1391,6 +1648,11 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "IX_Notifications_CreatedById",
                 table: "Notifications",
                 column: "CreatedById");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Notifications_TenantId",
+                table: "Notifications",
+                column: "TenantId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Notifications_UpdatedById",
@@ -1413,9 +1675,36 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 column: "Type");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Tenants_CreatedById",
+                table: "Tenants",
+                column: "CreatedById");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Tenants_Slug",
+                table: "Tenants",
+                column: "Slug",
+                unique: true,
+                filter: "[Slug] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Tenants_UpdatedById",
+                table: "Tenants",
+                column: "UpdatedById");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TenantUserMappings_UserId",
+                table: "TenantUserMappings",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_UserClaimMappings_CreatedById",
                 table: "UserClaimMappings",
                 column: "CreatedById");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserClaimMappings_TenantId",
+                table: "UserClaimMappings",
+                column: "TenantId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserClaimMappings_UserClaimId",
@@ -1423,16 +1712,21 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 column: "UserClaimId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserClaims_Slug",
+                name: "IX_UserClaims_TenantId_Slug",
                 table: "UserClaims",
-                column: "Slug",
+                columns: new[] { "TenantId", "Slug" },
                 unique: true,
-                filter: "[Slug] IS NOT NULL");
+                filter: "[TenantId] IS NOT NULL AND [Slug] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserGroupMappings_CreatedById",
                 table: "UserGroupMappings",
                 column: "CreatedById");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserGroupMappings_TenantId",
+                table: "UserGroupMappings",
+                column: "TenantId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserGroupMappings_UserGroupId",
@@ -1450,16 +1744,26 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 column: "NotificationId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserGroups_Slug",
+                name: "IX_UserGroupNotificationMappings_TenantId",
+                table: "UserGroupNotificationMappings",
+                column: "TenantId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserGroups_TenantId_Slug",
                 table: "UserGroups",
-                column: "Slug",
+                columns: new[] { "TenantId", "Slug" },
                 unique: true,
-                filter: "[Slug] IS NOT NULL");
+                filter: "[TenantId] IS NOT NULL AND [Slug] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserGroupUserClaimMappings_CreatedById",
                 table: "UserGroupUserClaimMappings",
                 column: "CreatedById");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserGroupUserClaimMappings_TenantId",
+                table: "UserGroupUserClaimMappings",
+                column: "TenantId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserGroupUserClaimMappings_UserClaimId",
@@ -1477,9 +1781,19 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 column: "NotificationId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_UserNotificationMappings_TenantId",
+                table: "UserNotificationMappings",
+                column: "TenantId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_UserRoleMappings_CreatedById",
                 table: "UserRoleMappings",
                 column: "CreatedById");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserRoleMappings_TenantId",
+                table: "UserRoleMappings",
+                column: "TenantId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserRoleMappings_UserRoleId",
@@ -1487,16 +1801,21 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 column: "UserRoleId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserRoles_Slug",
+                name: "IX_UserRoles_TenantId_Slug",
                 table: "UserRoles",
-                column: "Slug",
+                columns: new[] { "TenantId", "Slug" },
                 unique: true,
-                filter: "[Slug] IS NOT NULL");
+                filter: "[TenantId] IS NOT NULL AND [Slug] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserRoleUserClaimMappings_CreatedById",
                 table: "UserRoleUserClaimMappings",
                 column: "CreatedById");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserRoleUserClaimMappings_TenantId",
+                table: "UserRoleUserClaimMappings",
+                column: "TenantId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserRoleUserClaimMappings_UserClaimId",
@@ -1507,6 +1826,11 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 name: "IX_UserRoleUserGroupMappings_CreatedById",
                 table: "UserRoleUserGroupMappings",
                 column: "CreatedById");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserRoleUserGroupMappings_TenantId",
+                table: "UserRoleUserGroupMappings",
+                column: "TenantId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserRoleUserGroupMappings_UserGroupId",
@@ -1556,6 +1880,9 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 
             migrationBuilder.DropTable(
                 name: "LoginEntries");
+
+            migrationBuilder.DropTable(
+                name: "TenantUserMappings");
 
             migrationBuilder.DropTable(
                 name: "UserClaimMappings");
@@ -1613,6 +1940,9 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 
             migrationBuilder.DropTable(
                 name: "AppGroups");
+
+            migrationBuilder.DropTable(
+                name: "Tenants");
 
             migrationBuilder.DropTable(
                 name: "Users");
