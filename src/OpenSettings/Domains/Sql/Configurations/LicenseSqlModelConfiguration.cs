@@ -18,6 +18,10 @@ namespace OpenSettings.Domains.Sql.Configurations
             builder.HasIndex(e => e.HolderLowercase);
             builder.HasIndex(e => e.Edition);
 
+            builder.Property(e => e.Features)
+                .HasConversion(EfValueConverters.ArrayStringConverter).Metadata
+                .SetValueComparer(EfValueComparers.ArrayStringComparer);
+
             builder.HasOne(e => e.Tenant)
                 .WithMany()
                 .HasForeignKey(e => e.TenantId);

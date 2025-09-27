@@ -20,6 +20,10 @@ namespace OpenSettings.Domains.Sql.Configurations
                 .HasConversion(EfValueConverters.ArrayStringConverter).Metadata
                 .SetValueComparer(EfValueComparers.ArrayStringComparer);
 
+            builder.Property(e => e.ReloadStrategies)
+                .HasConversion(EfValueConverters.ListReloadStrategyConverter).Metadata
+                .SetValueComparer(EfValueComparers.ListReloadStrategyComparer);
+
             builder.HasOne(e => e.Tenant)
                 .WithMany()
                 .HasForeignKey(e => e.TenantId);

@@ -31,26 +31,26 @@
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'net8.0' ">
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.0" />
-		<PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="7.0.3" />
-		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.0.3" />
+		<PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="7.7.1" />
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.7.1" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'net7.0' ">
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.0" />
-		<PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="6.15.1" />
-		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.15.1" />
+		<PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="6.36.0" />
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.36.0" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0' ">
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.0" />
-		<PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="6.10.0" />
-		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.10.0" />
+		<PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="6.36.0" />
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.36.0" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'net5.0' ">
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="5.0.0" />
-		<PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="6.7.1" />
-		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.7.1" />
+		<PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="6.36.0" />
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.36.0" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1' ">

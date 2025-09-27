@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using OpenSettings.Models;
 using System.Collections.Generic;
 using System.Text.Json;
-using OpenSettings.Models;
 using Array = System.Array;
 
 namespace OpenSettings.Domains.Sql.Configurations.Utility
@@ -9,6 +9,8 @@ namespace OpenSettings.Domains.Sql.Configurations.Utility
     internal static class EfValueConverters
     {
         public static ValueConverter<string[], string> ArrayStringConverter = GetArrayJsonValueConverter<string>();
+        public static ValueConverter<List<string>, string> ListStringConverter = GetJsonValueConverter<List<string>>();
+        public static ValueConverter<List<ReloadStrategy>, string> ListReloadStrategyConverter = GetJsonValueConverter<List<ReloadStrategy>>();
 
         public static ValueConverter<Dictionary<string, object>, string> ObjectDictionaryConverter = GetJsonValueConverter<Dictionary<string, object>>();
 
