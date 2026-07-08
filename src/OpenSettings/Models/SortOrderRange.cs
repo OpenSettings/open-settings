@@ -1,6 +1,6 @@
 ﻿namespace OpenSettings.Models
 {
-    public class SortOrderRange
+    public struct SortOrderRange
     {
         public int Min { get; set; }
 

@@ -2,7 +2,7 @@
 
 namespace OpenSettings.Models.Responses
 {
-    public class ModelForPaginatedResponseData
+    public class PaginatedResponseData
     {
         public string Id { get; set; }
 

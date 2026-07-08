@@ -6,6 +6,6 @@ namespace OpenSettings.Models
     {
         public bool Deleted { get; set; }
 
-        public IDictionary<string, ConcurrencyConflictValue> Properties { get; set; } = new Dictionary<string, ConcurrencyConflictValue>();
+        public Dictionary<string, ConcurrencyConflictValue> Properties { get; set; } = new Dictionary<string, ConcurrencyConflictValue>();
     }
 }

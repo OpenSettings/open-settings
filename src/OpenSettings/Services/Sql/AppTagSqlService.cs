@@ -33,7 +33,7 @@ namespace OpenSettings.Services.Sql
         {
             var sortOrderBounds = await _sortOrderService.GetSortOrderBoundsAsync(_context.AppTags, cancellationToken);
 
-            if (sortOrderBounds == null)
+            if (sortOrderBounds.Count == 0)
             {
                 return HttpStatusCode.OK.ToSuccessResponse(new GetPaginatedAppTagsResponse(input, 0, null, 0, 0));
             }
@@ -730,9 +730,9 @@ namespace OpenSettings.Services.Sql
             }
         }
 
-        private static ModelForPaginatedResponseData MapToTagModelForPaginatedResponseData(AppTagSqlModel entity)
+        private static PaginatedResponseData MapToTagModelForPaginatedResponseData(AppTagSqlModel entity)
         {
-            return new ModelForPaginatedResponseData
+            return new PaginatedResponseData
             {
                 Id = $"{entity.Id}",
                 Name = entity.Name,

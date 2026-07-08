@@ -12,7 +12,7 @@ using OpenSettings.Domains.Sql.DataContext;
 namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 {
     [DbContext(typeof(OpenSettingsDbContext))]
-    [Migration("20250927001759_InitialOpenSettingsDbMigration")]
+    [Migration("20251217110248_InitialOpenSettingsDbMigration")]
     partial class InitialOpenSettingsDbMigration
     {
         /// <inheritdoc />
@@ -240,7 +240,7 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.Property<string>("PackVersion")
                         .HasColumnType("nvarchar(max)");
 
-                    b.PrimitiveCollection<string>("ReloadStrategies")
+                    b.Property<string>("ReloadStrategies")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("RemoteIpAddress")
@@ -738,9 +738,6 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Key")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("KeyLowercase")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<Guid?>("RestoredById")
@@ -777,9 +774,9 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 
                     b.HasIndex("Version");
 
-                    b.HasIndex("KeyLowercase", "ClientId", "IdentifierId")
+                    b.HasIndex("Key", "ClientId", "IdentifierId")
                         .IsUnique()
-                        .HasFilter("[KeyLowercase] IS NOT NULL AND [ClientId] IS NOT NULL AND [IdentifierId] IS NOT NULL");
+                        .HasFilter("[Key] IS NOT NULL AND [ClientId] IS NOT NULL AND [IdentifierId] IS NOT NULL");
 
                     b.ToTable("GlobalConfigurationHistories", (string)null);
                 });
@@ -812,9 +809,6 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Key")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("KeyLowercase")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<byte[]>("RowVersion")
@@ -844,9 +838,9 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
 
                     b.HasIndex("UpdatedById");
 
-                    b.HasIndex("KeyLowercase", "ClientId", "IdentifierId")
+                    b.HasIndex("Key", "ClientId", "IdentifierId")
                         .IsUnique()
-                        .HasFilter("[KeyLowercase] IS NOT NULL AND [ClientId] IS NOT NULL AND [IdentifierId] IS NOT NULL");
+                        .HasFilter("[Key] IS NOT NULL AND [ClientId] IS NOT NULL AND [IdentifierId] IS NOT NULL");
 
                     b.ToTable("GlobalConfigurations", (string)null);
                 });
@@ -923,7 +917,7 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     b.Property<DateTime?>("ExpiryDate")
                         .HasColumnType("datetime2");
 
-                    b.PrimitiveCollection<string>("Features")
+                    b.Property<string>("Features")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Holder")
@@ -992,12 +986,7 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<Guid?>("TenantId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("Key");
-
-                    b.HasIndex("TenantId");
 
                     b.ToTable("Locks", (string)null);
                 });
@@ -2084,15 +2073,6 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 });
 
             modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.LicenseSqlModel", b =>
-                {
-                    b.HasOne("OpenSettings.Domains.Sql.Entities.TenantSqlModel", "Tenant")
-                        .WithMany()
-                        .HasForeignKey("TenantId");
-
-                    b.Navigation("Tenant");
-                });
-
-            modelBuilder.Entity("OpenSettings.Domains.Sql.Entities.LockSqlModel", b =>
                 {
                     b.HasOne("OpenSettings.Domains.Sql.Entities.TenantSqlModel", "Tenant")
                         .WithMany()

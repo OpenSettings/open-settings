@@ -16,7 +16,7 @@ namespace OpenSettings
         {
             var jsonResponse = HttpStatusCode.Conflict.ToFailureResponse<T>(ConcurrencyConflictTitle, ConcurrencyConflictMessage);
 
-            jsonResponse.Extras["Conflicts"] = new ConcurrencyConflict
+            jsonResponse.Extras["Conflicts"] = new ConcurrencyConflicts
             {
                 {
                     id, new ConcurrencyConflictInfo
@@ -37,7 +37,7 @@ namespace OpenSettings
         {
             var jsonResponse = HttpStatusCode.Conflict.ToFailureResponse(ConcurrencyConflictTitle, ConcurrencyConflictMessage);
 
-            jsonResponse.Extras["Conflicts"] = new ConcurrencyConflict
+            jsonResponse.Extras["Conflicts"] = new ConcurrencyConflicts
             {
                 {
                     id, new ConcurrencyConflictInfo

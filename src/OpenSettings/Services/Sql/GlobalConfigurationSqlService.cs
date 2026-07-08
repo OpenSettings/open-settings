@@ -35,11 +35,11 @@ namespace OpenSettings.Services.Sql
         {
             const string configKey = "token-key-set";
 
-            var configKeyLowercase = configKey.ToLowerInvariant();
+            var configKeyNormalized = configKey.ToLowerInvariant();
 
             var configuration = await _openSettingsDbContext.GlobalConfigurations
                 .AsNoTracking()
-                .Where(g => g.KeyLowercase == configKeyLowercase)
+                .Where(g => g.Key == configKeyNormalized)
                 .FirstOrDefaultAsync(cancellationToken);
 
             TokenKeySet keySet;
@@ -73,8 +73,7 @@ namespace OpenSettings.Services.Sql
 
                 configuration = new GlobalConfigurationSqlModel
                 {
-                    Key = configKey,
-                    KeyLowercase = configKeyLowercase,
+                    Key = configKeyNormalized,
                     Data = compressedData,
                     ClientId = null,
                     IdentifierId = null,
@@ -108,7 +107,6 @@ namespace OpenSettings.Services.Sql
             var configurationHistory = new GlobalConfigurationHistorySqlModel
             {
                 Key = configuration.Key,
-                KeyLowercase = configuration.KeyLowercase,
                 Data = configuration.Data,
                 ClientId = configuration.ClientId,
                 IdentifierId = configuration.IdentifierId,

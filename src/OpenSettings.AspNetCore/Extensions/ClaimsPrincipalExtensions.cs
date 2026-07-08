@@ -18,8 +18,15 @@ namespace OpenSettings.AspNetCore.Extensions
         {
             var claim = claimsPrincipal.GetClaim(OpenSettingsDefaults.ClaimTypes.DbUserId);
 
-            return Guid.TryParse(claim?.Value, out var userId)
-                ? userId == Guid.Empty ? (Guid?)null : userId
+            if (claim == null)
+            {
+                return null;
+            }
+
+            return Guid.TryParse(claim.Value, out var userId)
+                ? userId == Guid.Empty
+                    ? (Guid?)null
+                    : userId
                 : null;
         }
 

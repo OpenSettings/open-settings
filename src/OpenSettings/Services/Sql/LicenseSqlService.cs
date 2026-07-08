@@ -235,9 +235,10 @@ namespace OpenSettings.Services.Sql
             licenseSqlModel.ExpiredOn = null;
             licenseSqlModel.UpdatedOn = currentTime;
 
-            entry.Property(l => l.IsExpired).IsModified = true;
-            entry.Property(l => l.ExpiredOn).IsModified = true;
-            entry.Property(l => l.UpdatedOn).IsModified = true;
+            entry.MarkAsModified(
+                e => e.IsExpired, 
+                e => e.ExpiredOn,
+                e => e.UpdatedOn);
 
             await _context.SaveChangesAsync(cancellationToken);
 
@@ -328,11 +329,12 @@ namespace OpenSettings.Services.Sql
                         combination.LicenseSqlModel.RevokedOn = currentTime;
                         combination.LicenseSqlModel.UpdatedOn = currentTime;
 
-                        entry.Property(l => l.IsExpired).IsModified = true;
-                        entry.Property(l => l.IsRevoked).IsModified = true;
-                        entry.Property(l => l.ExpiredOn).IsModified = true;
-                        entry.Property(l => l.RevokedOn).IsModified = true;
-                        entry.Property(l => l.UpdatedOn).IsModified = true;
+                        entry.MarkAsModified(
+                            e => e.IsExpired,
+                            e => e.IsRevoked,
+                            e => e.ExpiredOn,
+                            e => e.RevokedOn,
+                            e => e.UpdatedOn);
 
                         anyChanges = true;
 

@@ -29,27 +29,27 @@ namespace OpenSettings.Services.Sql
             _sortOrderService = sortOrderService;
         }
 
-        public async Task<IResponse> GetPaginatedAppGroupsAsync(GetPaginatedInput input, CancellationToken cancellationToken = default)
+        public async Task<IResponse> GetPaginatedAppGroupsAsync(GetPaginatedInput input, CancellationToken cancellationToken = default) // Todo -> All PaginatedGroups should be this style.
         {
-            var sortOrderBounds = await _sortOrderService.GetSortOrderBoundsAsync(_context.AppGroups, cancellationToken);
-
-            if (sortOrderBounds == null)
-            {
-                return HttpStatusCode.OK.ToSuccessResponse(new GetPaginatedAppGroupsResponse(input, 0, null, 0, 0));
-            }
-
-            if (string.IsNullOrWhiteSpace(input.SearchTerm))
-            {
-                return await GetUnfilteredPaginatedGroupsAsync(input, sortOrderBounds, cancellationToken);
-            }
-
             try
             {
-                var searchLowercase = input.SearchTerm.Trim().ToLowerInvariant();
+                var sortOrderBounds = await _sortOrderService.GetSortOrderBoundsAsync(_context.AppGroups, cancellationToken);
+
+                if (sortOrderBounds.Count == 0)
+                {
+                    return HttpStatusCode.OK.ToSuccessResponse(new GetPaginatedAppGroupsResponse(input));
+                }
+
+                if (string.IsNullOrWhiteSpace(input.SearchTerm))
+                {
+                    return await GetUnfilteredPaginatedGroupsAsync(input, sortOrderBounds, cancellationToken);
+                }
+
+                var searchNormalized = input.SearchTerm.Trim().ToLowerInvariant();
 
                 var filteredQuery = _context.AppGroups
                     .AsNoTracking()
-                    .SearchBy(a => a.NameLowercase, searchLowercase, _context);
+                    .SearchBy(a => a.NameLowercase, searchNormalized, _context);
 
                 var filteredTotalItemsCount = await filteredQuery.CountAsync(cancellationToken);
 
@@ -60,7 +60,7 @@ namespace OpenSettings.Services.Sql
                     .Include(a => a.Apps)
                     .Include(a => a.CreatedBy)
                     .Include(a => a.UpdatedBy)
-                    .OrderBy(a => a.NameLowercase.IndexOf(searchLowercase));
+                    .OrderBy(a => a.NameLowercase.IndexOf(searchNormalized));
 
                 filteredEntitiesQuery = string.IsNullOrWhiteSpace(input.SortBy)
                     ? filteredEntitiesQuery.ThenBy(a => a.SortOrder)
@@ -464,7 +464,7 @@ namespace OpenSettings.Services.Sql
 
             if (sourceEntity.SortOrder == targetEntity.SortOrder)
             {
-                return await _sortOrderService.ReorderAsync(_context.AppGroups, input.UpdatedById,cancellationToken);
+                return await _sortOrderService.ReorderAsync(_context.AppGroups, input.UpdatedById, cancellationToken);
             }
 
             var targetNeighbour = await _sortOrderService
@@ -642,33 +642,26 @@ namespace OpenSettings.Services.Sql
 
         private async Task<IResponse> GetUnfilteredPaginatedGroupsAsync(GetPaginatedInput input, SortOrderBounds sortOrderBounds, CancellationToken cancellationToken = default)
         {
-            try
-            {
-                var unfilteredQuery = _context.AppGroups.AsNoTracking();
+            var unfilteredQuery = _context.AppGroups.AsNoTracking();
 
-                var unfilteredEntitiesQuery = unfilteredQuery
+            var unfilteredEntitiesQuery = unfilteredQuery
 #if !NETSTANDARD2_0
-                    .AsSplitQuery()
+                .AsSplitQuery()
 #endif
-                    .Include(a => a.Apps)
-                    .Include(a => a.CreatedBy)
-                    .Include(a => a.UpdatedBy)
-                    .AsQueryable();
+                .Include(a => a.Apps)
+                .Include(a => a.CreatedBy)
+                .Include(a => a.UpdatedBy)
+                .AsQueryable();
 
-                unfilteredEntitiesQuery = string.IsNullOrWhiteSpace(input.SortBy)
-                    ? unfilteredEntitiesQuery.OrderBy(a => a.SortOrder)
-                    : Sort(unfilteredEntitiesQuery, null, input.SortBy, input.SortDirection);
+            unfilteredEntitiesQuery = string.IsNullOrWhiteSpace(input.SortBy)
+                ? unfilteredEntitiesQuery.OrderBy(a => a.SortOrder)
+                : Sort(unfilteredEntitiesQuery, null, input.SortBy, input.SortDirection);
 
-                var unfilteredEntities = await unfilteredEntitiesQuery
-                    .Select(entity => MapToGroupModelForPaginatedResponseData(entity))
-                    .ToPaginatedArrayAsync(input.PageIndex, input.PageSize, cancellationToken);
+            var unfilteredEntities = await unfilteredEntitiesQuery
+                .Select(entity => MapToGroupModelForPaginatedResponseData(entity))
+                .ToPaginatedArrayAsync(input.PageIndex, input.PageSize, cancellationToken);
 
-                return HttpStatusCode.OK.ToSuccessResponse(new GetPaginatedAppGroupsResponse(input, sortOrderBounds.Count, unfilteredEntities, sortOrderBounds.MinSortOrder, sortOrderBounds.MaxSortOrder));
-            }
-            catch (Exception ex)
-            {
-                return HttpStatusCode.InternalServerError.ToFailureResponse(ex);
-            }
+            return HttpStatusCode.OK.ToSuccessResponse(new GetPaginatedAppGroupsResponse(input, sortOrderBounds.Count, unfilteredEntities, sortOrderBounds.MinSortOrder, sortOrderBounds.MaxSortOrder));
         }
 
         private async Task<IResponse> GetGroupsBySearchAsync(GetAppGroupsInput input, CancellationToken cancellationToken)
@@ -691,7 +684,7 @@ namespace OpenSettings.Services.Sql
             return HttpStatusCode.OK.ToSuccessResponse(new GetAppGroupsResponse(data));
         }
 
-        private static IOrderedQueryable<AppGroupSqlModel> Sort(
+        private static IOrderedQueryable<AppGroupSqlModel> Sort( // Todo: Defaults -> SortByKeys const
             IQueryable<AppGroupSqlModel> source,
             IOrderedQueryable<AppGroupSqlModel> orderedSource,
             string sortBy,
@@ -723,9 +716,9 @@ namespace OpenSettings.Services.Sql
             }
         }
 
-        private static ModelForPaginatedResponseData MapToGroupModelForPaginatedResponseData(AppGroupSqlModel entity)
+        private static PaginatedResponseData MapToGroupModelForPaginatedResponseData(AppGroupSqlModel entity)
         {
-            return new ModelForPaginatedResponseData
+            return new PaginatedResponseData
             {
                 Id = $"{entity.Id}",
                 Name = entity.Name,

@@ -93,7 +93,7 @@ namespace OpenSettings.Domains.Redis.DataContext
             return server;
         }
 
-        public async Task<T> SafetyExecuteAsync<T>(Func<IConnectionMultiplexer, Task<T>> func)
+        public async Task<T> ExecuteSafelyAsync<T>(Func<IConnectionMultiplexer, Task<T>> func)
         {
             var reconnectRetry = 0;
 
@@ -122,7 +122,7 @@ namespace OpenSettings.Domains.Redis.DataContext
             }
         }
 
-        public T SafetyExecute<T>(Func<IConnectionMultiplexer, T> func)
+        public T ExecuteSafely<T>(Func<IConnectionMultiplexer, T> func)
         {
             var reconnectRetry = 0;
 

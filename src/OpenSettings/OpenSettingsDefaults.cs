@@ -514,7 +514,7 @@ namespace OpenSettings
 
             public const string DbUserId = "db_user_id";
 
-            public const string DbUserDisplayName = "db_user_displayName";
+            public const string DbUserDisplayName = "db_user_display_name";
 
             public const string DbUserInitials = "db_user_initials";
 

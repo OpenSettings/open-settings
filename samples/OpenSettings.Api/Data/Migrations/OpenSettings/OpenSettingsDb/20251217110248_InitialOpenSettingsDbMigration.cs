@@ -34,6 +34,19 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 });
 
             migrationBuilder.CreateTable(
+                name: "Locks",
+                columns: table => new
+                {
+                    Key = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Owner = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    ExpiryDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Locks", x => x.Key);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "ProviderRegistries",
                 columns: table => new
                 {
@@ -203,8 +216,7 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Key = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    KeyLowercase = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    Key = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     Data = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
                     ClientId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     IdentifierId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
@@ -303,25 +315,6 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                     table.PrimaryKey("PK_Licenses", x => x.Id);
                     table.ForeignKey(
                         name: "FK_Licenses_Tenants_TenantId",
-                        column: x => x.TenantId,
-                        principalTable: "Tenants",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Locks",
-                columns: table => new
-                {
-                    Key = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Owner = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    ExpiryDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Locks", x => x.Key);
-                    table.ForeignKey(
-                        name: "FK_Locks_Tenants_TenantId",
                         column: x => x.TenantId,
                         principalTable: "Tenants",
                         principalColumn: "Id");
@@ -565,8 +558,7 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Key = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    KeyLowercase = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    Key = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     Data = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
                     ClientId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     IdentifierId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
@@ -1512,11 +1504,11 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 column: "GlobalConfigurationId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_GlobalConfigurationHistories_KeyLowercase_ClientId_IdentifierId",
+                name: "IX_GlobalConfigurationHistories_Key_ClientId_IdentifierId",
                 table: "GlobalConfigurationHistories",
-                columns: new[] { "KeyLowercase", "ClientId", "IdentifierId" },
+                columns: new[] { "Key", "ClientId", "IdentifierId" },
                 unique: true,
-                filter: "[KeyLowercase] IS NOT NULL AND [ClientId] IS NOT NULL AND [IdentifierId] IS NOT NULL");
+                filter: "[Key] IS NOT NULL AND [ClientId] IS NOT NULL AND [IdentifierId] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_GlobalConfigurationHistories_RestoredById",
@@ -1539,11 +1531,11 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
                 column: "CreatedById");
 
             migrationBuilder.CreateIndex(
-                name: "IX_GlobalConfigurations_KeyLowercase_ClientId_IdentifierId",
+                name: "IX_GlobalConfigurations_Key_ClientId_IdentifierId",
                 table: "GlobalConfigurations",
-                columns: new[] { "KeyLowercase", "ClientId", "IdentifierId" },
+                columns: new[] { "Key", "ClientId", "IdentifierId" },
                 unique: true,
-                filter: "[KeyLowercase] IS NOT NULL AND [ClientId] IS NOT NULL AND [IdentifierId] IS NOT NULL");
+                filter: "[Key] IS NOT NULL AND [ClientId] IS NOT NULL AND [IdentifierId] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_GlobalConfigurations_TenantId",
@@ -1607,11 +1599,6 @@ namespace OpenSettings.Api.Data.Migrations.OpenSettings.OpenSettingsDb
             migrationBuilder.CreateIndex(
                 name: "IX_Licenses_TenantId",
                 table: "Licenses",
-                column: "TenantId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Locks_TenantId",
-                table: "Locks",
                 column: "TenantId");
 
             migrationBuilder.CreateIndex(

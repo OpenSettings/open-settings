@@ -2,23 +2,16 @@
 using OpenSettings.Models;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.IO.Compression;
 
 namespace OpenSettings.Domains.Sql.Entities
 {
-    [Table("GlobalConfigurations")]
     public class GlobalConfigurationSqlModel : EntityBase<Guid>
     {
         /// <summary>
         /// The key of the global configuration.
         /// </summary>
         public string Key { get; set; }
-
-        /// <summary>
-        /// The lowercase version of the <see cref="Key"/>, typically used for case-insensitive comparisons.
-        /// </summary>
-        public string KeyLowercase { get; set; }
 
         /// <summary>
         /// The binary data associated with the global configuration.

@@ -18,7 +18,7 @@ namespace OpenSettings.Services
 {
     public class OpenSettingsService : IOpenSettingsService
     {
-        private const string Url = "https://raw.githubusercontent.com/OpenSettings/open-settings-configs/refs/heads/" 
+        private const string Url = "https://raw.githubusercontent.com/OpenSettings/open-settings-configs/refs/heads/"
                                    + "master"
                                    + "/configs.json";
 
@@ -79,7 +79,7 @@ namespace OpenSettings.Services
             }
 
             var specificConfigCacheKey = OpenSettingsDefaults.Caches.OpenSettingsConfigsCacheEntry.GetKey(configName);
-            
+
             var configsData = await specificConfigCacheKey.GetOrCreateAsync(_openSettingsMemoryCache, async c =>
             {
                 c.AbsoluteExpirationRelativeToNow = TimeSpan.FromMilliseconds(1);
@@ -124,7 +124,7 @@ namespace OpenSettings.Services
             {
                 return null;
             }
-            
+
             var expiresInSeconds = (int)(configsData.AbsoluteExpiration - DateTimeOffset.UtcNow).TotalSeconds;
 
             var age = configsData.ExpiresInSeconds - expiresInSeconds;

@@ -129,29 +129,29 @@ namespace OpenSettings.Extensions
 
         public static async Task<IResponse<TData>> ToResponseAsync<TData>(this DbUpdateConcurrencyException exception, CancellationToken cancellationToken = default)
         {
-            var concurrencyConflict = await GetConcurrencyConflictAsync(exception, cancellationToken);
+            var concurrencyConflicts = await GetConcurrencyConflictsAsync(exception, cancellationToken);
 
             var jsonResponse = HttpStatusCode.Conflict.ToFailureResponse<TData>("Concurrency Conflict", "The data has been modified or row version didn't match.");
 
-            jsonResponse.Extras["Conflicts"] = concurrencyConflict;
+            jsonResponse.Extras[nameof(ConcurrencyConflicts)] = concurrencyConflicts;
 
             return jsonResponse;
         }
 
         public static async Task<IResponse> ToResponseAsync(this DbUpdateConcurrencyException exception, CancellationToken cancellationToken = default)
         {
-            var concurrencyConflict = await GetConcurrencyConflictAsync(exception, cancellationToken);
+            var concurrencyConflicts = await GetConcurrencyConflictsAsync(exception, cancellationToken);
 
             var jsonResponse = HttpStatusCode.Conflict.ToFailureResponse("Concurrency Conflict", "The data has been modified or row version didn't match.");
 
-            jsonResponse.Extras["Conflicts"] = concurrencyConflict;
+            jsonResponse.Extras[nameof(ConcurrencyConflicts)] = concurrencyConflicts; // Todo: we need to update the ui to handle this. (renamed Conflicts to ConcurrencyConflicts )
 
             return jsonResponse;
         }
 
-        public static async Task<ConcurrencyConflict> GetConcurrencyConflictAsync(this DbUpdateConcurrencyException exception, CancellationToken cancellationToken)
+        public static async Task<ConcurrencyConflicts> GetConcurrencyConflictsAsync(this DbUpdateConcurrencyException exception, CancellationToken cancellationToken)
         {
-            var concurrencyConflict = new ConcurrencyConflict();
+            var concurrencyConflict = new ConcurrencyConflicts();
 
             foreach (var entry in exception.Entries)
             {

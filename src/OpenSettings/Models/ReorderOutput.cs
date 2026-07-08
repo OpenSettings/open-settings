@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace OpenSettings.Models
 {
-    public class ReorderResponse
+    public class ReorderOutput
     {
         public byte[] RowVersion { get; set; } = Array.Empty<byte>();
 

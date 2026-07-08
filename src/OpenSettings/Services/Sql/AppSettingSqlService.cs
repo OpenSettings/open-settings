@@ -502,7 +502,7 @@ namespace OpenSettings.Services.Sql
                 {
                     var entry = _context.Entry(appSetting);
                     appSetting.CopiedFromId = null;
-                    entry.Property(e => e.CopiedFromId).IsModified = true;
+                    entry.MarkAsModified(e => e.CopiedFromId);
                 }
 
                 await _context.SaveChangesAsync(cancellationToken);

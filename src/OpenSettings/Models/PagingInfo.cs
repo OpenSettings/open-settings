@@ -24,16 +24,16 @@ namespace OpenSettings.Models
             HasNext = PageIndex < PageCount;
         }
 
-        public int PageIndex { get; set; }
+        public int PageIndex { get; }
 
-        public int PageSize { get; set; }
+        public int PageSize { get; }
 
-        public int ItemCount { get; set; }
+        public int ItemCount { get; }
 
-        public int PageCount { get; set; }
+        public int PageCount { get; }
 
-        public bool HasPrevious { get; set; }
+        public bool HasPrevious { get; }
 
-        public bool HasNext { get; set; }
+        public bool HasNext { get; }
     }
 }

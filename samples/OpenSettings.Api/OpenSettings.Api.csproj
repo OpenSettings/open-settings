@@ -19,4 +19,8 @@
     <ProjectReference Include="..\..\src\OpenSettings.AspNetCore\OpenSettings.AspNetCore.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Data\" />
+  </ItemGroup>
+
 </Project>

@@ -21,9 +21,5 @@ namespace OpenSettings.Domains.Sql.Entities
         /// The expiry time of the lock.
         /// </summary>
         public DateTime ExpiryDate { get; set; }
-
-        public Guid? TenantId { get; set; }
-
-        public virtual TenantSqlModel Tenant { get; set; }
     }
 }

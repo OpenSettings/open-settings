@@ -15,7 +15,7 @@ namespace OpenSettings.Domains.Sql.Configurations
 
             builder.HasKey(e => e.Id);
 
-            builder.HasIndex(e => new { e.KeyLowercase, e.ClientId, e.IdentifierId }).IsUnique();
+            builder.HasIndex(e => new { e.Key, e.ClientId, e.IdentifierId }).IsUnique();
             builder.HasIndex(e => e.Version);
 
             builder.Property(e => e.RowVersion).IsRowVersion().ValueGeneratedNever();

@@ -422,7 +422,7 @@ namespace OpenSettings.Services.Sql
             }
         }
 
-        private async Task<ReorderResponse> ReorderAsync(Guid appId, Guid? updatedById)
+        private async Task<ReorderOutput> ReorderAsync(Guid appId, Guid? updatedById)
         {
             var key = $"{nameof(AppIdentifierMappingSqlService)}-{appId}";
 
@@ -454,7 +454,7 @@ namespace OpenSettings.Services.Sql
 
                 var currentTime = DateTime.UtcNow;
 
-                var response = new ReorderResponse
+                var response = new ReorderOutput
                 {
                     RowVersion = RowVersionHelper.Date(currentTime)
                 };

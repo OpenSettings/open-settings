@@ -15,10 +15,6 @@ namespace OpenSettings.Domains.Sql.Configurations
 
             builder.Property(e => e.Key).HasMaxLength(100);
             builder.Property(e => e.Owner).HasMaxLength(100);
-
-            builder.HasOne(e => e.Tenant)
-                .WithMany()
-                .HasForeignKey(e => e.TenantId);
         }
     }
 }

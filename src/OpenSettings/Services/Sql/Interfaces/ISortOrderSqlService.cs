@@ -15,7 +15,7 @@ namespace OpenSettings.Services.Sql.Interfaces
 
         Task<IResponse> ReorderAsync<T>(DbSet<T> items, Guid? updatedById, CancellationToken cancellationToken) where T : class, IOrderedEntity, new();
 
-        Task<ReorderResponse> ReorderAsync<T>(DbSet<T> items, Guid? updatedById) where T : class, IOrderedEntity, new();
+        Task<ReorderOutput> ReorderAsync<T>(DbSet<T> items, Guid? updatedById) where T : class, IOrderedEntity, new();
 
         Task<int> MinSortOrderAsync<T>(DbSet<T> items, CancellationToken cancellationToken = default) where T: class, IOrderedEntity, new();
 

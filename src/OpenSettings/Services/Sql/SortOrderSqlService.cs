@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Ogu.Response;
 using Ogu.Response.Abstractions;
 using OpenSettings.Domains.Sql;
@@ -9,6 +10,7 @@ using OpenSettings.Models;
 using OpenSettings.Models.Inputs;
 using OpenSettings.Services.Sql.Interfaces;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading;
@@ -52,7 +54,7 @@ namespace OpenSettings.Services.Sql
             }
         }
 
-        public async Task<ReorderResponse> ReorderAsync<T>(DbSet<T> items, Guid? updatedById) where T : class, IOrderedEntity, new()
+        public async Task<ReorderOutput> ReorderAsync<T>(DbSet<T> items, Guid? updatedById) where T : class, IOrderedEntity, new()
         {
             var key = typeof(T).Name;
 
@@ -81,10 +83,12 @@ namespace OpenSettings.Services.Sql
 
                 var currentTime = DateTime.UtcNow;
 
-                var response = new ReorderResponse
+                var response = new ReorderOutput
                 {
                     RowVersion = RowVersionHelper.Date(currentTime)
                 };
+
+                var entityEntries = new List<EntityEntry<T>>(entities.Length);
 
                 for (var batchIndex = 0; batchIndex < batchCount; batchIndex++)
                 {
@@ -101,12 +105,20 @@ namespace OpenSettings.Services.Sql
                             continue;
                         }
 
-                        _context.Attach(entity);
+                        var entityEntry = _context.Attach(entity);
+
+                        entityEntries.Add(entityEntry);
 
                         entity.SortOrder = newOrder;
                         entity.RowVersion = response.RowVersion;
                         entity.UpdatedOn = currentTime;
                         entity.UpdatedById = updatedById;
+
+                        entityEntry.MarkAsModified(
+                            e => e.SortOrder, 
+                            e => e.RowVersion, 
+                            e => e.UpdatedOn, 
+                            e => e.UpdatedById);
 
                         response.IdToSortOrder[$"{entity.Id}"] = entity.SortOrder;
                     }
@@ -114,9 +126,9 @@ namespace OpenSettings.Services.Sql
                     await _context.SaveChangesAsync();
                 }
 
-                foreach (var entity in entities)
+                foreach (var entityEntry in entityEntries)
                 {
-                    _context.Entry(entity).State = EntityState.Detached;
+                    entityEntry.State = EntityState.Detached;
                 }
 
                 return response;

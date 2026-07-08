@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using OpenSettings.Extensions;
 
 namespace OpenSettings.Services
 {
@@ -286,7 +287,7 @@ namespace OpenSettings.Services
 
             providerRegistry.LastHeartbeatOn = DateTime.UtcNow;
 
-            entry.Property(p => p.LastHeartbeatOn).IsModified = true;
+            entry.MarkAsModified(e => e.LastHeartbeatOn);
 
             await context.SaveChangesAsync(cancellationToken);
 
@@ -304,8 +305,7 @@ namespace OpenSettings.Services
 
             var entry = context.ProviderRegistries.Attach(masterProviderRegistry);
 
-            entry.Property(p => p.Type).IsModified = true;
-            entry.Property(p => p.LastHeartbeatOn).IsModified = true;
+            entry.MarkAsModified(e => e.Type, e => e.LastHeartbeatOn);
 
             var oldMasterProviders = await context.ProviderRegistries.AsNoTracking()
                 .Where(p => p.Id != ProviderRegistryId && p.Type == ProviderRegistryType.Master)
@@ -318,7 +318,7 @@ namespace OpenSettings.Services
 
                 p.Type = ProviderRegistryType.Slave;
 
-                oldProviderEntry.Property(pp => pp.Type).IsModified = true;
+                oldProviderEntry.MarkAsModified(e => e.Type);
 
                 return oldProviderEntry;
             }).ToArray();

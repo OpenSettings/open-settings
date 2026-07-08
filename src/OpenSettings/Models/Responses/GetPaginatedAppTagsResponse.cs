@@ -9,7 +9,7 @@ namespace OpenSettings.Models.Responses
         {
         }
 
-        public GetPaginatedAppTagsResponse(GetPaginatedInput input, int itemCount, ModelForPaginatedResponseData[] tags, int minSortOrder, int maxSortOrder)
+        public GetPaginatedAppTagsResponse(GetPaginatedInput input, int itemCount, PaginatedResponseData[] tags, int minSortOrder, int maxSortOrder)
         {
             SortOrderRange = new SortOrderRange
             {
@@ -17,13 +17,13 @@ namespace OpenSettings.Models.Responses
                 Max = maxSortOrder
             };
             PagingInfo = new PagingInfo(input.PageIndex, input.PageSize, itemCount);
-            Tags = tags ?? Array.Empty<ModelForPaginatedResponseData>();
+            Tags = tags ?? Array.Empty<PaginatedResponseData>();
         }
 
         public SortOrderRange SortOrderRange { get; set; }
 
         public PagingInfo PagingInfo { get; set; }
 
-        public ModelForPaginatedResponseData[] Tags { get; set; } = Array.Empty<ModelForPaginatedResponseData>();
+        public PaginatedResponseData[] Tags { get; set; } = Array.Empty<PaginatedResponseData>();
     }
 }

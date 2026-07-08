@@ -5,11 +5,11 @@ namespace OpenSettings.Models.Responses
 {
     public class GetPaginatedAppGroupsResponse
     {
-        public GetPaginatedAppGroupsResponse()
+        public GetPaginatedAppGroupsResponse(GetPaginatedInput input) : this(input, 0, Array.Empty<PaginatedResponseData>(), 0, 0)
         {
         }
 
-        public GetPaginatedAppGroupsResponse(GetPaginatedInput input, int itemCount, ModelForPaginatedResponseData[] groups, int minSortOrder, int maxSortOrder)
+        public GetPaginatedAppGroupsResponse(GetPaginatedInput input, int itemCount, PaginatedResponseData[] appGroups, int minSortOrder, int maxSortOrder)
         {
             SortOrderRange = new SortOrderRange
             {
@@ -17,13 +17,13 @@ namespace OpenSettings.Models.Responses
                 Max = maxSortOrder
             };
             PagingInfo = new PagingInfo(input.PageIndex, input.PageSize, itemCount);
-            AppGroups = groups ?? Array.Empty<ModelForPaginatedResponseData>();
+            AppGroups = appGroups ?? Array.Empty<PaginatedResponseData>();
         }
 
-        public SortOrderRange SortOrderRange { get; set; }
+        public SortOrderRange SortOrderRange { get; }
 
-        public PagingInfo PagingInfo { get; set; }
+        public PagingInfo PagingInfo { get; }
 
-        public ModelForPaginatedResponseData[] AppGroups { get; set; } = Array.Empty<ModelForPaginatedResponseData>();
+        public PaginatedResponseData[] AppGroups { get; } = Array.Empty<PaginatedResponseData>();
     }
 }

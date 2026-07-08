@@ -6,7 +6,7 @@ namespace OpenSettings.Domains.Sql.Entities
     /// <summary>
     /// Represents an app group entity.
     /// </summary>
-    public class AppGroupSqlModel : EntityBase<Guid>, IOrderedEntity
+    public class AppGroupSqlModel : EntityBase<Guid>, IOrderedEntity // Todo: All lowercase named will be renamed to NameNormalized
     {
         /// <summary>
         /// The name of the app group.

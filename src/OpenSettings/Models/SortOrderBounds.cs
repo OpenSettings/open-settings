@@ -1,6 +1,6 @@
 ﻿namespace OpenSettings.Models
 {
-    internal class SortOrderBounds
+    internal struct SortOrderBounds
     {
         public int Count { get; set; }
 

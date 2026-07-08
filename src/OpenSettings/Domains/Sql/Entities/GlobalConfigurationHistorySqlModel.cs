@@ -5,17 +5,15 @@ using System.IO.Compression;
 
 namespace OpenSettings.Domains.Sql.Entities
 {
+    /// <summary>
+    /// Represents a global configuration history entity.
+    /// </summary>
     public class GlobalConfigurationHistorySqlModel : EntityBase<Guid>
     {
         /// <summary>
         /// The key of the global configuration history.
         /// </summary>
         public string Key { get; set; }
-
-        /// <summary>
-        /// The lowercase version of the <see cref="Key"/>, typically used for case-insensitive comparisons.
-        /// </summary>
-        public string KeyLowercase { get; set; }
 
         /// <summary>
         /// The binary data associated with the global configuration history.

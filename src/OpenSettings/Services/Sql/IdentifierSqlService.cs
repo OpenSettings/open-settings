@@ -33,7 +33,7 @@ namespace OpenSettings.Services.Sql
         {
             var sortOrderBounds = await _sortOrderService.GetSortOrderBoundsAsync(_context.Identifiers, cancellationToken);
 
-            if (sortOrderBounds == null)
+            if (sortOrderBounds.Count == 0)
             {
                 return HttpStatusCode.OK.ToSuccessResponse(new GetPaginatedIdentifiersResponse(input, 0, null, 0, 0));
             }
@@ -722,9 +722,9 @@ namespace OpenSettings.Services.Sql
             }
         }
 
-        private static ModelForPaginatedResponseData MapToIdentifierModelForPaginatedResponseData(IdentifierSqlModel entity)
+        private static PaginatedResponseData MapToIdentifierModelForPaginatedResponseData(IdentifierSqlModel entity)
         {
-            return new ModelForPaginatedResponseData
+            return new PaginatedResponseData
             {
                 Id = $"{entity.Id}",
                 Name = entity.Name,
